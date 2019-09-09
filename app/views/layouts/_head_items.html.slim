@@ -1,0 +1,48 @@
+
+title = "Mind Maps" + (content_for?(:title) ? " | " + yield(:title) : "")
+
+meta http-equiv="x-ua-compatible" content="ie=edge"
+meta content="width=device-width, initial-scale=1.0" name="viewport" id="viewport"
+= csrf_meta_tags
+
+
+/* CSS */
+// Add conditional classes before loading css
+link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" /
+link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" /
+
+javascript:
+  // Check if is Internet Explorer (documentMode is an IE only property)
+  (function () { if (document.documentMode) { document.documentElement.className += " is-ie"; } }());
+  // Set the Rails environment
+  (function () { window.rails_environment = "#{Rails.env}" }());
+= stylesheet_link_tag 'application', media: 'all'
+
+
+/* 3rd Party Javascript */
+// Load minified Vue for production, and unminified for development
+- if Rails.env.development?
+  script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"
+- else
+  script src="https://cdn.jsdelivr.net/npm/vue"
+script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.2/vue-router.min.js"
+script src="https://cdnjs.cloudflare.com/ajax/libs/vuex/3.0.1/vuex.min.js"
+script src="https://cdn.jsdelivr.net/npm/moment"
+
+// TODO: Move to footer (not needed in header and no need to block loading)
+// TODO: Also handle this all asyncronously, and conditionally add mutation shim
+= stylesheet_link_tag 'https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css', media: 'all'
+script src="//cdn.jsdelivr.net/npm/mutationobserver-shim/dist/mutationobserver.min.js"
+script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"
+
+// For offine development
+- if Rails.env.development?
+  javascript:
+    if (!navigator.onLine) {
+      document.write("<script src='/vue.js'><\/script>");
+      document.write("<script src='/vue-router.js'><\/script>");
+      document.write("<script src='/vuex.js'><\/script>");
+    }
+
+/* Custom Javascript */
+= javascript_include_tag 'application'
