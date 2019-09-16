@@ -153,16 +153,3 @@ and this in the server section below the last location statement
 # restart nginx
 service nginx restart
 
-# Setup
-go to https://your-url/admin
-
-login with temp account admin@example.com with password admin@2018
-
-
-Change, configure and customize your instance.  callback uri for socialmedia setup below.
-
-https://YourliveSiteDomain/users/auth/linkedin/callback
-https://YourliveSiteDomain/users/auth/google_oauth2/callback
-https://YourliveSiteDomain/users/auth/facebook/callback
-https://YourliveSiteDomain/users/auth/twitter/callback
-https://YourliveSiteDomain/users/auth/office365/callback
