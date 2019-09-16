@@ -131,8 +131,8 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 config/enviromments/development
 config/enviromments/production
 
-  config.action_cable.url = [/ws:\/\/*/, /wss:\/\/*/]
-  config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
+        config.action_cable.url = [/ws:\/\/*/, /wss:\/\/*/]
+        config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
   
 # edit nginx.conf
 nano /etc/nginx/nginx.conf
@@ -143,12 +143,12 @@ add these
 
 and this in the server section below the last location statement
 
-location /cable {
-       proxy_pass http://myipadress;
-       proxy_http_version 1.1;
-       proxy_set_header Upgrade $http_upgrade;
-       proxy_set_header Connection "upgrade";
-       }
+        location /cable {
+                proxy_pass http://myipadress;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                }
 
 # restart nginx
 service nginx restart
