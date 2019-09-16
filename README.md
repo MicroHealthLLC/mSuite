@@ -128,8 +128,8 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 
 # update environment files for cable
 
-config/enviromments/development
-config/enviromments/production
+config/enviromments/development AND
+config/enviromments/production past this below
 
         config.action_cable.url = [/ws:\/\/*/, /wss:\/\/*/]
         config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
