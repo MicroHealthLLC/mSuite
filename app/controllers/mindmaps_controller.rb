@@ -3,7 +3,7 @@ class MindmapsController < ApplicationController
   def index; end
 
   def new
-    @mindmap = Mindmap.new(name: "Central Idea")
+    @mindmap = Mindmap.new(name: "Central Idea", unique_key: generate_random_key)
     respond_to do |format|
       format.json { render json: {mindmap: mindmap_as_json(@mindmap)}}
       format.html { render action: 'index' }
@@ -45,10 +45,18 @@ class MindmapsController < ApplicationController
     end
   end
 
+  def find_or_create
+    @mindmap = Mindmap.find_or_create_by(unique_key: params[:key], name: "Central Idea")
+    respond_to do |format|
+      format.json { render json: {success: true, mindmap: @mindmap}}
+      format.html { }
+    end
+  end
+
   private
 
   def set_mindmap
-    @mindmap = Mindmap.find_by_id(params[:id])
+    @mindmap = Mindmap.find_by(unique_key: params[:id])
   end
 
   def mindmap_as_json(mindmap)
@@ -57,7 +65,12 @@ class MindmapsController < ApplicationController
     ).as_json
   end
 
+  def generate_random_key
+    o = [('a'..'z'), ('A'..'Z')].map(&:to_a).flatten
+    string = (0...10).map { o[rand(o.length)] }.join
+  end
+
   def mindmap_params
-    params.require(:mindmap).permit(:name)
+    params.require(:mindmap).permit(:name, :unique_key)
   end
 end

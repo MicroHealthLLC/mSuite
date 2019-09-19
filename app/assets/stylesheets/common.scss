@@ -303,6 +303,18 @@ a:hover, .btn1:hover, .btn2:hover {
 /*End Overflow*/
 /*Icons */
 
+.material-icons.home_icon::before{
+  content:"home"; 
+}
+.edit_delete_btn:hover .home_icon::before{
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
 .material-icons.delete_icon::before{
   content:"delete"; 
 }

@@ -1,5 +1,5 @@
 class NodesController < ApplicationController
-  before_action :set_node, only: [:show, :edit, :update, :destroy]
+  before_action :set_node, only: [:show, :edit, :update, :destroy, :hide_children]
 
 
   def create
@@ -38,7 +38,29 @@ class NodesController < ApplicationController
     end
   end
 
+  def hide_children
+    @flag = params[:flag]
+    @node.update_column('hide_children', @flag)
+    hide_show_nested_children(Node.where(parent_node: @node.id))
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+    respond_to do |format|
+      format.json { render json: {success: true}}
+      format.html { }
+    end
+  end
+
   private
+
+  def hide_show_nested_children(nodes)
+    return if nodes.length == 0
+
+    nodes.each do |nod|
+      nod.update_column('hide_self', @flag)
+      unless nod.hide_children == true
+        hide_show_nested_children(Node.where(parent_node: nod.id))
+      end
+    end
+  end
 
   def duplicate_child_nodes(nodes, new_parent)
     return if nodes.length == 0
