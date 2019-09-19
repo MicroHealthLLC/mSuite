@@ -122,7 +122,7 @@ nano /var/www/mindmap/config/enviroments/production.rb past this below
         config.web_socket_server_url = 'ws://YOURIPADDRESS/cable'
         config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
 
-# edit nginx.conf if you are using reverse proxy
+# edit nginx.conf 
 
     upstream mindmap {
         server unix:/var/www/mindmap/tmp/rails.sock;
