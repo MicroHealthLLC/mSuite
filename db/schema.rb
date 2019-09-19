@@ -10,18 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_03_105947) do
+ActiveRecord::Schema.define(version: 2019_09_18_110809) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-  create_table "mindmaps", force: :cascade do |t|
+  create_table "mindmaps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "unique_key"
+    t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 
-  create_table "nodes", force: :cascade do |t|
+  create_table "nodes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "title"
     t.float "position_x"
     t.float "position_y"
@@ -30,6 +29,8 @@ ActiveRecord::Schema.define(version: 2019_09_03_105947) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "is_disabled", default: false
+    t.boolean "hide_children", default: false
+    t.boolean "hide_self", default: false
     t.index ["mindmap_id"], name: "index_nodes_on_mindmap_id"
   end
 

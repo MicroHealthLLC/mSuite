@@ -1,26 +1,20 @@
 <template>
   <div>
-    <section v-if="!loading" id="map-container" class="map-container" @mousemove.prevent="doDrag">
-      <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
-        <span @mousedown="startDrag" class="start_dot"></span>
-        <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea"/>
-      </div>
-      <input-field 
-        v-for="node in currentMindMap.nodes" 
-        v-if="!node.is_disabled"
-        v-model="node.title" 
-        :key="`${node.id}`" 
-        :style="getNodeStyle(node)" 
-        :is-selected="C_selectedNodeId === node.id"
-        @start-drag="startDrag($event, node)" 
-        @mousedown-event="startDragNode($event, node)" 
-        @node-updated="nodeUpdated(node)"
-        class="pos_abs input_field">
-        </input-field>
-      <canvas id="map-canvas" :width="windowWidth" :height="windowHeight"></canvas>
-    </section>
     <div class="buttons_area">
       <div class="buttons_container">
+        <span class="flex">
+          <span class="mr-2">
+            <h1 class="header_logo">Mind Map</h1>
+          </span>
+          <a 
+            href="javascript:;"
+            role="button" 
+            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            @click.stop="goHome" 
+          >
+            <i class="material-icons home_icon icons d-flex center_flex"></i>
+          </a> 
+        </span>
         <span>
           <a 
             href="javascript:;"
@@ -91,6 +85,29 @@
         </span>
       </div>
     </div>
+    <section v-if="!loading" id="map-container" class="map-container" @mousemove.prevent="doDrag">
+      <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
+        <span @mousedown="startDrag" class="start_dot"></span>
+        <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea"/>
+      </div>
+      <input-field 
+        v-for="node in currentMindMap.nodes" 
+        v-if="!node.is_disabled && !node.hide_self"
+        v-model="node.title" 
+        :key="`${node.id}`" 
+        :style="getNodeStyle(node)" 
+        :is-selected="C_selectedNodeId === node.id"
+        :quadrant="nodeQuadrant(node)"
+        :has-child="hasChilNodes(node)"
+        :hide-children="node.hide_children"
+        @start-drag="startDrag($event, node)" 
+        @mousedown-event="startDragNode($event, node)" 
+        @node-updated="nodeUpdated(node)"
+        @switch-expand-children="switchExpandChildren($event, node)"
+        class="pos_abs input_field">
+        </input-field>
+      <canvas id="map-canvas" :width="windowWidth" :height="windowHeight"></canvas>
+    </section>
     <sweet-modal ref="newMapModal" class="of_v">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-warning center_flex mlr_a">
@@ -135,8 +152,8 @@
       <p class="text-muted fs_18">Enter the map key you want to open here!</p>
       <div class="form-horizontal">   
         <div class="row form-group mt-2">
-          <label class="control-label col-4" for="mindmap_name">Mindmap key:</label>
-          <input type="text" placeholder="Enter map id" v-model="openMindMapKey" class="form-control col-6 ">
+          <label class="control-label col-4" for="mindmap_name">Mindmap Name:</label>
+          <input type="text" placeholder="Enter map key" v-model="openMindMapKey" class="form-control col-6 ">
         </div>
       </div>
       <div class="center_flex mt_2">
@@ -237,7 +254,7 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          this.getMindmap(this.currentMindMap.id);
+          this.getMindmap(this.currentMindMap.unique_key);
         },
       }
     },
@@ -396,9 +413,9 @@
 
       // =============== STYLING OPERATIONS =====================
       getNodeStyle(node) {
-        if (this.isLowerLeft(node)) {
+        if (this.nodeQuadrant(node) == "LL") {
           return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
-        } else if (this.isUpperLeft(node)) {
+        } else if (this.nodeQuadrant(node) == "UL") {
           return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
         } else {
           return {left: node.position_x +'px', top: (node.position_y - 20) + 'px'}
@@ -415,9 +432,9 @@
           var CI = this;
           this.currentMindMap.nodes.forEach((nod) => {
             let index = Math.floor((Math.random() * CI.colors.length));
-            if (nod.is_disabled) { return }
+            if (nod.is_disabled || nod.hide_self) { return }
             if (CI.selectedNode && (CI.selectedNode.id == nod.parent_node || CI.selectedNode.id == nod.id)) {
-              ctx.lineWidth = "8";
+              ctx.lineWidth = "5";
               ctx.strokeStyle = "blue";
             } else {
               ctx.lineWidth = "5";
@@ -434,9 +451,9 @@
               }
             }
             ctx.lineTo(nod.position_x + 5, nod.position_y + 20);
-            if (this.isLowerLeft(nod)) {
+            if (this.nodeQuadrant(nod) == "LL") {
               ctx.lineTo(nod.position_x - 100, nod.position_y + 20);
-            } else if (this.isUpperLeft(nod)) {
+            } else if (this.nodeQuadrant(nod) == "UL") {
               ctx.lineTo(nod.position_x - 100, nod.position_y + 20);
             } else {
               ctx.lineTo(nod.position_x + 100, nod.position_y + 20);
@@ -530,7 +547,7 @@
 
         if (this.cutFlag) {
           http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
-            this.getMindmap(this.currentMindMap.id);
+            this.getMindmap(this.currentMindMap.unique_key);
             this.cutFlag = false;
             this.copiedNode = null;
             this.selectedNode = res.data.node
@@ -540,7 +557,7 @@
         }
         else {
           http.post('/nodes.json', {node: this.copiedNode, duplicate_child_nodes: this.copiedNode.id}).then((res) => {
-            this.getMindmap(this.currentMindMap.id);
+            this.getMindmap(this.currentMindMap.unique_key);
             this.copiedNode = null;
             this.selectedNode = null;
           }).catch((error) => {
@@ -567,7 +584,7 @@
         this.drawNewLine(node);
         node['mindmap_id'] = this.currentMindMap.id;
         http.post('/nodes.json', {node: node}).then((res) => {
-          this.getMindmap(this.currentMindMap.id);
+          this.getMindmap(this.currentMindMap.unique_key);
           this.selectedNode = res.data.node;
         }).catch((error) => {
           console.log(error);
@@ -583,7 +600,7 @@
         http.delete(`/nodes/${this.selectedNode.id}.json`).then((res) => {
           if (res.data.success) {
             this.selectedNode = null;
-            this.getMindmap(this.currentMindMap.id);
+            this.getMindmap(this.currentMindMap.unique_key);
           } else {
             console.log("Unable to delete node");
           }
@@ -630,23 +647,9 @@
       // =============== Map CRUD OPERATIONS =====================
 
       // =============== OTHERS =====================
-      isLowerLeft(node) {
-        if (node.position_x < Math.floor(this.windowWidth/2) &&
-            node.position_y > Math.floor(this.windowHeight/2)) {
-          return true;
-        }
-        return false;
-      },
-      isUpperLeft(node) {
-        if (node.position_x < Math.floor(this.windowWidth/2) &&
-            node.position_y < Math.floor(this.windowHeight/2)) {
-          return true;
-        }
-        return false;
-      },
       updateQuery() {
         let query = {};
-        query['key'] = this.currentMindMap.id;
+        query['key'] = this.currentMindMap.unique_key;
         this.$router.push({query: query});
       },
       updateCentralIdea: _.debounce(
@@ -678,6 +681,38 @@
         }
 
         return new_location;
+      },
+      goHome() {
+        window.open("/","_self");
+      },
+      nodeQuadrant(node) {
+        let center_x = Math.floor(this.windowWidth/2);
+        let center_y = Math.floor(this.windowHeight/2);
+
+        if (node.position_x < center_x &&
+            node.position_y < center_y) {
+          return "UL"; // Uper Left
+        }
+        if (node.position_x < center_x &&
+            node.position_y > center_y) {
+          return "LL"; // Lower Left
+        }
+        if (node.position_x > center_x &&
+            node.position_y < center_y) {
+          return "UR"; // Upper right
+        }
+        if (node.position_x > center_x &&
+            node.position_y > center_y) {
+          return "LR"; // Lower right
+        }
+      },
+      switchExpandChildren(flag, node) {
+        http.get(`/nodes/hide_children.json?id=${node.id}&flag=${flag}`).then((red) => {
+
+        }).catch((error) => {
+          alert("There was an error while collapsing/expanding chil nodes.");
+          console.log(error);
+        })
       }
       // =============== OTHERS =====================
     },
@@ -740,8 +775,9 @@
   }
   .buttons_area {
     position: absolute;
-    top: 15px;
-    width: 100%;
+    width: 98%;
+    background: lightcyan;
+    padding: 1vh;
   }
   .center {
     position: absolute;
@@ -766,6 +802,10 @@
   }
   .buttons_container {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+  }
+  .header_logo {
+    font-family: fantasy;
+    text-decoration: underline;
   }
 </style>

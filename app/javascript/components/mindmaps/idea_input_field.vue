@@ -1,6 +1,21 @@
 <template>
-  <div @mousedown="startDragIdea" class="main">
-    <span @mousedown="startDrag" class="start_dot"></span>
+  <div @mousedown.stop="startDragIdea" class="main">
+    <span @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
+    <span 
+      v-if="hasChild"
+      class="collapse_child" 
+      :class="C_expandCollapseIconPositionClass">
+      <i 
+        v-if="hideChildren == false" 
+        class="material-icons"
+        @click.stop="switchExpandChildren"
+      >remove_circle</i>
+      <i 
+        v-else 
+        class="material-icons"
+        @click.stop="switchExpandChildren"
+      >add_circle</i>
+    </span>
     <input v-if="isSelected" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="new_idea_selected" :class="{'blue_border': isSelected}"/>
     <p v-else class="new_idea">{{tempLocalValue}}</p>
   </div>
@@ -10,11 +25,26 @@
   import _ from 'lodash';
 
   export default {
-    props: ['value', 'isSelected'],
+    props: ['value', 'isSelected', 'quadrant', 'hasChild', 'hideChildren'],
     data() {
       return {
         localValue: this.value,
-        tempLocalValue: this.value
+        tempLocalValue: this.value,
+        DV_collapse: this.hideChildren
+      }
+    },
+    computed: {
+      C_expandCollapseIconPositionClass() {
+        if (this.quadrant == "UL" || this.quadrant == "LL") {
+          return "left_position_icon";
+        }
+        return "right_position_icon";
+      },
+      C_startDotPositionClass() {
+        if (this.quadrant == "UL" || this.quadrant == "LL") {
+          return "start_dot_left";
+        }
+        return "start_dot_right";
       }
     },
     methods: {
@@ -30,6 +60,10 @@
       ),
       startDragIdea(event) {
         this.$emit('mousedown-event', event);
+      },
+      switchExpandChildren() {
+        this.DV_collapse = !this.DV_collapse;
+        this.$emit('switch-expand-children', this.DV_collapse);
       }
     },
     watch: {
@@ -47,18 +81,18 @@
 
 <style scoped lang="scss">
   .blue_border {
-    border: 8px solid blue !important;
+    border: 3px solid blue !important;
   }
   .new_idea_selected {
     text-align: center;
     padding: 5% 5%;
     border: none;
-    border: 8px solid;
+    border: 3px solid;
     border-radius: 15px;
     font-weight: 700;
     font-size: 80%;
     word-wrap: break-word;
-    max-width: 165px;
+    max-width: 130px;
   }
   .new_idea {
     cursor: pointer;
@@ -70,7 +104,8 @@
     resize: none;
     background: none;
     word-wrap: break-word;
-    max-width: 165px;
+    max-width: 130px;
+    width: 130px;
   }
   .new_idea:hover {
     border: 3px dotted;
@@ -87,10 +122,27 @@
     border-radius: 50%;
     display: none;
     position: absolute;
-    left: 80px;
-    top: 25px;
+    top: 33px;
+  }
+  .start_dot_left {
+    left: 10px;
+  }
+  .start_dot_right {
+    left: 110px;
   }
   .start_dot:hover {
     border: 10px solid cornflowerblue;
+  }
+  .collapse_child {
+    color: darkgray;
+    position: absolute;
+    top: 30px;
+  }
+  .left_position_icon {
+    left: 25px;
+  }
+  .right_position_icon {
+    top: 20%;
+    right: 0px;
   }
 </style>
