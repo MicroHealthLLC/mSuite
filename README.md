@@ -20,11 +20,11 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 log out then log back in
 
-rvm install ruby-2.5.3
+rvm install ruby-2.6.1
 
-rvm install ruby-devel-2.5.3
+rvm install ruby-devel-2.6.1
 
-bash -l -c "rvm use 2.5.3 --default"
+bash -l -c "rvm use 2.6.1 --default"
 
 # Install Mysql
 yum install mariadb-server mariadb
@@ -135,27 +135,58 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 
 # update environment files for cable
 
-config/enviromments/development AND
-config/enviromments/production past this below
+nano /var/www/mindmap/config/enviroments/development.rb AND
+nano /var/www/mindmap/config/enviroments/production.rb past this below
 
-        config.action_cable.url = [/ws:\/\/*/, /wss:\/\/*/]
+        config.web_socket_server_url = 'ws://YOURIPADDRESS/cable'
         config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
-  
+
+
+# Edit puma.rb
+
+nano /var/www/mindmap/config/puma.rb
+               
+        threads_count = ENV.fetch("RAILS_MAX_THREADS") { 15 }.to_i
+        threads threads_count, threads_count
+        bind "unix:/var/www/mindmap/tmp/rails.sock"
+        environment ENV.fetch("RAILS_ENV") { "production" }
+        workers ENV.fetch("WEB_CONCURRENCY") { 6 }
+        daemonize true
+        pidfile '/var/www/mindmap/tmp/pids/puma.pid'
+
 # edit nginx.conf
-nano /etc/nginx/nginx.conf
-add these
 
-        passenger_enabled on;
-        rails_env development;
+    upstream mindmap {
+        server unix:/var/www/mindmap/tmp/rails.sock;
+        }
 
-and this in the server section below the last location statement
+    server {
+        listen       80 default_server;
+        server_name  localhost;
+        root         /var/www/mindmap/public;
+        
+      location / {
+       try_files /maint.html $uri @ruby;
+        }
+
+        location @ruby {
+        proxy_pass http://mindmap;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
 
         location /cable {
-                proxy_pass http://myipadress;
+                proxy_pass http://mindmap;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection "upgrade";
                 }
+
+# Start Puma
+
+cd /var/www/mindmap then
+bundle exec puma -C config/puma.rb -e production
 
 # restart nginx
 service nginx restart
