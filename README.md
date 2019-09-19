@@ -46,6 +46,13 @@ exit
 # be sure git is installed
 yum install git
 
+# Install Redis
+yum install redis
+
+systemctl start redis
+
+systemctl enable redis
+
 # go to /var/www and from there 
 cd /var/www/
 
