@@ -114,25 +114,6 @@ yum install -y nginx
 
 sudo systemctl enable nginx
 
-# install passenger phusion
-
-yum install -y pygpgme curl
-
-curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
-
-yum install -y nginx passenger || sudo yum-config-manager --enable cr && sudo yum install -y nginx passenger
-
-# then go edit passenger.conf
-nano /etc/nginx/conf.d/passenger.conf
-
-# -where it says passenger_ruby change what you see there to what you see below.  If that doesn't work then do this "which passenger-config" to get the path to put next to passenger_ruby
-
-passenger_ruby /usr/local/rvm/gems/ruby-2.5.3/wrappers/ruby;
-
---uncomment the line above and the line below along with the passenger_ruby line e.g. remove this"#"
-
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-
 # update environment files for cable
 
 nano /var/www/mindmap/config/enviroments/development.rb AND
@@ -154,7 +135,7 @@ nano /var/www/mindmap/config/puma.rb
         daemonize true
         pidfile '/var/www/mindmap/tmp/pids/puma.pid'
 
-# edit nginx.conf
+# edit nginx.conf if you are using reverse proxy
 
     upstream mindmap {
         server unix:/var/www/mindmap/tmp/rails.sock;
