@@ -122,19 +122,6 @@ nano /var/www/mindmap/config/enviroments/production.rb past this below
         config.web_socket_server_url = 'ws://YOURIPADDRESS/cable'
         config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
 
-
-# Edit puma.rb
-
-nano /var/www/mindmap/config/puma.rb
-               
-        threads_count = ENV.fetch("RAILS_MAX_THREADS") { 15 }.to_i
-        threads threads_count, threads_count
-        bind "unix:/var/www/mindmap/tmp/rails.sock"
-        environment ENV.fetch("RAILS_ENV") { "production" }
-        workers ENV.fetch("WEB_CONCURRENCY") { 6 }
-        daemonize true
-        pidfile '/var/www/mindmap/tmp/pids/puma.pid'
-
 # edit nginx.conf if you are using reverse proxy
 
     upstream mindmap {
