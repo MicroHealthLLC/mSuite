@@ -1,6 +1,6 @@
 <template>
   <div class="main_div">
-    <h1 class="main_heading">Mind Map</h1>
+    <h1 class="main_heading"></h1>
     <div class="box_shadow box main_box">
       <div class="row w_10">
         <div class="offset-3 col-6 new_button_container">
@@ -65,7 +65,7 @@
 }
 .main_heading {
   font-family: fantasy;
-  margin: 10vh;
+  margin: 12vh;
   text-decoration: underline;
 }
 .main_box {
