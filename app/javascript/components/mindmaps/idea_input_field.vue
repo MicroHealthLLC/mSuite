@@ -16,8 +16,8 @@
         @click.stop="switchExpandChildren"
       >add_circle</i>
     </span>
-    <input v-if="isSelected" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="new_idea_selected" :class="{'blue_border': isSelected}"/>
-    <p v-else class="new_idea">{{tempLocalValue}}</p>
+    <textarea v-if="isSelected" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="new_idea_selected pt-2" :class="{'blue_border': isSelected}" :style="newIdeaStyle"/>
+    <p v-else class="new_idea py-2">{{tempLocalValue}}</p>
   </div>
 </template>
 
@@ -30,7 +30,9 @@
       return {
         localValue: this.value,
         tempLocalValue: this.value,
-        DV_collapse: this.hideChildren
+        DV_collapse: this.hideChildren,
+        newIdeaWidth: '10em',
+        newIdeaHeight: '3em'
       }
     },
     computed: {
@@ -45,6 +47,12 @@
           return "start_dot_left";
         }
         return "start_dot_right";
+      },
+      newIdeaStyle() {
+        return {
+          width: this.newIdeaWidth,
+          height: this.newIdeaHeight
+        }
       }
     },
     methods: {
@@ -73,6 +81,16 @@
       localValue() {
         this.$emit("input", this.localValue)
         this.$emit("node-updated");
+      },
+      tempLocalValue(value) {
+        let dheight = Math.ceil(value.length / 15)
+        dheight = dheight > 1 ? dheight*2 : 3
+        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+      },
+      isSelected() {
+        let dheight = Math.ceil(this.value.length / 15)
+        dheight = dheight > 1 ? dheight*2 : 3
+        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
       }
     }
   }
@@ -85,27 +103,25 @@
   }
   .new_idea_selected {
     text-align: center;
-    padding: 5% 5%;
     border: none;
-    border: 3px solid;
+    border: 2px solid;
     border-radius: 15px;
     font-weight: 700;
     font-size: 80%;
     word-wrap: break-word;
-    max-width: 130px;
   }
   .new_idea {
     cursor: pointer;
     text-align: center;
-    padding: 5% 5%;
     font-weight: normal;
     border: none;
-    text-decoration: underline;
     resize: none;
     background: none;
     word-wrap: break-word;
-    max-width: 130px;
-    width: 130px;
+    width: 10em;
+    font-size: 80%;
+    line-height: 1;
+    margin-top: 0.5em;
   }
   .new_idea:hover {
     border: 3px dotted;
@@ -142,7 +158,6 @@
     left: 25px;
   }
   .right_position_icon {
-    top: 20%;
-    right: 0px;
+    left: 85px;
   }
 </style>

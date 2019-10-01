@@ -286,6 +286,7 @@ a:hover, .btn1:hover, .btn2:hover {
 .ml_3{margin-left: 30px}
 .ml_4{margin-left: 40px}
 .ml_5{margin-left: 50px}
+.ml_10{margin-left: 10em}
 
 
 .mr_a{margin-right: auto}
@@ -362,7 +363,19 @@ a:hover, .btn1:hover, .btn2:hover {
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
-
+.material-icons.export_icon::before{
+  content:"image"; 
+}
+.edit_delete_btn:hover .export_icon::before{
+  content:"Export";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
 .material-icons.new_icon::before{
   content:"add"; 
 }
@@ -377,7 +390,7 @@ a:hover, .btn1:hover, .btn2:hover {
   -webkit-font-smoothing: auto;
 }
 .material-icons.restore_icon::before{
-  content:"refresh"; 
+  content:"restore_page"; 
 }
 .edit_delete_btn:hover .restore_icon::before{
   content:"Restore";
@@ -597,7 +610,7 @@ a.back-to-link{
 }
 a.edit_delete_btn {
   background-color: #e9ecef;
-  border-radius: 50%;
+  border-radius: 25%;
   display: inline-block;
   float: right;
   font-size: 1.25rem;
@@ -615,12 +628,15 @@ a.edit_delete_btn {
   color: white;
   text-decoration: none;
 }
-.btn_1[disabled], .btn_2[disabled] {
+.btn_1[disabled], .btn_2[disabled], .zoom_btn[disabled] {
   background-color: #adb5bd;
   border-color: #adb5bd;
   color: #000;
   cursor: not-allowed !important;
   opacity: 0.5;
+}
+.zoom_btn {
+  cursor: pointer;
 }
 /*Button*/
 .row {

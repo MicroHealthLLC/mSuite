@@ -1,21 +1,18 @@
 <template>
-  <div>
+  <div class="map-container">
     <div class="buttons_area">
       <div class="buttons_container">
         <span class="flex">
-          <span class="mr-2">
-            <h1 class="header_logo">Mind Map</h1>
-          </span>
           <a 
             href="javascript:;"
             role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            class="d-flex text-info edit_delete_btn delete ml-2 mr-3 center_flex"
             @click.stop="goHome" 
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
           </a> 
         </span>
-        <span>
+        <span class="ml_10">
           <a 
             href="javascript:;"
             role="button" 
@@ -82,13 +79,42 @@
           >
             <i class="material-icons new_icon icons d-flex center_flex"></i>
           </a> 
+          <a 
+            ref="exportBtn"
+            role="button" 
+            class="d-flex text-info pointer edit_delete_btn delete mr-3 center_flex"
+            @click.stop="exportToImage" 
+            download="image.png" 
+          >
+            <i class="material-icons export_icon icons d-flex center_flex"></i>
+          </a>
         </span>
       </div>
     </div>
-    <section v-if="!loading" id="map-container" class="map-container" @mousemove.prevent="doDrag">
+    <div class="scaling_area">
+      <span class="flex">
+        <a 
+          href="javascript:;"
+          role="button" 
+          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
+          @click.stop="zoomInScale" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_in</i>
+        </a> 
+        <a 
+          href="javascript:;"
+          role="button" 
+          class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
+          @click.stop="zoomOutScale" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_out</i>
+        </a> 
+      </span>
+    </div>
+    <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
       <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
         <span @mousedown="startDrag" class="start_dot"></span>
-        <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea"/>
+        <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
       </div>
       <input-field 
         v-for="node in currentMindMap.nodes" 
@@ -208,8 +234,9 @@
 <script>
   import InputField from './idea_input_field'
   import http from '../../common/http'
-  import {SweetModal }from 'sweet-modal-vue';
-  import _ from 'lodash';
+  import {SweetModal }from 'sweet-modal-vue'
+  import _ from 'lodash'
+  import html2canvas from 'html2canvas'
 
   export default {
     components: {InputField, SweetModal},
@@ -217,6 +244,7 @@
       return {
         selectedNode: null,
         nodeParent: null,
+        nodeColor: null,
         centralIdea: '',
         currentMindMap: {},
         loading: true,
@@ -235,20 +263,9 @@
         nodeUpdatedFlag: false,
         copiedNode: null,
         cutFlag: false,
-        colors: [
-          "#f9e79f",
-          "#abebc6",
-          "#a3e4d7",
-          "#f5b7b1",
-          "#d2b4de",
-          "#aed6f1",
-          "#7fb3d5",
-          "#cacfd2",
-          "#f4d03f",
-          "#48c9b0",
-          "#5dade2",
-          "#5499c7"
-        ]
+        scaleFactor: 1,
+        centralIdeaWidth: '10em',
+        centralIdeaHeight: '3em'
       }
     },
     channels: {
@@ -261,12 +278,23 @@
     computed: {
       C_centeralNodePosition() {
         return {
-          left: (Math.floor(this.windowWidth/2) - 150) +'px', 
-          top: (Math.floor(this.windowHeight/2) - 50) +'px'
+          left: (Math.floor(this.windowWidth/2) - 120) +'px', 
+          top: (Math.floor(this.windowHeight/2) - 40) +'px'
         }
       },
       C_selectedNodeId() {
         return this.selectedNode ? this.selectedNode.id : 0;
+      },
+      C_scaleFactor() {
+        return {
+          transform: "scale(" + this.scaleFactor + ")"
+        }
+      },
+      centralIdeaStyle() {
+        return {
+          width: this.centralIdeaWidth,
+          height: this.centralIdeaHeight
+        }
       }
     },
     methods: {
@@ -319,6 +347,10 @@
       startDrag(event, p_node=null) {
         if (p_node) {
           this.nodeParent = p_node;
+          this.nodeColor = p_node.line_color;
+        } 
+        else {
+          this.nodeColor = this.getRandomColor();
         }
         this.dragging = true;
         this.parent_x = event.clientX;
@@ -355,7 +387,7 @@
 
           ctx.lineWidth = "8";
           ctx.lineCap = "round";
-          ctx.strokeStyle = "red";
+          ctx.strokeStyle = this.nodeColor;
           ctx.moveTo(this.parent_x, this.parent_y);
           ctx.lineTo(this.currentPositionX, this.currentPositionY);
           ctx.stroke();
@@ -392,6 +424,7 @@
             title: "New Idea",
             position_x: this.currentPositionX,
             position_y: this.currentPositionY,
+            line_color: this.nodeColor,
             parent_node: this.nodeParent ? this.nodeParent.id : 0
           }
           this.selectedNode = null;
@@ -413,10 +446,20 @@
 
       // =============== STYLING OPERATIONS =====================
       getNodeStyle(node) {
+        let p_node = this.currentMindMap.nodes.filter((n) => n.id == node.parent_node)[0];
+
         if (this.nodeQuadrant(node) == "LL") {
-          return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
+          if (p_node && p_node.position_x < node.position_x) {
+            return {left: (node.position_x) + 'px', top: (node.position_y - 20) + 'px'}
+          } else {
+            return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
+          }
         } else if (this.nodeQuadrant(node) == "UL") {
-          return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
+          if (p_node && p_node.position_x < node.position_x) {
+            return {left: (node.position_x) + 'px', top: (node.position_y - 20) + 'px'}
+          } else {
+            return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
+          }
         } else {
           return {left: node.position_x +'px', top: (node.position_y - 20) + 'px'}
         }
@@ -431,30 +474,50 @@
           
           var CI = this;
           this.currentMindMap.nodes.forEach((nod) => {
-            let index = Math.floor((Math.random() * CI.colors.length));
             if (nod.is_disabled || nod.hide_self) { return }
-            if (CI.selectedNode && (CI.selectedNode.id == nod.parent_node || CI.selectedNode.id == nod.id)) {
-              ctx.lineWidth = "5";
-              ctx.strokeStyle = "blue";
-            } else {
-              ctx.lineWidth = "5";
-              ctx.strokeStyle = CI.colors[index];
+            if(nod.line_color) {
+              ctx.strokeStyle = nod.line_color;
             }
+            else {
+              ctx.strokeStyle = CI.nodeColor;
+            }
+            ctx.lineWidth = "5";
             ctx.lineCap = "round";
             ctx.beginPath();
             if (nod.parent_node == 0) {
               ctx.moveTo(Math.floor(CI.windowWidth/2) - 50, Math.floor(CI.windowHeight/2) - 15);
             } else {
-              let p_nodes = CI.currentMindMap.nodes.filter((n) => n.id == nod.parent_node);
-              if (p_nodes[0]) {
-                ctx.moveTo(p_nodes[0].position_x + 5, p_nodes[0].position_y + 20);
+              var p_node = CI.currentMindMap.nodes.filter((n) => n.id == nod.parent_node)[0];
+              if (p_node) {
+                if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL") {
+                  if (p_node.position_x > nod.position_x) {
+                    ctx.moveTo(p_node.position_x - 95, p_node.position_y + 20);
+                  } else {
+                    ctx.moveTo(p_node.position_x + 5, p_node.position_y + 20);
+                  }
+                } else {
+                  if (p_node.position_x < nod.position_x) {
+                    ctx.moveTo(p_node.position_x + 100, p_node.position_y + 20);
+                  } else {
+                    ctx.moveTo(p_node.position_x + 5, p_node.position_y + 20);
+                  }
+                }
               }
             }
             ctx.lineTo(nod.position_x + 5, nod.position_y + 20);
+            
             if (this.nodeQuadrant(nod) == "LL") {
-              ctx.lineTo(nod.position_x - 100, nod.position_y + 20);
+              if (p_node && p_node.position_x < nod.position_x) {
+                ctx.lineTo(nod.position_x + 100, nod.position_y + 20);
+              } else {
+                ctx.lineTo(nod.position_x - 100, nod.position_y + 20);
+              }
             } else if (this.nodeQuadrant(nod) == "UL") {
-              ctx.lineTo(nod.position_x - 100, nod.position_y + 20);
+              if (p_node && p_node.position_x < nod.position_x) {
+                ctx.lineTo(nod.position_x + 100, nod.position_y + 20);
+              } else {
+                ctx.lineTo(nod.position_x - 100, nod.position_y + 20);
+              }
             } else {
               ctx.lineTo(nod.position_x + 100, nod.position_y + 20);
             }
@@ -616,7 +679,7 @@
       // =============== Map CRUD OPERATIONS =====================
       saveCurrentMap() {
         if (this.currentMindMap.id) {
-          http.put(`/mindmaps/${this.currentMindMap.id}.json`, {mindmap: this.currentMindMap}).then((res) => {
+          http.put(`/mindmaps/${this.currentMindMap.unique_key}.json`, {mindmap: this.currentMindMap}).then((res) => {
             this.stopWatch = true;
             this.currentMindMap = res.data.mindmap;
             this.selectedNode = null;
@@ -710,11 +773,53 @@
         http.get(`/nodes/hide_children.json?id=${node.id}&flag=${flag}`).then((red) => {
 
         }).catch((error) => {
-          alert("There was an error while collapsing/expanding chil nodes.");
+          alert("There was an error while collapsing/expanding child nodes.");
           console.log(error);
         })
-      }
+      },
       // =============== OTHERS =====================
+      getRandomColor() {
+        let letters = '0123456789ABCDEF'
+        let color = '#'
+        for (let i=0; i<6; i++) {
+          color += letters[Math.floor(Math.random() * 16)]
+        }
+        return color
+      },
+      // =============== SCALING ====================
+      transformScale(event) {
+        if (event.deltaY < 0) {
+          if (this.scaleFactor < 2) {
+            this.scaleFactor = this.scaleFactor + 0.1
+          } 
+        }
+        else if (event.deltaY > 0) {
+          if (this.scaleFactor > 0.4) {
+            this.scaleFactor = this.scaleFactor - 0.1
+          }
+        }
+      },
+      exportToImage(event) {
+        let expBtn = this.$refs.exportBtn
+        let elm = document.getElementById("map-container")
+        elm.style.transform = "scale(1)"
+        html2canvas(elm).then((canvas) => {
+          expBtn.download = this.currentMindMap.unique_key + ".png"
+          expBtn.href = canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, 'data:application/octet-stream')
+        })
+        elm.style.transform = "scale(" + this.scaleFactor +")"
+        expBtn.blur()
+      }, 
+      zoomInScale() {
+        if (this.scaleFactor < 2) {
+          this.scaleFactor = this.scaleFactor + 0.1
+        }
+      },
+      zoomOutScale() {
+        if (this.scaleFactor > 0.4) {
+          this.scaleFactor = this.scaleFactor - 0.1
+        }
+      }
     },
     mounted() {
       if (this.$route.query.key) {
@@ -723,6 +828,7 @@
         this.getNewMindmap();
       }
       window.addEventListener('mouseup', this.stopDrag);
+      window.addEventListener('wheel', this.transformScale);
     },
     watch: {
       "currentMindMap.id"() {
@@ -740,20 +846,26 @@
           this.saveCurrentMap();
         },
         deep: true
+      },
+      centralIdea(value) {
+        let dheight = Math.ceil(value.length / 15)
+        dheight = dheight > 1 ? dheight*2 : 3
+        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
       }
     }
   }
 </script>
 
 <style scoped lang="scss">
+  #map-container {
+    transform: scale(0.6);
+  }
   .central_idea {
     text-align: center;
-    padding: 5% 7%;
     border: none;
-    border: 8px solid red;
-    border-radius: 15px;
-    font-weight: 900;
-    font-size: 100%;
+    border: 5px solid red;
+    border-radius: 20px;
+    font-weight: 800;
   }
   .pos_abs {
     position: absolute !important;
@@ -774,10 +886,13 @@
     cursor: not-allowed !important;
   }
   .buttons_area {
-    position: absolute;
+    position: fixed;
+    overflow: hidden;
+    top: 0;
     width: 98%;
     background: lightcyan;
     padding: 1vh;
+    z-index: 100;
   }
   .center {
     position: absolute;
@@ -787,15 +902,15 @@
     z-index: 100;
   }
   .start_dot {
-    cursor: grab;
+    cursor: -webkit-grab;
     height: 15px;
     width: 15px;
     background-color: #f00;
     border-radius: 50%;
     display: inline-block;
     position: absolute;
-    left: 120px;
-    top: 15px;
+    left: 4.55em;
+    top: 0.7em;
   }
   .start_dot:hover {
     border: 10px solid cornflowerblue;
@@ -807,5 +922,11 @@
   .header_logo {
     font-family: fantasy;
     text-decoration: underline;
+  }
+  .scaling_area {
+    position: fixed;
+    top: 4.4em;
+    right: 2em;
+    z-index: 100;
   }
 </style>

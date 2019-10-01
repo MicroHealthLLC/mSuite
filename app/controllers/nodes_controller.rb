@@ -100,6 +100,14 @@ class NodesController < ApplicationController
   end
 
   def node_params
-    params.require(:node).permit(:title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled)
+    params.require(:node).permit(
+      :title, 
+      :position_x, 
+      :position_y, 
+      :parent_node, 
+      :mindmap_id, 
+      :is_disabled, 
+      :line_color
+    )
   end
 end
