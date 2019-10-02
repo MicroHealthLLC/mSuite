@@ -1,0 +1,42 @@
+{
+  "canvas_operations.js": "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js",
+  "canvas_operations.js.map": "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js.map",
+  "entrypoints": {
+    "canvas_operations": {
+      "js": [
+        "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js"
+      ],
+      "js.map": [
+        "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js.map"
+      ]
+    },
+    "home_page": {
+      "css": [
+        "/packs/css/home_page-1ebc5eb1.css"
+      ],
+      "js": [
+        "/packs/js/home_page-f1db4a2e571703d453d9.js"
+      ],
+      "js.map": [
+        "/packs/js/home_page-f1db4a2e571703d453d9.js.map"
+      ]
+    },
+    "mapDashboard": {
+      "css": [
+        "/packs/css/mapDashboard-791129dc.css"
+      ],
+      "js": [
+        "/packs/js/mapDashboard-be94ce42888dd837e4c8.js"
+      ],
+      "js.map": [
+        "/packs/js/mapDashboard-be94ce42888dd837e4c8.js.map"
+      ]
+    }
+  },
+  "home_page.css": "/packs/css/home_page-1ebc5eb1.css",
+  "home_page.js": "/packs/js/home_page-f1db4a2e571703d453d9.js",
+  "home_page.js.map": "/packs/js/home_page-f1db4a2e571703d453d9.js.map",
+  "mapDashboard.css": "/packs/css/mapDashboard-791129dc.css",
+  "mapDashboard.js": "/packs/js/mapDashboard-be94ce42888dd837e4c8.js",
+  "mapDashboard.js.map": "/packs/js/mapDashboard-be94ce42888dd837e4c8.js.map"
+}
