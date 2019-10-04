@@ -111,29 +111,69 @@
         </a> 
       </span>
     </div>
-    <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
-      <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
-        <span @mousedown="startDrag" class="start_dot"></span>
-        <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
+    <!-- <div class="rich_text_area">
+      <div class="textarea-heading">Inspector</div>
+      <div class="font-size flex">
+        <span> Font size: </span>
+        <a 
+          role="button" 
+          class="d-flex font-size-btn center_flex"
+          @click.stop="" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_in</i>
+        </a>
+        <a 
+          role="button" 
+          class="d-flex font-size-btn center_flex"
+          @click.stop="" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_in</i>
+        </a>
       </div>
-      <input-field 
-        v-for="node in currentMindMap.nodes" 
-        v-if="!node.is_disabled && !node.hide_self"
-        v-model="node.title" 
-        :key="`${node.id}`" 
-        :style="getNodeStyle(node)" 
-        :is-selected="C_selectedNodeId === node.id"
-        :quadrant="nodeQuadrant(node)"
-        :has-child="hasChilNodes(node)"
-        :hide-children="node.hide_children"
-        @start-drag="startDrag($event, node)" 
-        @mousedown-event="startDragNode($event, node)" 
-        @node-updated="nodeUpdated(node)"
-        @switch-expand-children="switchExpandChildren($event, node)"
-        class="pos_abs input_field">
-        </input-field>
-      <canvas id="map-canvas" :width="windowWidth" :height="windowHeight"></canvas>
-    </section>
+      <div class="font-style flex">
+        <span> Font style: </span>
+        <a 
+          role="button" 
+          class="d-flex font-size-btn center_flex"
+          @click.stop="" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_in</i>
+        </a>
+        <a 
+          role="button" 
+          class="d-flex font-size-btn center_flex"
+          @click.stop="" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_in</i>
+        </a>
+      </div>
+      <div class="font-color"></div>
+    </div> -->
+    <div ref="slideSection" id="slideSection" @mousedown.prevent="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
+      <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
+        <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
+          <span @mousedown="startDrag" class="start_dot"></span>
+          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
+        </div>
+        <input-field 
+          v-for="node in currentMindMap.nodes" 
+          v-if="!node.is_disabled && !node.hide_self"
+          v-model="node.title" 
+          :key="`${node.id}`" 
+          :style="getNodeStyle(node)" 
+          :is-selected="C_selectedNodeId === node.id"
+          :quadrant="nodeQuadrant(node)"
+          :has-child="hasChilNodes(node)"
+          :hide-children="node.hide_children"
+          @start-drag="startDrag($event, node)" 
+          @mousedown-event="startDragNode($event, node)" 
+          @node-updated="nodeUpdated(node)"
+          @switch-expand-children="switchExpandChildren($event, node)"
+          class="pos_abs input_field">
+          </input-field>
+        <canvas id="map-canvas" :width="windowWidth" :height="windowHeight"></canvas>
+      </section>
+    </div>
     <sweet-modal ref="newMapModal" class="of_v">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-warning center_flex mlr_a">
@@ -265,7 +305,10 @@
         cutFlag: false,
         scaleFactor: 1,
         centralIdeaWidth: '10em',
-        centralIdeaHeight: '3em'
+        centralIdeaHeight: '3em',
+        isSlideDown: false,
+        slideStartX: 0,
+        slideScrollLeft: 0
       }
     },
     channels: {
@@ -353,8 +396,18 @@
           this.nodeColor = this.getRandomColor();
         }
         this.dragging = true;
-        this.parent_x = event.clientX;
-        this.parent_y = event.clientY;
+        if(p_node) {
+          if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
+            this.parent_x = p_node.position_x - 100;
+            this.parent_y = p_node.position_y + 25;
+          } else {
+            this.parent_x = p_node.position_x + 100;
+            this.parent_y = p_node.position_y + 25;
+          }
+        } else {
+          this.parent_x = event.clientX;
+          this.parent_y = event.clientY;
+        }
         let canvas_id = this.parent_x + "";
         if (!document.getElementById(canvas_id)) {
           var c = document.createElement('CANVAS');
@@ -789,15 +842,16 @@
       // =============== SCALING ====================
       transformScale(event) {
         if (event.deltaY < 0) {
-          if (this.scaleFactor < 2) {
-            this.scaleFactor = this.scaleFactor + 0.1
+          if (this.scaleFactor < 1.30) {
+            this.scaleFactor = this.scaleFactor + 0.03
           } 
         }
         else if (event.deltaY > 0) {
-          if (this.scaleFactor > 0.4) {
-            this.scaleFactor = this.scaleFactor - 0.1
+          if (this.scaleFactor > 0.85) {
+            this.scaleFactor = this.scaleFactor - 0.03
           }
         }
+        this.drawLines();
       },
       exportToImage(event) {
         let expBtn = this.$refs.exportBtn
@@ -811,14 +865,31 @@
         expBtn.blur()
       }, 
       zoomInScale() {
-        if (this.scaleFactor < 2) {
-          this.scaleFactor = this.scaleFactor + 0.1
+        if (this.scaleFactor < 1.3) {
+          this.scaleFactor = this.scaleFactor + 0.03
         }
       },
       zoomOutScale() {
-        if (this.scaleFactor > 0.4) {
-          this.scaleFactor = this.scaleFactor - 0.1
+        if (this.scaleFactor > 0.85) {
+          this.scaleFactor = this.scaleFactor - 0.03
         }
+      },
+
+      //========== Slide ============
+      slideInit(e) {
+        let slider = this.$refs.slideSection
+        this.isSlideDown = true;
+        this.slideStartX = e.pageX - slider.offsetLeft;
+        this.slideScrollLeft = slider.scrollLeft;
+        console.log(slider.scrollLeft)
+      },
+      slideTheCanvas(e) {
+        let slider = this.$refs.slideSection
+        if (!this.isSlideDown) return;
+        let x = e.pageX - slider.offsetLeft;
+        let walk = x - this.slideStartX;
+        console.log("walk", walk)
+        slider.scrollLeft = this.slideScrollLeft - walk;
       }
     },
     mounted() {
@@ -851,6 +922,12 @@
         let dheight = Math.ceil(value.length / 15)
         dheight = dheight > 1 ? dheight*2 : 3
         this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+      },
+      scaleFactor(value) {
+        this.windowWidth = window.innerWidth * value
+        let dheight = window.innerHeight * value
+        this.windowHeight = dheight < window.innerHeight ? window.innerHeight : dheight
+        setTimeout(this.drawLines, 5);
       }
     }
   }
@@ -928,5 +1005,15 @@
     top: 4.4em;
     right: 2em;
     z-index: 100;
+  }
+  .rich_text_area {
+    position: fixed;
+    top: 4.4em;
+    left: 2em;
+    z-index: 100;
+  }
+  #slideSection {
+    white-space: nowrap;
+    overflow:scroll;
   }
 </style>
