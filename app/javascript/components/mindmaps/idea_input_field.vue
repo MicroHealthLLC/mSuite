@@ -32,7 +32,9 @@
         tempLocalValue: this.value,
         DV_collapse: this.hideChildren,
         newIdeaWidth: '10em',
-        newIdeaHeight: '3em'
+        newIdeaHeight: '3em',
+        newIdeaLeft: this.position_x,
+        newIdeaTop: this.position_y
       }
     },
     computed: {
@@ -51,7 +53,9 @@
       newIdeaStyle() {
         return {
           width: this.newIdeaWidth,
-          height: this.newIdeaHeight
+          height: this.newIdeaHeight,
+          left: this.newIdeaLeft,
+          top: this.newIdeaTop,
         }
       }
     },
