@@ -150,9 +150,9 @@
       <div class="font-color"></div>
     </div> -->
     <div ref="slideSection" id="slideSection" @mousedown.prevent="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
-      <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
+      <section v-if="!loading" id="map-container"  @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
-          <span @mousedown="startDrag" class="start_dot"></span>
+          <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
           <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
         </div>
         <input-field 
@@ -278,6 +278,7 @@
   import _ from 'lodash'
   import html2canvas from 'html2canvas'
 
+  var multiple = 10;
   export default {
     components: {InputField, SweetModal},
     data() {
@@ -296,8 +297,8 @@
         nodeOffsetY: 0,
         parent_x: 0,
         parent_y: 0,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
+        windowWidth: window.innerWidth * multiple ,
+        windowHeight: window.innerHeight ,
         stopWatch: false,
         openMindMapKey: '',
         nodeUpdatedFlag: false,
@@ -308,7 +309,9 @@
         centralIdeaHeight: '3em',
         isSlideDown: false,
         slideStartX: 0,
-        slideScrollLeft: 0
+        slideStartY: 0,
+        slideScrollLeft: 0,
+        slideScrollTop: 0
       }
     },
     channels: {
@@ -388,6 +391,7 @@
 
       // =============== DRAGGING OPERATIONS =====================
       startDrag(event, p_node=null) {
+        this.isSlideDown = false;
         if (p_node) {
           this.nodeParent = p_node;
           this.nodeColor = p_node.line_color;
@@ -396,6 +400,7 @@
           this.nodeColor = this.getRandomColor();
         }
         this.dragging = true;
+
         if(p_node) {
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
             this.parent_x = p_node.position_x - 100;
@@ -405,8 +410,8 @@
             this.parent_y = p_node.position_y + 25;
           }
         } else {
-          this.parent_x = event.clientX;
-          this.parent_y = event.clientY;
+          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft  - 15;
+          this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 15;
         }
         let canvas_id = this.parent_x + "";
         if (!document.getElementById(canvas_id)) {
@@ -430,9 +435,8 @@
       },
       doDrag(event) {
         if (this.dragging) {
-          this.currentPositionX = event.clientX ;
-          this.currentPositionY = event.clientY ;
-
+          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft ;
+          this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop ;
           var c = document.getElementById(this.parent_x + "")
           var ctx = c.getContext("2d");
           ctx.clearRect(0, 0, c.width, c.height)
@@ -841,17 +845,17 @@
       },
       // =============== SCALING ====================
       transformScale(event) {
-        if (event.deltaY < 0) {
-          if (this.scaleFactor < 1.30) {
-            this.scaleFactor = this.scaleFactor + 0.03
-          } 
-        }
-        else if (event.deltaY > 0) {
-          if (this.scaleFactor > 0.85) {
-            this.scaleFactor = this.scaleFactor - 0.03
-          }
-        }
-        this.drawLines();
+        // if (event.deltaY < 0) {
+        //   if (this.scaleFactor < 1.30) {
+        //     this.scaleFactor = this.scaleFactor + 0.03
+        //   }
+        // }
+        // else if (event.deltaY > 0) {
+        //   if (this.scaleFactor > 0.85) {
+        //     this.scaleFactor = this.scaleFactor - 0.03
+        //   }
+        // }
+        // this.drawLines();
       },
       exportToImage(event) {
         let expBtn = this.$refs.exportBtn
@@ -865,14 +869,16 @@
         expBtn.blur()
       }, 
       zoomInScale() {
-        if (this.scaleFactor < 1.3) {
-          this.scaleFactor = this.scaleFactor + 0.03
-        }
+        // if (this.scaleFactor < 1.3) {
+        //   this.scaleFactor = this.scaleFactor + 0.03
+        // }
+        // this.drawLines();
       },
       zoomOutScale() {
-        if (this.scaleFactor > 0.85) {
-          this.scaleFactor = this.scaleFactor - 0.03
-        }
+        // if (this.scaleFactor > 0.85) {
+        //   this.scaleFactor = this.scaleFactor - 0.03
+        // }
+        // this.drawLines();
       },
 
       //========== Slide ============
@@ -880,16 +886,24 @@
         let slider = this.$refs.slideSection
         this.isSlideDown = true;
         this.slideStartX = e.pageX - slider.offsetLeft;
+        this.slideStartY = e.pageY - slider.offsetTop;
         this.slideScrollLeft = slider.scrollLeft;
+        this.slideScrollTop = slider.scrollTop;
         console.log(slider.scrollLeft)
       },
       slideTheCanvas(e) {
         let slider = this.$refs.slideSection
         if (!this.isSlideDown) return;
         let x = e.pageX - slider.offsetLeft;
-        let walk = x - this.slideStartX;
-        console.log("walk", walk)
-        slider.scrollLeft = this.slideScrollLeft - walk;
+        let walkx = x - this.slideStartX;
+        slider.scrollLeft = this.slideScrollLeft - walkx;
+        let y = e.pageX - slider.offsetTop;
+        let walky = y - this.slideStartY;
+        slider.scrollTop = this.slideScrollTop - walky;
+        // this.isSlideDown = false;
+      },
+      exitSlide(){
+        this.isSlideDown = false;
       }
     },
     mounted() {
@@ -898,8 +912,17 @@
       } else {
         this.getNewMindmap();
       }
+
       window.addEventListener('mouseup', this.stopDrag);
       window.addEventListener('wheel', this.transformScale);
+    },
+    created(){
+      setTimeout(function(){
+        document.getElementById("slideSection").scrollLeft = window.innerWidth * (multiple / 2 ) -  window.innerWidth/3  ;
+        // document.getElementById("slideSection").scrollTop = window.innerHeight * (multiple / 2)  ;
+        // document.getElementById("slideSection").scrollTop =  window.innerHeight/2;
+      }, 500)
+
     },
     watch: {
       "currentMindMap.id"() {
@@ -924,9 +947,10 @@
         this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
       },
       scaleFactor(value) {
-        this.windowWidth = window.innerWidth * value
-        let dheight = window.innerHeight * value
-        this.windowHeight = dheight < window.innerHeight ? window.innerHeight : dheight
+        this.windowWidth = this.windowWidth* value
+        let dheight = window.innerHeight * value; // * 10
+        this.windowHeight = dheight < window.innerHeight  ? window.innerHeight  : dheight
+        this.$refs.slideSection.scrollLeft = Math.floor(this.windowWidth/2.2);
         setTimeout(this.drawLines, 5);
       }
     }
@@ -987,7 +1011,7 @@
     display: inline-block;
     position: absolute;
     left: 4.55em;
-    top: 0.7em;
+    top: 1.7em;
   }
   .start_dot:hover {
     border: 10px solid cornflowerblue;
