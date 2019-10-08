@@ -153,7 +153,7 @@
       <section v-if="!loading" id="map-container"  @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
           <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
-          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
+          <textarea type="text" ref="central_idea"  @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
         </div>
         <input-field 
           v-for="node in currentMindMap.nodes" 
@@ -165,7 +165,10 @@
           :quadrant="nodeQuadrant(node)"
           :has-child="hasChilNodes(node)"
           :hide-children="node.hide_children"
-          @start-drag="startDrag($event, node)" 
+          :positionX="node.position_x"
+          :positionY="node.position_y"
+          :scale="scaleFactor"
+          @start-drag="startDrag($event, node)"
           @mousedown-event="startDragNode($event, node)" 
           @node-updated="nodeUpdated(node)"
           @switch-expand-children="switchExpandChildren($event, node)"
@@ -843,20 +846,6 @@
         }
         return color
       },
-      // =============== SCALING ====================
-      transformScale(event) {
-        // if (event.deltaY < 0) {
-        //   if (this.scaleFactor < 1.30) {
-        //     this.scaleFactor = this.scaleFactor + 0.03
-        //   }
-        // }
-        // else if (event.deltaY > 0) {
-        //   if (this.scaleFactor > 0.85) {
-        //     this.scaleFactor = this.scaleFactor - 0.03
-        //   }
-        // }
-        // this.drawLines();
-      },
       exportToImage(event) {
         let expBtn = this.$refs.exportBtn
         let elm = document.getElementById("map-container")
@@ -867,18 +856,33 @@
         })
         elm.style.transform = "scale(" + this.scaleFactor +")"
         expBtn.blur()
-      }, 
+      },
+      // =============== SCALING ====================
+      transformScale(event) {
+        if (event.deltaY < 0) {
+          if (this.scaleFactor < 1.30) {
+            this.scaleFactor = this.scaleFactor + 0.03
+          }
+        }
+        else if (event.deltaY > 0) {
+          if (this.scaleFactor > 0.85) {
+            this.scaleFactor = this.scaleFactor - 0.03
+          }
+        }
+        this.drawLines();
+      },
+
       zoomInScale() {
-        // if (this.scaleFactor < 1.3) {
-        //   this.scaleFactor = this.scaleFactor + 0.03
-        // }
-        // this.drawLines();
+        if (this.scaleFactor < 1.3) {
+          this.scaleFactor = this.scaleFactor + 0.03
+        }
+        this.drawLines();
       },
       zoomOutScale() {
-        // if (this.scaleFactor > 0.85) {
-        //   this.scaleFactor = this.scaleFactor - 0.03
-        // }
-        // this.drawLines();
+        if (this.scaleFactor > 0.85) {
+          this.scaleFactor = this.scaleFactor - 0.03
+        }
+        this.drawLines();
       },
 
       //========== Slide ============
