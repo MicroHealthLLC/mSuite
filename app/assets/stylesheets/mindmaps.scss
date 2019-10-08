@@ -1,16 +1,13 @@
 
 .map-container {
   background-image: url('grid.gif');
-  //opacity:0.75;
   width: 100%;
-  height: 100%;
 }
 
-.map-container canvas {
-
+.map-container canvas.has_bg {
+  background-image: url('grid.gif');
 }
 
 body {
-  overflow: hidden !important;
+  overflow: hidden;
 }
-

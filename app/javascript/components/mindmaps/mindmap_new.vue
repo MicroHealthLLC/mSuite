@@ -3,88 +3,88 @@
     <div class="buttons_area">
       <div class="buttons_container">
         <span class="flex">
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete ml-2 mr-3 center_flex"
-            @click.stop="goHome" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  class="d-flex text-info edit_delete_btn delete ml-2 mr-3 center_flex"
+                  @click.stop="goHome"
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
           </a> 
         </span>
         <span class="ml_10">
-          <a 
-            href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="deleteSelectedNode" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  :disabled="!selectedNode"
+                  :class="{button_disabled: !selectedNode}"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="deleteSelectedNode"
           >
             <i class="material-icons delete_icon icons d-flex center_flex"></i>
           </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !copiedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="pasteCopiedNode" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  :disabled="!selectedNode"
+                  :class="{button_disabled: !copiedNode}"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="pasteCopiedNode"
           >
             <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
           </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="cutSelectedNode" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  :disabled="!selectedNode"
+                  :class="{button_disabled: !selectedNode}"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="cutSelectedNode"
           >
             <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
           </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="copySelectedNode" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  :disabled="!selectedNode"
+                  :class="{button_disabled: !selectedNode}"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="copySelectedNode"
           >
             <i class="material-icons copy_icon icons d-flex center_flex"></i>
           </a> 
         </span>
         <span>
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.resetMapModal.open" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="$refs.resetMapModal.open"
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
           </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.openMapModal.open" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="$refs.openMapModal.open"
           >
             <i class="fa fa-folder-open open_icon icons d-flex center_flex"></i>
           </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.newMapModal.open" 
+          <a
+                  href="javascript:;"
+                  role="button"
+                  class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="$refs.newMapModal.open"
           >
             <i class="material-icons new_icon icons d-flex center_flex"></i>
           </a> 
-          <a 
-            ref="exportBtn"
-            role="button" 
-            class="d-flex text-info pointer edit_delete_btn delete mr-3 center_flex"
-            @click.stop="exportToImage" 
-            download="image.png" 
+          <a
+                  ref="exportBtn"
+                  role="button"
+                  class="d-flex text-info pointer edit_delete_btn delete mr-3 center_flex"
+                  @click.stop="exportToImage"
+                  download="image.png"
           >
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
@@ -93,19 +93,19 @@
     </div>
     <div class="scaling_area">
       <span class="flex">
-        <a 
-          href="javascript:;"
-          role="button" 
-          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
-          @click.stop="zoomInScale" 
+        <a
+                href="javascript:;"
+                role="button"
+                class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
+                @click.stop="zoomInScale"
         >
           <i class="material-icons icons d-flex center_flex">zoom_in</i>
         </a> 
-        <a 
-          href="javascript:;"
-          role="button" 
-          class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
-          @click.stop="zoomOutScale" 
+        <a
+                href="javascript:;"
+                role="button"
+                class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
+                @click.stop="zoomOutScale"
         >
           <i class="material-icons icons d-flex center_flex">zoom_out</i>
         </a> 
@@ -149,32 +149,29 @@
       </div>
       <div class="font-color"></div>
     </div> -->
-    <div ref="slideSection" id="slideSection" @mousedown.prevent="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
-      <section v-if="!loading" id="map-container"  @mousemove.prevent="doDrag" :style="C_scaleFactor">
-        <div class="center" @click.stop="selectedNode=null" :style="C_centeralNodePosition">
+    <div ref="slideSection"  id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
+      <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
+        <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
-          <textarea type="text" ref="central_idea"  @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
+          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="central_idea pt-2" :style="centralIdeaStyle"/>
         </div>
-        <input-field 
-          v-for="node in currentMindMap.nodes" 
-          v-if="!node.is_disabled && !node.hide_self"
-          v-model="node.title" 
-          :key="`${node.id}`" 
-          :style="getNodeStyle(node)" 
-          :is-selected="C_selectedNodeId === node.id"
-          :quadrant="nodeQuadrant(node)"
-          :has-child="hasChilNodes(node)"
-          :hide-children="node.hide_children"
-          :positionX="node.position_x"
-          :positionY="node.position_y"
-          :scale="scaleFactor"
-          @start-drag="startDrag($event, node)"
-          @mousedown-event="startDragNode($event, node)" 
-          @node-updated="nodeUpdated(node)"
-          @switch-expand-children="switchExpandChildren($event, node)"
-          class="pos_abs input_field">
-          </input-field>
-        <canvas id="map-canvas" :width="windowWidth" :height="windowHeight"></canvas>
+        <input-field
+                v-for="node in currentMindMap.nodes"
+                v-if="!node.is_disabled && !node.hide_self"
+                v-model="node.title"
+                :key="`${node.id}`"
+                :style="getNodeStyle(node)"
+                :is-selected="C_selectedNodeId === node.id"
+                :quadrant="nodeQuadrant(node)"
+                :has-child="hasChilNodes(node)"
+                :hide-children="node.hide_children"
+                @start-drag="startDrag($event, node)"
+                @mousedown-event="startDragNode($event, node)"
+                @node-updated="nodeUpdated(node)"
+                @switch-expand-children="switchExpandChildren($event, node)"
+                class="pos_abs input_field">
+        </input-field>
+        <canvas id="map-canvas" :width="windowWidth" :height="windowHeight" :class="dragging ? 'has_no_bg' : 'has_bg'" ></canvas>
       </section>
     </div>
     <sweet-modal ref="newMapModal" class="of_v">
@@ -186,26 +183,26 @@
       <h3 class="f_smooth_auto">Are you Sure?</h3>
       <p class="text-muted fs_18">You may want to open in new Tab!</p>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-danger text-white mr_1"
-          @click.stop="openNewMap" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-danger text-white mr_1"
+                @click.stop="openNewMap"
         >
           <i class="material-icons mr-1">done</i>
           Continue Here
         </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-warning text-white mr_1"
-          @click.stop="openNewMapNewWindow" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-warning text-white mr_1"
+                @click.stop="openNewMapNewWindow"
         >
           <i class="material-icons mr-1">open_in_new</i>
           Open new Tab!
         </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.newMapModal.close" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-primary text-white mr_1"
+                @click.stop="$refs.newMapModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -219,25 +216,25 @@
         </div>
       </div>
       <p class="text-muted fs_18">Enter the map key you want to open here!</p>
-      <div class="form-horizontal">   
+      <div class="form-horizontal">
         <div class="row form-group mt-2">
           <label class="control-label col-4" for="mindmap_name">Mindmap Name:</label>
           <input type="text" placeholder="Enter map key" v-model="openMindMapKey" class="form-control col-6 ">
         </div>
       </div>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-success text-white mr_1"
-          @click.stop.prevent="openPreviousMap" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-success text-white mr_1"
+                @click.stop.prevent="openPreviousMap"
         >
           <i class="material-icons mr-1">done</i>
           Open
         </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop.prevent="$refs.openMapModal.close" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-primary text-white mr_1"
+                @click.stop.prevent="$refs.openMapModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -253,18 +250,18 @@
       <h3 class="f_smooth_auto">Are you Sure you want to reset this Map?</h3>
       <p class="text-muted fs_18">Your current changes will be discarded, you won't be able to revert this!</p>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-danger text-white mr_1"
-          @click.stop="resetMindmapap" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-danger text-white mr_1"
+                @click.stop="resetMindmapap"
         >
           <i class="material-icons mr-1">done</i>
           Continue
         </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.resetMapModal.close" 
+        <a
+                href="javascript:;"
+                class="btn_2 bg-primary text-white mr_1"
+                @click.stop="$refs.resetMapModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -281,7 +278,6 @@
   import _ from 'lodash'
   import html2canvas from 'html2canvas'
 
-  var multiple = 10;
   export default {
     components: {InputField, SweetModal},
     data() {
@@ -300,8 +296,8 @@
         nodeOffsetY: 0,
         parent_x: 0,
         parent_y: 0,
-        windowWidth: window.innerWidth * multiple ,
-        windowHeight: window.innerHeight ,
+        windowWidth: window.innerWidth * 5,
+        windowHeight: window.innerHeight * 3,
         stopWatch: false,
         openMindMapKey: '',
         nodeUpdatedFlag: false,
@@ -312,8 +308,8 @@
         centralIdeaHeight: '3em',
         isSlideDown: false,
         slideStartX: 0,
-        slideStartY: 0,
         slideScrollLeft: 0,
+        slideStartY: 0,
         slideScrollTop: 0
       }
     },
@@ -327,7 +323,7 @@
     computed: {
       C_centeralNodePosition() {
         return {
-          left: (Math.floor(this.windowWidth/2) - 120) +'px', 
+          left: (Math.floor(this.windowWidth/2) - 120) +'px',
           top: (Math.floor(this.windowHeight/2) - 40) +'px'
         }
       },
@@ -372,6 +368,10 @@
           this.loading = false;
         })
       },
+      nullifySlider() {
+        this.isSlideDown = false;
+        this.selectedNode = null;
+      },
       // =============== GETTING MAP =====================
 
       // =============== MODALS OPEN/CLOSE/OPERATIONS =====================
@@ -398,7 +398,7 @@
         if (p_node) {
           this.nodeParent = p_node;
           this.nodeColor = p_node.line_color;
-        } 
+        }
         else {
           this.nodeColor = this.getRandomColor();
         }
@@ -406,14 +406,14 @@
 
         if(p_node) {
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
-            this.parent_x = p_node.position_x - 100;
+            this.parent_x = p_node.position_x - 100 + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft);
             this.parent_y = p_node.position_y + 25;
           } else {
-            this.parent_x = p_node.position_x + 100;
+            this.parent_x = p_node.position_x + 100 + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft);
             this.parent_y = p_node.position_y + 25;
           }
         } else {
-          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft  - 15;
+          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft) - 15;
           this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 15;
         }
         let canvas_id = this.parent_x + "";
@@ -438,8 +438,8 @@
       },
       doDrag(event) {
         if (this.dragging) {
-          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft ;
-          this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop ;
+          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft) - 10 ;
+          this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop - 10 ;
           var c = document.getElementById(this.parent_x + "")
           var ctx = c.getContext("2d");
           ctx.clearRect(0, 0, c.width, c.height)
@@ -493,7 +493,7 @@
           this.currentPositionX = this.currentPositionY = 0;
           this.nodeParent = null;
           this.drawLines()
-        } 
+        }
         if (this.draggingNode) {
           this.dragging = false;
           this.draggingNode = false;
@@ -531,7 +531,7 @@
           if (!c) { return; }
           var ctx = c.getContext("2d");
           ctx.clearRect(0, 0, c.width, c.height)
-          
+
           var CI = this;
           this.currentMindMap.nodes.forEach((nod) => {
             if (nod.is_disabled || nod.hide_self) { return }
@@ -565,7 +565,7 @@
               }
             }
             ctx.lineTo(nod.position_x + 5, nod.position_y + 20);
-            
+
             if (this.nodeQuadrant(nod) == "LL") {
               if (p_node && p_node.position_x < nod.position_x) {
                 ctx.lineTo(nod.position_x + 100, nod.position_y + 20);
@@ -585,7 +585,7 @@
             ctx.closePath();
           })
         } else if (retry_count < 5) {
-          setTimeout(this.drawLines(retry_count++), 100); 
+          setTimeout(this.drawLines(retry_count++), 100);
         }
       },
       removeLines() {
@@ -600,30 +600,30 @@
         ctx.clearRect(0, 0, c.width, c.height)
       },
       drawNewLine(node) {
-          var c = document.getElementById("map-canvas")
-          if (!c) { return; }
-          var ctx = c.getContext("2d");
-          ctx.clearRect(0, 0, c.width, c.height)
+        var c = document.getElementById("map-canvas")
+        if (!c) { return; }
+        var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height)
 
-          ctx.lineWidth = "5";
-          ctx.lineCap = "round";
-          ctx.strokeStyle = "red";
+        ctx.lineWidth = "5";
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "red";
 
-          ctx.beginPath();
-          if (node.parent_node == 0) {
-            ctx.moveTo(Math.floor(this.windowWidth/2) - 50, Math.floor(this.windowHeight/2) - 15);
-          } else {
-            let p_nodes = this.currentMindMap.nodes.filter((n) => n.id == node.parent_node);
+        ctx.beginPath();
+        if (node.parent_node == 0) {
+          ctx.moveTo(Math.floor(this.windowWidth/2) - 50, Math.floor(this.windowHeight/2) - 15);
+        } else {
+          let p_nodes = this.currentMindMap.nodes.filter((n) => n.id == node.parent_node);
 
-            // Getting only first parent here as We have single parent in phase 1.
-            // only drawing of we find parent node.
-            if (p_nodes[0]) {
-              ctx.moveTo(p_nodes[0].position_x + 80, p_nodes[0].position_y + 17);
-            }
+          // Getting only first parent here as We have single parent in phase 1.
+          // only drawing of we find parent node.
+          if (p_nodes[0]) {
+            ctx.moveTo(p_nodes[0].position_x + 80, p_nodes[0].position_y + 17);
           }
-          ctx.lineTo(node.position_x + 80, node.position_y + 17);
-          ctx.stroke();
-          ctx.closePath();
+        }
+        ctx.lineTo(node.position_x + 80, node.position_y + 17);
+        ctx.stroke();
+        ctx.closePath();
       },
       // =============== STYLING OPERATIONS =====================
 
@@ -659,7 +659,7 @@
         if (this.selectedNode) {
           new_parent = this.selectedNode.id;
         }
-        
+
         let location = this.getNewPosition(new_parent);
         this.copiedNode.parent_node = new_parent;
         this.copiedNode.position_x = location[0];
@@ -697,7 +697,7 @@
         if (index != -1) {
           node = this.currentMindMap.nodes[index]
           http.put(`/nodes/${node.id}.json`, {node: node}).then((res) => {
-              this.currentMindMap.nodes.splice(index, 1, res.data.node);
+            this.currentMindMap.nodes.splice(index, 1, res.data.node);
           }).catch((error) => {
             console.log(error);
           })
@@ -776,10 +776,10 @@
         this.$router.push({query: query});
       },
       updateCentralIdea: _.debounce(
-        function(input) {
-          this.currentMindMap.name = this.$refs.central_idea.value;
-        },
-        500
+              function(input) {
+                this.currentMindMap.name = this.$refs.central_idea.value;
+              },
+              500
       ),
       hasChilNodes(node) {
         return this.currentMindMap.nodes.filter((nod) => nod.parent_node == node.id).length > 0;
@@ -813,19 +813,19 @@
         let center_y = Math.floor(this.windowHeight/2);
 
         if (node.position_x < center_x &&
-            node.position_y < center_y) {
+                node.position_y < center_y) {
           return "UL"; // Uper Left
         }
         if (node.position_x < center_x &&
-            node.position_y > center_y) {
+                node.position_y > center_y) {
           return "LL"; // Lower Left
         }
         if (node.position_x > center_x &&
-            node.position_y < center_y) {
+                node.position_y < center_y) {
           return "UR"; // Upper right
         }
         if (node.position_x > center_x &&
-            node.position_y > center_y) {
+                node.position_y > center_y) {
           return "LR"; // Lower right
         }
       },
@@ -846,6 +846,24 @@
         }
         return color
       },
+      // =============== SCALING ====================
+      transformScale(event) {
+        let currentScrollLeft =  document.getElementById("slideSection").scrollLeft;
+        if (event.deltaY < 0) {
+          if (this.scaleFactor < 1.50) {
+            this.scaleFactor = this.scaleFactor + 0.01
+            document.getElementById("slideSection").scrollLeft = currentScrollLeft + ( this.scaleFactor - 1) * window.innerWidth
+          }
+        }
+        else if (event.deltaY > 0) {
+          if (this.scaleFactor > 0.50) {
+            this.scaleFactor = this.scaleFactor - 0.01
+            document.getElementById("slideSection").scrollLeft = currentScrollLeft - ( this.scaleFactor - 1) * window.innerWidth
+          }
+        }
+
+        this.drawLines();
+      },
       exportToImage(event) {
         let expBtn = this.$refs.exportBtn
         let elm = document.getElementById("map-container")
@@ -857,35 +875,30 @@
         elm.style.transform = "scale(" + this.scaleFactor +")"
         expBtn.blur()
       },
-      // =============== SCALING ====================
-      transformScale(event) {
-        if (event.deltaY < 0) {
-          if (this.scaleFactor < 1.30) {
-            this.scaleFactor = this.scaleFactor + 0.03
-          }
-        }
-        else if (event.deltaY > 0) {
-          if (this.scaleFactor > 0.85) {
-            this.scaleFactor = this.scaleFactor - 0.03
-          }
-        }
-        this.drawLines();
-      },
-
       zoomInScale() {
-        if (this.scaleFactor < 1.3) {
-          this.scaleFactor = this.scaleFactor + 0.03
+        let currentScrollLeft =  document.getElementById("slideSection").scrollLeft;
+        if (this.scaleFactor < 1.50) {
+          this.scaleFactor = this.scaleFactor + 0.05
+          document.getElementById("slideSection").scrollLeft = currentScrollLeft + ( this.scaleFactor - 1) * window.innerWidth
         }
-        this.drawLines();
+
       },
       zoomOutScale() {
-        if (this.scaleFactor > 0.85) {
-          this.scaleFactor = this.scaleFactor - 0.03
+        let currentScrollLeft =  document.getElementById("slideSection").scrollLeft;
+        if (this.scaleFactor > 0.50) {
+          this.scaleFactor = this.scaleFactor - 0.05
+          document.getElementById("slideSection").scrollLeft = currentScrollLeft - ( this.scaleFactor - 1) * window.innerWidth
         }
-        this.drawLines();
+
       },
 
       //========== Slide ============
+      scrollToCenter() {
+        setTimeout(() => {
+          document.getElementById("slideSection").scrollTop = window.innerHeight;
+          document.getElementById("slideSection").scrollLeft = window.innerWidth * 2 + (1 - this.scaleFactor) *  window.innerWidth/2;
+        }, 200)
+      },
       slideInit(e) {
         let slider = this.$refs.slideSection
         this.isSlideDown = true;
@@ -893,21 +906,17 @@
         this.slideStartY = e.pageY - slider.offsetTop;
         this.slideScrollLeft = slider.scrollLeft;
         this.slideScrollTop = slider.scrollTop;
-        console.log(slider.scrollLeft)
       },
       slideTheCanvas(e) {
         let slider = this.$refs.slideSection
         if (!this.isSlideDown) return;
         let x = e.pageX - slider.offsetLeft;
-        let walkx = x - this.slideStartX;
-        slider.scrollLeft = this.slideScrollLeft - walkx;
-        let y = e.pageX - slider.offsetTop;
-        let walky = y - this.slideStartY;
-        slider.scrollTop = this.slideScrollTop - walky;
-        // this.isSlideDown = false;
-      },
-      exitSlide(){
-        this.isSlideDown = false;
+        let walkX = x - this.slideStartX;
+        let y = e.pageY - slider.offsetTop;
+        let walkY = y - this.slideStartY;
+        slider.scrollLeft = this.slideScrollLeft - walkX;
+        slider.scrollTop = this.slideScrollTop - walkY;
+        slider.scrollTop = this.slideScrollTop - walkY;
       }
     },
     mounted() {
@@ -916,17 +925,13 @@
       } else {
         this.getNewMindmap();
       }
-
       window.addEventListener('mouseup', this.stopDrag);
       window.addEventListener('wheel', this.transformScale);
     },
     created(){
-      setTimeout(function(){
-        document.getElementById("slideSection").scrollLeft = window.innerWidth * (multiple / 2 ) -  window.innerWidth/3  ;
-        // document.getElementById("slideSection").scrollTop = window.innerHeight * (multiple / 2)  ;
-        // document.getElementById("slideSection").scrollTop =  window.innerHeight/2;
-      }, 500)
-
+      this.$nextTick(() => {
+        this.scrollToCenter()
+      })
     },
     watch: {
       "currentMindMap.id"() {
@@ -937,9 +942,9 @@
       "currentMindMap.name": {
         handler: function(new_map) {
           this.centralIdea = this.currentMindMap.name;
-          if (this.stopWatch) { 
+          if (this.stopWatch) {
             this.stopWatch = false;
-            return; 
+            return;
           }
           this.saveCurrentMap();
         },
@@ -948,14 +953,7 @@
       centralIdea(value) {
         let dheight = Math.ceil(value.length / 15)
         dheight = dheight > 1 ? dheight*2 : 3
-        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
-      },
-      scaleFactor(value) {
-        this.windowWidth = this.windowWidth* value
-        let dheight = window.innerHeight * value; // * 10
-        this.windowHeight = dheight < window.innerHeight  ? window.innerHeight  : dheight
-        this.$refs.slideSection.scrollLeft = Math.floor(this.windowWidth/2.2);
-        setTimeout(this.drawLines, 5);
+        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       }
     }
   }
@@ -968,6 +966,8 @@
   .central_idea {
     text-align: center;
     border: none;
+    position: relative;
+    z-index: 99;
     border: 5px solid red;
     border-radius: 20px;
     font-weight: 800;
@@ -1004,7 +1004,6 @@
     top: 300px;
     left: 650px;
     align-items: center;
-    z-index: 100;
   }
   .start_dot {
     cursor: -webkit-grab;
@@ -1016,6 +1015,7 @@
     position: absolute;
     left: 4.55em;
     top: 1.7em;
+    z-index: 100;
   }
   .start_dot:hover {
     border: 10px solid cornflowerblue;
@@ -1041,7 +1041,7 @@
     z-index: 100;
   }
   #slideSection {
-    white-space: nowrap;
-    overflow:scroll;
+    overflow: hidden;
+    height: 100vh;
   }
 </style>
