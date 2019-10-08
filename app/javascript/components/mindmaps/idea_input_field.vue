@@ -1,5 +1,5 @@
 <template>
-  <div @mousedown.stop="startDragIdea" class="main">
+  <div @mousedown.stop="startDragIdea" class="main" :style="newIdeaStyle">
     <span @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
     <span 
       v-if="hasChild"
@@ -25,7 +25,7 @@
   import _ from 'lodash';
 
   export default {
-    props: ['value', 'isSelected', 'quadrant', 'hasChild', 'hideChildren'],
+    props: ['scaleFactor', 'positionX', 'positionY', 'value', 'isSelected', 'quadrant', 'hasChild', 'hideChildren'],
     data() {
       return {
         localValue: this.value,
@@ -33,8 +33,8 @@
         DV_collapse: this.hideChildren,
         newIdeaWidth: '10em',
         newIdeaHeight: '3em',
-        newIdeaLeft: this.position_x,
-        newIdeaTop: this.position_y
+        newIdeaLeft: this.positionX ,
+        newIdeaTop: this.positionY
       }
     },
     computed: {
@@ -54,7 +54,7 @@
         return {
           width: this.newIdeaWidth,
           height: this.newIdeaHeight,
-          left: this.newIdeaLeft,
+          left: this.newIdeaLeft * this.scaleFactor,
           top: this.newIdeaTop,
         }
       }
