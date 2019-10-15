@@ -46,9 +46,17 @@ class MindmapsController < ApplicationController
   end
 
   def find_or_create
-    @mindmap = Mindmap.find_or_create_by(unique_key: params[:key], name: "Central Idea")
+    @mindmap = Mindmap.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
     respond_to do |format|
       format.json { render json: {success: true, mindmap: @mindmap}}
+      format.html { }
+    end
+  end
+
+  def list_all_maps
+    @mindmaps = Mindmap.order('updated_at DESC')
+    respond_to do |format|
+      format.json { render json: {success: true, mindmaps: @mindmaps}}
       format.html { }
     end
   end

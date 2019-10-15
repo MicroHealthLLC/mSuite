@@ -1,5 +1,5 @@
 <template>
-  <div @mousedown.stop="startDragIdea" class="main" :style="newIdeaStyle">
+  <div @mousedown.stop="startDragIdea" class="main">
     <span @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
     <span 
       v-if="hasChild"
@@ -16,7 +16,8 @@
         @click.stop="switchExpandChildren"
       >add_circle</i>
     </span>
-    <textarea v-if="isSelected" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="new_idea_selected pt-2" :class="{'blue_border': isSelected}" :style="newIdeaStyle"/>
+    <textarea id="test" v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="newIdeaStyle"/>
+    <p v-else-if="isSelected" @dblclick.prevent="editNode" class="new_idea node_selected shadow-lg py-2">{{tempLocalValue}}</p>
     <p v-else class="new_idea py-2">{{tempLocalValue}}</p>
   </div>
 </template>
@@ -25,16 +26,15 @@
   import _ from 'lodash';
 
   export default {
-    props: ['scaleFactor', 'positionX', 'positionY', 'value', 'isSelected', 'quadrant', 'hasChild', 'hideChildren'],
+    props: ['value', 'isSelected', 'quadrant', 'hasChild', 'hideChildren', 'isEdited'],
     data() {
       return {
         localValue: this.value,
         tempLocalValue: this.value,
         DV_collapse: this.hideChildren,
-        newIdeaWidth: '10em',
+        newIdeaWidth: '11em',
         newIdeaHeight: '3em',
-        newIdeaLeft: this.positionX ,
-        newIdeaTop: this.positionY
+        isEditing: false
       }
     },
     computed: {
@@ -53,9 +53,7 @@
       newIdeaStyle() {
         return {
           width: this.newIdeaWidth,
-          height: this.newIdeaHeight,
-          left: this.newIdeaLeft * this.scaleFactor,
-          top: this.newIdeaTop,
+          height: this.newIdeaHeight
         }
       }
     },
@@ -76,6 +74,9 @@
       switchExpandChildren() {
         this.DV_collapse = !this.DV_collapse;
         this.$emit('switch-expand-children', this.DV_collapse);
+      },
+      editNode() {
+        this.$emit('edit-node', event);
       }
     },
     watch: {
@@ -103,33 +104,44 @@
 
 <style scoped lang="scss">
   .blue_border {
-    border: 3px solid blue !important;
+    border: 2px solid blue !important;
   }
   .new_idea_selected {
     text-align: center;
     border: none;
     border: 2px solid;
-    border-radius: 15px;
+    border-radius: 10px;
     font-weight: 700;
     font-size: 80%;
+    line-height: 1.2;
     word-wrap: break-word;
+    position: absolute;
+    bottom: -3em;
   }
   .new_idea {
     cursor: pointer;
     text-align: center;
     font-weight: normal;
-    border: none;
     resize: none;
     background: none;
     word-wrap: break-word;
     width: 10em;
     font-size: 80%;
-    line-height: 1;
+    line-height: 1.2;
     margin-top: 0.5em;
+    position: absolute;
+    bottom: -4em;
+    padding: 2px;
+  }
+  .node_selected {
+    border-radius: 10px;
+    border: 2px solid red !important;
+    cursor: move !important;
   }
   .new_idea:hover {
-    border: 3px dotted;
-    border-radius: 15px
+    padding: unset;
+    border: 2px dotted #cccccc;
+    border-radius: 10px;
   }
   .main:hover .start_dot{
     display: inline-block;
@@ -151,7 +163,7 @@
     left: 110px;
   }
   .start_dot:hover {
-    border: 10px solid cornflowerblue;
+    border: 3px solid cornflowerblue;
   }
   .collapse_child {
     color: darkgray;

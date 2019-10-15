@@ -1,42 +1,34 @@
 {
-  "canvas_operations.js": "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js",
-  "canvas_operations.js.map": "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js.map",
+  "canvas_operations.js": "/packs/js/canvas_operations-68849a949a39c37c64cd.js",
+  "canvas_operations.js.map": "/packs/js/canvas_operations-68849a949a39c37c64cd.js.map",
   "entrypoints": {
     "canvas_operations": {
       "js": [
-        "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js"
+        "/packs/js/canvas_operations-68849a949a39c37c64cd.js"
       ],
       "js.map": [
-        "/packs/js/canvas_operations-c022a7b38eb8aa05fca2.js.map"
+        "/packs/js/canvas_operations-68849a949a39c37c64cd.js.map"
       ]
     },
     "home_page": {
-      "css": [
-        "/packs/css/home_page-1ebc5eb1.css"
-      ],
       "js": [
-        "/packs/js/home_page-f1db4a2e571703d453d9.js"
+        "/packs/js/home_page-11f123e56e30441f32c3.js"
       ],
       "js.map": [
-        "/packs/js/home_page-f1db4a2e571703d453d9.js.map"
+        "/packs/js/home_page-11f123e56e30441f32c3.js.map"
       ]
     },
     "mapDashboard": {
-      "css": [
-        "/packs/css/mapDashboard-791129dc.css"
-      ],
       "js": [
-        "/packs/js/mapDashboard-be94ce42888dd837e4c8.js"
+        "/packs/js/mapDashboard-969588dbe3d48aa8f55e.js"
       ],
       "js.map": [
-        "/packs/js/mapDashboard-be94ce42888dd837e4c8.js.map"
+        "/packs/js/mapDashboard-969588dbe3d48aa8f55e.js.map"
       ]
     }
   },
-  "home_page.css": "/packs/css/home_page-1ebc5eb1.css",
-  "home_page.js": "/packs/js/home_page-f1db4a2e571703d453d9.js",
-  "home_page.js.map": "/packs/js/home_page-f1db4a2e571703d453d9.js.map",
-  "mapDashboard.css": "/packs/css/mapDashboard-791129dc.css",
-  "mapDashboard.js": "/packs/js/mapDashboard-be94ce42888dd837e4c8.js",
-  "mapDashboard.js.map": "/packs/js/mapDashboard-be94ce42888dd837e4c8.js.map"
+  "home_page.js": "/packs/js/home_page-11f123e56e30441f32c3.js",
+  "home_page.js.map": "/packs/js/home_page-11f123e56e30441f32c3.js.map",
+  "mapDashboard.js": "/packs/js/mapDashboard-969588dbe3d48aa8f55e.js",
+  "mapDashboard.js.map": "/packs/js/mapDashboard-969588dbe3d48aa8f55e.js.map"
 }
