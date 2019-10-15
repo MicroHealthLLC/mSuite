@@ -7,6 +7,9 @@
 .map-container canvas.has_bg {
   background-image: url('grid.gif');
 }
+textarea:focus {
+  outline: unset;
+}
 
 body {
   overflow: hidden;

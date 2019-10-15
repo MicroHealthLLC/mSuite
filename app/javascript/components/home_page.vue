@@ -10,15 +10,40 @@
       </div>
       <div class="row w_10">
         <div class="col-12 input_label">
-          <h4>Or create/open a Map with the name:</h4>
+          <h4>Or create/open a Map with the unique key</h4>
         </div>
-        <div class="offset-3 col-6">
+        <div class="offset-2 col-8">
           <div class="input-group md-form form-sm form-1 pl-0">
-            <input class="form-control my-0 py-1" type="text" v-model="mapName" placeholder="Please enter Map Name">
+            <input class="form-control my-0 py-1" type="text" v-model="mapName" placeholder="Please enter Map unique key">
             <div class="input-group-prepend">
               <span @click="openOrCreateMap" class="add_icon_span input-group-text lighten-3 pointer" id="basic-text1">
                 <i class="material-icons mr-1">done</i>
               </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 my-4">
+          <div class="mind-map-list-header">
+            List of all Mind Maps (keys and names)
+          </div>
+          <div class="mt-2 mind-map-list">
+            <div v-if="mapsArr.length > 0">
+              <div class="row mb-2 map-item py-2" v-for="(map, index) in mapsArr">
+                <div class="col-1"> 
+                  {{++index}} 
+                </div>
+                <div class="col-5 map-link"
+                    @click.stop="openMindMap(map.unique_key)" 
+                  >
+                  {{map.unique_key}}
+                </div>
+                <div class="col-6">
+                  {{map.name}}
+                </div>
+              </div>
+            </div>
+            <div v-else class="row empty-list">
+              List is empty...
             </div>
           </div>
         </div>
@@ -33,8 +58,12 @@
   export default {
     data() {
       return {
-        mapName: ""
+        mapName: "",
+        mapsArr: []
       }
+    },
+    mounted() {
+      this.listAllMaps();
     },
     methods: {
       createNewMap() {
@@ -51,6 +80,16 @@
           alert("Unable to open/create mindmap with this name. Please try again changing the name.")
           console.log(error)
         })
+      },
+      listAllMaps() {
+        http.get(`/mindmaps/list_all_maps.json?`).then((res) => {
+          this.mapsArr = res.data.mindmaps
+        }).catch((err) => {
+          console.log(err)
+        })
+      },
+      openMindMap(key) {
+        window.open(`/mindmaps/new?key=${key}`,"_self");
       }
     }
   }
@@ -95,8 +134,8 @@
   font-weight: normal;
 }
 .add_icon_span:hover {
-  background-color: #c1f9c1;
-  color: green;
+  background-color: grey;
+  color: white;
   font-weight: 900;
 }
 .input-group.md-form.form-sm.form-1 input{
@@ -108,5 +147,40 @@
   border-radius: 0.25rem;
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
+}
+.mind-map-list-header {
+  text-align: center;
+  font-size: 20px;
+  padding: 0.5em;
+  color: white;
+  border-radius: 10px;
+  background-color: grey;
+  box-shadow: 2px 3px 3px rgba(1, 0, 0, 0.8);
+  font-variant-caps: petite-caps;
+  font-style: italic;
+}
+.mind-map-list {
+  max-height: 35vh;
+  overflow: scroll;
+}
+.map-item {
+  border-bottom: 1px solid grey;
+  word-break: break-word;
+}
+.map-link {
+  color: #212529;
+  cursor: pointer;
+}
+.map-link:hover {
+  color: #e9ecef;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.empty-list {
+  justify-content: center;
+  color: #e9ecef;
+  font-style: italic;
+  letter-spacing: 6px;
 }
 </style>
