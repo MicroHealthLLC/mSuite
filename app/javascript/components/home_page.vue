@@ -22,7 +22,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 my-4">
+        <!-- <div class="col-12 my-4">
           <div class="mind-map-list-header">
             List of all Mind Maps (keys and names)
           </div>
@@ -46,7 +46,7 @@
               List is empty...
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -61,9 +61,6 @@
         mapName: "",
         mapsArr: []
       }
-    },
-    mounted() {
-      this.listAllMaps();
     },
     methods: {
       createNewMap() {
@@ -81,13 +78,14 @@
           console.log(error)
         })
       },
-      listAllMaps() {
-        http.get(`/mindmaps/list_all_maps.json?`).then((res) => {
-          this.mapsArr = res.data.mindmaps
-        }).catch((err) => {
-          console.log(err)
-        })
-      },
+      // call api for listing all the mind maps names and keys
+      // listAllMaps() {
+      //   http.get(`/mindmaps/list_all_maps.json?`).then((res) => {
+      //     this.mapsArr = res.data.mindmaps
+      //   }).catch((err) => {
+      //     console.log(err)
+      //   })
+      // },
       openMindMap(key) {
         window.open(`/mindmaps/new?key=${key}`,"_self");
       }
@@ -122,9 +120,9 @@
   color: white;
   background-color: grey;
   box-shadow: 2px 5px 5px rgba(1, 0, 0, 0.8);
-  &:hover {
-    background-color: #1f1f1f;
-  }
+}
+.new_button:hover {
+  background-color: #1f1f1f;
 }
 .input_label {
   text-align: center;
