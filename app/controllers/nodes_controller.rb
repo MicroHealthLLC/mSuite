@@ -3,8 +3,11 @@ class NodesController < ApplicationController
 
 
   def create
+    # get nested children
     @node = Node.create(node_params)
-    duplicate_child_nodes(Node.where(parent_node: params[:duplicate_child_nodes]), @node.id) if params[:duplicate_child_nodes].present?
+    dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id) if params[:duplicate_child_nodes].present?
+    
+    duplicate_child_nodes(dup_nodes, @node.id) if dup_nodes.present?
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
       format.json { render json: {node: @node}}

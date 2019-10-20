@@ -7,7 +7,7 @@
 .map-container canvas.has_bg {
   background-image: url('grid.gif');
 }
-textarea:focus {
+button:focus, textarea:focus {
   outline: unset;
 }
 

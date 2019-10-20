@@ -299,8 +299,11 @@
         nodeOffsetY: 0,
         parent_x: 0,
         parent_y: 0,
-        windowWidth: window.innerWidth * 3,
-        windowHeight: window.innerHeight * 3,
+        // fixed window size
+        window_innerWidth: 1900,
+        window_innerHeight: 900,
+        windowWidth: 1900 * 3,
+        windowHeight: 900 * 3,
         stopWatch: false,
         openMindMapKey: '',
         nodeUpdatedFlag: false,
@@ -327,7 +330,7 @@
     computed: {
       C_centeralNodePosition() {
         return {
-          left: (Math.floor(this.windowWidth/2) - 120) +'px',
+          left: (Math.floor(this.windowWidth/2) - 120) +'px', 
           top: (Math.floor(this.windowHeight/2) - 40) +'px'
         }
       },
@@ -421,14 +424,14 @@
         this.dragging = true;
         if(p_node) {
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
-            this.parent_x = p_node.position_x - 100 ;
+            this.parent_x = p_node.position_x - 100 + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft);
             this.parent_y = p_node.position_y + 25;
           } else {
-            this.parent_x = p_node.position_x + 100;
+            this.parent_x = p_node.position_x + 100 + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft);
             this.parent_y = p_node.position_y + 25;
           }
         } else {
-          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft;
+          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft) - 15;
           this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 15;
         }
         let canvas_id = this.parent_x + "";
@@ -454,8 +457,8 @@
       doDrag(event) {
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
-          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft - (1 - this.scaleFactor) * (event.clientX  )- 10 ;
-          this.currentPositionY =  ( event.clientY + this.$refs.slideSection.scrollTop) - 10 ;
+          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft) - 10 ;
+          this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop - 10 ;
           var c = document.getElementById(this.parent_x + "")
           var ctx = c.getContext("2d");
           ctx.clearRect(0, 0, c.width, c.height)
@@ -548,7 +551,7 @@
           if (!c) { return; }
           var ctx = c.getContext("2d");
           ctx.clearRect(0, 0, c.width, c.height)
-
+          
           var CI = this;
           this.currentMindMap.nodes.forEach((nod) => {
             if (nod.is_disabled || nod.hide_self) { return }
@@ -561,27 +564,39 @@
             ctx.lineWidth = "5";
             ctx.lineCap = "round";
             ctx.beginPath();
+            let position_x = 0;
+            let position_y = 0;
             if (nod.parent_node == 0) {
               ctx.moveTo(Math.floor(CI.windowWidth/2) - 50, Math.floor(CI.windowHeight/2) - 15);
+              position_x = Math.floor(CI.windowWidth/2) - 50;
+              position_y =  Math.floor(CI.windowHeight/2) - 15;
             } else {
               var p_node = CI.currentMindMap.nodes.filter((n) => n.id == nod.parent_node)[0];
               if (p_node) {
                 if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL") {
                   if (p_node.position_x > nod.position_x) {
                     ctx.moveTo(p_node.position_x - 95, p_node.position_y + 20);
+                    position_x = p_node.position_x - 95
+                    position_y =  p_node.position_y + 20
                   } else {
                     ctx.moveTo(p_node.position_x + 5, p_node.position_y + 20);
+                    position_x = p_node.position_x + 5
+                    position_y =  p_node.position_y + 20
                   }
                 } else {
                   if (p_node.position_x < nod.position_x) {
                     ctx.moveTo(p_node.position_x + 100, p_node.position_y + 20);
+                    position_x = p_node.position_x +100
+                    position_y =  p_node.position_y + 20
                   } else {
                     ctx.moveTo(p_node.position_x + 5, p_node.position_y + 20);
+                    position_x = p_node.position_x +5
+                    position_y =  p_node.position_y + 20
                   }
                 }
               }
             }
-            ctx.lineTo(nod.position_x + 5, nod.position_y + 20);
+            ctx.quadraticCurveTo(position_x, (position_y + nod.position_y)/2 ,nod.position_x + 5, nod.position_y + 20);
 
             if (this.nodeQuadrant(nod) == "LL") {
               if (p_node && p_node.position_x < nod.position_x) {
@@ -602,7 +617,7 @@
             ctx.closePath();
           })
         } else if (retry_count < 5) {
-          setTimeout(this.drawLines(retry_count++), 100);
+          setTimeout(this.drawLines(retry_count++), 100); 
         }
       },
       removeLines() {
@@ -622,9 +637,9 @@
         var ctx = c.getContext("2d");
         ctx.clearRect(0, 0, c.width, c.height)
 
-        ctx.lineWidth = "5";
+        ctx.lineWidth = "3";
         ctx.lineCap = "round";
-        ctx.strokeStyle = "red";
+        ctx.strokeStyle = node.line_color;
 
         ctx.beginPath();
         if (node.parent_node == 0) {
@@ -655,10 +670,6 @@
       // =============== Node CRUD OPERATIONS =====================
       cutSelectedNode() {
         if (!this.selectedNode) {return;}
-        // if (this.hasChilNodes(this.selectedNode)) {
-        //   alert("You cannot cut a node having child nodes for now, this functionality will be available soon.");
-        //   return;
-        // }
         this.copiedNode = this.selectedNode;
         this.copiedNode.is_disabled = true;
         this.cutFlag = true;
@@ -670,12 +681,8 @@
       },
       copySelectedNode() {
         if (!this.selectedNode) {return;}
-        // if (this.hasChilNodes(this.selectedNode)) {
-        //   alert("You cannot copy a node having child nodes for now, this functionality will be available soon.");
-        //   return;
-        // }
-
         this.copiedNode = this.selectedNode;
+        this.selectedNode = null;
       },
       pasteCopiedNode() {
         if (!this.copiedNode) {return;}
@@ -684,28 +691,31 @@
           new_parent = this.selectedNode.id;
         }
 
-        let location = this.getNewPosition(new_parent);
-        this.copiedNode.parent_node = new_parent;
-        this.copiedNode.position_x = location[0];
-        this.copiedNode.position_y = location[1];
-        this.copiedNode.is_disabled = false;
+        // clone copied node
+        const dupNode = {};
+        Object.assign(dupNode, this.copiedNode);
 
-        this.drawNewLine(this.copiedNode);
+        let location = this.getNewPosition(new_parent);
+        dupNode.parent_node = new_parent;
+        dupNode.position_x = location[0];
+        dupNode.position_y = location[1];
+        dupNode.is_disabled = false;
+
+        this.drawNewLine(dupNode);
+        this.copiedNode = null;
 
         if (this.cutFlag) {
-          http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
+          http.put(`/nodes/${dupNode.id}.json`, {node: dupNode}).then((res) => {
             this.getMindmap(this.currentMindMap.unique_key);
             this.cutFlag = false;
-            this.copiedNode = null;
             this.selectedNode = res.data.node
           }).catch((error) => {
             console.log(error);
           })
         }
         else {
-          http.post('/nodes.json', {node: this.copiedNode, duplicate_child_nodes: this.copiedNode.id}).then((res) => {
+          http.post('/nodes.json', {node: dupNode, duplicate_child_nodes: dupNode.id}).then((res) => {
             this.getMindmap(this.currentMindMap.unique_key);
-            this.copiedNode = null;
             this.selectedNode = null;
           }).catch((error) => {
             console.log(error);
@@ -890,13 +900,14 @@
         let expBtn = this.$refs.exportBtn
         let elm = document.getElementById("map-container")
         elm.style.transform = "scale(1)"
+        let map_key = this.currentMindMap.unique_key
 
         domtoimage.toPng(elm)
           .then(function (dataUrl) {
             var data = dataUrl.replace(/^data:image\/\w+;base64,/, "");
             var buf = new Buffer(data, 'base64');
             
-            fileDownload(buf, 'filename.png');
+            fileDownload(buf, map_key+".png");
           })
           .catch(function (error) {
             console.error('oops, something went wrong!', error);
@@ -919,8 +930,11 @@
       //========== Slide ============
       scrollToCenter() {
         setTimeout(() => {
-          document.getElementById("slideSection").scrollTop = window.innerHeight;
-          document.getElementById("slideSection").scrollLeft = window.innerWidth + (1 - this.scaleFactor) *  window.innerWidth/2;
+          let cal_height = this.windowHeight/2 - window.innerHeight/2
+          document.getElementById("slideSection").scrollTop = cal_height
+          
+          let cal_width = this.windowWidth/2 - window.innerWidth/2
+          document.getElementById("slideSection").scrollLeft = cal_width + (1 - this.scaleFactor) * cal_width/2;
         }, 200)
       },
       slideInit(e) {
@@ -957,12 +971,11 @@
       }
       window.addEventListener('mouseup', this.stopDrag);
       window.addEventListener('wheel', this.transformScale);
+    },
+    created(){
       this.$nextTick(() => {
         this.scrollToCenter()
       })
-    },
-    created(){
-
     },
     watch: {
       "currentMindMap.id"() {
