@@ -6,6 +6,6 @@ development: *redis
 test: *redis
 
 # change production url here
-production:
+production: 
   adapter: redis
   url: redis://localhost:6379/1

@@ -424,14 +424,14 @@
         this.dragging = true;
         if(p_node) {
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
-            this.parent_x = p_node.position_x - 100 + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft);
+            this.parent_x = p_node.position_x - 100 ;
             this.parent_y = p_node.position_y + 25;
           } else {
-            this.parent_x = p_node.position_x + 100 + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft);
+            this.parent_x = p_node.position_x + 100
             this.parent_y = p_node.position_y + 25;
           }
         } else {
-          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft) - 15;
+          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft - 15;
           this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 15;
         }
         let canvas_id = this.parent_x + "";
@@ -457,7 +457,7 @@
       doDrag(event) {
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
-          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft + ((1 - this.scaleFactor ) * this.$refs.slideSection.scrollLeft) - 10 ;
+          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft ;
           this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop - 10 ;
           var c = document.getElementById(this.parent_x + "")
           var ctx = c.getContext("2d");
@@ -468,7 +468,7 @@
           ctx.lineCap = "round";
           ctx.strokeStyle = this.nodeColor;
           ctx.moveTo(this.parent_x, this.parent_y);
-          ctx.lineTo(this.currentPositionX, this.currentPositionY);
+          ctx.quadraticCurveTo(this.parent_x, (this.parent_y + this.currentPositionY)/2, this.currentPositionX, this.currentPositionY);
           ctx.stroke();
         } else if (this.draggingNode) {
           this.nodeUpdatedFlag = true;
