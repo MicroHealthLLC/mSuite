@@ -451,12 +451,20 @@ a:hover, .btn1:hover, .btn2:hover {
   align-items: center;
   justify-content: center;
 }
+.right_flex{
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
 .flex_colmn{
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding-left: 0px;
+}
+.flow_root {
+  display: flow-root;
 }
 
 .fg_1{flex-grow: 1;}

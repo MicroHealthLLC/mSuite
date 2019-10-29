@@ -16,85 +16,109 @@
         @click.stop="switchExpandChildren"
       >add_circle</i>
     </span>
-    <textarea id="test" v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="newIdeaStyle"/>
-    <p v-else-if="isSelected" @dblclick.prevent="editNode" class="new_idea node_selected shadow-lg py-2">{{tempLocalValue}}</p>
-    <p v-else class="new_idea py-2">{{tempLocalValue}}</p>
+    <textarea v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="newIdeaStyle"/>
+    <div v-else class="new_idea">
+      <div class="node_attachment text-secondary px-2">
+        <span class="float-left">{{fileCount}}</span>
+        <i v-if="isSelected" @click.stop="addAttachModal" class="material-icons float-right">post_add</i>
+      </div>
+      <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
+      <p v-else class="new_idea_pg py-2">{{tempLocalValue}}</p>
+      
+    </div>
   </div>
 </template>
 
 <script>
-  import _ from 'lodash';
+  import _ from 'lodash'
 
   export default {
-    props: ['value', 'isSelected', 'quadrant', 'hasChild', 'hideChildren', 'isEdited'],
+    props: [
+      'value', 
+      'isSelected', 
+      'quadrant', 
+      'hasChild', 
+      'hideChildren', 
+      'isEdited',
+      'nodeAttr'
+    ],
     data() {
       return {
-        localValue: this.value,
-        tempLocalValue: this.value,
-        DV_collapse: this.hideChildren,
-        newIdeaWidth: '11em',
-        newIdeaHeight: '3em',
-        isEditing: false
+        localValue     : this.value,
+        tempLocalValue : this.value,
+        DV_collapse    : this.hideChildren,
+        newIdeaWidth   : '11em',
+        newIdeaHeight  : '3em',
+        isEditing      : false
       }
     },
     computed: {
       C_expandCollapseIconPositionClass() {
         if (this.quadrant == "UL" || this.quadrant == "LL") {
-          return "left_position_icon";
+          return "left_position_icon"
         }
-        return "right_position_icon";
+        return "right_position_icon"
       },
       C_startDotPositionClass() {
         if (this.quadrant == "UL" || this.quadrant == "LL") {
-          return "start_dot_left";
+          return "start_dot_left"
         }
-        return "start_dot_right";
+        return "start_dot_right"
       },
       newIdeaStyle() {
         return {
-          width: this.newIdeaWidth,
+          width : this.newIdeaWidth,
           height: this.newIdeaHeight
         }
+      },
+      fileCount() {
+        let count = this.nodeAttr.attach_files.length
+        if (count == 0) return "No documents.."
+        
+        return count > 1 ? count + " documents.." : count + " document"
       }
     },
     methods: {
       startDrag(event) {
-        this.$emit('start-drag', event);
+        this.$emit('start-drag', event)
       },
       updateIdea: _.debounce(
         function(input) {
-          this.localValue = this.$refs.new_idea.value;
-          this.tempLocalValue = this.$refs.new_idea.value;
+          this.localValue     = this.$refs.new_idea.value
+          this.tempLocalValue = this.$refs.new_idea.value
         },
         500
       ),
       startDragIdea(event) {
-        this.$emit('mousedown-event', event);
+        this.$emit('mousedown-event', event)
       },
       switchExpandChildren() {
-        this.DV_collapse = !this.DV_collapse;
-        this.$emit('switch-expand-children', this.DV_collapse);
+        this.DV_collapse = !this.DV_collapse
+        this.$emit('switch-expand-children', this.DV_collapse)
       },
       editNode() {
-        this.$emit('edit-node', event);
+        this.$emit('edit-node', event)
+      },
+      addAttachModal() {
+        this.$emit('open-attachment', event)
       }
     },
     watch: {
       value() {
-        this.tempLocalValue = this.value;
+        this.tempLocalValue = this.value
       },
       localValue() {
         this.$emit("input", this.localValue)
-        this.$emit("node-updated");
+        this.$emit("node-updated")
       },
       tempLocalValue(value) {
-        let dheight = Math.ceil(value.length / 15)
-        dheight = dheight > 1 ? dheight*2 : 3
+        let dheight        = Math.ceil(value.length / 15)
+        dheight            = dheight > 1 ? dheight * 2 : 3
         this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
       },
       isSelected() {
-        let dheight = Math.ceil(this.value.length / 15)
-        dheight = dheight > 1 ? dheight*2 : 3
+        let dheight        = Math.ceil(this.value.length / 15)
+        dheight            = dheight > 1 ? dheight * 2 : 3
         this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
       }
     }
@@ -107,54 +131,56 @@
     border: 2px solid blue !important;
   }
   .new_idea_selected {
-    text-align: center;
-    border: none;
-    border: 2px solid;
+    text-align   : center;
+    border       : none;
+    border       : 2px solid;
     border-radius: 10px;
-    font-weight: 700;
-    font-size: 80%;
-    line-height: 1.2;
-    word-wrap: break-word;
-    position: absolute;
-    bottom: -3em;
+    font-weight  : 700;
+    font-size    : 80%;
+    line-height  : 1.2;
+    word-wrap    : break-word;
+    position     : absolute;
+    bottom       : -3em;
   }
   .new_idea {
-    cursor: pointer;
-    text-align: center;
+    cursor     : pointer;
+    text-align : center;
     font-weight: normal;
-    resize: none;
-    background: none;
-    word-wrap: break-word;
-    width: 10em;
-    font-size: 80%;
+    resize     : none;
+    background : none;
+    word-wrap  : break-word;
+    width      : 11em;
+    font-size  : 80%;
     line-height: 1.2;
-    margin-top: 0.5em;
-    position: absolute;
-    bottom: -4em;
-    padding: 2px;
+    margin-top : 0.5em;
+    position   : absolute;
+    bottom     : -4em;
+    padding    : 2px;
   }
   .node_selected {
     border-radius: 10px;
-    border: 2px solid red !important;
-    cursor: move !important;
+    border       : 2px solid red !important;
+    cursor       : move !important;
   }
-  .new_idea:hover {
-    padding: unset;
-    border: 2px dotted #cccccc;
+  .new_idea_pg:hover {
+    padding      : unset;
+    border       : 2px dotted #ccc;
     border-radius: 10px;
+    box-shadow   : 0 0.3em 0.8em rgba(0, 0, 0, 0.15);
   }
   .main:hover .start_dot{
     display: inline-block;
   }
   .start_dot {
-    cursor: grab;
-    height: 15px;
-    width: 15px;
+    cursor          : grab;
+    height          : 15px;
+    width           : 15px;
     background-color: #f00;
-    border-radius: 50%;
-    display: none;
-    position: absolute;
-    top: 33px;
+    border-radius   : 50%;
+    display         : none;
+    position        : absolute;
+    top             : 33px;
+    z-index         : 100;
   }
   .start_dot_left {
     left: 10px;
@@ -166,14 +192,23 @@
     border: 3px solid cornflowerblue;
   }
   .collapse_child {
-    color: darkgray;
+    color   : darkgray;
     position: absolute;
-    top: 30px;
+    top     : 30px;
+    z-index : 101;
   }
   .left_position_icon {
     left: 25px;
   }
   .right_position_icon {
     left: 85px;
+  }
+  .node_attachment {
+    z-index        : 99;
+    display        : flex;
+    justify-content: space-between;
+    i {
+      font-size: 18px;
+    }
   }
 </style>

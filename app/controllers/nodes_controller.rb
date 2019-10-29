@@ -1,5 +1,5 @@
 class NodesController < ApplicationController
-  before_action :set_node, only: [:show, :edit, :update, :destroy, :hide_children]
+  before_action :set_node, only: [:show, :edit, :update, :destroy, :hide_children, :destroy_file]
 
 
   def create
@@ -10,7 +10,7 @@ class NodesController < ApplicationController
     duplicate_child_nodes(dup_nodes, @node.id) if dup_nodes.present?
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
-      format.json { render json: {node: @node}}
+      format.json { render json: {node: @node.to_json}}
       format.html { }
     end
   end
@@ -20,7 +20,7 @@ class NodesController < ApplicationController
     update_child_nodes_disabelity(Node.where(parent_node: @node.id), @node.is_disabled)
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
-      format.json { render json: {node: @node}}
+      format.json { render json: {node: @node.to_json}}
       format.html { }
     end
   end
@@ -28,6 +28,21 @@ class NodesController < ApplicationController
   def destroy
     if @node.destroy
       delete_child_nodes Node.where(parent_node: @node.id)
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+      respond_to do |format|
+        format.json { render json: {success: true}}
+        format.html { }
+      end
+    else
+      respond_to do |format|
+        format.json { render json: {success: false}}
+        format.html { }
+      end
+    end
+  end
+
+  def destroy_file
+    if @node.node_files.find_by(id: file_params[:id]).purge
       ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
       respond_to do |format|
         format.json { render json: {success: true}}
@@ -110,7 +125,13 @@ class NodesController < ApplicationController
       :parent_node, 
       :mindmap_id, 
       :is_disabled, 
-      :line_color
+      :line_color,
+      :description, 
+      node_files: []
     )
+  end
+
+  def file_params
+    params.require(:file).permit(:id, :uri)
   end
 end

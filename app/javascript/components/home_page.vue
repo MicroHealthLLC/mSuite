@@ -64,15 +64,16 @@
     },
     methods: {
       createNewMap() {
-        window.open("/mindmaps/new","_self");
+        window.open("/mindmaps/new","_self")
       },
       openOrCreateMap() {
         if (this.mapName == "" || this.mapName == null || this.mapName == undefined) {
-          alert("Please enter name for map to open/create");
-          return;
+          alert("Please enter name for map to open/create")
+          return
         }
+        
         http.get(`/mindmaps/find_or_create.json?key=${this.mapName}`).then((res) => {
-          window.open(`/mindmaps/new?key=${res.data.mindmap.unique_key}`,"_self");
+          window.open(`/mindmaps/new?key=${res.data.mindmap.unique_key}`,"_self")
         }).catch((error) => {
           alert("Unable to open/create mindmap with this name. Please try again changing the name.")
           console.log(error)
@@ -87,7 +88,7 @@
       //   })
       // },
       openMindMap(key) {
-        window.open(`/mindmaps/new?key=${key}`,"_self");
+        window.open(`/mindmaps/new?key=${key}`,"_self")
       }
     }
   }
@@ -95,31 +96,31 @@
 
 <style scoped lang="css">
 .main_div {
-  position: absolute;
-  height: 100%;
-  width: 98%;
+  position        : absolute;
+  height          : 100%;
+  width           : 98%;
   background-image: linear-gradient(grey, white);
 }
 .main_heading {
-  font-family: fantasy;
-  margin: 12vh;
+  font-family    : fantasy;
+  margin         : 12vh;
   text-decoration: underline;
 }
 .main_box {
-  margin-left: 25%;
-  width: 50%;
-  height: max-content;
+  margin-left     : 25%;
+  width           : 50%;
+  height          : max-content;
   background-image: linear-gradient(white, grey);
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.8);
+  box-shadow      : 0 5px 5px rgba(0, 0, 0, 0.8);
 }
 .new_button_container {
-  display: flex;
+  display        : flex;
   justify-content: center;
 }
 .new_button {
-  color: white;
+  color           : white;
   background-color: grey;
-  box-shadow: 2px 5px 5px rgba(1, 0, 0, 0.8);
+  box-shadow      : 2px 5px 5px rgba(1, 0, 0, 0.8);
 }
 .new_button:hover {
   background-color: #1f1f1f;
@@ -133,52 +134,52 @@
 }
 .add_icon_span:hover {
   background-color: grey;
-  color: white;
-  font-weight: 900;
+  color           : white;
+  font-weight     : 900;
 }
 .input-group.md-form.form-sm.form-1 input{
-  border: 1px solid #bdbdbd;
-  border-top-left-radius: 0.25rem;
+  border                   : 1px solid #bdbdbd;
+  border-top-left-radius   : 0.25rem;
   border-bottom-left-radius: 0.25rem;
 }
 #basic-text1 {
-  border-radius: 0.25rem;
-  border-top-left-radius: 0 !important;
+  border-radius            : 0.25rem;
+  border-top-left-radius   : 0 !important;
   border-bottom-left-radius: 0 !important;
 }
 .mind-map-list-header {
-  text-align: center;
-  font-size: 20px;
-  padding: 0.5em;
-  color: white;
-  border-radius: 10px;
-  background-color: grey;
-  box-shadow: 2px 3px 3px rgba(1, 0, 0, 0.8);
+  text-align       : center;
+  font-size        : 20px;
+  padding          : 0.5em;
+  color            : white;
+  border-radius    : 10px;
+  background-color : grey;
+  box-shadow       : 2px 3px 3px rgba(1, 0, 0, 0.8);
   font-variant-caps: petite-caps;
-  font-style: italic;
+  font-style       : italic;
 }
 .mind-map-list {
   max-height: 35vh;
-  overflow: scroll;
+  overflow  : scroll;
 }
 .map-item {
   border-bottom: 1px solid grey;
-  word-break: break-word;
+  word-break   : break-word;
 }
 .map-link {
-  color: #212529;
+  color : #212529;
   cursor: pointer;
 }
 .map-link:hover {
-  color: #e9ecef;
-  font-weight: 500;
+  color          : #e9ecef;
+  font-weight    : 500;
   text-decoration: underline;
-  cursor: pointer;
+  cursor         : pointer;
 }
 .empty-list {
   justify-content: center;
-  color: #e9ecef;
-  font-style: italic;
-  letter-spacing: 6px;
+  color          : #e9ecef;
+  font-style     : italic;
+  letter-spacing : 6px;
 }
 </style>

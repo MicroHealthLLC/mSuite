@@ -69,7 +69,7 @@ class MindmapsController < ApplicationController
 
   def mindmap_as_json(mindmap)
     mindmap.as_json.merge(
-      nodes: mindmap.nodes
+      nodes: mindmap.nodes.map(&:to_json)
     ).as_json
   end
 

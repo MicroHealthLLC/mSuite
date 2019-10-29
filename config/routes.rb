@@ -6,7 +6,11 @@ Rails.application.routes.draw do
   get 'nodes/hide_children'     => 'nodes#hide_children'
 
   resources :mindmaps
-  resources :nodes
+  resources :nodes do
+    member do
+      put :destroy_file
+    end
+  end
   
   mount ActionCable.server => '/cable'
 end
