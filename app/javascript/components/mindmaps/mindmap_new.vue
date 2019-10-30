@@ -93,6 +93,16 @@
     </div>
     <div class="scaling_area">
       <span class="flex">
+          <a
+                  v-if="this.scaleFactor != 1"
+                  href="javascript:;"
+                  role="button"
+                  class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
+                  @click.stop="resetZoomScale"
+          >
+          <i class="material-icons icons d-flex center_flex">youtube_searched_for</i>
+        </a>
+
         <a 
           href="javascript:;"
           role="button" 
@@ -101,54 +111,18 @@
         >
           <i class="material-icons icons d-flex center_flex">zoom_in</i>
         </a> 
-        <a 
+
+        <a
           href="javascript:;"
           role="button" 
           class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
           @click.stop="zoomOutScale" 
         >
           <i class="material-icons icons d-flex center_flex">zoom_out</i>
-        </a> 
+        </a>
+
       </span>
     </div>
-    <!-- <div class="rich_text_area">
-      <div class="textarea-heading">Inspector</div>
-      <div class="font-size flex">
-        <span> Font size: </span>
-        <a 
-          role="button" 
-          class="d-flex font-size-btn center_flex"
-          @click.stop="" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_in</i>
-        </a>
-        <a 
-          role="button" 
-          class="d-flex font-size-btn center_flex"
-          @click.stop="" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_in</i>
-        </a>
-      </div>
-      <div class="font-style flex">
-        <span> Font style: </span>
-        <a 
-          role="button" 
-          class="d-flex font-size-btn center_flex"
-          @click.stop="" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_in</i>
-        </a>
-        <a 
-          role="button" 
-          class="d-flex font-size-btn center_flex"
-          @click.stop="" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_in</i>
-        </a>
-      </div>
-      <div class="font-color"></div>
-    </div> -->
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
       <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
@@ -582,8 +556,8 @@
       doDrag(event) {
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
-          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft ;
-          this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop - 10 ;
+          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft - (1 - this.scaleFactor) * (this.windowWidth / 2 - event.clientX - this.$refs.slideSection.scrollLeft) - (1 - this.scaleFactor) * 100 ;
+          this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop - (1 - this.scaleFactor) * (this.windowHeight / 2 - event.clientY - this.$refs.slideSection.scrollTop) - (1 - this.scaleFactor) * 100 ;
           var c = document.getElementById(this.parent_x + "")
           var ctx = c.getContext("2d");
 
@@ -1077,6 +1051,10 @@
         if (this.scaleFactor > 0.50) {
           this.scaleFactor = this.scaleFactor - 0.05
         }
+      },
+      resetZoomScale() {
+        this.scaleFactor = 1
+
       },
 
       //========== Slide ============
