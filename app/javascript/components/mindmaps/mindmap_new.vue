@@ -106,7 +106,7 @@
         <a 
           href="javascript:;"
           role="button" 
-          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
+          class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
           @click.stop="zoomInScale" 
         >
           <i class="material-icons icons d-flex center_flex">zoom_in</i>
