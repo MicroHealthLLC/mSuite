@@ -1271,7 +1271,7 @@
     font-size  : 80%;
     border     : 1px solid #edeeef;
     padding    : 1em;
-    line-height: 0.6;
+    line-height: 1.5;
     height     : 40vh;
     max-height : 40vh;
     overflow   : auto;
