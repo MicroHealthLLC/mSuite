@@ -62,23 +62,7 @@
             @click.stop="$refs.resetMapModal.open" 
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
-          </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.openMapModal.open" 
-          >
-            <i class="fa fa-folder-open open_icon icons d-flex center_flex"></i>
-          </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.newMapModal.open" 
-          >
-            <i class="material-icons new_icon icons d-flex center_flex"></i>
-          </a> 
+          </a>
           <a 
             ref="exportBtn"
             role="button" 
