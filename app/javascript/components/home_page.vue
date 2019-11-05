@@ -62,6 +62,7 @@
         mapsArr: []
       }
     },
+    
     methods: {
       createNewMap() {
         window.open("/mindmaps/new","_self")

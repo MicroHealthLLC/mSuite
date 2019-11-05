@@ -62,7 +62,23 @@
             @click.stop="$refs.resetMapModal.open" 
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
-          </a>
+          </a> 
+          <a 
+            href="javascript:;"
+            role="button" 
+            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            @click.stop="$refs.openMapModal.open" 
+          >
+            <i class="fa fa-folder-open open_icon icons d-flex center_flex"></i>
+          </a> 
+          <a 
+            href="javascript:;"
+            role="button" 
+            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            @click.stop="$refs.newMapModal.open" 
+          >
+            <i class="material-icons new_icon icons d-flex center_flex"></i>
+          </a> 
           <a 
             ref="exportBtn"
             role="button" 
@@ -76,40 +92,48 @@
       </div>
     </div>
     <div class="scaling_area">
-      <span class="flex">
-          <a
-                  v-if="this.scaleFactor != 1"
-                  href="javascript:;"
-                  role="button"
-                  class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
-                  @click.stop="resetZoomScale"
-          >
+      <span class="d-flex">
+        <a
+          v-if="this.scaleFactor != 1"
+          href="javascript:;"
+          role="button"
+          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
+          @click.prevent="resetZoomScale"
+        >
           <i class="material-icons icons d-flex center_flex">youtube_searched_for</i>
         </a>
-
+        <a 
+          href="javascript:;"
+          role="button" 
+          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
+          @click.prevent="zoomInScale" 
+        >
+          <i class="material-icons icons d-flex center_flex">zoom_in</i>
+        </a> 
         <a 
           href="javascript:;"
           role="button" 
           class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
-          @click.stop="zoomInScale" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_in</i>
-        </a> 
-
-        <a
-          href="javascript:;"
-          role="button" 
-          class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
-          @click.stop="zoomOutScale" 
+          @click.prevent="zoomOutScale" 
         >
           <i class="material-icons icons d-flex center_flex">zoom_out</i>
-        </a>
-
+        </a> 
       </span>
     </div>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
       <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
+          <div class="row central_node_attachment text-secondary">
+            <div class="add-central-notes col-6">
+              <i v-if="!selectedNode" @click.stop="openCentralAttachModal" class="material-icons">post_add</i>
+            </div>
+            <div class="col-6">
+              <span class="central_notes_bar">
+                <i v-if="C_hasDescription" class="material-icons mr-2">message</i>
+                <span v-if="C_centralFileCount > 0" style="font-size: 12px;"><i class="far fa-file-alt"></i> <sup style="color: black;"> {{C_centralFileCount}}</sup></span>
+              </span>
+            </div>
+          </div>
           <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
           <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle"/>
         </div>
@@ -231,7 +255,7 @@
       </div>
     </sweet-modal>
 
-    <sweet-modal ref="attachmentModal" id="attachment-modal" class="of_v">
+    <sweet-modal @close="nullifyAttachmentModal" ref="attachmentModal" id="attachment-modal" class="of_v">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-success center_flex mlr_a">
           <i class="material-icons text-white">post_add</i>
@@ -239,15 +263,19 @@
       </div>
       <sweet-modal-tab title="Description" id="description-tab">
         <template v-if="selectedNode">
-          <section v-if="descEditMode">
+          <section>
+            <span v-if="!descEditMode" class="edit-icon shadow" @click.stop="descEditMode = true">
+              <i class="material-icons">edit</i>
+            </span>
             <quill-editor
-              v-model="selectedNode.description"
+              v-model="nodeNotes"
               ref="contentEditor"
               :options="editorOption"
+              :disabled="!descEditMode"
             >
             </quill-editor>
 
-            <div class="right_flex mt_2">
+            <div v-if="descEditMode" class="right_flex mt_2">
               <a 
                 href="javascript:;" 
                 class="btn_1 btn-sm bg-danger text-white mr_1"
@@ -258,18 +286,6 @@
               </a>
             </div>
           </section>
-          <section v-else>
-            <section v-if="selectedNode.description"
-              class="node-description-tab"
-              v-html="selectedNode.description"
-            ></section>
-            <section v-else class="node-description-tab text-center text-secondary">
-              <i>No description present..</i>
-            </section>
-            <span class="edit-icon shadow" @click.stop="descEditMode = true">
-              <i class="material-icons">edit</i>
-            </span>
-          </section>
         </template>
       </sweet-modal-tab>
       <sweet-modal-tab title="Files" id="files-tab">
@@ -277,7 +293,7 @@
           <div class="col-md-6">
             <attachment-input 
               :show-label="true" 
-              @input="addFile"
+              @input="addFileToNode"
             >
             </attachment-input>
           </div>
@@ -292,6 +308,72 @@
                     <i class="material-icons p-2">get_app</i>
                   </a>
                   <a href="javascript:;" :data-file-id="file.id" class="remove-btn" @click.prevent="removeFile(file)">
+                    <i class="material-icons p-2">close</i>
+                  </a>
+                </span>
+              </div>
+            </div>
+            <div v-else class="empty-file-list text-secondary">
+              No files attached...
+            </div>
+          </div>
+        </section>
+      </sweet-modal-tab>
+    </sweet-modal>
+
+    <sweet-modal @close="nullifyAttachmentModal" ref="centralAttachmentModal" id="central-attachment-modal" class="of_v">
+      <div class="sweet_model_icon_div">
+        <div class="radius_circle bg-success center_flex mlr_a">
+          <i class="material-icons text-white">post_add</i>
+        </div>
+      </div>
+      <sweet-modal-tab title="Description" id="central-description-tab">
+        <div>
+          <section>
+            <span v-if="!descEditMode" class="edit-icon shadow" @click.stop="descEditMode = true">
+              <i class="material-icons">edit</i>
+            </span>
+            <quill-editor
+              v-model="centralNotes"
+              ref="contentEditor"
+              :options="editorOption"
+              :disabled="!descEditMode"
+            >
+            </quill-editor>
+
+            <div v-if="descEditMode" class="right_flex mt_2">
+              <a
+                href="javascript:;" 
+                class="btn_1 btn-sm bg-danger text-white mr_1"
+                @click.stop="updateMapNotes" 
+              >
+                <i class="material-icons mr-1">done</i>
+                Save
+              </a>
+            </div>
+          </section>
+        </div>
+      </sweet-modal-tab>
+      <sweet-modal-tab title="Files" id="files-tab">
+        <section class="row node-files-tab">
+          <div class="col-md-6">
+            <attachment-input 
+              :show-label="true" 
+              @input="addFileToCentralNode"
+            >
+            </attachment-input>
+          </div>
+          <div class="col-md-6 node-files-list">
+            <div v-if="attachFiles.length > 0">
+              <div class="files-list p-2" v-for="file in attachFiles">
+                <span class="files-name text-left mr-1 p-1"> 
+                  {{ file.uri.split("/").pop().replace(/%20/g, ' ') }}
+                </span>
+                <span class="files-action d-flex align-items-center">
+                  <a :href="fileLink(file)" target="_blank" class="download-btn mr-2">
+                    <i class="material-icons p-2">get_app</i>
+                  </a>
+                  <a href="javascript:;" :data-file-id="file.id" class="remove-btn" @click.prevent="removeCentralNodeFile(file)">
                     <i class="material-icons p-2">close</i>
                   </a>
                 </span>
@@ -369,6 +451,8 @@
 
         // attachment
         attachmentModal   : false,
+        centralNotes      : "",
+        nodeNotes         : "",
         uploadFiles       : [],
         attachFiles       : [],
         descEditMode      : false,
@@ -381,9 +465,6 @@
               ['link'],
               [{ 'header': 1 }, { 'header': 2 }],
               [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-              // [{ 'script': 'sub' }, { 'script': 'super' }],
-              // [{ 'indent': '-1' }, { 'indent': '+1' }],
-              // [{ 'font': [] }],
               [{ 'color': [] }, { 'background': [] }]
             ],
             syntax : {
@@ -406,7 +487,7 @@
       C_centeralNodePosition() {
         return {
           left: (Math.floor(this.windowWidth/2) - 120) +'px', 
-          top : (Math.floor(this.windowHeight/2) - 40) +'px'
+          top : (Math.floor(this.windowHeight/2) - 70) +'px'
         }
       },
       C_selectedNodeId() {
@@ -427,6 +508,12 @@
           width : this.centralIdeaWidth,
           height: this.centralIdeaHeight
         }
+      },
+      C_centralFileCount() {
+        return this.currentMindMap.attach_files.length
+      },
+      C_hasDescription() {
+        return !!this.currentMindMap.description
       }
     },
     
@@ -880,11 +967,18 @@
       // =============== Node CRUD OPERATIONS =====================
 
       // =============== Map CRUD OPERATIONS =====================
-      saveCurrentMap() {
+      saveCurrentMap(files=null) {
         if (this.currentMindMap.id) {
-          http.put(`/mindmaps/${this.currentMindMap.unique_key}.json`, {mindmap: this.currentMindMap}).then((res) => {
+          var formData = files ? new FormData() : {mindmap: this.currentMindMap}
+          if (files) {
+            files.forEach((file) => {
+              formData.append("mindmap[node_files][]", file)
+            })
+          }
+          http.put(`/mindmaps/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
+            this.attachFiles    = res.data.mindmap.attach_files
             this.selectedNode   = null
             this.updateQuery()
           }).catch((error) => {
@@ -1038,7 +1132,7 @@
       },
       resetZoomScale() {
         this.scaleFactor = 1
-
+        this.$forceUpdate()
       },
 
       //========== Slide ============
@@ -1081,17 +1175,26 @@
       },
 
       // attchment
+      nullifyAttachmentModal() {
+        this.centralNotes = ""
+        this.nodeNotes = ""
+        this.attachmentModal = false
+        this.descEditMode = false
+      },
       openAttachments() {
         if(!this.selectedNode) { return; }
+        this.attachmentModal = true
+        this.nodeNotes = this.selectedNode.description
         this.attachFiles = this.selectedNode.attach_files
         this.$refs.attachmentModal.open()
       },
       updateNodeDescription(node) {
         this.nodeUpdatedFlag = true
+        node.description = this.nodeNotes
         this.saveNode(node)
         this.descEditMode = false
       },
-      addFile(params) {
+      addFileToNode(params) {
         this.uploadFiles.push(params.data)
         if (params.length == this.uploadFiles.length) {
           this.nodeUpdatedFlag = true
@@ -1101,7 +1204,7 @@
       },
       removeFile(file) {
         http
-          .put(`/nodes/${this.selectedNode.id}/destroy_file`, {file: file})
+          .put(`/nodes/${this.selectedNode.id}/destroy_file.json`, {file: file})
           .then((res) => {
             _.remove(this.attachFiles, (f) => f.id === file.id)
             this.$forceUpdate()
@@ -1112,8 +1215,42 @@
       },
       fileLink(file) {
         return window.location.origin + file.uri
+      },
+
+      // central Idea Attachments
+      openCentralAttachModal() {
+        this.attachFiles = this.currentMindMap.attach_files
+        this.attachmentModal = true
+        this.centralNotes = this.currentMindMap.description
+        this.$refs.centralAttachmentModal.open()
+      },
+      updateMapNotes() {
+        this.currentMindMap.description = this.centralNotes
+        this.saveCurrentMap()
+        this.descEditMode = false
+      },
+      addFileToCentralNode(params) {
+        this.uploadFiles.push(params.data)
+        if (params.length == this.uploadFiles.length) {
+          this.saveCurrentMap(this.uploadFiles)
+          this.uploadFiles = []
+        }
+      },
+      removeCentralNodeFile(file) {
+        if(!file) { return; }
+        
+        http
+          .put(`/mindmaps/${this.currentMindMap.unique_key}/destroy_file.json`, {file: file})
+          .then((res) => {
+            _.remove(this.attachFiles, (f) => f.id === file.id)
+            this.$forceUpdate()
+          }).catch((error) => {
+            console.log(error)
+            console.log("Unable to destroy the file..")
+          })
       }
     },
+
     mounted() {
       if (this.$route.query.key) {
         this.getMindmap(this.$route.query.key)
@@ -1123,11 +1260,13 @@
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)
     },
+
     created(){
       this.$nextTick(() => {
         this.scrollToCenter()
       })
     },
+
     watch: {
       "currentMindMap.id"() {
         if (this.currentMindMap.id) {
@@ -1149,6 +1288,10 @@
         let dheight            = Math.ceil(value.length / 15)
         dheight                = dheight > 1 ? dheight * 2 : 3
         this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+      },
+      descEditMode(value) {
+        document.getElementsByClassName("ql-toolbar")[0].style.display = value ? "block" : "none"
+        document.getElementsByClassName("ql-container")[0].style.borderTop = value ? "0px" : "1px solid #ccc"
       }
     }
   }
@@ -1206,7 +1349,7 @@
     display         : none;
     position        : absolute;
     left            : 4.55em;
-    top             : 1.7em;
+    top             : 2.6em;
     z-index         : 100;
   }
   .center:hover .start_dot {
@@ -1229,33 +1372,33 @@
     right   : 2em;
     z-index : 100;
   }
-  .rich_text_area {
-    position: fixed;
-    top     : 4.4em;
-    left    : 2em;
-    z-index : 100;
-  }
   #slideSection {
     overflow: hidden;
     height  : 100vh;
   }
-  #attachment-modal /deep/ .sweet-modal {
+  #central-attachment-modal /deep/ .sweet-modal, #attachment-modal /deep/ .sweet-modal {
     min-width: 800px;
     .sweet-content {
       padding-top   : 1.5em;
       padding-bottom: 2.5em;
     }
   }
-  #attachment-modal /deep/ .ql-container {
+  #central-attachment-modal /deep/ .ql-container, #attachment-modal /deep/ .ql-container {
     height    : 40vh;
     max-height: 40vh;
+    border-top: 1px solid #ccc;
   }
+
+  #central-attachment-modal /deep/ .ql-toolbar, #attachment-modal /deep/ .ql-toolbar {
+    display: none;
+  }
+
   .node-description-tab {
     text-align : left;
     font-size  : 80%;
     border     : 1px solid #edeeef;
     padding    : 1em;
-    line-height: 1.5;
+    line-height: 0.6;
     height     : 40vh;
     max-height : 40vh;
     overflow   : auto;
@@ -1278,6 +1421,7 @@
     background-color: #edeeef;
     color           : #17a2b8;
     cursor          : pointer;
+    z-index         : 99; 
     i {
       font-size: 20px;
     }
@@ -1332,6 +1476,22 @@
       font-size : 15px;
       font-style: italic;
       padding   : 1em;
+    }
+  }
+  .central_node_attachment {
+    z-index: 99;
+    i {
+      font-size: 1em;
+    }
+  }
+  .central_notes_bar {
+    display    : flex;
+    align-items: center;
+  }
+  .add-central-notes {
+    height: 1.3em;
+    i {
+      cursor: pointer;
     }
   }
 </style>

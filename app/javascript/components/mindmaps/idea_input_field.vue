@@ -7,20 +7,23 @@
       :class="C_expandCollapseIconPositionClass">
       <i 
         v-if="hideChildren == false" 
-        class="material-icons"
+        class="material-icons collapse_icon"
         @click.stop="switchExpandChildren"
-      >remove_circle</i>
+      >remove</i>
       <i 
         v-else 
-        class="material-icons"
+        class="material-icons collapse_icon"
         @click.stop="switchExpandChildren"
-      >add_circle</i>
+      >add</i>
     </span>
     <textarea v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="newIdeaStyle"/>
     <div v-else class="new_idea">
       <div class="node_attachment text-secondary px-2">
-        <span class="float-left">{{fileCount}}</span>
-        <i v-if="isSelected" @click.stop="addAttachModal" class="material-icons float-right">post_add</i>
+        <i v-if="isSelected" @click.stop="addAttachModal" class="material-icons">post_add</i>
+        <span class="notes_bar">
+          <i v-if="hasDescription" class="material-icons mr-2">message</i>
+          <span v-if="fileCount > 0"><i class="far fa-file-alt"></i> <sup style="color: black;">{{fileCount}} </sup></span>
+        </span>
       </div>
       <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
       <p v-else class="new_idea_pg py-2">{{tempLocalValue}}</p>
@@ -42,6 +45,7 @@
       'isEdited',
       'nodeAttr'
     ],
+
     data() {
       return {
         localValue     : this.value,
@@ -52,6 +56,7 @@
         isEditing      : false
       }
     },
+
     computed: {
       C_expandCollapseIconPositionClass() {
         if (this.quadrant == "UL" || this.quadrant == "LL") {
@@ -72,12 +77,13 @@
         }
       },
       fileCount() {
-        let count = this.nodeAttr.attach_files.length
-        if (count == 0) return "No documents.."
-        
-        return count > 1 ? count + " documents.." : count + " document"
+        return this.nodeAttr.attach_files.length
+      },
+      hasDescription() {
+        return !!this.nodeAttr.description
       }
     },
+
     methods: {
       startDrag(event) {
         this.$emit('start-drag', event)
@@ -103,6 +109,7 @@
         this.$emit('open-attachment', event)
       }
     },
+
     watch: {
       value() {
         this.tempLocalValue = this.value
@@ -123,7 +130,6 @@
       }
     }
   }
-  
 </script>
 
 <style scoped lang="scss">
@@ -195,7 +201,7 @@
     color   : darkgray;
     position: absolute;
     top     : 30px;
-    z-index : 101;
+    z-index : 199;
   }
   .left_position_icon {
     left: 25px;
@@ -204,11 +210,22 @@
     left: 85px;
   }
   .node_attachment {
-    z-index        : 99;
-    display        : flex;
-    justify-content: space-between;
+    z-index: 99;
+    display: flex;
     i {
-      font-size: 18px;
+      font-size: 1.2em;
     }
+  }
+  .collapse_icon {
+    font-size       : 1em;
+    color           : black;
+    background-color: #ccc;
+    border-radius   : 22%;
+    font-weight     : bold;
+  }
+  .notes_bar {
+    display    : inline-flex;
+    align-items: center;
+    margin-left: 4em;
   }
 </style>

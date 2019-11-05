@@ -5,7 +5,12 @@ Rails.application.routes.draw do
   get 'mindmaps/list_all_maps'  => 'mindmaps#list_all_maps'
   get 'nodes/hide_children'     => 'nodes#hide_children'
 
-  resources :mindmaps
+  resources :mindmaps do
+    member do
+      put :destroy_file
+    end
+  end
+  
   resources :nodes do
     member do
       put :destroy_file

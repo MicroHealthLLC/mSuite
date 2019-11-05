@@ -32,6 +32,7 @@ export default {
   props: {
     showLabel: Boolean
   },
+
   data() {
     return {
       files       : [],
@@ -39,6 +40,7 @@ export default {
       isDragActive: false
     };
   },
+  
   methods: {
     onDrop(e) {
       e.stopPropagation()
