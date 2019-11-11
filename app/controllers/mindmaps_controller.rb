@@ -63,8 +63,9 @@ class MindmapsController < ApplicationController
   end
 
   def destroy_file
-    if @mindmap.node_files.find_by(id: file_params[:id]).purge
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
+    if file = @mindmap.node_files.find_by(id: file_params[:id]) and file.present?
+      file.purge
+      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", {message: "Central Node file deleted", file: file}
       respond_to do |format|
         format.json {render json: {success: true}}
         format.html {}

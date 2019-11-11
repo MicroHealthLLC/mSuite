@@ -6,17 +6,17 @@
       class="collapse_child" 
       :class="C_expandCollapseIconPositionClass">
       <i 
-        v-if="hideChildren == false" 
+        v-if="hideChildren" 
         class="material-icons collapse_icon"
-        @click.stop="switchExpandChildren"
-      >remove</i>
+        @click.stop="expandChildren"
+      >add</i>
       <i 
         v-else 
         class="material-icons collapse_icon"
-        @click.stop="switchExpandChildren"
-      >add</i>
+        @click.stop="unexpandChildren"
+      >remove</i>
     </span>
-    <textarea v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="newIdeaStyle"/>
+    <textarea v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="C_newIdeaStyle"/>
     <div v-else class="new_idea">
       <div class="node_attachment text-secondary px-2">
         <i v-if="isSelected" @click.stop="addAttachModal" class="material-icons">post_add</i>
@@ -27,7 +27,6 @@
       </div>
       <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
       <p v-else class="new_idea_pg py-2">{{tempLocalValue}}</p>
-      
     </div>
   </div>
 </template>
@@ -53,7 +52,9 @@
         DV_collapse    : this.hideChildren,
         newIdeaWidth   : '11em',
         newIdeaHeight  : '3em',
-        isEditing      : false
+        isEditing      : false,
+        fileCount      : this.nodeAttr.attach_files.length,
+        hasDescription : !!this.nodeAttr.description
       }
     },
 
@@ -70,17 +71,12 @@
         }
         return "start_dot_right"
       },
-      newIdeaStyle() {
+      C_newIdeaStyle() {
         return {
-          width : this.newIdeaWidth,
-          height: this.newIdeaHeight
+          width    : this.newIdeaWidth,
+          height   : this.newIdeaHeight,
+          minHeight: "3em"
         }
-      },
-      fileCount() {
-        return this.nodeAttr.attach_files.length
-      },
-      hasDescription() {
-        return !!this.nodeAttr.description
       }
     },
 
@@ -98,8 +94,12 @@
       startDragIdea(event) {
         this.$emit('mousedown-event', event)
       },
-      switchExpandChildren() {
-        this.DV_collapse = !this.DV_collapse
+      expandChildren() {
+        this.DV_collapse = false
+        this.$emit('switch-expand-children', this.DV_collapse)
+      },
+      unexpandChildren() {
+        this.DV_collapse = true
         this.$emit('switch-expand-children', this.DV_collapse)
       },
       editNode() {
@@ -111,6 +111,12 @@
     },
 
     watch: {
+      nodeAttr: {
+        handler: function() {
+          this.fileCount      = this.nodeAttr.attach_files.length
+          this.hasDescription = !!this.nodeAttr.description
+        }, deep: true
+      },
       value() {
         this.tempLocalValue = this.value
       },
@@ -133,99 +139,5 @@
 </script>
 
 <style scoped lang="scss">
-  .blue_border {
-    border: 2px solid blue !important;
-  }
-  .new_idea_selected {
-    text-align   : center;
-    border       : none;
-    border       : 2px solid;
-    border-radius: 10px;
-    font-weight  : 700;
-    font-size    : 80%;
-    line-height  : 1.2;
-    word-wrap    : break-word;
-    position     : absolute;
-    bottom       : -3em;
-  }
-  .new_idea {
-    cursor     : pointer;
-    text-align : center;
-    font-weight: normal;
-    resize     : none;
-    background : none;
-    word-wrap  : break-word;
-    width      : 11em;
-    font-size  : 80%;
-    line-height: 1.2;
-    margin-top : 0.5em;
-    position   : absolute;
-    bottom     : -4em;
-    padding    : 2px;
-  }
-  .node_selected {
-    border-radius: 10px;
-    border       : 2px solid red !important;
-    cursor       : move !important;
-  }
-  .new_idea_pg:hover {
-    padding      : unset;
-    border       : 2px dotted #ccc;
-    border-radius: 10px;
-    box-shadow   : 0 0.3em 0.8em rgba(0, 0, 0, 0.15);
-  }
-  .main:hover .start_dot{
-    display: inline-block;
-  }
-  .start_dot {
-    cursor          : grab;
-    height          : 15px;
-    width           : 15px;
-    background-color: #f00;
-    border-radius   : 50%;
-    display         : none;
-    position        : absolute;
-    top             : 33px;
-    z-index         : 100;
-  }
-  .start_dot_left {
-    left: 10px;
-  }
-  .start_dot_right {
-    left: 110px;
-  }
-  .start_dot:hover {
-    border: 3px solid cornflowerblue;
-  }
-  .collapse_child {
-    color   : darkgray;
-    position: absolute;
-    top     : 30px;
-    z-index : 199;
-  }
-  .left_position_icon {
-    left: 25px;
-  }
-  .right_position_icon {
-    left: 85px;
-  }
-  .node_attachment {
-    z-index: 99;
-    display: flex;
-    i {
-      font-size: 1.2em;
-    }
-  }
-  .collapse_icon {
-    font-size       : 1em;
-    color           : black;
-    background-color: #ccc;
-    border-radius   : 22%;
-    font-weight     : bold;
-  }
-  .notes_bar {
-    display    : inline-flex;
-    align-items: center;
-    margin-left: 4em;
-  }
+  @import "./styles/idea_input_field.scss";
 </style>

@@ -1,18 +1,18 @@
 <template>
   <div class="map-container">
     <div class="buttons_area">
-      <div class="buttons_container">
+      <div class="buttons_container mx-2">
         <span class="flex">
           <a 
             href="javascript:;"
             role="button" 
             class="d-flex text-info edit_delete_btn delete ml-2 mr-3 center_flex"
-            @click.stop="$refs.homeMapModal.open" 
+            @click.stop="$refs.confirmSaveKeyModal.open" 
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
           </a> 
         </span>
-        <span class="ml_10">
+        <span class="ml_12">
           <a 
             href="javascript:;"
             role="button" 
@@ -62,23 +62,7 @@
             @click.stop="$refs.resetMapModal.open" 
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
-          </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.openMapModal.open" 
-          >
-            <i class="fa fa-folder-open open_icon icons d-flex center_flex"></i>
-          </a> 
-          <a 
-            href="javascript:;"
-            role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
-            @click.stop="$refs.newMapModal.open" 
-          >
-            <i class="material-icons new_icon icons d-flex center_flex"></i>
-          </a> 
+          </a>
           <a 
             ref="exportBtn"
             role="button" 
@@ -88,37 +72,35 @@
           >
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
+          <span class="scaling_area">
+            <a
+              v-if="scaleFactor != 1"
+              href="javascript:;"
+              role="button"
+              class="zoom_btn text-info edit_delete_btn delete center_flex mr-3"
+              @click.prevent="resetZoomScale"
+            >
+              <i class="fas fa-history"></i>
+            </a> 
+            <a 
+              href="javascript:;"
+              role="button" 
+              class="zoom_btn text-info edit_delete_btn delete center_flex mr-3"
+              @click.prevent="zoomInScale" 
+            >
+              <i class="material-icons icons d-flex center_flex">zoom_in</i>
+            </a>
+            <a 
+              href="javascript:;"
+              role="button" 
+              class="zoom_btn text-info edit_delete_btn delete mr-3 center_flex"
+              @click.prevent="zoomOutScale" 
+            >
+              <i class="material-icons icons d-flex center_flex">zoom_out</i>
+            </a>
+          </span>
         </span>
       </div>
-    </div>
-    <div class="scaling_area">
-      <span class="d-flex">
-        <a
-          v-if="this.scaleFactor != 1"
-          href="javascript:;"
-          role="button"
-          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
-          @click.prevent="resetZoomScale"
-        >
-          <i class="material-icons icons d-flex center_flex">youtube_searched_for</i>
-        </a>
-        <a 
-          href="javascript:;"
-          role="button" 
-          class="d-flex zoom_btn text-info edit_delete_btn delete center_flex"
-          @click.prevent="zoomInScale" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_in</i>
-        </a> 
-        <a 
-          href="javascript:;"
-          role="button" 
-          class="d-flex zoom_btn text-info edit_delete_btn delete ml-2 center_flex"
-          @click.prevent="zoomOutScale" 
-        >
-          <i class="material-icons icons d-flex center_flex">zoom_out</i>
-        </a> 
-      </span>
     </div>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
       <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
@@ -138,7 +120,7 @@
           <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle"/>
         </div>
         <input-field 
-          v-for="node in currentMindMap.nodes" 
+          v-for="node in currentNodes" 
           v-if="!node.is_disabled && !node.hide_self"
           v-model="node.title" 
           :key="`${node.id}`" 
@@ -156,37 +138,10 @@
           @edit-node="editNode($event, node)"
           @open-attachment="openAttachments"
           class="pos_abs input_field">
-          </input-field>
+        </input-field>
         <canvas id="map-canvas" class="has_bg" :width="windowWidth" :height="windowHeight" @click.stop="nullifyFlags"></canvas>
       </section>
-    </div>    
-    <sweet-modal ref="homeMapModal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-warning center_flex mlr_a">
-          <i class="material-icons text-white">error_outline</i>
-        </div>
-      </div>
-      <h3 class="f_smooth_auto">Did you save this Map Key?</h3>
-      <p class="text-muted fs_18">You will need the key to view the map again!</p>
-      <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-danger text-white mr_1"
-          @click.stop="goHome" 
-        >
-          <i class="material-icons mr-1">done</i>
-          Continue
-        </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.homeMapModal.close" 
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
-      </div>
-    </sweet-modal>    
+    </div>
     <sweet-modal ref="newMapModal" class="of_v">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-warning center_flex mlr_a">
@@ -306,7 +261,7 @@
               <a 
                 href="javascript:;" 
                 class="btn_1 btn-sm bg-danger text-white mr_1"
-                @click.stop="updateNodeDescription(selectedNode)" 
+                @click.prevent.stop="updateNodeDescription" 
               >
                 <i class="material-icons mr-1">done</i>
                 Save
@@ -316,7 +271,10 @@
         </template>
       </sweet-modal-tab>
       <sweet-modal-tab title="Files" id="files-tab">
-        <section class="row node-files-tab">
+        <section v-if="fileLoading" class="loading-tab">
+          <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
+        </section>
+        <section v-else class="row node-files-tab">
           <div class="col-md-6">
             <attachment-input 
               :show-label="true" 
@@ -327,17 +285,11 @@
           <div class="col-md-6 node-files-list">
             <div v-if="attachFiles.length > 0">
               <div class="files-list p-2" v-for="file in attachFiles">
-                <span class="files-name text-left mr-1 p-1"> 
-                  {{ file.uri.split("/").pop().replace(/%20/g, ' ') }}
-                </span>
-                <span class="files-action d-flex align-items-center">
-                  <a :href="fileLink(file)" target="_blank" class="download-btn mr-2">
-                    <i class="material-icons p-2">get_app</i>
-                  </a>
-                  <a href="javascript:;" :data-file-id="file.id" class="remove-btn" @click.prevent="removeFile(file)">
-                    <i class="material-icons p-2">close</i>
-                  </a>
-                </span>
+                <file-box
+                  :file="file"
+                  :key="file.id"
+                  @remove-file="removeFile"
+                ></file-box>
               </div>
             </div>
             <div v-else class="empty-file-list text-secondary">
@@ -382,7 +334,10 @@
         </div>
       </sweet-modal-tab>
       <sweet-modal-tab title="Files" id="files-tab">
-        <section class="row node-files-tab">
+        <section v-if="fileLoading" class="loading-tab">
+          <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
+        </section>
+        <section v-else class="row node-files-tab">
           <div class="col-md-6">
             <attachment-input 
               :show-label="true" 
@@ -393,17 +348,11 @@
           <div class="col-md-6 node-files-list">
             <div v-if="attachFiles.length > 0">
               <div class="files-list p-2" v-for="file in attachFiles">
-                <span class="files-name text-left mr-1 p-1"> 
-                  {{ file.uri.split("/").pop().replace(/%20/g, ' ') }}
-                </span>
-                <span class="files-action d-flex align-items-center">
-                  <a :href="fileLink(file)" target="_blank" class="download-btn mr-2">
-                    <i class="material-icons p-2">get_app</i>
-                  </a>
-                  <a href="javascript:;" :data-file-id="file.id" class="remove-btn" @click.prevent="removeCentralNodeFile(file)">
-                    <i class="material-icons p-2">close</i>
-                  </a>
-                </span>
+                <file-box
+                  :file="file"
+                  :key="file.id"
+                  @remove-file="removeCentralNodeFile"
+                ></file-box>
               </div>
             </div>
             <div v-else class="empty-file-list text-secondary">
@@ -413,18 +362,48 @@
         </section>
       </sweet-modal-tab>
     </sweet-modal>
+
+    <sweet-modal ref="confirmSaveKeyModal" class="of_v">
+      <div class="sweet_model_icon_div">
+        <div class="radius_circle bg-warning center_flex mlr_a text-white">
+          <i class="material-icons">notification_important</i>
+        </div>
+      </div>
+      <h3 class="f_smooth_auto">Did you save the map key?</h3>
+      <p class="text-muted fs_18">You will need this key <i><code>{{currentMindMap.unique_key}}</code></i> to view the map again!</p>
+      <div class="center_flex mt_2">
+        <a 
+          href="javascript:;" 
+          class="btn_2 bg-danger text-white mr_1"
+          @click.stop="goHome" 
+        >
+          <i class="material-icons mr-1">done</i>
+          Continue
+        </a>
+        <a 
+          href="javascript:;" 
+          class="btn_2 bg-primary text-white mr_1"
+          @click.stop="$refs.confirmSaveKeyModal.close" 
+        >
+          <i class="material-icons mr-1">cancel</i>
+          Cancel
+        </a>
+      </div>
+    </sweet-modal>
   </div>
 </template>
 
 <script>
   import InputField                 from "./idea_input_field"
   import http                       from "../../common/http"
+  import AttachmentInput            from '../shared/attachment_input'
+  import FileBox                    from '../shared/file_box'
   import {SweetModal,SweetModalTab} from "sweet-modal-vue"
   import _                          from "lodash"
   import domtoimage                 from "dom-to-image-more"
   import fileDownload               from "js-file-download"
   import {quillEditor}              from "vue-quill-editor"
-  import AttachmentInput            from '../shared/attachment_input'
+  import SyncLoader                 from 'vue-spinner/src/SyncLoader.vue'
   import "quill/dist/quill.core.css"
   import "quill/dist/quill.snow.css"
   import "quill/dist/quill.bubble.css"
@@ -436,12 +415,15 @@
       SweetModal,
       SweetModalTab,
       quillEditor,
-      AttachmentInput
+      AttachmentInput,
+      FileBox,
+      SyncLoader
     },
     
     data() {
       return {
         selectedNode      : null,
+        currentNodes      : [],
         nodeParent        : null,
         nodeColor         : null,
         centralIdea       : '',
@@ -482,6 +464,7 @@
         nodeNotes         : "",
         uploadFiles       : [],
         attachFiles       : [],
+        fileLoading       : false,
         descEditMode      : false,
         editorOption      : {
           modules : {
@@ -505,6 +488,28 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
+          if (
+            this.selectedNode !== null           &&
+            data.message === "Node file deleted" &&
+            this.selectedNode.id === data.node   &&
+            this.attachmentModal === true
+          ) {
+            _.remove(this.attachFiles, (f) => f.id === data.file.id)
+          } 
+          if (
+            data.message === "Central Node file deleted" &&
+            this.attachmentModal === true
+          ) {
+            _.remove(this.attachFiles, (f) => f.id === data.file.id)
+          }
+          if (
+            this.selectedNode !== null         &&
+            data.message === "Node is updated" &&
+            this.selectedNode.id === data.node.id
+          ) {
+            this.selectedNode = data.node
+          }
+
           this.getMindmap(this.currentMindMap.unique_key)
         }
       }
@@ -532,8 +537,9 @@
       },
       C_centralIdeaStyle() {
         return {
-          width : this.centralIdeaWidth,
-          height: this.centralIdeaHeight
+          width    : this.centralIdeaWidth,
+          height   : this.centralIdeaHeight,
+          minHeight: "3em"
         }
       },
       C_centralFileCount() {
@@ -552,6 +558,7 @@
           .then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
+            this.currentNodes   = res.data.mindmap.nodes 
             
             setTimeout(this.drawLines, 100)
             this.closeOpenMapModal()
@@ -569,6 +576,7 @@
           .then((res) => {
             this.loading        = false
             this.currentMindMap = res.data.mindmap
+            this.currentNodes   = res.data.mindmap.nodes
             let query           = {}
             this.$router.push({query: query})
           }).catch((error) => {
@@ -619,10 +627,10 @@
         }
         if(p_node) {
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
-            this.parent_x = p_node.position_x - 100 ;
+            this.parent_x = p_node.position_x - 100;
             this.parent_y = p_node.position_y + 25;
           } else {
-            this.parent_x = p_node.position_x + 100
+            this.parent_x = p_node.position_x + 100;
             this.parent_y = p_node.position_y + 25;
           }
         } else {
@@ -730,22 +738,22 @@
         if (this.nodeQuadrant(node) == "LL") 
         {
           if (p_node && p_node.position_x < node.position_x) {
-            return {left: (node.position_x) + 'px', top: (node.position_y - 20) + 'px'}
+            return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           } else {
-            return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
+            return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           }
         } 
         else if (this.nodeQuadrant(node) == "UL") 
         {
           if (p_node && p_node.position_x < node.position_x) {
-            return {left: (node.position_x) + 'px', top: (node.position_y - 20) + 'px'}
+            return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           } else {
-            return {left: (node.position_x - 100) + 'px', top: (node.position_y - 20) + 'px'}
+            return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           }
         } 
         else 
         {
-          return {left: node.position_x +'px', top: (node.position_y - 20) + 'px'}
+          return {left: (node.position_x - 20) +'px', top: (node.position_y - 20) + 'px'}
         }
       },
       drawLines(retry_count=0) {
@@ -782,8 +790,8 @@
                 if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL") 
                 {
                   if (p_node.position_x > nod.position_x) {
-                    ctx.moveTo(p_node.position_x - 95, p_node.position_y + 20);
-                    position_x = p_node.position_x - 95
+                    ctx.moveTo(p_node.position_x - 100, p_node.position_y + 20);
+                    position_x = p_node.position_x - 100
                     position_y =  p_node.position_y + 20
                   } else {
                     ctx.moveTo(p_node.position_x + 5, p_node.position_y + 20);
@@ -807,20 +815,11 @@
             }
             ctx.quadraticCurveTo(position_x, (position_y + nod.position_y)/2 ,nod.position_x + 5, nod.position_y + 20);
 
-            if (this.nodeQuadrant(nod) == "LL") {
-              if (p_node && p_node.position_x < nod.position_x) {
-                ctx.lineTo(nod.position_x + 100, nod.position_y + 20)
-              } else {
-                ctx.lineTo(nod.position_x - 100, nod.position_y + 20)
-              }
-            } 
-            else if (this.nodeQuadrant(nod) == "UL") 
-            {
-              if (p_node && p_node.position_x < nod.position_x) {
-                ctx.lineTo(nod.position_x + 100, nod.position_y + 20)
-              } else {
-                ctx.lineTo(nod.position_x - 100, nod.position_y + 20)
-              }
+            if (
+              this.nodeQuadrant(nod) == "LL" || 
+              this.nodeQuadrant(nod) == "UL"
+            ) {
+              ctx.lineTo(nod.position_x - 100, nod.position_y + 20)
             } 
             else {
               ctx.lineTo(nod.position_x + 100, nod.position_y + 20)
@@ -902,6 +901,7 @@
       pasteCopiedNode() {
         if (!this.copiedNode) { return; }
         let new_parent = 0
+        
         if (this.selectedNode) {
           new_parent = this.selectedNode.id
         }
@@ -910,11 +910,16 @@
         const dupNode = {}
         Object.assign(dupNode, this.copiedNode)
 
+        if (dupNode.parent_node != 0 || !this.cutFlag) {
+          dupNode.line_color = this.getRandomColor()
+        }
+
         let location        = this.getNewPosition(new_parent)
         dupNode.parent_node = new_parent
         dupNode.position_x  = location[0]
         dupNode.position_y  = location[1]
         dupNode.is_disabled = false
+        if (!!new_parent) dupNode.line_color = this.selectedNode.line_color
 
         this.drawNewLine(dupNode)
         this.copiedNode = null
@@ -944,7 +949,6 @@
         this.nodeUpdatedFlag = false
         let index = this.currentMindMap.nodes.findIndex((nod) => nod.id == node.id)
         if (index != -1) {
-          node = this.currentMindMap.nodes[index]
           var formData = files ? new FormData() : {node: node}
           if (files) {
             files.forEach((file) => {
@@ -955,7 +959,9 @@
             this.currentMindMap.nodes.splice(index, 1, res.data.node)
             // for node attachment
             this.attachFiles = res.data.node.attach_files
+            this.fileLoading = false
           }).catch((error) => {
+            this.fileLoading = false
             console.log(error)
           })
         }
@@ -1007,9 +1013,11 @@
             this.currentMindMap = res.data.mindmap
             this.attachFiles    = res.data.mindmap.attach_files
             this.selectedNode   = null
+            this.fileLoading    = false
             this.updateQuery()
           }).catch((error) => {
             console.log(error)
+            this.fileLoading = false
           })
         } else {
           http.post(`/mindmaps.json`, {mindmap: this.currentMindMap}).then((res) => {
@@ -1095,12 +1103,12 @@
         }
       },
       switchExpandChildren(flag, node) {
-        http.get(`/nodes/hide_children.json?id=${node.id}&flag=${flag}`).then((red) => {
-
-        }).catch((error) => {
-          alert("There was an error while collapsing/expanding child nodes.")
-          console.log(error)
-        })
+        http.get(`/nodes/hide_children.json?id=${node.id}&flag=${flag}`)
+          .then((res) => {})
+          .catch((error) => {
+            alert("There was an error while collapsing/expanding child nodes.")
+            console.log(error)
+          })
       },
       // =============== OTHERS =====================
       getRandomColor() {
@@ -1215,14 +1223,17 @@
         this.attachFiles = this.selectedNode.attach_files
         this.$refs.attachmentModal.open()
       },
-      updateNodeDescription(node) {
+      updateNodeDescription() {
+        if(!this.selectedNode) { return; }
         this.nodeUpdatedFlag = true
-        node.description = this.nodeNotes
-        this.saveNode(node)
+        this.selectedNode.description = this.nodeNotes
+        this.$forceUpdate()
+        this.saveNode(this.selectedNode)
         this.descEditMode = false
       },
       addFileToNode(params) {
         this.uploadFiles.push(params.data)
+        this.fileLoading  = true
         if (params.length == this.uploadFiles.length) {
           this.nodeUpdatedFlag = true
           this.saveNode(this.selectedNode, this.uploadFiles)
@@ -1230,13 +1241,17 @@
         }
       },
       removeFile(file) {
+        this.fileLoading = true
+        
         http
           .put(`/nodes/${this.selectedNode.id}/destroy_file.json`, {file: file})
           .then((res) => {
             _.remove(this.attachFiles, (f) => f.id === file.id)
             this.$forceUpdate()
+            this.fileLoading  = false
           }).catch((error) => {
             console.log(error)
+            this.fileLoading  = false
             console.log("Unable to remove the file..")
           })
       },
@@ -1258,6 +1273,7 @@
       },
       addFileToCentralNode(params) {
         this.uploadFiles.push(params.data)
+        this.fileLoading  = true
         if (params.length == this.uploadFiles.length) {
           this.saveCurrentMap(this.uploadFiles)
           this.uploadFiles = []
@@ -1265,14 +1281,17 @@
       },
       removeCentralNodeFile(file) {
         if(!file) { return; }
+        this.fileLoading = true
         
         http
           .put(`/mindmaps/${this.currentMindMap.unique_key}/destroy_file.json`, {file: file})
           .then((res) => {
             _.remove(this.attachFiles, (f) => f.id === file.id)
             this.$forceUpdate()
+            this.fileLoading = false
           }).catch((error) => {
             console.log(error)
+            this.fileLoading = false
             console.log("Unable to destroy the file..")
           })
       }
@@ -1311,6 +1330,42 @@
         },
         deep: true
       },
+      "currentMindMap.description": {
+        handler: function() {
+          this.centralNotes = this.currentMindMap.description
+        },
+        deep: true
+      },
+      "currentMindMap.attach_files": {
+        handler: function() {
+          if (!this.selectedNode) {
+            this.attachFiles = this.currentMindMap.attach_files
+          }
+        },
+        deep: true
+      },
+      "currentMindMap.nodes": {
+        handler: function() {
+          this.currentNodes = this.currentMindMap.nodes
+        },
+        deep: true
+      },
+      "selectedNode.description": {
+        handler: function() {
+          if (this.selectedNode) {
+            this.nodeNotes = this.selectedNode.description
+          }
+        },
+        deep: true
+      },
+      "selectedNode.attach_files": {
+        handler: function() {
+          if (this.selectedNode) {
+            this.attachFiles = this.selectedNode.attach_files
+          }
+        },
+        deep: true
+      },
       centralIdea(value) {
         let dheight            = Math.ceil(value.length / 15)
         dheight                = dheight > 1 ? dheight * 2 : 3
@@ -1325,200 +1380,5 @@
 </script>
 
 <style scoped lang="scss">
-  .central_idea {
-    text-align   : center;
-    border       : none;
-    position     : relative;
-    z-index      : 99;
-    border       : 5px solid red;
-    border-radius: 20px;
-    font-weight  : 800;
-  }
-  .pos_abs {
-    position: absolute !important;
-  }
-  .input_field {
-    cursor   : pointer;
-    min-width: 100px;
-  }
-  .options_button {
-    cursor          : pointer;
-    background-color: #6acfff;
-    padding         : 1vh;
-    font-size       : 20px;
-    border-radius   : 20%;
-  }
-  .button_disabled {
-    color : #a0a0a0 !important;
-    cursor: not-allowed !important;
-  }
-  .buttons_area {
-    position  : fixed;
-    overflow  : hidden;
-    top       : 0;
-    width     : 98%;
-    background: lightcyan;
-    padding   : 1vh;
-    z-index   : 100;
-  }
-  .center {
-    position   : absolute;
-    top        : 300px;
-    left       : 650px;
-    align-items: center;
-  }
-  .start_dot {
-    cursor          : -webkit-grab;
-    height          : 15px;
-    width           : 15px;
-    background-color: #f00;
-    border-radius   : 50%;
-    display         : none;
-    position        : absolute;
-    left            : 4.55em;
-    top             : 2.6em;
-    z-index         : 100;
-  }
-  .center:hover .start_dot {
-    display: inline-block;
-  }
-  .start_dot:hover {
-    border: 3px solid cornflowerblue;
-  }
-  .buttons_container {
-    display        : flex;
-    justify-content: space-between;
-  }
-  .header_logo {
-    font-family    : fantasy;
-    text-decoration: underline;
-  }
-  .scaling_area {
-    position: fixed;
-    top     : 4.4em;
-    right   : 2em;
-    z-index : 100;
-  }
-  #slideSection {
-    overflow: hidden;
-    height  : 100vh;
-  }
-  #central-attachment-modal /deep/ .sweet-modal, #attachment-modal /deep/ .sweet-modal {
-    min-width: 800px;
-    .sweet-content {
-      padding-top   : 1.5em;
-      padding-bottom: 2.5em;
-    }
-  }
-  #central-attachment-modal /deep/ .ql-container, #attachment-modal /deep/ .ql-container {
-    height    : 40vh;
-    max-height: 40vh;
-    border-top: 1px solid #ccc;
-  }
-
-  #central-attachment-modal /deep/ .ql-toolbar, #attachment-modal /deep/ .ql-toolbar {
-    display: none;
-  }
-
-  .node-description-tab {
-    text-align : left;
-    font-size  : 80%;
-    border     : 1px solid #edeeef;
-    padding    : 1em;
-    line-height: 0.6;
-    height     : 40vh;
-    max-height : 40vh;
-    overflow   : auto;
-    p {
-      margin-bottom: 0;
-    }
-  }
-  .node-files-tab {
-    height    : 40vh;
-    max-height: 40vh;
-    font-size : 80%;
-  }
-  .edit-icon {
-    position        : absolute;
-    top             : 88px;
-    border-radius   : 50%;
-    left            : 14px;
-    font-size       : 0px;
-    padding         : 10px;
-    background-color: #edeeef;
-    color           : #17a2b8;
-    cursor          : pointer;
-    z-index         : 99; 
-    i {
-      font-size: 20px;
-    }
-  }
-  .edit-icon:hover {
-    i {
-      font-size: 22px;
-    }
-  }
-  .node-files-list {
-    height  : 100%;
-    border  : 1px solid #ccc;
-    overflow: auto;
-    
-    .files-list {
-      display        : flex;
-      justify-content: space-between;
-      width          : 100%;
-      word-break     : break-word;
-      &:hover {
-        cursor    : pointer;
-        font-size : 105%;
-        box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.12);
-      }
-    }
-    
-    a {
-      color: inherit;
-      i {
-        font-size: 18px;
-      }
-      &:hover {
-        border-radius: 50%;
-        color        : white;
-      }
-    }
-    
-    .files-name {
-      display      : flow-root;
-      white-space  : nowrap;
-      width        : 24em;
-      text-overflow: ellipsis;
-      overflow     : hidden;
-    }
-    .remove-btn:hover {
-      background-color: red;
-    }
-    .download-btn:hover {
-      background-color: #17a2b8;
-    }
-    .empty-file-list {
-      font-size : 15px;
-      font-style: italic;
-      padding   : 1em;
-    }
-  }
-  .central_node_attachment {
-    z-index: 99;
-    i {
-      font-size: 1em;
-    }
-  }
-  .central_notes_bar {
-    display    : flex;
-    align-items: center;
-  }
-  .add-central-notes {
-    height: 1.3em;
-    i {
-      cursor: pointer;
-    }
-  }
+  @import "./styles/mindmap_new.scss";
 </style>

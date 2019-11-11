@@ -286,7 +286,7 @@ a:hover, .btn1:hover, .btn2:hover {
 .ml_3{margin-left: 30px}
 .ml_4{margin-left: 40px}
 .ml_5{margin-left: 50px}
-.ml_10{margin-left: 10em}
+.ml_12{margin-left: 12em}
 
 
 .mr_a{margin-right: auto}
@@ -393,7 +393,7 @@ a:hover, .btn1:hover, .btn2:hover {
   content:"restore_page"; 
 }
 .edit_delete_btn:hover .restore_icon::before{
-  content:"Restore";
+  content:"Reset";
   text-transform: capitalize;
   font-family: 'lato';
   font-family: 'lato';

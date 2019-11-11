@@ -7,7 +7,7 @@ class NodesController < ApplicationController
     @node = Node.create(node_params)
     dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id) if params[:duplicate_child_nodes].present?
     
-    duplicate_child_nodes(dup_nodes, @node.id) if dup_nodes.present?
+    Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
@@ -17,8 +17,7 @@ class NodesController < ApplicationController
 
   def update
     @node.update(node_params)
-    update_child_nodes_disabelity(Node.where(parent_node: @node.id), @node.is_disabled)
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
       format.html { }
@@ -42,8 +41,9 @@ class NodesController < ApplicationController
   end
 
   def destroy_file
-    if @node.node_files.find_by(id: file_params[:id]).purge
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+    if file = @node.node_files.find_by(id: file_params[:id]) and file.present?
+      file.purge
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node file deleted", node: @node.id, file: file}
       respond_to do |format|
         format.json { render json: {success: true}}
         format.html { }
@@ -80,30 +80,6 @@ class NodesController < ApplicationController
     end
   end
 
-  def duplicate_child_nodes(nodes, new_parent)
-    return if nodes.length == 0
-
-    nodes.each do |nod|
-      temp_node = nod.dup
-      temp_node.position_x += 50
-      temp_node.position_y -= 30
-      temp_node.parent_node = new_parent
-
-      temp_node.save
-
-      duplicate_child_nodes(Node.where(parent_node: nod.id), temp_node.id)
-    end
-  end
-
-  def update_child_nodes_disabelity(nodes, flag)
-    return if nodes.length == 0
-
-    nodes.each do |nod|
-      update_child_nodes_disabelity(Node.where(parent_node: nod.id), flag)
-      nod.update_column('is_disabled', flag)
-    end
-  end
-
   def delete_child_nodes nodes
     return if nodes.length == 0
 
@@ -125,6 +101,7 @@ class NodesController < ApplicationController
       :parent_node, 
       :mindmap_id, 
       :is_disabled, 
+      :hide_children,
       :line_color,
       :description, 
       node_files: []
