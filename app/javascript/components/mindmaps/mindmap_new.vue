@@ -337,7 +337,7 @@
         <section v-if="fileLoading" class="loading-tab">
           <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
         </section>
-        <section v-else class="row node-files-tab">
+        <section v-show="!fileLoading" class="row node-files-tab">
           <div class="col-md-6">
             <attachment-input 
               :show-label="true" 
@@ -519,7 +519,7 @@
       C_centeralNodePosition() {
         return {
           left: (Math.floor(this.windowWidth/2) - 120) +'px', 
-          top : (Math.floor(this.windowHeight/2) - 70) +'px'
+          top : (Math.floor(this.windowHeight/2) - 60) +'px'
         }
       },
       C_selectedNodeId() {
@@ -1231,14 +1231,12 @@
         this.saveNode(this.selectedNode)
         this.descEditMode = false
       },
-      addFileToNode(params) {
-        this.uploadFiles.push(params.data)
+      addFileToNode(files) {
+        this.uploadFiles = files
         this.fileLoading  = true
-        if (params.length == this.uploadFiles.length) {
-          this.nodeUpdatedFlag = true
-          this.saveNode(this.selectedNode, this.uploadFiles)
-          this.uploadFiles = []
-        }
+        this.nodeUpdatedFlag = true
+        this.saveNode(this.selectedNode, this.uploadFiles)
+        this.uploadFiles = []
       },
       removeFile(file) {
         this.fileLoading = true
@@ -1271,13 +1269,11 @@
         this.saveCurrentMap()
         this.descEditMode = false
       },
-      addFileToCentralNode(params) {
-        this.uploadFiles.push(params.data)
+      addFileToCentralNode(files) {
+        this.uploadFiles = files
         this.fileLoading  = true
-        if (params.length == this.uploadFiles.length) {
-          this.saveCurrentMap(this.uploadFiles)
-          this.uploadFiles = []
-        }
+        this.saveCurrentMap(this.uploadFiles)
+        this.uploadFiles = []
       },
       removeCentralNodeFile(file) {
         if(!file) { return; }
