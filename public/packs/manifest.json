@@ -1,34 +1,42 @@
 {
-  "canvas_operations.js": "/packs/js/canvas_operations-68849a949a39c37c64cd.js",
-  "canvas_operations.js.map": "/packs/js/canvas_operations-68849a949a39c37c64cd.js.map",
+  "canvas_operations.js": "/packs/js/canvas_operations-0000ce47f7505f6d9b66.js",
+  "canvas_operations.js.map": "/packs/js/canvas_operations-0000ce47f7505f6d9b66.js.map",
   "entrypoints": {
     "canvas_operations": {
       "js": [
-        "/packs/js/canvas_operations-68849a949a39c37c64cd.js"
+        "/packs/js/canvas_operations-0000ce47f7505f6d9b66.js"
       ],
       "js.map": [
-        "/packs/js/canvas_operations-68849a949a39c37c64cd.js.map"
+        "/packs/js/canvas_operations-0000ce47f7505f6d9b66.js.map"
       ]
     },
     "home_page": {
+      "css": [
+        "/packs/css/home_page-1ae80cb6.css"
+      ],
       "js": [
-        "/packs/js/home_page-981124a112f42786b064.js"
+        "/packs/js/home_page-3ad9febb60439abbf831.js"
       ],
       "js.map": [
-        "/packs/js/home_page-981124a112f42786b064.js.map"
+        "/packs/js/home_page-3ad9febb60439abbf831.js.map"
       ]
     },
     "map_dashboard": {
+      "css": [
+        "/packs/css/map_dashboard-822e0718.css"
+      ],
       "js": [
-        "/packs/js/map_dashboard-f0100bfaeda643e7f482.js"
+        "/packs/js/map_dashboard-f69e6ab06dc810aae970.js"
       ],
       "js.map": [
-        "/packs/js/map_dashboard-f0100bfaeda643e7f482.js.map"
+        "/packs/js/map_dashboard-f69e6ab06dc810aae970.js.map"
       ]
     }
   },
-  "home_page.js": "/packs/js/home_page-981124a112f42786b064.js",
-  "home_page.js.map": "/packs/js/home_page-981124a112f42786b064.js.map",
-  "map_dashboard.js": "/packs/js/map_dashboard-f0100bfaeda643e7f482.js",
-  "map_dashboard.js.map": "/packs/js/map_dashboard-f0100bfaeda643e7f482.js.map"
+  "home_page.css": "/packs/css/home_page-1ae80cb6.css",
+  "home_page.js": "/packs/js/home_page-3ad9febb60439abbf831.js",
+  "home_page.js.map": "/packs/js/home_page-3ad9febb60439abbf831.js.map",
+  "map_dashboard.css": "/packs/css/map_dashboard-822e0718.css",
+  "map_dashboard.js": "/packs/js/map_dashboard-f69e6ab06dc810aae970.js",
+  "map_dashboard.js.map": "/packs/js/map_dashboard-f69e6ab06dc810aae970.js.map"
 }
