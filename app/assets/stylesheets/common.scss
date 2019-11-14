@@ -407,6 +407,33 @@ a:hover, .btn1:hover, .btn2:hover {
   -webkit-font-smoothing: auto;
 }
 
+.material-icons.zoom_in_icon::before{
+  content:"Zoom+"; 
+}
+.edit_delete_btn:hover .zoom_in_icon::before{
+  content:"Zoom+";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+.material-icons.zoom_out_icon::before{
+  content:"Zoom-"; 
+}
+.edit_delete_btn:hover .zoom_out_icon::before{
+  content:"Zoom-";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+
 .edit_delete_btn:hover .open_icon::before{
   content:"Open";
   text-transform: capitalize;
