@@ -88,7 +88,7 @@
               class="zoom_btn text-info edit_delete_btn delete center_flex mr-3"
               @click.prevent="zoomInScale" 
             >
-              <i class="material-icons icons d-flex center_flex">zoom_in</i>
+              <i class="material-icons zoom_in_icon icons d-flex center_flex">zoom_in</i>
             </a>
             <a 
               href="javascript:;"
@@ -96,7 +96,7 @@
               class="zoom_btn text-info edit_delete_btn delete mr-3 center_flex"
               @click.prevent="zoomOutScale" 
             >
-              <i class="material-icons icons d-flex center_flex">zoom_out</i>
+              <i class="material-icons zoom_out_icon icons d-flex center_flex">zoom_out</i>
             </a>
           </span>
         </span>
