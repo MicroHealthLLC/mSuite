@@ -341,7 +341,7 @@ a:hover, .btn1:hover, .btn2:hover {
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
-.material-icons.cut_icon::before{
+.fa.fa-cut.cut_icon::before{
   content:"cut"; 
 }
 .edit_delete_btn:hover .cut_icon::before{
@@ -354,7 +354,7 @@ a:hover, .btn1:hover, .btn2:hover {
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
-.material-icons.paste_icon::before{
+.fa.fa-paste.paste_icon::before{
   content:"paste"; 
 }
 .edit_delete_btn:hover .paste_icon::before{
