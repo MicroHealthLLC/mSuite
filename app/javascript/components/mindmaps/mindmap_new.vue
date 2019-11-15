@@ -6,7 +6,7 @@
           <a 
             href="javascript:;"
             role="button" 
-            class="d-flex text-info edit_delete_btn delete ml-2 mr-3 center_flex"
+            class="d-flex text-info edit_delete_btn ml-2 mr-3 center_flex"
             @click.stop="$refs.confirmSaveKeyModal.open" 
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
@@ -18,7 +18,7 @@
             role="button" 
             :disabled="!selectedNode" 
             :class="{button_disabled: !selectedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
             @click.stop="deleteSelectedNode" 
           >
             <i class="material-icons delete_icon icons d-flex center_flex"></i>
@@ -28,27 +28,29 @@
             role="button" 
             :disabled="!selectedNode" 
             :class="{button_disabled: !copiedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
             @click.stop="pasteCopiedNode" 
           >
             <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
+            <span class="fa-icon-text">Paste</span>
           </a> 
           <a 
             href="javascript:;"
             role="button" 
             :disabled="!selectedNode" 
             :class="{button_disabled: !selectedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
             @click.stop="cutSelectedNode" 
           >
             <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
+            <span class="fa-icon-text">Cut</span>
           </a> 
           <a 
             href="javascript:;"
             role="button" 
             :disabled="!selectedNode" 
             :class="{button_disabled: !selectedNode}" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
             @click.stop="copySelectedNode" 
           >
             <i class="material-icons copy_icon icons d-flex center_flex"></i>
@@ -58,7 +60,7 @@
           <a 
             href="javascript:;"
             role="button" 
-            class="d-flex text-info edit_delete_btn delete mr-3 center_flex"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
             @click.stop="$refs.resetMapModal.open" 
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
@@ -66,7 +68,7 @@
           <a 
             ref="exportBtn"
             role="button" 
-            class="d-flex text-info pointer edit_delete_btn delete mr-3 center_flex"
+            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
             @click.stop="exportToImage" 
             download="image.png" 
           >
@@ -77,26 +79,27 @@
               v-if="scaleFactor != 1"
               href="javascript:;"
               role="button"
-              class="zoom_btn text-info edit_delete_btn delete center_flex mr-3"
+              class="fa-icon zoom_btn text-info edit_delete_btn center_flex mr-3"
               @click.prevent="resetZoomScale"
             >
-              <i class="fas fa-history"></i>
+              <i class="fas fa-history icons d-flex center_flex"></i>
+              <span class="fa-icon-text">100%</span>
             </a> 
             <a 
               href="javascript:;"
               role="button" 
-              class="zoom_btn text-info edit_delete_btn delete center_flex mr-3"
+              class="zoom_btn text-info edit_delete_btn center_flex mr-3"
               @click.prevent="zoomInScale" 
             >
-              <i class="material-icons icons d-flex center_flex">zoom_in</i>
+              <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
             </a>
             <a 
               href="javascript:;"
               role="button" 
-              class="zoom_btn text-info edit_delete_btn delete mr-3 center_flex"
+              class="zoom_btn text-info edit_delete_btn mr-3 center_flex"
               @click.prevent="zoomOutScale" 
             >
-              <i class="material-icons icons d-flex center_flex">zoom_out</i>
+              <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
             </a>
           </span>
         </span>

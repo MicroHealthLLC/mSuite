@@ -309,8 +309,7 @@ a:hover, .btn1:hover, .btn2:hover {
 }
 .edit_delete_btn:hover .home_icon::before{
   text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
+  font-family: sans-serif;
   font-size: 12px;
   text-align: center;
   text-decoration: none;
@@ -321,8 +320,7 @@ a:hover, .btn1:hover, .btn2:hover {
 }
 .edit_delete_btn:hover .delete_icon::before{
   text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
+  font-family: sans-serif;
   font-size: 12px;
   text-align: center;
   text-decoration: none;
@@ -334,56 +332,20 @@ a:hover, .btn1:hover, .btn2:hover {
 .edit_delete_btn:hover .copy_icon::before{
   content:"Copy";
   text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
+  font-family: sans-serif;
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
 
-.edit_delete_btn:hover .cut_icon::before{
-  content:"Cut";
-  text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
-  font-size: 12px;
-  text-align: center;
-  text-decoration: none;
-  -webkit-font-smoothing: auto;
-}
-
-.edit_delete_btn:hover .paste_icon::before{
-  content:"Paste";
-  text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
-  font-size: 12px;
-  text-align: center;
-  text-decoration: none;
-  -webkit-font-smoothing: auto;
-}
 .material-icons.export_icon::before{
   content:"image"; 
 }
 .edit_delete_btn:hover .export_icon::before{
   content:"Export";
   text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
-  font-size: 12px;
-  text-align: center;
-  text-decoration: none;
-  -webkit-font-smoothing: auto;
-}
-.material-icons.new_icon::before{
-  content:"add"; 
-}
-.edit_delete_btn:hover .new_icon::before{
-  content:"New";
-  text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
+  font-family: sans-serif;
   font-size: 12px;
   text-align: center;
   text-decoration: none;
@@ -395,19 +357,50 @@ a:hover, .btn1:hover, .btn2:hover {
 .edit_delete_btn:hover .restore_icon::before{
   content:"Reset";
   text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
+  font-family: sans-serif;
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
-.edit_delete_btn:hover .open_icon::before{
-  content:"Open";
+.material-icons.zoom_in_icon::before{
+  content:"zoom_in"; 
+}
+.material-icons.zoom_out_icon::before{
+  content:"zoom_out"; 
+}
+.edit_delete_btn:hover .zoom_in_icon::before{
+  content:"Zoom+";
   text-transform: capitalize;
-  font-family: 'lato';
-  font-family: 'lato';
+  font-family: sans-serif;
   font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+.edit_delete_btn:hover .zoom_out_icon::before{
+  content:"Zoom-";
+  text-transform: capitalize;
+  font-family: sans-serif;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+.fa-icon:hover {
+  i, svg {
+    display: none !important;
+  }
+  span.fa-icon-text {
+    display: flex !important;
+    align-items: center;
+    justify-content: center; 
+  }
+}
+.fa-icon-text {
+  display: none;
+  font-size: 12px;
+  font-family: sans-serif;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
@@ -619,7 +612,6 @@ a.back-to-link{
 a.edit_delete_btn {
   background-color: #e9ecef;
   border-radius: 25%;
-  display: inline-block;
   float: right;
   font-size: 1.25rem;
   height: 3rem;
@@ -629,7 +621,7 @@ a.edit_delete_btn {
   overflow: hidden;
   text-align: center;
   text-decoration: none;
-  transition: all 0.2s ease-in-out;
+  transition: all .3s ease-in-out;
   width: 3rem;
 }
 .btn_2:hover, .btn_1:hover{

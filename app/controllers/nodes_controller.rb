@@ -5,6 +5,7 @@ class NodesController < ApplicationController
   def create
     # get nested children
     @node = Node.create(node_params)
+    @node.duplicate_files(params[:duplicate_child_nodes]) if params[:duplicate_child_nodes].present?
     dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id) if params[:duplicate_child_nodes].present?
     
     Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?

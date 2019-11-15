@@ -34,13 +34,28 @@ class Node < ApplicationRecord
       temp_node = nod.dup
       temp_node.position_x += 50
       temp_node.position_y -= 30
+      temp_node.line_color = parent.line_color
+      
+      # duplicate node attachments
+      nod.node_files.each do |file|
+        temp_node.node_files.attach(file.blob)
+      end
+      
       temp_node.save
       duplicate_child_nodes(Node.where(parent_node: nod.id), temp_node)
       
       temp_node.update_columns(
-        parent_node: parent.id,
-        line_color: parent.line_color
+        parent_node: parent.id
       )
+    end
+  end
+
+  def duplicate_files(clon_id)
+    clon = Node.find_by(id: clon_id)
+    if clon and clon.node_files.present?
+      clon.node_files.each do |file|
+        self.node_files.attach(file.blob)
+      end
     end
   end
 
