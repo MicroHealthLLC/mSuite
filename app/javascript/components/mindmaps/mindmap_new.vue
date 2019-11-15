@@ -1127,12 +1127,12 @@
         if(this.attachmentModal) { return; }
         if (event.deltaY < 0) {
           if (this.scaleFactor < 1.50) {
-            this.scaleFactor = this.scaleFactor + 0.01
+            this.scaleFactor = this.scaleFactor + 0.03
           }
         }
         else if (event.deltaY > 0) {
           if (this.scaleFactor > 0.50) {
-            this.scaleFactor = this.scaleFactor - 0.01
+            this.scaleFactor = this.scaleFactor - 0.03
           }
         }
 
