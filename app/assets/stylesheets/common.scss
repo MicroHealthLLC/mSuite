@@ -305,102 +305,141 @@ a:hover, .btn1:hover, .btn2:hover {
 /*Icons */
 
 .material-icons.home_icon::before{
-  content:"home"; 
+  content:"home";
 }
 .edit_delete_btn:hover .home_icon::before{
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
 .material-icons.delete_icon::before{
-  content:"delete"; 
+  content:"delete";
 }
 .edit_delete_btn:hover .delete_icon::before{
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
 .material-icons.copy_icon::before{
-  content:"file_copy"; 
+  content:"file_copy";
 }
 .edit_delete_btn:hover .copy_icon::before{
   content:"Copy";
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
-
+.fa.fa-cut.cut_icon::before{
+  content:"cut";
+}
+.edit_delete_btn:hover .cut_icon::before{
+  content:"Cut";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+.fa.fa-paste.paste_icon::before{
+  content:"paste";
+}
+.edit_delete_btn:hover .paste_icon::before{
+  content:"Paste";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
 .material-icons.export_icon::before{
-  content:"image"; 
+  content:"image";
 }
 .edit_delete_btn:hover .export_icon::before{
   content:"Export";
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+.material-icons.new_icon::before{
+  content:"add";
+}
+.edit_delete_btn:hover .new_icon::before{
+  content:"New";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
 .material-icons.restore_icon::before{
-  content:"restore_page"; 
+  content:"restore_page";
 }
 .edit_delete_btn:hover .restore_icon::before{
   content:"Reset";
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
+
 .material-icons.zoom_in_icon::before{
-  content:"zoom_in"; 
-}
-.material-icons.zoom_out_icon::before{
-  content:"zoom_out"; 
+  content:"Zoom+";
 }
 .edit_delete_btn:hover .zoom_in_icon::before{
   content:"Zoom+";
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
+}
+.material-icons.zoom_out_icon::before{
+  content:"Zoom-";
 }
 .edit_delete_btn:hover .zoom_out_icon::before{
   content:"Zoom-";
   text-transform: capitalize;
-  font-family: sans-serif;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
 }
-.fa-icon:hover {
-  i, svg {
-    display: none !important;
-  }
-  span.fa-icon-text {
-    display: flex !important;
-    align-items: center;
-    justify-content: center; 
-  }
-}
-.fa-icon-text {
-  display: none;
+
+.edit_delete_btn:hover .open_icon::before{
+  content:"Open";
+  text-transform: capitalize;
+  font-family: 'lato';
+  font-family: 'lato';
   font-size: 12px;
-  font-family: sans-serif;
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
@@ -476,7 +515,7 @@ a:hover, .btn1:hover, .btn2:hover {
 .pointer {cursor: pointer}
 /*end cursor*/
 
-.sweet_model_icon_div{  
+.sweet_model_icon_div{
   transform: translate(-50%, -50%);
   position: absolute;
   top: 0;
@@ -556,14 +595,14 @@ a:hover, .btn1:hover, .btn2:hover {
 }
 .width_80{
   flex-basis: 79%;
-  max-width: 79%; 
+  max-width: 79%;
 }
 .width_20{
   flex-basis: 21%;
   max-width: 21%;
 }
 .hide{
- display: none; 
+  display: none;
 }
 .show{
   display: block;
@@ -612,6 +651,7 @@ a.back-to-link{
 a.edit_delete_btn {
   background-color: #e9ecef;
   border-radius: 25%;
+  display: inline-block;
   float: right;
   font-size: 1.25rem;
   height: 3rem;
@@ -621,7 +661,7 @@ a.edit_delete_btn {
   overflow: hidden;
   text-align: center;
   text-decoration: none;
-  transition: all .3s ease-in-out;
+  transition: all 0.2s ease-in-out;
   width: 3rem;
 }
 .btn_2:hover, .btn_1:hover{
