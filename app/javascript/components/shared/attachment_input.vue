@@ -80,7 +80,7 @@ export default {
       for (let idx = 0; idx < e.dataTransfer.files.length; idx += 1) 
       {
         file = e.dataTransfer.files[idx]
-        if (file.size <= 7000000) {
+        if (file.size < 7000000) {
           this.validFiles.push(file)
         } else {
           this.invalidFiles.push(file)
@@ -101,7 +101,7 @@ export default {
       for (let idx = 0; idx < this.$refs.fileInput.files.length; idx += 1) 
       {
         file = this.$refs.fileInput.files[idx]
-        if (file.size <= 7000000) {
+        if (file.size < 7000000) {
           this.validFiles.push(file)
         } else {
           this.invalidFiles.push(file)

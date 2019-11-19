@@ -20,9 +20,9 @@
     <div v-else class="new_idea">
       <div class="node_attachment text-secondary px-2">
         <i v-if="isSelected" @click.stop="addAttachModal" class="material-icons">post_add</i>
-        <span class="notes_bar">
-          <i v-if="hasDescription" class="material-icons mr-2">message</i>
-          <span v-if="fileCount > 0"><i class="far fa-file-alt"></i> <sup style="color: black;">{{fileCount}} </sup></span>
+        <span class="notes_bar" :class="{'top_bar': !isSelected}">
+          <i v-if="hasDescription" class="material-icons mr-2 clickable" @click.stop="addAttachModal" data-tab="description-tab">message</i>
+          <span v-if="fileCount > 0" data-tab="files-tab" @click.stop="addAttachModal" class="clickable"><i data-tab="files-tab" class="far fa-file-alt"></i> <sup data-tab="files-tab" style="color: black;">{{fileCount}} </sup></span>
         </span>
       </div>
       <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
@@ -93,6 +93,9 @@
       ),
       startDragIdea(event) {
         this.$emit('mousedown-event', event)
+        if (event.target.classList.contains("clickable")) {
+          this.addAttachModal(event)
+        }
       },
       expandChildren() {
         this.DV_collapse = false
@@ -102,11 +105,11 @@
         this.DV_collapse = true
         this.$emit('switch-expand-children', this.DV_collapse)
       },
-      editNode() {
+      editNode(event) {
         this.$emit('edit-node', event)
       },
-      addAttachModal() {
-        this.$emit('open-attachment', event)
+      addAttachModal(event) {
+        this.$emit('open-attachment', event.target.dataset.tab)
       }
     },
 

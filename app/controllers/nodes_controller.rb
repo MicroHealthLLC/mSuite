@@ -5,10 +5,12 @@ class NodesController < ApplicationController
   def create
     # get nested children
     @node = Node.create(node_params)
-    @node.duplicate_files(params[:duplicate_child_nodes]) if params[:duplicate_child_nodes].present?
-    dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id) if params[:duplicate_child_nodes].present?
-    
-    Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
+    if params[:duplicate_child_nodes].present?
+      @node.duplicate_attributes(params[:duplicate_child_nodes])
+      @node.duplicate_files(params[:duplicate_child_nodes]) 
+      dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id) 
+      Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
+    end
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
@@ -101,8 +103,7 @@ class NodesController < ApplicationController
       :position_y, 
       :parent_node, 
       :mindmap_id, 
-      :is_disabled, 
-      :hide_children,
+      :is_disabled,
       :line_color,
       :description, 
       node_files: []

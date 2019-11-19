@@ -59,6 +59,17 @@ class Node < ApplicationRecord
     end
   end
 
+  def duplicate_attributes(clon_id)
+    clon = Node.find_by(id: clon_id)
+    if clon.present?
+      self.update_columns(
+        is_disabled: clon.is_disabled, 
+        hide_children: clon.hide_children,
+        hide_self: clon.hide_self
+      )
+    end
+  end
+
   private
   
   def update_parent_attr(nodes, parent)
