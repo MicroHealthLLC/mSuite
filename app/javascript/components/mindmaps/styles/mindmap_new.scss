@@ -1,0 +1,209 @@
+
+/**
+  stylesheet 
+  compiler: scss 
+  component: mindmap_new.vue
+*/
+
+.central_idea {
+  text-align   : center;
+  border       : none;
+  position     : relative;
+  z-index      : 99;
+  border       : 5px solid red;
+  border-radius: 20px;
+  font-weight  : 800;
+}
+
+.pos_abs {
+  position: absolute !important;
+}
+
+.input_field {
+  cursor   : pointer;
+  min-width: 100px;
+}
+
+.options_button {
+  cursor          : pointer;
+  background-color: #6acfff;
+  padding         : 1vh;
+  font-size       : 20px;
+  border-radius   : 20%;
+}
+
+.button_disabled {
+  color : #a0a0a0 !important;
+  cursor: not-allowed !important;
+}
+
+.buttons_area {
+  position  : fixed;
+  overflow  : hidden;
+  top       : 0;
+  width     : 100%;
+  background-image: linear-gradient(90deg, #5DADE2, #CDD);
+  padding   : 1vh;
+  z-index   : 100;
+}
+
+.center {
+  position   : absolute;
+  top        : 300px;
+  left       : 650px;
+  align-items: center;
+}
+
+.start_dot {
+  cursor          : -webkit-grab;
+  height          : 15px;
+  width           : 15px;
+  background-color: #f00;
+  border-radius   : 50%;
+  display         : none;
+  position        : absolute;
+  left            : 4.55em;
+  top             : 2.6em;
+  z-index         : 100;
+}
+
+.center:hover .start_dot {
+  display: inline-block;
+}
+
+.start_dot:hover {
+  border: 3px solid cornflowerblue;
+}
+
+.buttons_container {
+  display        : flex;
+  justify-content: space-between;
+}
+
+.header_logo {
+  font-family    : fantasy;
+  text-decoration: underline;
+}
+
+.center_buttons {
+  margin-left: 2em;
+}
+
+.scaling_area {
+  width          : 12em;
+  display        : flex;
+  justify-content: flex-end;
+}
+
+#slideSection {
+  overflow: hidden;
+  height  : 100vh;
+}
+
+#central-attachment-modal /deep/ .sweet-modal, 
+#attachment-modal /deep/ .sweet-modal {
+  min-width: 800px;
+  .sweet-content {
+    padding-top   : 1.5em;
+    padding-bottom: 2.5em;
+  }
+}
+
+#central-attachment-modal /deep/ .ql-container, 
+#attachment-modal /deep/ .ql-container {
+  height    : 40vh;
+  max-height: 40vh;
+  border-top: 1px solid #ccc;
+}
+
+#central-attachment-modal /deep/ .ql-toolbar, #attachment-modal /deep/ .ql-toolbar {
+  display: none;
+}
+
+.node-description-tab {
+  text-align : left;
+  font-size  : 80%;
+  border     : 1px solid #edeeef;
+  padding    : 1em;
+  line-height: 0.6;
+  height     : 40vh;
+  max-height : 40vh;
+  overflow   : auto;
+  p {
+    margin-bottom: 0;
+  }
+}
+
+.node-files-tab {
+  height    : 40vh;
+  max-height: 40vh;
+  font-size : 78%;
+}
+
+.edit-icon {
+  position        : absolute;
+  top             : 88px;
+  border-radius   : 50%;
+  left            : 14px;
+  font-size       : 0px;
+  padding         : 10px;
+  background-color: #edeeef;
+  color           : #17a2b8;
+  cursor          : pointer;
+  z-index         : 99; 
+  i {
+    font-size: 20px;
+  }
+}
+
+.edit-icon:hover {
+  i {
+    font-size: 22px;
+  }
+}
+
+.node-files-list {
+  height  : 100%;
+  border  : 1px solid #ccc;
+  overflow: auto;
+  
+  .files-list {
+    display        : flex;
+    justify-content: space-between;
+    width          : 100%;
+    word-break     : break-word;
+  }
+  .empty-file-list {
+    font-size : 15px;
+    font-style: italic;
+    padding   : 1em;
+  }
+}
+
+.central_node_attachment {
+  z-index: 99;
+  cursor : pointer;
+  i {
+    font-size: 1em;
+  }
+}
+
+.central_notes_bar {
+  display    : flex;
+  align-items: center;
+}
+
+.add-central-notes {
+  height: 1.3em;
+  i {
+    cursor: pointer;
+  }
+}
+
+.loading-tab {
+  height         : 40vh;
+  max-height     : 40vh;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+}

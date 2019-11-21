@@ -443,6 +443,7 @@
         nodeOffsetY       : 0,
         parent_x          : 0,
         parent_y          : 0,
+        tab               : null,
 
         // hardcoded fixed window size
         window_innerWidth : 1900,
@@ -1135,12 +1136,12 @@
         if(this.attachmentModal) { return; }
         if (event.deltaY < 0) {
           if (this.scaleFactor < 1.50) {
-            this.scaleFactor = this.scaleFactor + 0.03
+            this.scaleFactor = this.scaleFactor + 0.05
           }
         }
         else if (event.deltaY > 0) {
           if (this.scaleFactor > 0.50) {
-            this.scaleFactor = this.scaleFactor - 0.03
+            this.scaleFactor = this.scaleFactor - 0.05
           }
         }
 

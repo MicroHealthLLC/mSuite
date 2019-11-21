@@ -1,0 +1,128 @@
+
+/**
+  style sheet 
+  compiler: scss 
+  component: idea_input_field.vue
+*/
+
+
+.blue_border {
+  border: 2px solid blue !important;
+}
+
+.new_idea_selected {
+  text-align   : center;
+  border       : none;
+  border       : 2px solid;
+  border-radius: 10px;
+  font-weight  : 700;
+  font-size    : 80%;
+  line-height  : 1.2;
+  word-wrap    : break-word;
+  position     : absolute;
+  bottom       : -3em;
+}
+
+.new_idea {
+  cursor     : pointer;
+  text-align : center;
+  font-weight: normal;
+  resize     : none;
+  background : none;
+  word-wrap  : break-word;
+  width      : 11em;
+  font-size  : 80%;
+  line-height: 1.2;
+  margin-top : 0.5em;
+  position   : absolute;
+  bottom     : -4em;
+  padding    : 2px;
+}
+
+.node_selected {
+  min-height   : 3em;
+  border-radius: 10px;
+  border       : 2px solid red !important;
+  cursor       : move !important;
+  background-color: white;
+}
+
+.new_idea_pg:hover {
+  background-color: white;
+  min-height   : 3em;
+  padding      : unset;
+  border       : 2px dotted #ccc;
+  border-radius: 10px;
+  box-shadow   : 0 0.3em 0.8em rgba(0, 0, 0, 0.15);
+}
+
+.main:hover .start_dot{
+  display: inline-block;
+}
+
+.start_dot {
+  cursor          : grab;
+  height          : 15px;
+  width           : 15px;
+  background-color: #f00;
+  border-radius   : 50%;
+  display         : none;
+  position        : absolute;
+  top             : 33px;
+  z-index         : 100;
+}
+
+.start_dot_left {
+  left: 10px;
+}
+
+.start_dot_right {
+  left: 110px;
+}
+
+.start_dot:hover {
+  border: 3px solid cornflowerblue;
+}
+
+.collapse_child {
+  color   : darkgray;
+  position: absolute;
+  top     : 30px;
+  z-index : 199;
+}
+
+.left_position_icon {
+  left: 25px;
+}
+
+.right_position_icon {
+  left: 95px;
+}
+
+.node_attachment {
+  z-index: 101;
+  display: flex;
+  i {
+    font-size: 1.2em;
+  }
+}
+
+.collapse_icon {
+  font-size       : 1em;
+  color           : black;
+  background-color: #ccc;
+  border-radius   : 22%;
+  font-weight     : bold;
+}
+
+.notes_bar {
+  position   : absolute;
+  display    : flex;
+  align-items: center;
+  right      : 3.6em;
+}
+
+.top_bar {
+  top: -1em;
+}
+

@@ -1,0 +1,98 @@
+
+/**
+  style sheet 
+  compiler: scss 
+  component: attachment_input.vue
+*/
+
+.dz-details {
+  background   : white;
+  border       : 1px dotted #e7e7e7;
+  border-radius: 10px;
+  font-style   : italic;
+  padding      : 5px;
+}
+
+.drop__file-input {
+  visibility: hidden;
+}
+
+.drop__label {
+  color         : gray;
+  cursor        : inherit;
+  left          : 50%;
+  position      : absolute;
+  text-transform: uppercase;
+  top           : 50%;
+  transform     : translate(-50%, -50%);
+  width         : 80%;
+  font-size     : 18px;
+
+  > a {
+    text-decoration: underline;
+  }
+}
+
+.drop__sub-label {
+  font-size     : 80%;
+  text-transform: none;
+}
+
+.drop__img {
+  height   : 100%;
+  left     : 50%;
+  margin   : auto;
+  position : absolute;
+  top      : 50%;
+  transform: translate(-50%, -50%);
+  width    : auto;
+}
+
+.drop-area {
+  background-color   : white;
+  border             : 2px dashed #ccc;
+  color              : white;
+  cursor             : pointer;
+  height             : inherit;
+  width              : inherit;
+  margin             : auto;
+  overflow           : hidden;
+  position           : relative;
+  transition         : auto;
+  transition-property: border-color;
+  vertical-align     : middle;
+
+  &:hover {
+    border-color: #17a2b8;
+  }
+}
+
+.drop-area--active {
+  border-color    : #17a2b8;
+  background-color: #cfe;
+  cursor          : copy !important;
+}
+
+.invalid-files {
+  position: absolute;
+  width: 92%;
+  height: 40vh;
+  overflow: auto;
+
+  .alert-danger {
+    height: 100%;
+  }
+}
+
+.area {
+  height: 100%;
+}
+
+/*slide animations*/
+.slide-fade-up-leave-active {
+  transition: all .4s ease;
+}
+.slide-fade-up-enter, .slide-fade-up-leave-to {
+  transform: translateY(-20vh);
+  opacity: 0;
+}
