@@ -1313,14 +1313,6 @@
       }
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)
-      let cal_height = this.windowHeight/2 - window.innerHeight/2
-      document.getElementById("slideSection").scrollTop = cal_height
-
-      let cal_width = this.windowWidth/2 - window.innerWidth/2
-      document.getElementById("slideSection").scrollLeft = cal_width + (1 - this.scaleFactor) * cal_width/2
-    },
-
-    created(){
       this.$nextTick(() => {
         this.scrollToCenter()
       })
