@@ -159,3 +159,12 @@ bundle exec puma -C config/puma.rb -e production
 # restart nginx
 service nginx restart
 
+# Upgrades
+cd /var/www/mindmap
+git pull
+bundle install
+rake db:migrate
+RAILS_ENV=production bin/webpack
+rake assets:precomple
+chown -R nginx:nginx *
+
