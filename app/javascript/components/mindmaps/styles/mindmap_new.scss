@@ -109,6 +109,10 @@
   }
 }
 
+#export-word-modal /deep/ .sweet-modal {
+  min-width: 800px;
+}
+
 #central-attachment-modal /deep/ .ql-container, 
 #attachment-modal /deep/ .ql-container {
   height    : 40vh;

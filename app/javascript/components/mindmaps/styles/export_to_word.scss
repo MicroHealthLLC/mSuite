@@ -1,0 +1,25 @@
+/**
+  style sheet 
+  compiler: scss 
+  component: export_to_word.vue
+*/
+
+.export-main {
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+.export-head {
+  text-align: left;
+  padding-left: 1em;
+}
+.export-doc {
+  overflow-y: auto;
+  max-height: 60vh;
+}
+.export-btn {
+  display: flex;
+  position: fixed;
+  bottom: 1.5em;
+  right: 2em;
+}

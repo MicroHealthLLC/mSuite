@@ -286,7 +286,7 @@ a:hover, .btn1:hover, .btn2:hover {
 .ml_3{margin-left: 30px}
 .ml_4{margin-left: 40px}
 .ml_5{margin-left: 50px}
-.ml_12{margin-left: 12em}
+.ml_14{margin-left: 14em}
 
 
 .mr_a{margin-right: auto}
@@ -366,6 +366,9 @@ a:hover, .btn1:hover, .btn2:hover {
 .material-icons.zoom_in_icon::before{
   content:"zoom_in"; 
 }
+.material-icons.zoom_out_icon::before{
+  content:"zoom_out"; 
+}
 .edit_delete_btn:hover .zoom_in_icon::before{
   content:"Zoom+";
   text-transform: capitalize;
@@ -374,9 +377,6 @@ a:hover, .btn1:hover, .btn2:hover {
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
-}
-.material-icons.zoom_out_icon::before{
-  content:"zoom_out"; 
 }
 .edit_delete_btn:hover .zoom_out_icon::before{
   content:"Zoom-";
@@ -395,6 +395,7 @@ a:hover, .btn1:hover, .btn2:hover {
     display: flex !important;
     align-items: center;
     justify-content: center; 
+    line-height: 1.2;
   }
 }
 .fa-icon-text {
