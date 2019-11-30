@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
   resources :mindmaps do
     member do
+      get :compute_child_nodes
       put :destroy_file
     end
   end

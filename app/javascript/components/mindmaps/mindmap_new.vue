@@ -151,7 +151,7 @@
           @node-updated="nodeUpdated(node)"
           @switch-expand-children="switchExpandChildren($event, node)"
           @edit-node="editNode($event, node)"
-          @open-attachment="openAttachments($event, tab)"
+          @open-attachment="openAttachments($event)"
           class="pos_abs input_field">
         </input-field>
         <canvas id="map-canvas" class="has_bg" :width="windowWidth" :height="windowHeight" @click.stop="nullifyFlags"></canvas>
@@ -416,9 +416,7 @@
       <export-to-word
         v-if="openVModal"
         :mind-map="currentMindMap"
-        :nodes="currentNodes"
-      >
-      </export-to-word>
+      />
     </sweet-modal>
   </div>
 </template>

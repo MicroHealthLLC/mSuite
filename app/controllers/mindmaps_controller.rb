@@ -1,5 +1,5 @@
 class MindmapsController < ApplicationController
-  before_action :set_mindmap, only: [:update, :show, :destroy_file]
+  before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes]
   
   def index; end
 
@@ -75,6 +75,13 @@ class MindmapsController < ApplicationController
         format.json {render json: {success: false}}
         format.html {}
       end
+    end
+  end
+
+  def compute_child_nodes
+    respond_to do |format|
+      format.json { render json: {success: true, mindmap: @mindmap.compute_child}}
+      format.html { }
     end
   end
 

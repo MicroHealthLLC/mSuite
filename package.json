@@ -16,7 +16,8 @@
     "vue-loader": "^15.7.1",
     "vue-quill-editor": "^3.0.6",
     "vue-spinner": "^1.0.3",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
     "webpack-dev-server": "^3.8.0"

@@ -18,4 +18,16 @@ class Mindmap < ApplicationRecord
       attach_files: attach_files
     ).as_json
   end
+
+  def compute_child
+    center_node = {"id"=> 0, "name"=> self.name, "children"=> []}
+    compute_child_nodes(center_node)
+    center_node
+  end
+
+  private
+  def compute_child_nodes(node)
+    node["children"] = self.nodes.where(parent_node: node["id"]).map(&:as_json)
+    node["children"].each{|nod| compute_child_nodes(nod)}
+  end
 end

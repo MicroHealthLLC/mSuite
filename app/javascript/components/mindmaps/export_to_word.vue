@@ -6,14 +6,16 @@
         <div v-if="mindMap.description" class="text-secondary" v-html="mindMap.description"></div>
         <p v-else class="text-secondary font-italic">No description</p>
       </div>
-      <nested-list :list="DV_mindmap.children" />
+      <div class="text-left">
+        <nested-list 
+          v-if="!loading" 
+          :children="DV_mindmap.children" 
+          group="_0_" 
+        />
+      </div>
     </div>
     <div v-if="mindMap" class="export-btn mt_2">
-      <a
-        href="javascript:;" 
-        class="btn_1 btn-sm bg-primary text-white mr_1"
-        @click.stop="export2Doc" 
-      >
+      <a href="#" class="btn_1 btn-sm bg-primary text-white mr_1" @click.stop="export2Doc">
         <i class="material-icons mr-1">save_alt</i>
         Download
       </a>
@@ -22,35 +24,40 @@
 </template>
 
 <script>
+  import http       from "../../common/http"
   import NestedList from "../shared/nested_list.vue"
   export default {
     components: {
       NestedList
     },
     props: [
-      'mindMap',
-      'nodes'
+      'mindMap'
     ],
     data() {
       return {
+        loading: true,
         DV_mindmap: {
-          id: 0,
-          name: this.mindMap.name,
-          description: this.mindMap.description,
           children: []
         }
       }
     },
     mounted() {
-      this.computeChildNodes(this.DV_mindmap)
+      this.computeChildNodes()
     },
     methods: {
-      computeChildNodes(node) {
-        node.children = this.nodes.filter((n) => n.parent_node == node.id)
-        node.children.map((nod) => this.computeChildNodes(nod))
+      computeChildNodes() {
+        http
+          .get(`/mindmaps/${this.mindMap.unique_key}/compute_child_nodes.json`)
+          .then((res) => {
+            this.DV_mindmap.children = res.data.mindmap.children
+            this.loading = false
+          }).catch((error) => {
+            console.error(error)
+            this.loading = false
+          })
       },
       export2Doc(){
-        let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>"
+        let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Mindmap to Document</title></head><body>"
         let postHtml = "</body></html>"
         let html = preHtml + this.$refs.exportDoc.innerHTML + postHtml
 
