@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   
   resources :nodes do
     member do
+      put :update_export_order
       put :destroy_file
     end
   end

@@ -1,8 +1,8 @@
 <template>
   <div class="export-main">
-    <div ref="exportDoc" class="export-doc">
+    <div ref="exportDoc" class="WordSection export-doc">
       <div class="export-head">
-        <h5>{{mindMap.name}}</h5>
+        <h2>{{mindMap.name}}</h2>
         <div v-if="mindMap.description" class="text-secondary" v-html="mindMap.description"></div>
         <p v-else class="text-secondary font-italic">No description</p>
       </div>
@@ -11,11 +11,12 @@
           v-if="!loading" 
           :children="DV_mindmap.children" 
           group="_0_" 
+          prefix-index="0"
         />
       </div>
     </div>
     <div v-if="mindMap" class="export-btn mt_2">
-      <a href="#" class="btn_1 btn-sm bg-primary text-white mr_1" @click.stop="export2Doc">
+      <a href="javascript:;" class="btn_1 btn-sm bg-primary text-white mr_1" @click.stop="export2Doc">
         <i class="material-icons mr-1">save_alt</i>
         Download
       </a>
@@ -57,7 +58,7 @@
           })
       },
       export2Doc(){
-        let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Mindmap to Document</title></head><body>"
+        let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Mindmap to Document</title><link href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous'></head><body>"
         let postHtml = "</body></html>"
         let html = preHtml + this.$refs.exportDoc.innerHTML + postHtml
 

@@ -1,5 +1,5 @@
 class NodesController < ApplicationController
-  before_action :set_node, only: [:show, :edit, :update, :destroy, :hide_children, :destroy_file]
+  before_action :set_node, only: [:show, :edit, :update, :destroy, :hide_children, :destroy_file, :update_export_order]
 
 
   def create
@@ -64,6 +64,15 @@ class NodesController < ApplicationController
     @node.update_column('hide_children', @flag)
     hide_show_nested_children(Node.where(parent_node: @node.id))
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+    respond_to do |format|
+      format.json { render json: {success: true}}
+      format.html { }
+    end
+  end
+
+  def update_export_order
+    # will broadcast the message 'export order changed'
+    @node.update_export_order(params[:old_index], params[:new_index])
     respond_to do |format|
       format.json { render json: {success: true}}
       format.html { }

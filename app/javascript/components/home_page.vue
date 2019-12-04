@@ -99,7 +99,7 @@
 .main_div {
   position        : absolute;
   height          : 100%;
-  width           : 98%;
+  width           : 100%;
   background-image: linear-gradient(grey, white);
 }
 .main_heading {

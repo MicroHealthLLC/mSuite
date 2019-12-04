@@ -27,7 +27,7 @@ class Mindmap < ApplicationRecord
 
   private
   def compute_child_nodes(node)
-    node["children"] = self.nodes.where(parent_node: node["id"]).map(&:as_json)
+    node["children"] = self.nodes.where(parent_node: node["id"]).order(export_index: :asc).map(&:as_json)
     node["children"].each{|nod| compute_child_nodes(nod)}
   end
 end

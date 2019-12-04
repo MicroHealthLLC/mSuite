@@ -2,9 +2,11 @@ class Node < ApplicationRecord
   belongs_to :mindmap, optional: true
   has_many_attached :node_files
 
+  before_create :set_default_export_index
+
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
-
+    
   def to_json
     attach_files = []
     if self.node_files.attached?
@@ -68,6 +70,25 @@ class Node < ApplicationRecord
         hide_self: clon.hide_self
       )
     end
+  end
+
+  def set_default_export_index
+    self.export_index = self.mindmap.nodes.where(parent_node: self.parent_node).count
+  end
+
+  def update_export_order(old_i, new_i)
+    small = old_i > new_i ? new_i : old_i
+    big = old_i > new_i ? old_i : new_i
+    peers = self.mindmap.nodes
+              .where(parent_node: self.parent_node)
+              .where.not(id: self.id)
+              .where("export_index BETWEEN (?) AND (?)", small, big)
+    if new_i < old_i
+      peers.update_all("export_index = export_index + 1")
+    else
+      peers.update_all("export_index = export_index - 1")
+    end
+    self.update_columns(export_index: new_i)
   end
 
   private
