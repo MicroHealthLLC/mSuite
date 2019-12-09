@@ -5,28 +5,28 @@
       v-if="hasChild"
       class="collapse_child" 
       :class="C_expandCollapseIconPositionClass">
-      <i 
-        v-if="hideChildren" 
-        class="material-icons collapse_icon"
+      <span 
+        v-show="hideChildren" 
+        class="collapse_icon"
         @click.stop="expandChildren"
-      >add</i>
-      <i 
-        v-else 
-        class="material-icons collapse_icon"
+      ><i class="fa fa-plus-square"></i></span>
+      <span 
+        v-show="!hideChildren" 
+        class="collapse_icon"
         @click.stop="unexpandChildren"
-      >remove</i>
+      ><i class="fa fa-minus-square"></i></span>
     </span>
     <textarea v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="C_newIdeaStyle"/>
     <div v-else class="new_idea">
       <div class="node_attachment text-secondary px-2">
-        <i v-if="isSelected" @click.stop="addAttachModal" class="material-icons">post_add</i>
+        <span v-if="isSelected" @click.stop="addAttachModal"><i class="fa fa-paperclip"></i></span>
         <span class="notes_bar" :class="{'top_bar': !isSelected}">
-          <i v-if="hasDescription" class="material-icons mr-2 clickable" @click.stop="addAttachModal" data-tab="description-tab">message</i>
+          <span v-if="hasDescription" class="mr-2 clickable" @click.stop="addAttachModal" data-tab="description-tab"><i class="fa fa-comment"></i></span>
           <span v-if="fileCount > 0" data-tab="files-tab" @click.stop="addAttachModal" class="clickable"><i data-tab="files-tab" class="far fa-file-alt"></i> <sup data-tab="files-tab" style="color: black;">{{fileCount}} </sup></span>
         </span>
       </div>
       <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
-      <p v-else class="new_idea_pg py-2">{{tempLocalValue}}</p>
+      <p v-else class="new_idea_pg">{{tempLocalValue}}</p>
     </div>
   </div>
 </template>

@@ -3,14 +3,17 @@
     :list="children"
     ghost-class="ghost"
     tag="p"
-    class="order-list"
+    :style="orderListSyle"
     :group="C_group"
     @change="onChange"
   >
-    <div class="list-item" v-for="(elem, index) in children" :key="elem.id">
-      <p class="li-data ml-2">
-        <span>{{getlistIndex(index)}}</span> {{elem.title}}
-        <div class="ml-4" v-html="elem.description"></div>
+    <span :style="listItemStyle" class="list-item m-2" v-for="(elem, index) in children" :key="elem.id">
+      <p :style="liDataStyle" class="li-data ml-2">
+        <span :style="liNumberStyle">
+          <span>{{getlistIndex(index)}}</span> 
+          <span :style="elemTitleStyle">{{elem.title}}</span>
+        </span>
+        <span :style="liDataDesStyle" class="ml-4" v-html="elem.description"></span>
       </p>
       <nested-list 
         v-if="elem.children.length > 0" 
@@ -18,7 +21,7 @@
         :group="elem.parent_node.toString()" 
         :prefix-index="getlistIndex(index)"
       />
-    </div>
+    </span>
   </draggable>
 </template>
 
@@ -52,6 +55,42 @@
           put: false
         }
       },
+      orderListSyle() {
+        return {
+          paddingLeft: "15px",
+          margin: "0 !important"
+        }
+      },
+      listItemStyle() {
+        return {
+          display: "block",
+          padding: "6px",
+          marginLeft: "25px"
+        }
+      },
+      liDataStyle() {
+        return {
+          margin: "0 !important",
+          wordBreak: "break-all"
+        }
+      },
+      liDataDesStyle() {
+        return {
+          display: "block",
+          marginLeft: "20px !important"
+        }
+      },
+      liNumberStyle() {
+        return {
+          display: "flex",
+          justifyContent: "left"
+        }
+      },
+      elemTitleStyle() {
+        return {
+          marginLeft: "5px"
+        }
+      }
     },
     methods: {
       getlistIndex(index) {
@@ -74,23 +113,9 @@
 </script>
 
 <style lang="scss" scoped>
-  .li-data {
-    display: contents;
-  }
-  p {
-    margin: 0 !important;
-  }
-  .order-list {
-    padding-left: 1em;
-  }
-  .list-item {
-    padding: 6px;
-    margin: 10px;
-    display: block;
-    &:hover {
-      padding: 5px;
-      border: 1px dashed #ccc;
-    }
+  .list-item:hover {
+    padding: 5px !important;
+    border: 1px dashed #ccc;
   }
   .ghost {
     opacity: 0.5;

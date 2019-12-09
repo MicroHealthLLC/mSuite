@@ -47,13 +47,16 @@
   background-color: white;
 }
 
-.new_idea_pg:hover {
-  background-color: white;
-  min-height   : 3em;
-  padding      : unset;
-  border       : 2px dotted #ccc;
-  border-radius: 10px;
-  box-shadow   : 0 0.3em 0.8em rgba(0, 0, 0, 0.15);
+.new_idea_pg {
+    padding: 7px 5px;
+    &:hover {
+    background-color: white;
+    min-height   : 3em;
+    padding      : 5px 3px;
+    border       : 2px dotted #ccc;
+    border-radius: 10px;
+    box-shadow   : 0 0.3em 0.8em rgba(0, 0, 0, 0.15);
+  }
 }
 
 .main:hover .start_dot{
@@ -108,11 +111,10 @@
 }
 
 .collapse_icon {
-  font-size       : 1em;
-  color           : black;
-  background-color: #ccc;
-  border-radius   : 22%;
-  font-weight     : bold;
+  background: white;
+  > svg {
+    padding: 0;
+  }
 }
 
 .notes_bar {

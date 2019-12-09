@@ -77,9 +77,9 @@
           <a 
             ref="exportBtn"
             role="button" 
+            href="javascript:;"
             class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.stop="exportToImage" 
-            download="image.png" 
+            @click.prevent.stop="exportToImage" 
           >
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
@@ -119,14 +119,14 @@
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <div class="row central_node_attachment text-secondary">
             <div class="add-central-notes col-6">
-              <i v-if="!selectedNode" @click.stop="openCentralAttachModal" class="material-icons">post_add</i>
+              <span v-if="!selectedNode" @click.stop="openCentralAttachModal" style="font-size: 14px;"><i class="fa fa-paperclip"></i></span>
             </div>
             <div class="col-6">
               <span class="central_notes_bar">
-                <i v-if="C_hasDescription" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="material-icons mr-2">message</i>
-                <span v-if="C_centralFileCount > 0" style="font-size: 12px;" @click.stop="openCentralAttachModal" data-tab="files-tab">
+                <span v-if="C_hasDescription" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="mr-2"><i class="fa fa-comment"></i></span>
+                <span v-if="C_centralFileCount > 0" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="files-tab">
                   <i class="far fa-file-alt" data-tab="files-tab"></i> 
-                  <sup style="color: black;" data-tab="files-tab"> {{C_centralFileCount}}</sup>
+                  <sup style="color: black;" data-tab="files-tab">{{C_centralFileCount}}</sup>
                 </span>
               </span>
             </div>
@@ -1171,24 +1171,24 @@
         this.drawLines()
       },
       exportToImage(event) {
-        let expBtn          = this.$refs.exportBtn
-        let elm             = document.getElementById("map-container")
+        let elm = document.getElementById("map-container")
         elm.style.transform = "scale(1)"
-        let map_key         = this.currentMindMap.unique_key
+        let map_key = this.currentMindMap.unique_key || "image"
 
         domtoimage.toPng(elm)
-          .then(function (dataUrl) {
-            var data = dataUrl.replace(/^data:image\/\w+;base64,/, "")
-            var buf  = new Buffer(data, 'base64')
-            
-            fileDownload(buf, map_key+".png")
+          .then((url) => {
+            var downloadLink = document.createElement("a")
+            document.body.appendChild(downloadLink)
+            downloadLink.href = url
+            downloadLink.download = map_key + ".png"
+            downloadLink.click()
+            document.body.removeChild(downloadLink)
           })
-          .catch(function (error) {
-            console.error('oops, something went wrong!', error)
+          .catch((err) => {
+            console.error('oops, something went wrong!', err)
         })
-          
         elm.style.transform = "scale(" + this.scaleFactor +")"
-        expBtn.blur()
+        this.$refs.exportBtn.blur()
       }, 
       zoomInScale() {
         if (this.scaleFactor < 1.50) {
