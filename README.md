@@ -1,4 +1,14 @@
+# Mindmaps
+
+There was once a number of open source real time mindmaps but couldn't find one so we built it.  Like Etherpad, Ethercalc, Scrumblr, you and a number of others can mind map together at the same time by simply sharing a link.  You can attach files, or add notes to each node.
+
+
 ![Home](mindmap.png)
+
+You can export the mindmap in png but my all time favorite feature and the one that is most useful is the ability to export the image to a hierarchical word document.  ITs easy to re-arrange the order.  Simply drag and drop and that order will be preserved, then click download and now you have an outline including the notes you might have included for each node like so.
+
+
+![Home](export.png)
 
 # update centos
 
