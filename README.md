@@ -1,3 +1,5 @@
+![Home](mindmap.png)
+
 # update centos
 
 yum update
