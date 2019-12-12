@@ -1,6 +1,6 @@
 class Node < ApplicationRecord
   belongs_to :mindmap, optional: true
-  has_many_attached :node_files
+  has_many_attached :node_files, dependent: :destroy
 
   before_create :set_default_export_index
 

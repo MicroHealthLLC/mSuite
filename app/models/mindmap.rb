@@ -1,6 +1,6 @@
 class Mindmap < ApplicationRecord
-  has_many :nodes
-  has_many_attached :node_files
+  has_many :nodes, dependent: :destroy
+  has_many_attached :node_files, dependent: :destroy
 
   def to_json
     attach_files = []
@@ -23,6 +23,15 @@ class Mindmap < ApplicationRecord
     center_node = {"id"=> 0, "name"=> self.name, "children"=> []}
     compute_child_nodes(center_node)
     center_node
+  end
+
+  def reset_mindmap
+    self.nodes.destroy_all
+    self.node_files.map(&:purge)
+    self.update_columns(
+      name: "Central Idea",
+      description: ""
+    )
   end
 
   private

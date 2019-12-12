@@ -211,3 +211,19 @@
   align-items    : center;
   justify-content: center;
 }
+
+.export-loading-tab {
+  z-index       : 99999;
+  position      : fixed;
+  top           : 0;
+  height        : 100vh;
+  width         : 100vw;
+  text-align    : center;
+  vertical-align: middle;
+  background    : black;
+  opacity       : 0.8;
+  .loader-wrap {
+    top     : 45vh;
+    position: relative;
+  }
+}

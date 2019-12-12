@@ -1,5 +1,5 @@
 class MindmapsController < ApplicationController
-  before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes]
+  before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap]
   
   def index; end
 
@@ -75,6 +75,15 @@ class MindmapsController < ApplicationController
         format.json {render json: {success: false}}
         format.html {}
       end
+    end
+  end
+
+  def reset_mindmap
+    @mindmap.reset_mindmap
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", {message: "Reset mindmap"}
+    respond_to do |format|
+      format.json {render json: {success: true}}
+      format.html {}
     end
   end
 

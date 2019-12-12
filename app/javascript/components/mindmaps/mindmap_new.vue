@@ -418,6 +418,12 @@
         :mind-map="currentMindMap"
       />
     </sweet-modal>
+
+    <section v-if="exportLoading" class="export-loading-tab">
+      <div class="loader-wrap">
+        <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -430,8 +436,8 @@
   import {SweetModal,SweetModalTab} from "sweet-modal-vue"
   import _                          from "lodash"
   import domtoimage                 from "dom-to-image-more"
-  import fileDownload               from "js-file-download"
   import {quillEditor}              from "vue-quill-editor"
+  import Jimp                       from 'jimp'
   import SyncLoader                 from 'vue-spinner/src/SyncLoader.vue'
   import "quill/dist/quill.core.css"
   import "quill/dist/quill.snow.css"
@@ -511,7 +517,8 @@
               highlight: text => hljs.highlightAuto(text).value
             }
           }
-        }
+        },
+        exportLoading: false
       }
     },
     
@@ -1066,15 +1073,20 @@
         }
       },
       resetMindmap() {
-        this.deletAllNodes(this.currentMindMap.nodes)
-        this.selectedNode        = null
-        this.stopWatch           = true
-        this.currentMindMap.name = "Central Idea"
-        this.removeLines()
-        this.scrollToCenter()
-        setTimeout(this.saveCurrentMap, 500)
-        this.$refs.resetMapModal.close()
+        http
+          .get(`/mindmaps/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+          .then((res) => {
+            this.selectedNode = null
+            this.stopWatch    = true
+            this.removeLines()
+            this.scrollToCenter()
+            this.$refs.resetMapModal.close()
+          })
+          .catch((err) => {
+            this.$refs.resetMapModal.close()
+          })
       },
+
       // =============== Map CRUD OPERATIONS =====================
 
       // =============== OTHERS =====================
@@ -1171,24 +1183,40 @@
         this.drawLines()
       },
       exportToImage(event) {
+        const VM = this
         let elm = document.getElementById("map-container")
         elm.style.transform = "scale(1)"
-        let map_key = this.currentMindMap.unique_key || "image"
+        let map_key = VM.currentMindMap.unique_key || "image"
+        VM.exportLoading = true
 
         domtoimage.toPng(elm)
           .then((url) => {
-            var downloadLink = document.createElement("a")
-            document.body.appendChild(downloadLink)
-            downloadLink.href = url
-            downloadLink.download = map_key + ".png"
-            downloadLink.click()
-            document.body.removeChild(downloadLink)
+            Jimp.read(url).then((image) => {
+              var size = VM.getExportCanvasSize()
+              image.crop(size.x, size.y, size.w, size.h)
+              image.getBase64(Jimp.MIME_PNG, 
+                ((err, baseUrl) => {
+                  var downloadLink = document.createElement("a")
+                  document.body.appendChild(downloadLink)
+                  downloadLink.href = baseUrl
+                  downloadLink.download = map_key + ".png"
+                  downloadLink.click()
+                  document.body.removeChild(downloadLink)
+                  VM.exportLoading = false
+                })
+              );
+            }).catch((err) => {
+              VM.exportLoading = false
+              console.error('oops, something went wrong!', err)
+            })
           })
           .catch((err) => {
+            VM.exportLoading = false
             console.error('oops, something went wrong!', err)
-        })
+          })
+        
         elm.style.transform = "scale(" + this.scaleFactor +")"
-        this.$refs.exportBtn.blur()
+        VM.$refs.exportBtn.blur()
       }, 
       zoomInScale() {
         if (this.scaleFactor < 1.50) {
@@ -1331,6 +1359,31 @@
       exportToWord() {
         this.openVModal = true
         this.$refs.exportToWordModal.open()
+      },
+
+      getExportCanvasSize() {
+        const nodes = this.currentNodes
+        let ASPECT_MARGIN = 150
+        let size = { x:1900, y:900, w:1900, h:900 }
+
+        if (nodes.length <= 0) return;
+
+        let min_x = Math.min.apply(Math, nodes.map((n) => {return n.position_x}))
+        let max_x = Math.max.apply(Math, nodes.map((n) => {return n.position_x}))
+        let min_y = Math.min.apply(Math, nodes.map((n) => {return n.position_y}))
+        let max_y = Math.max.apply(Math, nodes.map((n) => {return n.position_y}))
+
+        size.x = min_x < size.x ? min_x : size.x
+        size.y = min_y < size.y ? min_y : size.y
+        size.w = max_x - size.x < size.w ? size.w : max_x - size.x 
+        size.h = max_y - size.y < size.h ? size.h : max_y - size.y
+
+        if (size.x > 0) size.x = size.x - ASPECT_MARGIN
+        if (size.y > 0) size.y = size.y - ASPECT_MARGIN
+        size.w = size.w + (ASPECT_MARGIN * 2)
+        size.h = size.h + (ASPECT_MARGIN * 2)
+
+        return size
       }
     },
 

@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     member do
       get :compute_child_nodes
       put :destroy_file
+      get :reset_mindmap
     end
   end
   
