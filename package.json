@@ -8,7 +8,7 @@
     "dom-to-image-more": "^2.8.0",
     "highlight.js": "^10.4.1",
     "jimp": "^0.9.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "sweet-modal-vue": "^2.0.0",
     "vue": "^2.6.10",
     "vue-loader": "^15.7.1",
