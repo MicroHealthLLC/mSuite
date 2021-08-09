@@ -1,0 +1,22 @@
+.container.signin-section
+  .row.d-flex.justify-content-center
+    =form_for(resource, as: resource_name, url: password_path(resource_name), html: {class: 'form-signin mg-btm', method: :put}) do |f|
+      = f.hidden_field :reset_password_token
+      h3.heading-desc.text-center
+        a.navbar-brand href="/"
+          =image_tag "microhealthllc.png"
+      .form-group.mt-5.px-4
+        =f.label :password, "New Password"
+        =f.password_field :password, autocomplete: "off", class: 'form-control', placeholder: "password"
+        br
+        =f.label :password_confirmation, "Confirm New Password"
+        =f.password_field :password_confirmation, autocomplete: "off", class: 'form-control', placeholder: "confirm password"
+        span.clearfix
+      .login-footer.p-4
+        .row
+          .col-xs-6.col-md-6
+            .left-section
+              a href="#{new_session_path(resource_name)}" Login instead
+              br
+          .col-xs-6.col-md-6.pull-right
+            =f.submit "Change my password", class: 'btn btn-large btn-danger pull-right'

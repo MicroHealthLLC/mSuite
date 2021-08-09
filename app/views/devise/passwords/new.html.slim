@@ -1,0 +1,17 @@
+.container.signin-section
+  .row.d-flex.justify-content-center
+    =form_for(resource, as: resource_name, url: password_path(resource_name), html: {class: 'form-signin mg-btm', method: :post}) do |f|
+      h3.heading-desc.text-center
+        a.navbar-brand href="/"
+          =image_tag "microhealthllc.png"
+      .form-group.mt-5.px-4
+        =f.label :email, "Forgot your password?"
+        =f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control', placeholder: "user@example.com"
+      .login-footer.p-4
+        .row
+          .col-xs-6.col-md-6
+            .left-section
+              a href="#{new_session_path(resource_name)}" Login instead
+              br
+          .col-xs-6.col-md-6.pull-right
+            =f.submit "Send me reset password instructions", class: 'btn btn-large btn-danger pull-right'

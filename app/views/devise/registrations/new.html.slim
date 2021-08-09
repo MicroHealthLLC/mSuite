@@ -1,0 +1,41 @@
+.container.signup-section
+  .row.d-flex.justify-content-center
+    =form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: 'form-signin mg-btm' }) do |f|
+      = render "devise/shared/messages"
+      h3.heading-desc.text-center
+        a.navbar-brand href="/"
+          =image_tag "microhealthllc.png"
+      .social-box.pb-5.p-4
+        .row.mg-btm
+          .col-md-12
+            a.btn.btn-danger.btn-block href="#{omniauth_authorize_path(resource_name, :google_oauth2)}"
+              i.icon-facebook
+              | Continue with Google
+        .row
+          .col-md-12
+            a.btn.btn-info.btn-block href="#{omniauth_authorize_path(resource_name, :office365)}"
+              i.icon-twitter
+              | Continue with Office 365
+        / .row
+        /   .col-md-12
+        /     a.btn.btn-info.btn-block href="#{user_oktaoauth_omniauth_authorize_path}" method='post'
+        /       i.icon-twitter
+        /       | Continue with Okta
+      .form-group.mt-5.px-4
+        =f.label :email, "Email"
+        =f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control', placeholder: "user@example.com"
+        br
+        =f.label :password, "Password"
+        =f.password_field :password, autocomplete: "off", class: 'form-control', placeholder: "password"
+        br
+        =f.label :password_confirmation, "Confirm Password"
+        =f.password_field :password_confirmation, autocomplete: "off", class: 'form-control', placeholder: "confirm password"
+        span.clearfix
+      .login-footer.p-4
+        .row
+          .col-xs-6.col-md-6
+            .left-section
+              span Already have an account?
+              a href="#{new_session_path(resource_name)}" Sign up now
+          .col-xs-6.col-md-6.pull-right
+            =f.submit "Signup", class: 'btn btn-large btn-danger pull-right'
