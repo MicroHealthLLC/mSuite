@@ -29,6 +29,17 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :api, defaults: { format: :json } do
+    get '/settings', to: 'settings#index'
+    post '/settings', to: 'settings#update'
+  end
+
   mount ActionCable.server => '/cable'
   root 'home#index'
+
+  if Rails.env.production?
+    get '*all', to: "not_found#index", constraints: -> (req) do
+      req.path.exclude? 'rails/active_storage'
+    end
+  end
 end

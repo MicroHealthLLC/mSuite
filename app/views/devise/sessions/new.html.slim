@@ -16,11 +16,6 @@
             a.btn.btn-info.btn-block href="#{omniauth_authorize_path(resource_name, :office365)}"
               i.icon-twitter
               | Continue with Office 365
-        / .row
-        /   .col-md-12
-        /     a.btn.btn-info.btn-block href="#{user_oktaoauth_omniauth_authorize_path}" method='post'
-        /       i.icon-twitter
-        /       | Continue with Okta
       .form-group.mt-4.px-4
         =f.label :email, "Email"
         =f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control', placeholder: "user@example.com"
@@ -35,9 +30,10 @@
         span.clearfix
       .login-footer.p-4
         .row
-          .col-xs-6.col-md-6
+          .col-xs-8.col-md-8
             .left-section
               a href="#{new_password_path(resource_name)}" Forgot your password?
               br
-          .col-xs-6.col-md-6.pull-right
+              a href="#{new_user_registration_path}" Create a new account
+          .col-xs-4.col-md-4.pull-right
             =f.submit "Login", class: 'btn btn-large btn-danger pull-right'

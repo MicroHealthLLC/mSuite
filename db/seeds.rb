@@ -13,3 +13,5 @@ User.create_with(
   role: "superadmin",
   last_name: 'admin'
 ).find_or_create_by(email: 'admin@example.com')
+
+setting = Setting.first_or_create

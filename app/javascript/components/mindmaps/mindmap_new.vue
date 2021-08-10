@@ -3,83 +3,83 @@
     <div class="buttons_area">
       <div class="buttons_container mx-2">
         <span class="flex">
-          <a 
+          <a
             href="javascript:;"
-            role="button" 
+            role="button"
             class="d-flex text-info edit_delete_btn ml-2 mr-3 center_flex"
-            @click.stop="$refs.confirmSaveKeyModal.open" 
+            @click.stop="$refs.confirmSaveKeyModal.open"
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
-          </a> 
+          </a>
         </span>
         <span class="ml_14">
-          <a 
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="deleteSelectedNode" 
+            @click.stop="deleteSelectedNode"
           >
             <i class="material-icons delete_icon icons d-flex center_flex"></i>
-          </a> 
-          <a 
+          </a>
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !copiedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !copiedNode}"
             class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="pasteCopiedNode" 
+            @click.stop="pasteCopiedNode"
           >
             <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
             <span class="fa-icon-text">Paste</span>
-          </a> 
-          <a 
+          </a>
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
             class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="cutSelectedNode" 
+            @click.stop="cutSelectedNode"
           >
             <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
             <span class="fa-icon-text">Cut</span>
-          </a> 
-          <a 
+          </a>
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="copySelectedNode" 
+            @click.stop="copySelectedNode"
           >
             <i class="material-icons copy_icon icons d-flex center_flex"></i>
-          </a> 
+          </a>
         </span>
         <span>
-          <a 
+          <a
             href="javascript:;"
-            role="button" 
+            role="button"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="$refs.resetMapModal.open" 
+            @click.stop="$refs.resetMapModal.open"
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
           </a>
-          <a 
+          <a
             ref="exportWordBtn"
-            role="button" 
+            role="button"
             class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.stop="exportToWord" 
+            @click.stop="exportToWord"
           >
             <i class="fas fa-file-word icons d-flex center_flex"></i>
             <span class="fa-icon-text">Export Word</span>
           </a>
-          <a 
+          <a
             ref="exportBtn"
-            role="button" 
+            role="button"
             href="javascript:;"
             class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent.stop="exportToImage" 
+            @click.prevent.stop="exportToImage"
           >
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
@@ -93,20 +93,20 @@
             >
               <i class="fas fa-history icons d-flex center_flex"></i>
               <span class="fa-icon-text">100%</span>
-            </a> 
-            <a 
+            </a>
+            <a
               href="javascript:;"
-              role="button" 
+              role="button"
               class="zoom_btn text-info edit_delete_btn center_flex mr-3"
-              @click.prevent="zoomInScale" 
+              @click.prevent="zoomInScale"
             >
               <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
             </a>
-            <a 
+            <a
               href="javascript:;"
-              role="button" 
+              role="button"
               class="zoom_btn text-info edit_delete_btn mr-3 center_flex"
-              @click.prevent="zoomOutScale" 
+              @click.prevent="zoomOutScale"
             >
               <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
             </a>
@@ -125,7 +125,7 @@
               <span class="central_notes_bar">
                 <span v-if="C_hasDescription" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="mr-2"><i class="fa fa-comment"></i></span>
                 <span v-if="C_centralFileCount > 0" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="files-tab">
-                  <i class="far fa-file-alt" data-tab="files-tab"></i> 
+                  <i class="far fa-file-alt" data-tab="files-tab"></i>
                   <sup style="color: black;" data-tab="files-tab">{{C_centralFileCount}}</sup>
                 </span>
               </span>
@@ -134,20 +134,20 @@
           <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
           <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle"/>
         </div>
-        <input-field 
-          v-for="node in currentNodes" 
+        <input-field
+          v-for="node in currentNodes"
           v-if="!node.is_disabled && !node.hide_self"
-          v-model="node.title" 
-          :key="`${node.id}`" 
-          :style="getNodeStyle(node)" 
+          v-model="node.title"
+          :key="`${node.id}`"
+          :style="getNodeStyle(node)"
           :is-selected="C_selectedNodeId === node.id"
           :is-edited="C_editNodeId === node.id"
           :quadrant="nodeQuadrant(node)"
           :has-child="hasChilNodes(node)"
           :hide-children="node.hide_children"
           :node-attr="node"
-          @start-drag="startDrag($event, node)" 
-          @mousedown-event="startDragNode($event, node)" 
+          @start-drag="startDrag($event, node)"
+          @mousedown-event="startDragNode($event, node)"
           @node-updated="nodeUpdated(node)"
           @switch-expand-children="switchExpandChildren($event, node)"
           @edit-node="editNode($event, node)"
@@ -166,26 +166,26 @@
       <h3 class="f_smooth_auto">Are you Sure?</h3>
       <p class="text-muted fs_18">You may want to open in new Tab!</p>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-danger text-white mr_1"
-          @click.stop="openNewMap" 
+          @click.stop="openNewMap"
         >
           <i class="material-icons mr-1">done</i>
           Continue Here
         </a>
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-warning text-white mr_1"
-          @click.stop="openNewMapNewWindow" 
+          @click.stop="openNewMapNewWindow"
         >
           <i class="material-icons mr-1">open_in_new</i>
           Open new Tab!
         </a>
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.newMapModal.close" 
+          @click.stop="$refs.newMapModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -199,25 +199,25 @@
         </div>
       </div>
       <p class="text-muted fs_18">Enter the map key you want to open here!</p>
-      <div class="form-horizontal">   
+      <div class="form-horizontal">
         <div class="row form-group mt-2">
           <label class="control-label col-4" for="mindmap_name">Mindmap Name:</label>
           <input type="text" placeholder="Enter map key" v-model="openMindMapKey" class="form-control col-6 ">
         </div>
       </div>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-success text-white mr_1"
-          @click.stop.prevent="openPreviousMap" 
+          @click.stop.prevent="openPreviousMap"
         >
           <i class="material-icons mr-1">done</i>
           Open
         </a>
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-primary text-white mr_1"
-          @click.stop.prevent="$refs.openMapModal.close" 
+          @click.stop.prevent="$refs.openMapModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -233,18 +233,18 @@
       <h3 class="f_smooth_auto">Are you Sure you want to reset this Map?</h3>
       <p class="text-muted fs_18">Your current changes will be discarded, you won't be able to revert this!</p>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-danger text-white mr_1"
-          @click.stop="resetMindmap" 
+          @click.stop="resetMindmap"
         >
           <i class="material-icons mr-1">done</i>
           Continue
         </a>
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.resetMapModal.close" 
+          @click.stop="$refs.resetMapModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -273,10 +273,10 @@
             </quill-editor>
 
             <div v-if="descEditMode" class="right_flex mt_2">
-              <a 
-                href="javascript:;" 
+              <a
+                href="javascript:;"
                 class="btn_1 btn-sm bg-danger text-white mr_1"
-                @click.prevent.stop="updateNodeDescription" 
+                @click.prevent.stop="updateNodeDescription"
               >
                 <i class="material-icons mr-1">done</i>
                 Save
@@ -291,8 +291,8 @@
         </section>
         <section v-else class="row node-files-tab">
           <div class="col-md-6">
-            <attachment-input 
-              :show-label="true" 
+            <attachment-input
+              :show-label="true"
               @input="addFileToNode"
             >
             </attachment-input>
@@ -337,9 +337,9 @@
 
             <div v-if="descEditMode" class="right_flex mt_2">
               <a
-                href="javascript:;" 
+                href="javascript:;"
                 class="btn_1 btn-sm bg-danger text-white mr_1"
-                @click.stop="updateMapNotes" 
+                @click.stop="updateMapNotes"
               >
                 <i class="material-icons mr-1">done</i>
                 Save
@@ -354,8 +354,8 @@
         </section>
         <section v-show="!fileLoading" class="row node-files-tab">
           <div class="col-md-6">
-            <attachment-input 
-              :show-label="true" 
+            <attachment-input
+              :show-label="true"
               @input="addFileToCentralNode"
             >
             </attachment-input>
@@ -387,18 +387,18 @@
       <h3 class="f_smooth_auto">Did you save the map key?</h3>
       <p class="text-muted fs_18">You will need this key <i><code>{{currentMindMap.unique_key}}</code></i> to view the map again!</p>
       <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-danger text-white mr_1"
-          @click.stop="goHome" 
+          @click.stop="goHome"
         >
           <i class="material-icons mr-1">done</i>
           Continue
         </a>
-        <a 
-          href="javascript:;" 
+        <a
+          href="javascript:;"
           class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.confirmSaveKeyModal.close" 
+          @click.stop="$refs.confirmSaveKeyModal.close"
         >
           <i class="material-icons mr-1">cancel</i>
           Cancel
@@ -406,8 +406,8 @@
       </div>
     </sweet-modal>
 
-    <sweet-modal 
-      ref="exportToWordModal" 
+    <sweet-modal
+      ref="exportToWordModal"
       class="of_v"
       id="export-word-modal"
       :hide-close-button="true"
@@ -443,10 +443,10 @@
   import "quill/dist/quill.snow.css"
   import "quill/dist/quill.bubble.css"
 
-  export default 
+  export default
   {
     components: {
-      InputField, 
+      InputField,
       SweetModal,
       SweetModalTab,
       quillEditor,
@@ -455,7 +455,7 @@
       SyncLoader,
       ExportToWord
     },
-    
+
     data() {
       return {
         selectedNode      : null,
@@ -473,7 +473,7 @@
         nodeOffsetY       : 0,
         parent_x          : 0,
         parent_y          : 0,
-        
+
         // hardcoded fixed window size
         window_innerWidth : 1900,
         window_innerHeight: 900,
@@ -521,7 +521,7 @@
         exportLoading: false
       }
     },
-    
+
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -532,7 +532,7 @@
             this.openVModal === true
           ) {
             _.remove(this.attachFiles, (f) => f.id === data.file.id)
-          } 
+          }
           if (
             data.message === "Central Node file deleted" &&
             this.openVModal === true
@@ -551,11 +551,11 @@
         }
       }
     },
-    
+
     computed: {
       C_centeralNodePosition() {
         return {
-          left: (Math.floor(this.windowWidth/2) - 120) +'px', 
+          left: (Math.floor(this.windowWidth/2) - 120) +'px',
           top : (Math.floor(this.windowHeight/2) - 60) +'px'
         }
       },
@@ -586,7 +586,7 @@
         return !!this.currentMindMap.description
       }
     },
-    
+
     methods: {
       // =============== GETTING MAP =====================
       getMindmap(id) {
@@ -595,8 +595,8 @@
           .then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
-            this.currentNodes   = res.data.mindmap.nodes 
-            
+            this.currentNodes   = res.data.mindmap.nodes
+
             setTimeout(this.drawLines, 100)
             this.closeOpenMapModal()
             this.updateQuery()
@@ -658,7 +658,7 @@
         if (p_node) {
           this.nodeParent = p_node
           this.nodeColor  = p_node.line_color
-        } 
+        }
         else {
           this.nodeColor = this.getRandomColor()
         }
@@ -679,7 +679,7 @@
         if (!document.getElementById(canvas_id)) {
           var c = document.createElement('CANVAS')
           c.id  = this.parent_x + ""
-          
+
           document.getElementById('map-container').appendChild(c)
           c.style.position = "absolute"
           c.style.top      = 0
@@ -752,12 +752,12 @@
           }
           this.selectedNode = null
           this.createNode(node)
-          
+
           // this.currentMindMap.nodes.push(node);
           this.currentPositionX = this.currentPositionY = 0
           this.nodeParent       = null
           this.drawLines()
-        } 
+        }
         if (this.draggingNode) {
           this.dragging     = false
           this.draggingNode = false
@@ -772,37 +772,37 @@
       getNodeStyle(node) {
         let p_node = this.currentMindMap.nodes.filter((n) => n.id == node.parent_node)[0]
 
-        if (this.nodeQuadrant(node) == "LL") 
+        if (this.nodeQuadrant(node) == "LL")
         {
           if (p_node && p_node.position_x < node.position_x) {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           } else {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           }
-        } 
-        else if (this.nodeQuadrant(node) == "UL") 
+        }
+        else if (this.nodeQuadrant(node) == "UL")
         {
           if (p_node && p_node.position_x < node.position_x) {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           } else {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           }
-        } 
-        else 
+        }
+        else
         {
           return {left: (node.position_x - 20) +'px', top: (node.position_y - 20) + 'px'}
         }
       },
       drawLines(retry_count=0) {
-        if (document.getElementById("map-canvas") != null) 
+        if (document.getElementById("map-canvas") != null)
         {
           this.removeLines()
           var c = document.getElementById("map-canvas")
           if (!c) { return; }
-          
+
           var ctx = c.getContext("2d")
           ctx.clearRect(0, 0, c.width, c.height)
-          
+
           var CI = this
           this.currentMindMap.nodes.forEach((nod) => {
             if (nod.is_disabled || nod.hide_self) { return; }
@@ -824,7 +824,7 @@
             } else {
               var p_node = CI.currentMindMap.nodes.filter((n) => n.id == nod.parent_node)[0]
               if (p_node) {
-                if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL") 
+                if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL")
                 {
                   if (p_node.position_x > nod.position_x) {
                     ctx.moveTo(p_node.position_x - 100, p_node.position_y + 20);
@@ -835,8 +835,8 @@
                     position_x = p_node.position_x + 5
                     position_y =  p_node.position_y + 20
                   }
-                } 
-                else 
+                }
+                else
                 {
                   if (p_node.position_x < nod.position_x) {
                     ctx.moveTo(p_node.position_x + 100, p_node.position_y + 20);
@@ -853,20 +853,20 @@
             ctx.quadraticCurveTo(position_x, (position_y + nod.position_y)/2 ,nod.position_x + 5, nod.position_y + 20);
 
             if (
-              this.nodeQuadrant(nod) == "LL" || 
+              this.nodeQuadrant(nod) == "LL" ||
               this.nodeQuadrant(nod) == "UL"
             ) {
               ctx.lineTo(nod.position_x - 100, nod.position_y + 20)
-            } 
+            }
             else {
               ctx.lineTo(nod.position_x + 100, nod.position_y + 20)
             }
             ctx.stroke()
             ctx.closePath()
           })
-        } 
+        }
         else if (retry_count < 5) {
-          setTimeout(this.drawLines(retry_count++), 100); 
+          setTimeout(this.drawLines(retry_count++), 100);
         }
       },
       removeLines() {
@@ -875,7 +875,7 @@
             canvas.parentNode.removeChild(canvas)
           }
         })
-        
+
         var c = document.getElementById("map-canvas")
         if (!c) { return; }
         var ctx = c.getContext("2d");
@@ -923,7 +923,7 @@
         this.copiedNode             = this.selectedNode
         this.copiedNode.is_disabled = true
         this.cutFlag                = true
-        
+
         http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
           this.selectedNode = null
         }).catch((error) => {
@@ -938,7 +938,7 @@
       pasteCopiedNode() {
         if (!this.copiedNode) { return; }
         let new_parent = 0
-        
+
         if (this.selectedNode) {
           new_parent = this.selectedNode.id
         }
@@ -962,7 +962,7 @@
 
         if (this.cutFlag) {
           dupNode.is_disabled = false
-          
+
           http
             .put(`/nodes/${dupNode.id}.json`, {node: dupNode})
             .then((res) => {
@@ -1194,7 +1194,7 @@
             Jimp.read(url).then((image) => {
               var size = VM.getExportCanvasSize()
               image.crop(size.x, size.y, size.w, size.h)
-              image.getBase64(Jimp.MIME_PNG, 
+              image.getBase64(Jimp.MIME_PNG,
                 ((err, baseUrl) => {
                   var downloadLink = document.createElement("a")
                   document.body.appendChild(downloadLink)
@@ -1214,10 +1214,10 @@
             VM.exportLoading = false
             console.error('oops, something went wrong!', err)
           })
-        
+
         elm.style.transform = "scale(" + this.scaleFactor +")"
         VM.$refs.exportBtn.blur()
-      }, 
+      },
       zoomInScale() {
         if (this.scaleFactor < 1.50) {
           this.scaleFactor = this.scaleFactor + 0.05
@@ -1238,7 +1238,7 @@
         setTimeout(() => {
           let cal_height = this.windowHeight/2 - window.innerHeight/2
           document.getElementById("slideSection").scrollTop = cal_height
-          
+
           let cal_width = this.windowWidth/2 - window.innerWidth/2
           document.getElementById("slideSection").scrollLeft = cal_width + (1 - this.scaleFactor) * cal_width/2
         }, 200)
@@ -1254,20 +1254,20 @@
       slideTheCanvas(e) {
         let slider = this.$refs.slideSection
         if (!this.isSlideDown) { return; }
-        
+
         let x     = e.pageX - slider.offsetLeft
         let walkX = x - this.slideStartX
         walkX     = this.slideScrollLeft - walkX
-        
-        if (walkX > (this.windowWidth * (1-this.scaleFactor)/2)) { 
+
+        if (walkX > (this.windowWidth * (1-this.scaleFactor)/2)) {
           slider.scrollLeft = walkX
         }
 
         let y     = e.pageY - slider.offsetTop
         let walkY = y - this.slideStartY
         walkY     = this.slideScrollTop - walkY
-        
-        if (walkY > (this.windowHeight * (1-this.scaleFactor)/2)) { 
+
+        if (walkY > (this.windowHeight * (1-this.scaleFactor)/2)) {
           slider.scrollTop = walkY
         }
       },
@@ -1303,7 +1303,7 @@
       },
       removeFile(file) {
         this.fileLoading = true
-        
+
         http
           .put(`/nodes/${this.selectedNode.id}/destroy_file.json`, {file: file})
           .then((res) => {
@@ -1341,7 +1341,7 @@
       removeCentralNodeFile(file) {
         if(!file) { return; }
         this.fileLoading = true
-        
+
         http
           .put(`/mindmaps/${this.currentMindMap.unique_key}/destroy_file.json`, {file: file})
           .then((res) => {
@@ -1375,7 +1375,7 @@
 
         size.x = min_x < size.x ? min_x : size.x
         size.y = min_y < size.y ? min_y : size.y
-        size.w = max_x - size.x < size.w ? size.w : max_x - size.x 
+        size.w = max_x - size.x < size.w ? size.w : max_x - size.x
         size.h = max_y - size.y < size.h ? size.h : max_y - size.y
 
         if (size.x > 0) size.x = size.x - ASPECT_MARGIN
@@ -1412,7 +1412,7 @@
       "currentMindMap.name": {
         handler: function(new_map) {
           this.centralIdea = this.currentMindMap.name
-          if (this.stopWatch) { 
+          if (this.stopWatch) {
             this.stopWatch = false
             return
           }
@@ -1459,7 +1459,7 @@
       centralIdea(value) {
         let dheight            = Math.ceil(value.length / 15)
         dheight                = dheight > 1 ? dheight * 2 : 3
-        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       },
       descEditMode(value) {
         document.getElementsByClassName("ql-toolbar")[0].style.display = value ? "block" : "none"

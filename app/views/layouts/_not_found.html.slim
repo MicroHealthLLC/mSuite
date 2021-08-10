@@ -1,0 +1,16 @@
+.p-5.container
+  ul.list-group
+    li.list-group-item.text-center
+      .text-danger
+        span Whoops!
+      br
+      - if message.present?
+        p.font-weight-bold #{message}
+      - else
+        p You are not authorize to perform this action
+      - if user_signed_in?
+        = link_to root_path, class: "btn btn-link" do
+          | Go back safely
+      - else
+        = link_to new_user_session_path, class: "btn btn-link" do
+          | Go back safely

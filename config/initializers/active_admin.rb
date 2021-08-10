@@ -241,8 +241,8 @@ ActiveAdmin.setup do |config|
 
   config.namespace :admin do |admin|
     admin.build_menu :utility_navigation do |menu|
-      menu.add label: "Client Panel", url: :dashboard_index_url, html_options: { data: { turbolinks: false } }
-      # menu.add label: "Settings", url: :admin_settings_url
+      menu.add label: "Client Panel", url: :root_url, html_options: { data: { turbolinks: false } }
+      menu.add label: "Settings", url: :admin_settings_url
       admin.add_logout_button_to_menu(menu)
     end
   end

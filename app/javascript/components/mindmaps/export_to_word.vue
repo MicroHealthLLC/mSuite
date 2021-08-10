@@ -7,10 +7,10 @@
         <p v-else class="text-secondary font-italic">No description</p>
       </div>
       <div class="text-left">
-        <nested-list 
-          v-if="!loading" 
-          :children="DV_mindmap.children" 
-          group="_0_" 
+        <nested-list
+          v-if="!loading"
+          :children="DV_mindmap.children"
+          group="_0_"
           prefix-index="0"
         />
       </div>
@@ -27,6 +27,7 @@
 <script>
   import http       from "../../common/http"
   import NestedList from "../shared/nested_list.vue"
+
   export default {
     components: {
       NestedList
@@ -57,7 +58,7 @@
             this.loading = false
           })
       },
-      export2Doc(){
+      export2Doc() {
         let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Mindmap to Document</title><link href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous'></head><body>"
         let postHtml = "</body></html>"
         let html = preHtml + this.$refs.exportDoc.innerHTML + postHtml
@@ -65,21 +66,21 @@
         let blob = new Blob(['\ufeff', html], {
           type: 'application/msword'
         })
-        
+
         let url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html)
         let filename = this.mindMap ? this.mindMap.unique_key + ".doc" : "document.doc"
         let downloadLink = document.createElement("a")
         document.body.appendChild(downloadLink)
-        
+
         if (navigator.msSaveOrOpenBlob) {
           navigator.msSaveOrOpenBlob(blob, filename)
-        } 
+        }
         else {
           downloadLink.href = url
           downloadLink.download = filename
           downloadLink.click()
         }
-        
+
         document.body.removeChild(downloadLink)
       }
     }

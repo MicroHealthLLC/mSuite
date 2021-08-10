@@ -1,17 +1,17 @@
 <template>
   <div @mousedown.stop="startDragIdea" class="main">
     <span @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
-    <span 
+    <span
       v-if="hasChild"
-      class="collapse_child" 
+      class="collapse_child"
       :class="C_expandCollapseIconPositionClass">
-      <span 
-        v-show="hideChildren" 
+      <span
+        v-show="hideChildren"
         class="collapse_icon"
         @click.stop="expandChildren"
       ><i class="fa fa-plus-square"></i></span>
-      <span 
-        v-show="!hideChildren" 
+      <span
+        v-show="!hideChildren"
         class="collapse_icon"
         @click.stop="unexpandChildren"
       ><i class="fa fa-minus-square"></i></span>
@@ -36,11 +36,11 @@
 
   export default {
     props: [
-      'value', 
-      'isSelected', 
-      'quadrant', 
-      'hasChild', 
-      'hideChildren', 
+      'value',
+      'isSelected',
+      'quadrant',
+      'hasChild',
+      'hideChildren',
       'isEdited',
       'nodeAttr'
     ],
@@ -130,12 +130,12 @@
       tempLocalValue(value) {
         let dheight        = Math.ceil(value.length / 15)
         dheight            = dheight > 1 ? dheight * 2 : 3
-        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       },
       isSelected() {
         let dheight        = Math.ceil(this.value.length / 15)
         dheight            = dheight > 1 ? dheight * 2 : 3
-        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       }
     }
   }

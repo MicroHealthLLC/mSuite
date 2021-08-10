@@ -1,4 +1,4 @@
-class NodesController < ApplicationController
+class NodesController < AuthenticatedController
   before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
 
   def create

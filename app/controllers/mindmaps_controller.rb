@@ -1,6 +1,7 @@
-class MindmapsController < ApplicationController
+class MindmapsController < AuthenticatedController
+  before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap]
-  
+
   def index; end
 
   def new
@@ -37,7 +38,7 @@ class MindmapsController < ApplicationController
 
   def destroy_nodes
     nodes = params[:nodes]
-    nodes.each do |nod| 
+    nodes.each do |nod|
       Node.find(nod[:id]).destroy
     end if nodes.present?
     respond_to do |format|
@@ -113,7 +114,7 @@ class MindmapsController < ApplicationController
 
   def mindmap_params
     params.require(:mindmap).permit(
-      :name, 
+      :name,
       :unique_key,
       :description,
       node_files: []

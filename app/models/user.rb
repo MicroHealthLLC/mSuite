@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   devise :database_authenticatable,
          :recoverable, :rememberable, :trackable,
-         :validatable, :omniauthable
+         :validatable, :omniauthable, :registerable
 
   validates :first_name, :last_name, presence: true
   enum role: { user: 0, superadmin: 1 }
