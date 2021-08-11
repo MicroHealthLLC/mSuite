@@ -25,7 +25,7 @@
 </template>
 
 <script>
-  import http       from "../../common/http"
+  import http from "../../common/http"
   import NestedList from "../shared/nested_list.vue"
 
   export default {

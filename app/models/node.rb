@@ -6,13 +6,13 @@ class Node < ApplicationRecord
 
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
-    
+
   def to_json
     attach_files = []
     if self.node_files.attached?
-      attach_files = self.node_files.map do |file| 
+      attach_files = self.node_files.map do |file|
         {
-          id: file.id, 
+          id: file.id,
           uri: Rails.application.routes.url_helpers.rails_blob_path(file, only_path: true)
         }
       end
@@ -37,15 +37,15 @@ class Node < ApplicationRecord
       temp_node.position_x += 50
       temp_node.position_y -= 30
       temp_node.line_color = parent.line_color
-      
+
       # duplicate node attachments
       nod.node_files.each do |file|
         temp_node.node_files.attach(file.blob)
       end
-      
+
       temp_node.save
       duplicate_child_nodes(Node.where(parent_node: nod.id), temp_node)
-      
+
       temp_node.update_columns(
         parent_node: parent.id
       )
@@ -65,7 +65,7 @@ class Node < ApplicationRecord
     clon = Node.find_by(id: clon_id)
     if clon.present?
       self.update_columns(
-        is_disabled: clon.is_disabled, 
+        is_disabled: clon.is_disabled,
         hide_children: clon.hide_children,
         hide_self: clon.hide_self
       )
@@ -92,10 +92,10 @@ class Node < ApplicationRecord
   end
 
   private
-  
+
   def update_parent_attr(nodes, parent)
     return if nodes.length == 0
-    
+
     nodes.each do |nod|
       nod.update_columns(line_color: parent.line_color)
       update_parent_attr(Node.where(parent_node: nod.id), nod)
@@ -104,7 +104,7 @@ class Node < ApplicationRecord
 
   def update_disability(nodes, ability)
     return if nodes.length == 0
-    
+
     nodes.each do |nod|
       nod.update_columns(is_disabled: ability)
       update_disability(Node.where(parent_node: nod.id), ability)

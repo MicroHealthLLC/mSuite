@@ -7,7 +7,7 @@ class MindmapsController < AuthenticatedController
   def new
     @mindmap = Mindmap.new(name: "Central Idea", unique_key: generate_random_key)
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
     end
   end
@@ -15,7 +15,7 @@ class MindmapsController < AuthenticatedController
   def create
     @mindmap = Mindmap.create(mindmap_params)
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.json { render json: {mindmap: @mindmap.to_json } }
       format.html { }
     end
   end
@@ -31,7 +31,7 @@ class MindmapsController < AuthenticatedController
 
   def show
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
     end
   end

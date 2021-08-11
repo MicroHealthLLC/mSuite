@@ -1,26 +1,29 @@
 class Mindmap < ApplicationRecord
+  belongs_to :user, optional: true
   has_many :nodes, dependent: :destroy
   has_many_attached :node_files, dependent: :destroy
+
+  enum status: { active: 0, archived: 1 }
 
   def to_json
     attach_files = []
     if self.node_files.attached?
-      attach_files = self.node_files.map do |file| 
+      attach_files = self.node_files.map do |file|
         {
-          id: file.id, 
+          id: file.id,
           uri: Rails.application.routes.url_helpers.rails_blob_path(file, only_path: true)
         }
       end
     end
-    
+
     self.as_json.merge(
-      nodes: self.nodes.map(&:to_json), 
+      nodes: self.nodes.map(&:to_json),
       attach_files: attach_files
     ).as_json
   end
 
   def compute_child
-    center_node = {"id"=> 0, "name"=> self.name, "children"=> []}
+    center_node = { "id"=> 0, "name"=> self.name, "children"=> [] }
     compute_child_nodes(center_node)
     center_node
   end

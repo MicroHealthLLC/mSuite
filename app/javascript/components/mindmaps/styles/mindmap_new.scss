@@ -1,7 +1,7 @@
 
 /**
-  stylesheet 
-  compiler: scss 
+  stylesheet
+  compiler: scss
   component: mindmap_new.vue
 */
 
@@ -100,30 +100,6 @@
   height  : 100vh;
 }
 
-#central-attachment-modal /deep/ .sweet-modal, 
-#attachment-modal /deep/ .sweet-modal {
-  min-width: 800px;
-  .sweet-content {
-    padding-top   : 1.5em;
-    padding-bottom: 2.5em;
-  }
-}
-
-#export-word-modal /deep/ .sweet-modal {
-  min-width: 800px;
-}
-
-#central-attachment-modal /deep/ .ql-container, 
-#attachment-modal /deep/ .ql-container {
-  height    : 40vh;
-  max-height: 40vh;
-  border-top: 1px solid #ccc;
-}
-
-#central-attachment-modal /deep/ .ql-toolbar, #attachment-modal /deep/ .ql-toolbar {
-  display: none;
-}
-
 .node-description-tab {
   text-align : left;
   font-size  : 80%;
@@ -154,7 +130,7 @@
   background-color: #edeeef;
   color           : #17a2b8;
   cursor          : pointer;
-  z-index         : 99; 
+  z-index         : 99;
   i {
     font-size: 20px;
   }
@@ -170,7 +146,7 @@
   height  : 100%;
   border  : 1px solid #ccc;
   overflow: auto;
-  
+
   .files-list {
     display        : flex;
     justify-content: space-between;

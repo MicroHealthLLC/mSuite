@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_09_080929) do
+ActiveRecord::Schema.define(version: 2021_08_11_071028) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -53,6 +53,8 @@ ActiveRecord::Schema.define(version: 2021_08_09_080929) do
     t.datetime "updated_at", null: false
     t.string "unique_key"
     t.text "description"
+    t.bigint "user_id"
+    t.integer "status", default: 0
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 

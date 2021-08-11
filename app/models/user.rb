@@ -3,6 +3,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable,
          :validatable, :omniauthable, :registerable
 
+  has_many :mindmaps, dependent: :destroy
+
   validates :first_name, :last_name, presence: true
   enum role: { user: 0, superadmin: 1 }
   enum status: { inactive: 0, active: 1 }
