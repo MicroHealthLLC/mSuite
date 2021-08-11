@@ -1157,7 +1157,6 @@
     },
 
     mounted() {
-      debugger
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
       } else {

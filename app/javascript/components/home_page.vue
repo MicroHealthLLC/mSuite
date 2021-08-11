@@ -74,7 +74,7 @@
         }
 
         http.get(`/mindmaps/find_or_create.json?key=${this.mapName}`).then((res) => {
-          window.open(`/mindmaps/new?key=${res.data.mindmap.unique_key}`,"_self")
+          window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
         }).catch((error) => {
           alert("Unable to open/create mindmap with this name. Please try again changing the name.")
           console.log(error)
@@ -89,7 +89,7 @@
       //   })
       // },
       openMindMap(key) {
-        window.open(`/mindmaps/new?key=${key}`, "_self")
+        window.open(`/mindmaps/${key}`, "_self")
       }
     }
   }
