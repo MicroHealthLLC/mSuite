@@ -13,9 +13,11 @@ class MindmapsController < AuthenticatedController
   end
 
   def create
-    @mindmap = Mindmap.create(mindmap_params)
+    @mindmap = Mindmap.new(mindmap_params)
+    @mindmap.unique_key = generate_random_key
+    @mindmap.save
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json } }
+      format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { }
     end
   end
@@ -115,7 +117,6 @@ class MindmapsController < AuthenticatedController
   def mindmap_params
     params.require(:mindmap).permit(
       :name,
-      :unique_key,
       :description,
       node_files: []
     )

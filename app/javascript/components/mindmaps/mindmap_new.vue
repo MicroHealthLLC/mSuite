@@ -389,13 +389,12 @@
       },
       getNewMindmap() {
         http
-          .get('/mindmaps/new.json')
+          .post('/mindmaps.json', { mindmap: { name: "Central Idea" } })
           .then((res) => {
             this.loading        = false
             this.currentMindMap = res.data.mindmap
             this.currentNodes   = res.data.mindmap.nodes
-            let query           = {}
-            this.$router.push({query: query})
+            this.updateQuery()
           }).catch((error) => {
             console.log(error)
             this.loading = false
@@ -814,7 +813,7 @@
       // =============== Node CRUD OPERATIONS =====================
 
       // =============== Map CRUD OPERATIONS =====================
-      saveCurrentMap(files=null) {
+      saveCurrentMap(files = null) {
         if (this.currentMindMap.id) {
           let formData = files ? new FormData() : {mindmap: this.currentMindMap}
           if (files) {
@@ -834,7 +833,7 @@
             this.fileLoading = false
           })
         } else {
-          http.post(`/mindmaps.json`, {mindmap: this.currentMindMap}).then((res) => {
+          http.post(`/mindmaps.json`, { mindmap: this.currentMindMap }).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
             this.selectedNode   = null
@@ -862,9 +861,7 @@
 
       // =============== OTHERS =====================
       updateQuery() {
-        let query = {}
-        query['key'] = this.currentMindMap.unique_key
-        this.$router.push({query: query})
+        this.$router.push({ name: 'maproot', params: { key: this.currentMindMap.unique_key } })
       },
       updateCentralIdea: _.debounce(
         function(input) {
@@ -1186,7 +1183,7 @@
             return
           }
           this.saveCurrentMap()
-        },
+          },
         deep: true
       },
       "currentMindMap.description": {

@@ -22,31 +22,6 @@
             </div>
           </div>
         </div>
-        <!-- <div class="col-12 my-4">
-          <div class="mind-map-list-header">
-            List of all Mind Maps (keys and names)
-          </div>
-          <div class="mt-2 mind-map-list">
-            <div v-if="mapsArr.length > 0">
-              <div class="row mb-2 map-item py-2" v-for="(map, index) in mapsArr">
-                <div class="col-1">
-                  {{++index}}
-                </div>
-                <div class="col-5 map-link"
-                    @click.stop="openMindMap(map.unique_key)"
-                  >
-                  {{map.unique_key}}
-                </div>
-                <div class="col-6">
-                  {{map.name}}
-                </div>
-              </div>
-            </div>
-            <div v-else class="row empty-list">
-              List is empty...
-            </div>
-          </div>
-        </div> -->
       </div>
     </div>
   </div>
@@ -65,7 +40,12 @@
 
     methods: {
       createNewMap() {
-        window.open("/mindmaps/new", "_self")
+        http.post(`/mindmaps.json`, { mindmap: { name: "Central Idea" } }).then((res) => {
+          window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
+        }).catch((error) => {
+          alert("Unable to open/create mindmap.")
+          console.log(error)
+        })
       },
       openOrCreateMap() {
         if (this.mapName == "" || this.mapName == null || this.mapName == undefined) {
@@ -80,14 +60,6 @@
           console.log(error)
         })
       },
-      // call api for listing all the mind maps names and keys
-      // listAllMaps() {
-      //   http.get(`/mindmaps/list_all_maps.json?`).then((res) => {
-      //     this.mapsArr = res.data.mindmaps
-      //   }).catch((err) => {
-      //     console.log(err)
-      //   })
-      // },
       openMindMap(key) {
         window.open(`/mindmaps/${key}`, "_self")
       }

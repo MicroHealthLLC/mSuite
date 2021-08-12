@@ -4,6 +4,7 @@ import NewMindMap from '../components/mindmaps/mindmap_new'
 export default new VueRouter({
   routes: [
     {
+      name: 'maproot',
       path: '/:key',
       component: NewMindMap
     }
