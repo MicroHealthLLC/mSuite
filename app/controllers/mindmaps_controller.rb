@@ -5,7 +5,7 @@ class MindmapsController < AuthenticatedController
   def index; end
 
   def new
-    @mindmap = Mindmap.new(name: "Central Idea", unique_key: generate_random_key)
+    @mindmap = current_user.mindmaps.new(name: "Central Idea")
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
@@ -13,9 +13,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def create
-    @mindmap = Mindmap.new(mindmap_params)
-    @mindmap.unique_key = generate_random_key
-    @mindmap.save
+    @mindmap = current_user.mindmaps.create(mindmap_params)
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { }
@@ -50,7 +48,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def find_or_create
-    @mindmap = Mindmap.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
+    @mindmap = current_user.mindmaps.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
     respond_to do |format|
       format.json { render json: {success: true, mindmap: @mindmap}}
       format.html { }
@@ -107,11 +105,6 @@ class MindmapsController < AuthenticatedController
     mindmap.as_json.merge(
       nodes: mindmap.nodes.map(&:to_json)
     ).as_json
-  end
-
-  def generate_random_key
-    o = [('a'..'z'), ('A'..'Z')].map(&:to_a).flatten
-    string = (0...10).map { o[rand(o.length)] }.join
   end
 
   def mindmap_params

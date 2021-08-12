@@ -3,6 +3,10 @@ class Mindmap < ApplicationRecord
   has_many :nodes, dependent: :destroy
   has_many_attached :node_files, dependent: :destroy
 
+  before_validation :generate_random_key, on: :create
+  validates :unique_key, presence: true, uniqueness: true
+  validates :unique_key, length: { in: 10..20 }
+
   enum status: { active: 0, archived: 1 }
 
   def to_json
@@ -38,8 +42,14 @@ class Mindmap < ApplicationRecord
   end
 
   private
+
   def compute_child_nodes(node)
     node["children"] = self.nodes.where(parent_node: node["id"]).order(export_index: :asc).map(&:as_json)
     node["children"].each{|nod| compute_child_nodes(nod)}
+  end
+
+  def generate_random_key
+    o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
+    self.unique_key = (0...15).map { o[rand(o.length)] }.join
   end
 end
