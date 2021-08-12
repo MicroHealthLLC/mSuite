@@ -73,7 +73,7 @@
 
   export default {
     name: "CentralAttachmentModal",
-    props: ['editorOption', 'attachFiles'],
+    props: ['editorOption', 'attachFiles', 'currentMindMap'],
     components: {
       quillEditor,
       AttachmentInput,
@@ -85,6 +85,9 @@
         descEditMode: false,
         centralNotes: ""
       }
+    },
+    mounted() {
+      if (this.currentMindMap) this.centralNotes = this.currentMindMap.description
     },
     methods: {
       nullifyAttachmentModal() {
@@ -102,6 +105,13 @@
         this.fileLoading = true
         await this.$emit('remove-central-node-file', file)
         this.fileLoading = false
+      }
+    },
+    watch: {
+      currentMindMap: {
+        handler(value) {
+          this.centralNotes = value.description
+        }, deep: true
       }
     }
   }

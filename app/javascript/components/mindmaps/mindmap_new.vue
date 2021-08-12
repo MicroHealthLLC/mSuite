@@ -185,6 +185,7 @@
     <central-attachment-modal
       ref="central-attachment-modal"
       :editor-option="editorOption"
+      :current-mind-map="currentMindMap"
       :attch-files="attachFiles"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-map-notes="updateMapNotes"
@@ -1059,6 +1060,7 @@
         this.$forceUpdate()
         this.saveNode(this.selectedNode)
         this.descEditMode = false
+        this.$refs["attachment-modal"].$refs.attachmentModal.close()
       },
       addFileToNode(files) {
         this.uploadFiles = files
@@ -1097,6 +1099,7 @@
         this.currentMindMap.description = notes
         this.saveCurrentMap()
         this.descEditMode = false
+        this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.close()
       },
       addFileToCentralNode(files) {
         this.uploadFiles = files

@@ -86,6 +86,9 @@ export default {
       nodeNotes: ""
     }
   },
+  mounted() {
+    if (this.selectedNode) this.nodeNotes = value.description
+  },
   methods: {
     nullifyAttachmentModal() {
       this.$emit('nullify-attachment-modals')
@@ -103,6 +106,13 @@ export default {
       this.fileLoading = true
       await this.$emit('remove-file', file)
       this.fileLoading = false
+    }
+  },
+  watch: {
+    selectedNode: {
+      handler(value) {
+        if (value) this.nodeNotes = value.description
+      }, deep: true
     }
   }
 }
