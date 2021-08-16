@@ -1,13 +1,18 @@
 class Mindmap < ApplicationRecord
   belongs_to :user, optional: true
+  belongs_to :category, optional: true
   has_many :nodes, dependent: :destroy
   has_many_attached :node_files, dependent: :destroy
+
+  has_many :mindmap_users, dependent: :destroy
+  has_many :shared_users, through: :mindmap_users
 
   before_validation :generate_random_key, on: :create
   validates :unique_key, presence: true, uniqueness: true
   validates :unique_key, length: { in: 10..20 }
 
   enum status: { active: 0, archived: 1 }
+  enum share: { private_link: 0, public_link: 1 }
 
   def to_json
     attach_files = []
@@ -22,7 +27,8 @@ class Mindmap < ApplicationRecord
 
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
-      attach_files: attach_files
+      attach_files: attach_files,
+      editable: editable
     ).as_json
   end
 
@@ -39,6 +45,10 @@ class Mindmap < ApplicationRecord
       name: "Central Idea",
       description: ""
     )
+  end
+
+  def editable
+    false
   end
 
   private

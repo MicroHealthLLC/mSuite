@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_11_071028) do
+ActiveRecord::Schema.define(version: 2021_08_16_092913) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -47,6 +47,20 @@ ActiveRecord::Schema.define(version: 2021_08_11_071028) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "categories", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.integer "status", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "mindmap_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "mindmap_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "mindmaps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -55,6 +69,9 @@ ActiveRecord::Schema.define(version: 2021_08_11_071028) do
     t.text "description"
     t.bigint "user_id"
     t.integer "status", default: 0
+    t.bigint "category_id"
+    t.integer "share", default: 0
+    t.datetime "expires_at"
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 

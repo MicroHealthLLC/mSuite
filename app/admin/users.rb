@@ -32,7 +32,7 @@ ActiveAdmin.register User do
       f.input :password, input_html: { disabled: user.id?, autocomplete: :off }
       f.input :password_confirmation, input_html: { disabled: user.id?, autocomplete: :off }
       f.input :role, include_blank: false, include_hidden: false
-      f.input :status, include_blank: false, include_hidden: false
+      f.input :status, include_blank: false, include_hidden: false, label: 'State'
     end
 
     actions

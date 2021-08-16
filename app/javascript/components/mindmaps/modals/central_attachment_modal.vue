@@ -50,7 +50,8 @@
               <file-box
                 :file="file"
                 :key="file.id"
-                @remove-file="removeCentralNodeFile"
+                :central="true"
+                :node="currentMindMap"
               ></file-box>
             </div>
           </div>
@@ -73,7 +74,7 @@
 
   export default {
     name: "CentralAttachmentModal",
-    props: ['editorOption', 'attachFiles', 'currentMindMap'],
+    props: ['editorOption', 'currentMindMap'],
     components: {
       quillEditor,
       AttachmentInput,
@@ -83,11 +84,15 @@
       return {
         fileLoading: false,
         descEditMode: false,
+        attachFiles: [],
         centralNotes: ""
       }
     },
     mounted() {
-      if (this.currentMindMap) this.centralNotes = this.currentMindMap.description
+      if (this.currentMindMap.id) {
+        this.centralNotes = this.currentMindMap.description
+        this.attachFiles = this.currentMindMap.attach_files
+      }
     },
     methods: {
       nullifyAttachmentModal() {
@@ -100,17 +105,13 @@
         this.fileLoading = true
         await this.$emit('add-file-to-central-node', files)
         this.fileLoading = false
-      },
-      async removeCentralNodeFile(file) {
-        this.fileLoading = true
-        await this.$emit('remove-central-node-file', file)
-        this.fileLoading = false
       }
     },
     watch: {
       currentMindMap: {
         handler(value) {
           this.centralNotes = value.description
+          this.attachFiles = value.attach_files
         }, deep: true
       }
     }
@@ -137,9 +138,9 @@
   }
 
   .node-files-tab {
-    height    : 40vh;
+    height: 40vh;
     max-height: 40vh;
-    font-size : 78%;
+    font-size: 78%;
   }
 
   .edit-icon {

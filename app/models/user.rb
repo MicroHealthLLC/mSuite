@@ -4,6 +4,8 @@ class User < ApplicationRecord
          :validatable, :omniauthable, :registerable
 
   has_many :mindmaps, dependent: :destroy
+  has_many :mindmap_users, dependent: :destroy
+  has_many :shared_mindmaps, through: :mindmap_users
 
   validates :first_name, :last_name, presence: true
   enum role: { user: 0, superadmin: 1 }

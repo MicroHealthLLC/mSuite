@@ -6,7 +6,7 @@
       </div>
     </div>
     <sweet-modal-tab title="Description" id="description-tab">
-      <template v-if="selectedNode">
+      <template v-if="editedNode">
         <section>
           <span v-if="!descEditMode" class="edit-icon shadow" @click.stop="descEditMode = true">
             <i class="material-icons">edit</i>
@@ -50,6 +50,8 @@
               <file-box
                 :file="file"
                 :key="file.id"
+                :central="false"
+                :node="editedNode"
                 @remove-file="removeFile"
               ></file-box>
             </div>
@@ -73,7 +75,7 @@ import "quill/dist/quill.bubble.css"
 
 export default {
   name: "AttachmentModal",
-  props: ['selectedNode', 'editorOption', 'attachFiles'],
+  props: ['selectedNode', 'editorOption'],
   components: {
     quillEditor,
     AttachmentInput,
@@ -83,11 +85,17 @@ export default {
     return {
       fileLoading: false,
       descEditMode: false,
-      nodeNotes: ""
+      nodeNotes: "",
+      attachFiles: [],
+      editedNode: this.selectedNode
     }
   },
   mounted() {
-    if (this.selectedNode) this.nodeNotes = value.description
+    if (this.selectedNode?.id) {
+      this.editedNode = this.selectedNode
+      this.nodeNotes = this.editedNode.description
+      this.attachFiles = this.editedNode.attach_files
+    }
   },
   methods: {
     nullifyAttachmentModal() {
@@ -102,16 +110,25 @@ export default {
       await this.$emit('add-file-to-node', files)
       this.fileLoading = false
     },
-    async removeFile(file) {
-      this.fileLoading = true
-      await this.$emit('remove-file', file)
-      this.fileLoading = false
+    removeFile(file) {
+      _.remove(this.editedNode.attach_files, f => f.id === file.id)
+      this.$forceUpdate()
     }
   },
   watch: {
     selectedNode: {
       handler(value) {
-        if (value) this.nodeNotes = value.description
+        if (value) {
+          this.editedNode = value
+        }
+      }, deep: true
+    },
+    editedNode: {
+      handler(value) {
+        if (value) {
+          this.nodeNotes = value.description
+          this.attachFiles = value.attach_files
+        }
       }, deep: true
     }
   }

@@ -34,6 +34,11 @@ Rails.application.routes.draw do
     post '/settings', to: 'settings#update'
   end
 
+  namespace :file_manager do
+    get '/', to: 'mindmaps#index'
+    resources :mindmaps, except: [:index, :new]
+  end
+
   mount ActionCable.server => '/cable'
   root 'home#index'
 

@@ -1,0 +1,31 @@
+
+h1.my-5
+  | Your mindmaps collection
+
+table.table.table-striped
+  thead
+    tr
+      th scope="col"  id
+      th scope="col"  Name
+      th scope="col"  Unique Key
+      th scope="col"  State
+      th scope="col"  Share
+      th scope="col"  Description
+      th scope="col"
+  tbody
+    - @mindmaps.each do | mindmap |
+      tr
+        td scope="row"
+          = mindmap.id
+        td scope="row"
+          = mindmap.name
+        td scope="row"
+          = mindmap.unique_key
+        td scope="row"
+          = mindmap.status
+        td scope="row"
+          = mindmap.share
+        td scope="row"
+          = mindmap.description
+        td scope="row"
+          = link_to "Edit", edit_file_manager_mindmap_path(mindmap)

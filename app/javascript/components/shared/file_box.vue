@@ -2,7 +2,7 @@
   <div class="file-wrap py-2" :class="{'shadow-sm':slideRight}">
     <transition name="slide-fade-right">
       <div v-if="!slideRight" class="file-tap">
-        <span class="files-name text-left mr-1 p-1"> 
+        <span class="files-name text-left mr-1 p-1">
           {{ file.uri.split("/").pop().replace(/%20/g, ' ') }}
         </span>
         <span class="files-action d-flex align-items-center">
@@ -25,16 +25,19 @@
           <button class="btn_file btn btn-danger btn-sm" @click.prevent="removeFile(file)">
             Yes, Delete
           </button>
-        </span>      
+        </span>
       </div>
     </transition>
   </div>
 </template>
 
 <script>
+import http from "../../common/http"
 export default {
   props: [
-    'file'
+    'file',
+    'central',
+    'node'
   ],
   data() {
     return {
@@ -48,7 +51,17 @@ export default {
   },
   methods: {
     removeFile() {
-      this.$emit('remove-file', this.file)
+      let url = this.central ? `/mindmaps/${this.node.unique_key}/destroy_file.json` : `/nodes/${this.node.id}/destroy_file.json`
+
+      http
+        .put(url, { file: this.file })
+        .then(async (res) => {
+          this.$emit('remove-file', this.file)
+          _.remove(this.node.attach_files, (f) => f.id === this.file.id)
+          this.$foreUpdate()
+        }).catch((error) => {
+          console.log("Unable to remove the file..")
+        })
     }
   }
 }
@@ -56,44 +69,44 @@ export default {
 
 <style lang="scss" scoped>
   .file-wrap {
-    display    : flex;
+    display: flex;
     align-items: center;
-    width      : 100%;
-    height     : 32px;
+    width: 100%;
+    height: 32px;
     &:hover {
-      cursor    : pointer; 
+      cursor: pointer;
       box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     }
   }
   .file-tap {
-    width          : 85%;
-    position       : absolute;
-    display        : flex;
+    width: 85%;
+    position: absolute;
+    display: flex;
     justify-content: space-between;
-    align-items    : center;
+    align-items: center;
   }
   .confirm-dialog {
-    width          : 85%;
-    position       : absolute;
-    display        : flex;
+    width: 85%;
+    position: absolute;
+    display: flex;
     justify-content: space-between;
-    align-items    : center;
+    align-items: center;
   }
   i {
     font-size: 15px;
-    padding  : 0.3em;
+    padding: 0.3em;
   }
   .files-name {
-    white-space  : nowrap;
-    width        : 20em;
+    white-space: nowrap;
+    width: 20em;
     text-overflow: ellipsis;
-    overflow     : hidden;
+    overflow: hidden;
   }
   a {
     color: black;
     &:hover {
-      color           : white;
-      border-radius   : 50%;
+      color: white;
+      border-radius: 50%;
       background-color: red;
     }
   }

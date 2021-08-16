@@ -98,13 +98,8 @@ class MindmapsController < AuthenticatedController
   private
 
   def set_mindmap
+    # Mindmap.user_id = current_user.try(:id)
     @mindmap = Mindmap.find_by(unique_key: params[:id])
-  end
-
-  def mindmap_as_json(mindmap)
-    mindmap.as_json.merge(
-      nodes: mindmap.nodes.map(&:to_json)
-    ).as_json
   end
 
   def mindmap_params

@@ -175,22 +175,18 @@
       ref="attachment-modal"
       :editor-option="editorOption"
       :selected-node="selectedNode"
-      :attch-files="attachFiles"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-node-description="updateNodeDescription"
       @add-file-to-node="addFileToNode"
-      @remove-file="removeFile"
     ></attachment-modal>
 
     <central-attachment-modal
       ref="central-attachment-modal"
       :editor-option="editorOption"
       :current-mind-map="currentMindMap"
-      :attch-files="attachFiles"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-map-notes="updateMapNotes"
       @add-file-to-central-node="addFileToCentralNode"
-      @remove-central-node-file="removeCentralNodeFile"
     ></central-attachment-modal>
 
     <confirm-save-key-modal
@@ -1069,24 +1065,6 @@
         this.saveNode(this.selectedNode, this.uploadFiles)
         this.uploadFiles = []
       },
-      removeFile(file) {
-        this.fileLoading = true
-
-        http
-          .put(`/nodes/${this.selectedNode.id}/destroy_file.json`, {file: file})
-          .then((res) => {
-            _.remove(this.attachFiles, (f) => f.id === file.id)
-            this.$forceUpdate()
-            this.fileLoading  = false
-          }).catch((error) => {
-            console.log(error)
-            this.fileLoading  = false
-            console.log("Unable to remove the file..")
-          })
-      },
-      fileLink(file) {
-        return window.location.origin + file.uri
-      },
 
       // central Idea Attachments
       openCentralAttachModal(e) {
@@ -1106,22 +1084,6 @@
         this.fileLoading  = true
         this.saveCurrentMap(this.uploadFiles)
         this.uploadFiles = []
-      },
-      removeCentralNodeFile(file) {
-        if (!file) { return; }
-        this.fileLoading = true
-
-        http
-          .put(`/mindmaps/${this.currentMindMap.unique_key}/destroy_file.json`, {file: file})
-          .then((res) => {
-            _.remove(this.attachFiles, (f) => f.id === file.id)
-            this.$forceUpdate()
-            this.fileLoading = false
-          }).catch((error) => {
-            console.log(error)
-            this.fileLoading = false
-            console.log("Unable to destroy the file..")
-          })
       },
 
       // export word functions
