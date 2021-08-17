@@ -7,12 +7,12 @@
             href="javascript:;"
             role="button"
             class="d-flex text-info edit_delete_btn ml-2 mr-3 center_flex"
-            @click.stop="$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open"
+            @click.stop="goHome"
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
           </a>
         </span>
-        <span class="ml_14">
+        <span v-if="currentMindMap.editable" class="ml_14">
           <a
             href="javascript:;"
             role="button"
@@ -58,6 +58,7 @@
         </span>
         <span>
           <a
+            v-if="currentMindMap.editable"
             href="javascript:;"
             role="button"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
@@ -131,8 +132,8 @@
               </span>
             </div>
           </div>
-          <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
-          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle"/>
+          <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" class="start_dot"></span>
+          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
         </div>
         <input-field
           v-for="node in currentNodes"
@@ -146,6 +147,7 @@
           :has-child="hasChilNodes(node)"
           :hide-children="node.hide_children"
           :node-attr="node"
+          :editable="currentMindMap.editable"
           @start-drag="startDrag($event, node)"
           @mousedown-event="startDragNode($event, node)"
           @node-updated="nodeUpdated(node)"
@@ -175,6 +177,7 @@
       ref="attachment-modal"
       :editor-option="editorOption"
       :selected-node="selectedNode"
+      :editable="currentMindMap.editable"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-node-description="updateNodeDescription"
       @add-file-to-node="addFileToNode"
@@ -407,6 +410,13 @@
         this.dragging     = false
         this.draggingNode = false
       },
+      goHome() {
+        if (this.currentMindMap.editable) {
+          this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
+        } else {
+          window.open("/", "_self")
+        }
+      },
       // =============== GETTING MAP =====================
 
       // =============== MODALS OPEN/CLOSE/OPERATIONS =====================
@@ -459,6 +469,7 @@
       },
       startDragNode(event, node) {
         this.selectedNode = node
+        if (!this.currentMindMap.editable) return false
         this.nodeOffsetX  = event.clientX - node.position_x
         this.nodeOffsetY  = event.clientY - node.position_y
         this.draggingNode = true
@@ -916,7 +927,8 @@
         http.get(`/nodes/hide_children.json?id=${node.id}&flag=${flag}`)
           .then((res) => {})
           .catch((error) => {
-            alert("There was an error while collapsing/expanding child nodes.")
+            let err_msg = error.response.status === 401 ? "Unauthorized request!" : "There was an error while collapsing/expanding child nodes."
+            alert(err_msg)
             console.log(error)
           })
       },

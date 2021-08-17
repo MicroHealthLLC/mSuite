@@ -9,14 +9,14 @@
           <a :href="fileLink" target="_blank" class="download-btn mr-2">
             <i class="material-icons">get_app</i>
           </a>
-          <a href="javascript:;" class="remove-btn" @click.prevent="slideRight=true">
+          <a v-if="editable" href="javascript:;" class="remove-btn" @click.prevent="slideRight=true">
             <i class="material-icons">close</i>
           </a>
         </span>
       </div>
     </transition>
     <transition name="slide-fade-left">
-      <div v-if="slideRight" class="confirm-dialog">
+      <div v-if="slideRight && editable" class="confirm-dialog">
         <span class="p-1 mr-1">Are you sure? </span>
         <span>
           <button class="btn_file btn btn-primary btn-sm mr-2" @click.prevent="slideRight = !slideRight">
@@ -37,7 +37,8 @@ export default {
   props: [
     'file',
     'central',
-    'node'
+    'node',
+    'editable'
   ],
   data() {
     return {

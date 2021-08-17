@@ -1,5 +1,6 @@
 class MindmapsController < AuthenticatedController
   before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
+  before_action :set_access_user
   before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap]
 
   def index; end
@@ -97,9 +98,22 @@ class MindmapsController < AuthenticatedController
 
   private
 
+  def set_access_user
+    Mindmap.access_user = current_user
+  end
+
   def set_mindmap
-    # Mindmap.user_id = current_user.try(:id)
     @mindmap = Mindmap.find_by(unique_key: params[:id])
+    check_auth
+  end
+
+  def check_auth
+    return if current_user.try(:admin?)
+    if @mindmap.only_me? && current_user.try(:id) != @mindmap.user.try(:id)
+      return redirect_to root_path
+    elsif @mindmap.private_link? && !@mindmap.shared_users.include?(current_user)
+      return redirect_to root_path
+    end
   end
 
   def mindmap_params

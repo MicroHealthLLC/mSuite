@@ -12,7 +12,9 @@ class Mindmap < ApplicationRecord
   validates :unique_key, length: { in: 10..20 }
 
   enum status: { active: 0, archived: 1 }
-  enum share: { private_link: 0, public_link: 1 }
+  enum share: { only_me: 0, private_link: 1, public_link: 2 }
+
+  cattr_accessor :access_user
 
   def to_json
     attach_files = []
@@ -28,7 +30,7 @@ class Mindmap < ApplicationRecord
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
       attach_files: attach_files,
-      editable: editable
+      editable: editable?
     ).as_json
   end
 
@@ -47,15 +49,15 @@ class Mindmap < ApplicationRecord
     )
   end
 
-  def editable
-    false
+  def editable?
+    access_user.try(:admin?) || (user.try(:id) === access_user.try(:id)) || (shared_users.pluck(:user_id).include?(access_user.try(:id)))
   end
 
   private
 
   def compute_child_nodes(node)
     node["children"] = self.nodes.where(parent_node: node["id"]).order(export_index: :asc).map(&:as_json)
-    node["children"].each{|nod| compute_child_nodes(nod)}
+    node["children"].each{ |nod| compute_child_nodes(nod) }
   end
 
   def generate_random_key

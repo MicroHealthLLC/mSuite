@@ -1,5 +1,6 @@
 <template>
   <draggable
+    :disabled="!editable"
     :list="children"
     ghost-class="ghost"
     tag="p"
@@ -16,6 +17,7 @@
         <span :style="liDataDesStyle" class="ml-4" v-html="elem.description"></span>
       </p>
       <nested-list
+        :editable="editable"
         v-if="elem.children.length > 0"
         :children="elem.children"
         :group="elem.parent_node.toString()"
@@ -46,6 +48,10 @@
       prefixIndex: {
         required: false,
         type: String
+      },
+      editable: {
+        required: false,
+        type: Boolean
       }
     },
     computed: {

@@ -1,6 +1,6 @@
 <template>
   <div @mousedown.stop="startDragIdea" class="main">
-    <span @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
+    <span v-if="editable" @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
     <span
       v-if="hasChild"
       class="collapse_child"
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import _ from 'lodash'
+  import {debounce} from 'lodash'
 
   export default {
     props: [
@@ -42,7 +42,8 @@
       'hasChild',
       'hideChildren',
       'isEdited',
-      'nodeAttr'
+      'nodeAttr',
+      'editable'
     ],
 
     data() {
@@ -84,7 +85,7 @@
       startDrag(event) {
         this.$emit('start-drag', event)
       },
-      updateIdea: _.debounce(
+      updateIdea: debounce(
         function(input) {
           this.localValue     = this.$refs.new_idea.value
           this.tempLocalValue = this.$refs.new_idea.value
@@ -106,16 +107,16 @@
         this.$emit('switch-expand-children', this.DV_collapse)
       },
       editNode(event) {
+        if (!this.editable) return false
         this.$emit('edit-node', event)
       },
       addAttachModal(event) {
         this.$emit('open-attachment', event.target.dataset.tab)
       }
     },
-
     watch: {
       nodeAttr: {
-        handler: function() {
+        handler() {
           this.fileCount      = this.nodeAttr.attach_files.length
           this.hasDescription = !!this.nodeAttr.description
         }, deep: true

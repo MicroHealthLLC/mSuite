@@ -8,18 +8,18 @@
     <sweet-modal-tab title="Description" id="central-description-tab">
       <div>
         <section>
-          <span v-if="!descEditMode" class="edit-icon shadow" @click.stop="descEditMode = true">
+          <span v-if="!descEditMode && currentMindMap.editable" class="edit-icon shadow" @click.stop="descEditMode = true">
             <i class="material-icons">edit</i>
           </span>
           <quill-editor
             v-model="centralNotes"
             ref="contentEditor"
             :options="editorOption"
-            :disabled="!descEditMode"
+            :disabled="!descEditMode || !currentMindMap.editable"
           >
           </quill-editor>
 
-          <div v-if="descEditMode" class="right_flex mt_2">
+          <div v-if="descEditMode && currentMindMap.editable" class="right_flex mt_2">
             <a
               href="javascript:;"
               class="btn_1 btn-sm bg-danger text-white mr_1"
@@ -37,14 +37,14 @@
         <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
       </section>
       <section v-show="!fileLoading" class="row node-files-tab">
-        <div class="col-md-6">
+        <div class="col" v-if="currentMindMap.editable">
           <attachment-input
             :show-label="true"
             @input="addFileToCentralNode"
           >
           </attachment-input>
         </div>
-        <div class="col-md-6 node-files-list">
+        <div class="col node-files-list">
           <div v-if="attachFiles && attachFiles.length > 0">
             <div class="files-list p-2" v-for="file in attachFiles">
               <file-box
@@ -52,6 +52,7 @@
                 :key="file.id"
                 :central="true"
                 :node="currentMindMap"
+                :editable="currentMindMap.editable"
               ></file-box>
             </div>
           </div>
@@ -97,9 +98,11 @@
     methods: {
       nullifyAttachmentModal() {
         this.$emit('nullify-attachment-modals')
+        this.descEditMode = false
       },
       updateMapNotes() {
         this.$emit('update-map-notes', this.centralNotes)
+        this.descEditMode = false
       },
       async addFileToCentralNode(files) {
         this.fileLoading = true

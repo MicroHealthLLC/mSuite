@@ -16,7 +16,9 @@ ActiveAdmin.register Mindmap do
       :user_id,
       :category_id,
       :status,
-      :description
+      :share,
+      :description,
+      shared_user_ids: []
     ]
   end
 
@@ -25,11 +27,12 @@ ActiveAdmin.register Mindmap do
 
     f.inputs 'Mindmap Details' do
       f.input :name
-      f.input :unique_key, input_html: { disabled: mindmap.id?, :'data-id' => mindmap.id, autocomplete: :off }
+      f.input :unique_key, input_html: { disabled: true, :'data-id' => mindmap.id, autocomplete: :off }
       f.input :category
-      f.input :user
       f.input :status, include_blank: false, include_hidden: false, label: "State"
+      f.input :share, include_blank: false, include_hidden: false, label: "Share as"
       f.input :description
+      f.input :shared_users, label: "Shared with"
     end
 
     actions
@@ -40,15 +43,25 @@ ActiveAdmin.register Mindmap do
     column :name
     column :unique_key
     column :category
-    column :description
-    column :user
+    # column :description
+    column "Creator", :user
+    column "Shared with", :shared_users
     tag_column :status
     tag_column :share
     actions
+  end
+
+  controller do
+    def create
+      params[:mindmap][:user_id] = current_user.id
+      super
+    end
   end
 
   filter :name
   filter :unique_key
   filter :category
   filter :status, as: :select, collection: Mindmap.statuses
+  filter :share, as: :select, collection: Mindmap.shares
+  filter :user
 end

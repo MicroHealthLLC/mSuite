@@ -9,6 +9,7 @@
       <div class="text-left">
         <nested-list
           v-if="!loading"
+          :editable="mindMap.editable"
           :children="DV_mindmap.children"
           group="_0_"
           prefix-index="0"
