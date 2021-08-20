@@ -348,3 +348,12 @@ input[type=button]:focus {
     font-size: 5em;
   }
 }
+#nav-wrap {
+  padding: 15px 25px 7px 25px;
+  z-index: 1030;
+  font-weight: 300;
+  background: #fff;
+}
+.navbar-brand > img {
+  height: 30px;
+}

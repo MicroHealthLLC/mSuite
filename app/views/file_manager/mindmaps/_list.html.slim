@@ -1,0 +1,29 @@
+table.table.table-striped
+  thead
+    tr
+      th scope="col"  id
+      th scope="col"  Name
+      th scope="col"  Unique Key
+      th scope="col"  State
+      th scope="col"  Share
+      th scope="col"  Description
+      th scope="col"  Actions
+  tbody
+    - mindmaps.each do |mindmap|
+      tr
+        td scope="row"
+          = mindmap.id
+        td scope="row"
+          = mindmap.name
+        td scope="row"
+          = mindmap.unique_key
+        td scope="row"
+          = mindmap.status
+        td scope="row"
+          = mindmap.share
+        td scope="row"
+          = mindmap.description
+        td scope="row"
+          - if mindmap.user_id == current_user.id
+            = link_to "<i class='fas fa-edit' title='Edit'></i>".html_safe, edit_file_manager_mindmap_path(mindmap), class: 'text-secondary'
+          = link_to "<i class='fas fa-eye' title='Show'></i>".html_safe, mindmap_path(mindmap.unique_key), class: 'ml-4 text-info'

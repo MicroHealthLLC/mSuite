@@ -5,11 +5,9 @@
   </head>
 
   <body>
-    <!-- here comes the navbar -->
-    <!-- <nav></nav> -->
-
-    <div class="container">
-      <%= yield %>
-    </div>
+    <% if user_signed_in? %>
+      <%= render 'layouts/navbar' %>
+    <% end %>
+    <%= yield %>
   </body>
 </html>
