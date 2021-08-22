@@ -156,7 +156,7 @@ you will have to create an nginx service now
         mysql_secure_installation
 
 
-#create /var/www and from there 
+# create /var/www and from there 
         mkdir /var/www
         
         cd /var/www/
