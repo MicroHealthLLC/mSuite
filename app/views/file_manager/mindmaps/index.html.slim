@@ -1,0 +1,9 @@
+.container
+  h1.my-5
+    | Your mindmaps collection
+  = render partial: 'list', locals: { mindmaps: @mindmaps }
+
+  -if @shared_mindmaps.any?
+    h1.my-5
+      | Shared mindmaps
+    = render partial: 'list', locals: { mindmaps: @shared_mindmaps }

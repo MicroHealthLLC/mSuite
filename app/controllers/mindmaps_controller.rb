@@ -1,20 +1,22 @@
-class MindmapsController < ApplicationController
+class MindmapsController < AuthenticatedController
+  before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
+  before_action :set_access_user
   before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap]
-  
+
   def index; end
 
   def new
-    @mindmap = Mindmap.new(name: "Central Idea", unique_key: generate_random_key)
+    @mindmap = current_user.mindmaps.new(name: "Central Idea")
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
     end
   end
 
   def create
-    @mindmap = Mindmap.create(mindmap_params)
+    @mindmap = current_user.mindmaps.create(mindmap_params)
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { }
     end
   end
@@ -30,14 +32,14 @@ class MindmapsController < ApplicationController
 
   def show
     respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
     end
   end
 
   def destroy_nodes
     nodes = params[:nodes]
-    nodes.each do |nod| 
+    nodes.each do |nod|
       Node.find(nod[:id]).destroy
     end if nodes.present?
     respond_to do |format|
@@ -47,7 +49,7 @@ class MindmapsController < ApplicationController
   end
 
   def find_or_create
-    @mindmap = Mindmap.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
+    @mindmap = current_user.mindmaps.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
     respond_to do |format|
       format.json { render json: {success: true, mindmap: @mindmap}}
       format.html { }
@@ -96,25 +98,27 @@ class MindmapsController < ApplicationController
 
   private
 
+  def set_access_user
+    Mindmap.access_user = current_user
+  end
+
   def set_mindmap
     @mindmap = Mindmap.find_by(unique_key: params[:id])
+    check_auth
   end
 
-  def mindmap_as_json(mindmap)
-    mindmap.as_json.merge(
-      nodes: mindmap.nodes.map(&:to_json)
-    ).as_json
-  end
-
-  def generate_random_key
-    o = [('a'..'z'), ('A'..'Z')].map(&:to_a).flatten
-    string = (0...10).map { o[rand(o.length)] }.join
+  def check_auth
+    return if current_user.try(:admin?)
+    if @mindmap.only_me? && current_user.try(:id) != @mindmap.user.try(:id)
+      return redirect_to root_path
+    elsif @mindmap.private_link? && !@mindmap.shared_users.include?(current_user)
+      return redirect_to root_path
+    end
   end
 
   def mindmap_params
     params.require(:mindmap).permit(
-      :name, 
-      :unique_key,
+      :name,
       :description,
       node_files: []
     )

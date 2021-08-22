@@ -1,14 +1,13 @@
-class NodesController < ApplicationController
-  before_action :set_node, only: [:show, :edit, :update, :destroy, :hide_children, :destroy_file, :update_export_order]
-
+class NodesController < AuthenticatedController
+  before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
 
   def create
     # get nested children
     @node = Node.create(node_params)
     if params[:duplicate_child_nodes].present?
       @node.duplicate_attributes(params[:duplicate_child_nodes])
-      @node.duplicate_files(params[:duplicate_child_nodes]) 
-      dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id) 
+      @node.duplicate_files(params[:duplicate_child_nodes])
+      dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
       Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
     end
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
@@ -107,14 +106,14 @@ class NodesController < ApplicationController
 
   def node_params
     params.require(:node).permit(
-      :title, 
-      :position_x, 
-      :position_y, 
-      :parent_node, 
-      :mindmap_id, 
+      :title,
+      :position_x,
+      :position_y,
+      :parent_node,
+      :mindmap_id,
       :is_disabled,
       :line_color,
-      :description, 
+      :description,
       node_files: []
     )
   end

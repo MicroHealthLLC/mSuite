@@ -3,83 +3,84 @@
     <div class="buttons_area">
       <div class="buttons_container mx-2">
         <span class="flex">
-          <a 
+          <a
             href="javascript:;"
-            role="button" 
+            role="button"
             class="d-flex text-info edit_delete_btn ml-2 mr-3 center_flex"
-            @click.stop="$refs.confirmSaveKeyModal.open" 
+            @click.stop="goHome"
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
-          </a> 
+          </a>
         </span>
-        <span class="ml_14">
-          <a 
+        <span v-if="currentMindMap.editable" class="ml_14">
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="deleteSelectedNode" 
+            @click.stop="deleteSelectedNode"
           >
             <i class="material-icons delete_icon icons d-flex center_flex"></i>
-          </a> 
-          <a 
+          </a>
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !copiedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !copiedNode}"
             class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="pasteCopiedNode" 
+            @click.stop="pasteCopiedNode"
           >
             <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
             <span class="fa-icon-text">Paste</span>
-          </a> 
-          <a 
+          </a>
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
             class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="cutSelectedNode" 
+            @click.stop="cutSelectedNode"
           >
             <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
             <span class="fa-icon-text">Cut</span>
-          </a> 
-          <a 
+          </a>
+          <a
             href="javascript:;"
-            role="button" 
-            :disabled="!selectedNode" 
-            :class="{button_disabled: !selectedNode}" 
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="copySelectedNode" 
+            @click.stop="copySelectedNode"
           >
             <i class="material-icons copy_icon icons d-flex center_flex"></i>
-          </a> 
+          </a>
         </span>
         <span>
-          <a 
+          <a
+            v-if="currentMindMap.editable"
             href="javascript:;"
-            role="button" 
+            role="button"
             class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="$refs.resetMapModal.open" 
+            @click.stop="$refs['reset-map-modal'].$refs['resetMapModal'].open"
           >
             <i class="material-icons restore_icon icons d-flex center_flex"></i>
           </a>
-          <a 
+          <a
             ref="exportWordBtn"
-            role="button" 
+            role="button"
             class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.stop="exportToWord" 
+            @click.stop="exportToWord"
           >
             <i class="fas fa-file-word icons d-flex center_flex"></i>
             <span class="fa-icon-text">Export Word</span>
           </a>
-          <a 
+          <a
             ref="exportBtn"
-            role="button" 
+            role="button"
             href="javascript:;"
             class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent.stop="exportToImage" 
+            @click.prevent.stop="exportToImage"
           >
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
@@ -93,20 +94,20 @@
             >
               <i class="fas fa-history icons d-flex center_flex"></i>
               <span class="fa-icon-text">100%</span>
-            </a> 
-            <a 
+            </a>
+            <a
               href="javascript:;"
-              role="button" 
+              role="button"
               class="zoom_btn text-info edit_delete_btn center_flex mr-3"
-              @click.prevent="zoomInScale" 
+              @click.prevent="zoomInScale"
             >
               <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
             </a>
-            <a 
+            <a
               href="javascript:;"
-              role="button" 
+              role="button"
               class="zoom_btn text-info edit_delete_btn mr-3 center_flex"
-              @click.prevent="zoomOutScale" 
+              @click.prevent="zoomOutScale"
             >
               <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
             </a>
@@ -125,29 +126,30 @@
               <span class="central_notes_bar">
                 <span v-if="C_hasDescription" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="mr-2"><i class="fa fa-comment"></i></span>
                 <span v-if="C_centralFileCount > 0" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="files-tab">
-                  <i class="far fa-file-alt" data-tab="files-tab"></i> 
+                  <i class="far fa-file-alt" data-tab="files-tab"></i>
                   <sup style="color: black;" data-tab="files-tab">{{C_centralFileCount}}</sup>
                 </span>
               </span>
             </div>
           </div>
-          <span @mousedown.prevent.stop="startDrag" class="start_dot"></span>
-          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle"/>
+          <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" class="start_dot"></span>
+          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
         </div>
-        <input-field 
-          v-for="node in currentNodes" 
+        <input-field
+          v-for="node in currentNodes"
           v-if="!node.is_disabled && !node.hide_self"
-          v-model="node.title" 
-          :key="`${node.id}`" 
-          :style="getNodeStyle(node)" 
+          v-model="node.title"
+          :key="`${node.id}`"
+          :style="getNodeStyle(node)"
           :is-selected="C_selectedNodeId === node.id"
           :is-edited="C_editNodeId === node.id"
           :quadrant="nodeQuadrant(node)"
           :has-child="hasChilNodes(node)"
           :hide-children="node.hide_children"
           :node-attr="node"
-          @start-drag="startDrag($event, node)" 
-          @mousedown-event="startDragNode($event, node)" 
+          :editable="currentMindMap.editable"
+          @start-drag="startDrag($event, node)"
+          @mousedown-event="startDragNode($event, node)"
           @node-updated="nodeUpdated(node)"
           @switch-expand-children="switchExpandChildren($event, node)"
           @edit-node="editNode($event, node)"
@@ -157,267 +159,50 @@
         <canvas id="map-canvas" class="has_bg" :width="windowWidth" :height="windowHeight" @click.stop="nullifyFlags"></canvas>
       </section>
     </div>
-    <sweet-modal ref="newMapModal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-warning center_flex mlr_a">
-          <i class="material-icons text-white">error_outline</i>
-        </div>
-      </div>
-      <h3 class="f_smooth_auto">Are you Sure?</h3>
-      <p class="text-muted fs_18">You may want to open in new Tab!</p>
-      <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-danger text-white mr_1"
-          @click.stop="openNewMap" 
-        >
-          <i class="material-icons mr-1">done</i>
-          Continue Here
-        </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-warning text-white mr_1"
-          @click.stop="openNewMapNewWindow" 
-        >
-          <i class="material-icons mr-1">open_in_new</i>
-          Open new Tab!
-        </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.newMapModal.close" 
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
-      </div>
-    </sweet-modal>
-    <sweet-modal ref="openMapModal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-success center_flex mlr_a">
-          <i class="material-icons text-white">folder_open</i>
-        </div>
-      </div>
-      <p class="text-muted fs_18">Enter the map key you want to open here!</p>
-      <div class="form-horizontal">   
-        <div class="row form-group mt-2">
-          <label class="control-label col-4" for="mindmap_name">Mindmap Name:</label>
-          <input type="text" placeholder="Enter map key" v-model="openMindMapKey" class="form-control col-6 ">
-        </div>
-      </div>
-      <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-success text-white mr_1"
-          @click.stop.prevent="openPreviousMap" 
-        >
-          <i class="material-icons mr-1">done</i>
-          Open
-        </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop.prevent="$refs.openMapModal.close" 
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
-      </div>
-    </sweet-modal>
-    <sweet-modal ref="resetMapModal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-warning center_flex mlr_a">
-          <i class="material-icons text-white">restore</i>
-        </div>
-      </div>
-      <h3 class="f_smooth_auto">Are you Sure you want to reset this Map?</h3>
-      <p class="text-muted fs_18">Your current changes will be discarded, you won't be able to revert this!</p>
-      <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-danger text-white mr_1"
-          @click.stop="resetMindmap" 
-        >
-          <i class="material-icons mr-1">done</i>
-          Continue
-        </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.resetMapModal.close" 
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
-      </div>
-    </sweet-modal>
 
-    <sweet-modal @close="nullifyAttachmentModal" ref="attachmentModal" id="attachment-modal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-success center_flex mlr_a">
-          <i class="material-icons text-white">post_add</i>
-        </div>
-      </div>
-      <sweet-modal-tab title="Description" id="description-tab">
-        <template v-if="selectedNode">
-          <section>
-            <span v-if="!descEditMode" class="edit-icon shadow" @click.stop="descEditMode = true">
-              <i class="material-icons">edit</i>
-            </span>
-            <quill-editor
-              v-model="nodeNotes"
-              ref="contentEditor"
-              :options="editorOption"
-              :disabled="!descEditMode"
-            >
-            </quill-editor>
+    <new-map-modal
+      @open-new-map="openNewMap"
+    ></new-map-modal>
 
-            <div v-if="descEditMode" class="right_flex mt_2">
-              <a 
-                href="javascript:;" 
-                class="btn_1 btn-sm bg-danger text-white mr_1"
-                @click.prevent.stop="updateNodeDescription" 
-              >
-                <i class="material-icons mr-1">done</i>
-                Save
-              </a>
-            </div>
-          </section>
-        </template>
-      </sweet-modal-tab>
-      <sweet-modal-tab title="Files" id="files-tab">
-        <section v-if="fileLoading" class="loading-tab">
-          <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
-        </section>
-        <section v-else class="row node-files-tab">
-          <div class="col-md-6">
-            <attachment-input 
-              :show-label="true" 
-              @input="addFileToNode"
-            >
-            </attachment-input>
-          </div>
-          <div class="col-md-6 node-files-list">
-            <div v-if="attachFiles.length > 0">
-              <div class="files-list p-2" v-for="file in attachFiles">
-                <file-box
-                  :file="file"
-                  :key="file.id"
-                  @remove-file="removeFile"
-                ></file-box>
-              </div>
-            </div>
-            <div v-else class="empty-file-list text-secondary">
-              No files attached...
-            </div>
-          </div>
-        </section>
-      </sweet-modal-tab>
-    </sweet-modal>
+    <open-map-modal
+      @open-previous-map="openPreviousMap"
+    ></open-map-modal>
 
-    <sweet-modal @close="nullifyAttachmentModal" ref="centralAttachmentModal" id="central-attachment-modal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-success center_flex mlr_a">
-          <i class="material-icons text-white">post_add</i>
-        </div>
-      </div>
-      <sweet-modal-tab title="Description" id="central-description-tab">
-        <div>
-          <section>
-            <span v-if="!descEditMode" class="edit-icon shadow" @click.stop="descEditMode = true">
-              <i class="material-icons">edit</i>
-            </span>
-            <quill-editor
-              v-model="centralNotes"
-              ref="contentEditor"
-              :options="editorOption"
-              :disabled="!descEditMode"
-            >
-            </quill-editor>
+    <reset-map-modal
+      ref="reset-map-modal"
+      @reset-mindmap="resetMindmap"
+    ></reset-map-modal>
 
-            <div v-if="descEditMode" class="right_flex mt_2">
-              <a
-                href="javascript:;" 
-                class="btn_1 btn-sm bg-danger text-white mr_1"
-                @click.stop="updateMapNotes" 
-              >
-                <i class="material-icons mr-1">done</i>
-                Save
-              </a>
-            </div>
-          </section>
-        </div>
-      </sweet-modal-tab>
-      <sweet-modal-tab title="Files" id="files-tab">
-        <section v-if="fileLoading" class="loading-tab">
-          <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
-        </section>
-        <section v-show="!fileLoading" class="row node-files-tab">
-          <div class="col-md-6">
-            <attachment-input 
-              :show-label="true" 
-              @input="addFileToCentralNode"
-            >
-            </attachment-input>
-          </div>
-          <div class="col-md-6 node-files-list">
-            <div v-if="attachFiles.length > 0">
-              <div class="files-list p-2" v-for="file in attachFiles">
-                <file-box
-                  :file="file"
-                  :key="file.id"
-                  @remove-file="removeCentralNodeFile"
-                ></file-box>
-              </div>
-            </div>
-            <div v-else class="empty-file-list text-secondary">
-              No files attached...
-            </div>
-          </div>
-        </section>
-      </sweet-modal-tab>
-    </sweet-modal>
+    <attachment-modal
+      ref="attachment-modal"
+      :editor-option="editorOption"
+      :selected-node="selectedNode"
+      :editable="currentMindMap.editable"
+      @nullify-attachment-modals="nullifyAttachmentModal"
+      @update-node-description="updateNodeDescription"
+      @add-file-to-node="addFileToNode"
+    ></attachment-modal>
 
-    <sweet-modal ref="confirmSaveKeyModal" class="of_v">
-      <div class="sweet_model_icon_div">
-        <div class="radius_circle bg-warning center_flex mlr_a text-white">
-          <i class="material-icons">notification_important</i>
-        </div>
-      </div>
-      <h3 class="f_smooth_auto">Did you save the map key?</h3>
-      <p class="text-muted fs_18">You will need this key <i><code>{{currentMindMap.unique_key}}</code></i> to view the map again!</p>
-      <div class="center_flex mt_2">
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-danger text-white mr_1"
-          @click.stop="goHome" 
-        >
-          <i class="material-icons mr-1">done</i>
-          Continue
-        </a>
-        <a 
-          href="javascript:;" 
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="$refs.confirmSaveKeyModal.close" 
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
-      </div>
-    </sweet-modal>
+    <central-attachment-modal
+      ref="central-attachment-modal"
+      :editor-option="editorOption"
+      :current-mind-map="currentMindMap"
+      @nullify-attachment-modals="nullifyAttachmentModal"
+      @update-map-notes="updateMapNotes"
+      @add-file-to-central-node="addFileToCentralNode"
+    ></central-attachment-modal>
 
-    <sweet-modal 
-      ref="exportToWordModal" 
-      class="of_v"
-      id="export-word-modal"
-      :hide-close-button="true"
-      @close="nullifyAttachmentModal"
-    >
-      <export-to-word
-        v-if="openVModal"
-        :mind-map="currentMindMap"
-      />
-    </sweet-modal>
+    <confirm-save-key-modal
+      ref="confirm-save-key-modal"
+      :current-mind-map="currentMindMap"
+    ></confirm-save-key-modal>
+
+    <export-to-word-modal
+      ref="export-to-word-modal"
+      :current-mind-map="currentMindMap"
+      :open-v-modal="openVModal"
+      @nullify-attachment-modals="nullifyAttachmentModal"
+    ></export-to-word-modal>
 
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
@@ -428,34 +213,31 @@
 </template>
 
 <script>
-  import InputField                 from "./idea_input_field"
-  import ExportToWord               from "./export_to_word"
-  import http                       from "../../common/http"
-  import AttachmentInput            from '../shared/attachment_input'
-  import FileBox                    from '../shared/file_box'
-  import {SweetModal,SweetModalTab} from "sweet-modal-vue"
-  import _                          from "lodash"
-  import domtoimage                 from "dom-to-image-more"
-  import {quillEditor}              from "vue-quill-editor"
-  import Jimp                       from 'jimp'
-  import SyncLoader                 from 'vue-spinner/src/SyncLoader.vue'
-  import "quill/dist/quill.core.css"
-  import "quill/dist/quill.snow.css"
-  import "quill/dist/quill.bubble.css"
+  import _ from "lodash"
+  import Jimp from 'jimp'
+  import domtoimage from "dom-to-image-more"
+  import InputField from "./idea_input_field"
+  import NewMapModal from "./modals/new_map_modal"
+  import OpenMapModal from "./modals/open_map_modal"
+  import ResetMapModal from "./modals/reset_map_modal"
+  import AttachmentModal from "./modals/attachment_modal"
+  import CentralAttachmentModal from "./modals/central_attachment_modal"
+  import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
+  import ExportToWordModal from "./modals/export_to_word_modal"
+  import http from "../../common/http"
 
-  export default 
-  {
+  export default {
     components: {
-      InputField, 
-      SweetModal,
-      SweetModalTab,
-      quillEditor,
-      AttachmentInput,
-      FileBox,
-      SyncLoader,
-      ExportToWord
+      InputField,
+      NewMapModal,
+      OpenMapModal,
+      ResetMapModal,
+      AttachmentModal,
+      CentralAttachmentModal,
+      ConfirmSaveKeyModal,
+      ExportToWordModal
     },
-    
+
     data() {
       return {
         selectedNode      : null,
@@ -473,14 +255,13 @@
         nodeOffsetY       : 0,
         parent_x          : 0,
         parent_y          : 0,
-        
+
         // hardcoded fixed window size
         window_innerWidth : 1900,
         window_innerHeight: 900,
         windowWidth       : 1900 * 3,
         windowHeight      : 900 * 3,
         stopWatch         : false,
-        openMindMapKey    : '',
         nodeUpdatedFlag   : false,
         copiedNode        : null,
         cutFlag           : false,
@@ -521,7 +302,7 @@
         exportLoading: false
       }
     },
-    
+
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -532,7 +313,7 @@
             this.openVModal === true
           ) {
             _.remove(this.attachFiles, (f) => f.id === data.file.id)
-          } 
+          }
           if (
             data.message === "Central Node file deleted" &&
             this.openVModal === true
@@ -551,11 +332,11 @@
         }
       }
     },
-    
+
     computed: {
       C_centeralNodePosition() {
         return {
-          left: (Math.floor(this.windowWidth/2) - 120) +'px', 
+          left: (Math.floor(this.windowWidth/2) - 120) +'px',
           top : (Math.floor(this.windowHeight/2) - 60) +'px'
         }
       },
@@ -586,7 +367,7 @@
         return !!this.currentMindMap.description
       }
     },
-    
+
     methods: {
       // =============== GETTING MAP =====================
       getMindmap(id) {
@@ -595,10 +376,9 @@
           .then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
-            this.currentNodes   = res.data.mindmap.nodes 
-            
+            this.currentNodes   = res.data.mindmap.nodes
+
             setTimeout(this.drawLines, 100)
-            this.closeOpenMapModal()
             this.updateQuery()
             this.loading = false
           }).catch((error) => {
@@ -609,13 +389,12 @@
       },
       getNewMindmap() {
         http
-          .get('/mindmaps/new.json')
+          .post('/mindmaps.json', { mindmap: { name: "Central Idea" } })
           .then((res) => {
             this.loading        = false
             this.currentMindMap = res.data.mindmap
             this.currentNodes   = res.data.mindmap.nodes
-            let query           = {}
-            this.$router.push({query: query})
+            this.updateQuery()
           }).catch((error) => {
             console.log(error)
             this.loading = false
@@ -631,23 +410,22 @@
         this.dragging     = false
         this.draggingNode = false
       },
+      goHome() {
+        if (this.currentMindMap.editable) {
+          this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
+        } else {
+          window.open("/", "_self")
+        }
+      },
       // =============== GETTING MAP =====================
 
       // =============== MODALS OPEN/CLOSE/OPERATIONS =====================
-      closeOpenMapModal() {
-        this.openMindMapKey = ''
-        this.$refs.openMapModal.close()
-      },
-      openPreviousMap() {
-        this.getMindmap(this.openMindMapKey)
-      },
-      openNewMapNewWindow() {
-        window.open(window.location.origin+'/mindmaps/new')
+      openPreviousMap(key) {
+        this.getMindmap(key)
       },
       openNewMap() {
         this.removeLines()
         this.getNewMindmap()
-        this.$refs.newMapModal.close()
       },
       // =============== MODALS OPEN/CLOSE/OPERATIONS =====================
 
@@ -658,11 +436,11 @@
         if (p_node) {
           this.nodeParent = p_node
           this.nodeColor  = p_node.line_color
-        } 
+        }
         else {
           this.nodeColor = this.getRandomColor()
         }
-        if(p_node) {
+        if (p_node) {
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
             this.parent_x = p_node.position_x - 100;
             this.parent_y = p_node.position_y + 25;
@@ -677,9 +455,9 @@
 
         let canvas_id = this.parent_x + ""
         if (!document.getElementById(canvas_id)) {
-          var c = document.createElement('CANVAS')
+          let c = document.createElement('CANVAS')
           c.id  = this.parent_x + ""
-          
+
           document.getElementById('map-container').appendChild(c)
           c.style.position = "absolute"
           c.style.top      = 0
@@ -691,6 +469,7 @@
       },
       startDragNode(event, node) {
         this.selectedNode = node
+        if (!this.currentMindMap.editable) return false
         this.nodeOffsetX  = event.clientX - node.position_x
         this.nodeOffsetY  = event.clientY - node.position_y
         this.draggingNode = true
@@ -701,8 +480,8 @@
           document.body.style.setProperty("cursor", "grabbing", "important");
           this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft - (1 - this.scaleFactor) * (this.windowWidth / 2 - event.clientX - this.$refs.slideSection.scrollLeft) - (1 - this.scaleFactor) * 100 ;
           this.currentPositionY = event.clientY + this.$refs.slideSection.scrollTop - (1 - this.scaleFactor) * (this.windowHeight / 2 - event.clientY - this.$refs.slideSection.scrollTop) - (1 - this.scaleFactor) * 100 ;
-          var c = document.getElementById(this.parent_x + "")
-          var ctx = c.getContext("2d");
+          let c = document.getElementById(this.parent_x + "")
+          let ctx = c.getContext("2d");
 
           ctx.clearRect(0, 0, c.width, c.height)
           ctx.beginPath()
@@ -752,12 +531,12 @@
           }
           this.selectedNode = null
           this.createNode(node)
-          
+
           // this.currentMindMap.nodes.push(node);
           this.currentPositionX = this.currentPositionY = 0
           this.nodeParent       = null
           this.drawLines()
-        } 
+        }
         if (this.draggingNode) {
           this.dragging     = false
           this.draggingNode = false
@@ -772,41 +551,41 @@
       getNodeStyle(node) {
         let p_node = this.currentMindMap.nodes.filter((n) => n.id == node.parent_node)[0]
 
-        if (this.nodeQuadrant(node) == "LL") 
+        if (this.nodeQuadrant(node) == "LL")
         {
           if (p_node && p_node.position_x < node.position_x) {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           } else {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           }
-        } 
-        else if (this.nodeQuadrant(node) == "UL") 
+        }
+        else if (this.nodeQuadrant(node) == "UL")
         {
           if (p_node && p_node.position_x < node.position_x) {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           } else {
             return {left: (node.position_x - 120) + 'px', top: (node.position_y - 20) + 'px'}
           }
-        } 
-        else 
+        }
+        else
         {
           return {left: (node.position_x - 20) +'px', top: (node.position_y - 20) + 'px'}
         }
       },
       drawLines(retry_count=0) {
-        if (document.getElementById("map-canvas") != null) 
+        if (document.getElementById("map-canvas") != null)
         {
           this.removeLines()
-          var c = document.getElementById("map-canvas")
+          let c = document.getElementById("map-canvas")
           if (!c) { return; }
-          
-          var ctx = c.getContext("2d")
+
+          let ctx = c.getContext("2d")
           ctx.clearRect(0, 0, c.width, c.height)
-          
-          var CI = this
+
+          let CI = this
           this.currentMindMap.nodes.forEach((nod) => {
             if (nod.is_disabled || nod.hide_self) { return; }
-            if(nod.line_color) {
+            if (nod.line_color) {
               ctx.strokeStyle = nod.line_color
             }
             else {
@@ -822,9 +601,9 @@
               position_x = Math.floor(CI.windowWidth/2) - 50;
               position_y =  Math.floor(CI.windowHeight/2) - 15;
             } else {
-              var p_node = CI.currentMindMap.nodes.filter((n) => n.id == nod.parent_node)[0]
+              let p_node = CI.currentMindMap.nodes.filter((n) => n.id == nod.parent_node)[0]
               if (p_node) {
-                if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL") 
+                if (this.nodeQuadrant(p_node) == "UL" || this.nodeQuadrant(p_node) == "LL")
                 {
                   if (p_node.position_x > nod.position_x) {
                     ctx.moveTo(p_node.position_x - 100, p_node.position_y + 20);
@@ -835,8 +614,8 @@
                     position_x = p_node.position_x + 5
                     position_y =  p_node.position_y + 20
                   }
-                } 
-                else 
+                }
+                else
                 {
                   if (p_node.position_x < nod.position_x) {
                     ctx.moveTo(p_node.position_x + 100, p_node.position_y + 20);
@@ -853,38 +632,38 @@
             ctx.quadraticCurveTo(position_x, (position_y + nod.position_y)/2 ,nod.position_x + 5, nod.position_y + 20);
 
             if (
-              this.nodeQuadrant(nod) == "LL" || 
+              this.nodeQuadrant(nod) == "LL" ||
               this.nodeQuadrant(nod) == "UL"
             ) {
               ctx.lineTo(nod.position_x - 100, nod.position_y + 20)
-            } 
+            }
             else {
               ctx.lineTo(nod.position_x + 100, nod.position_y + 20)
             }
             ctx.stroke()
             ctx.closePath()
           })
-        } 
+        }
         else if (retry_count < 5) {
-          setTimeout(this.drawLines(retry_count++), 100); 
+          setTimeout(this.drawLines(retry_count++), 100);
         }
       },
       removeLines() {
         document.querySelectorAll("CANVAS").forEach((canvas) => {
-          if(canvas.id != "map-canvas") {
+          if (canvas.id != "map-canvas") {
             canvas.parentNode.removeChild(canvas)
           }
         })
-        
-        var c = document.getElementById("map-canvas")
+
+        let c = document.getElementById("map-canvas")
         if (!c) { return; }
-        var ctx = c.getContext("2d");
+        let ctx = c.getContext("2d");
         ctx.clearRect(0, 0, c.width, c.height)
       },
       drawNewLine(node) {
-        var c = document.getElementById("map-canvas")
+        let c = document.getElementById("map-canvas")
         if (!c) { return; }
-        var ctx = c.getContext("2d")
+        let ctx = c.getContext("2d")
         ctx.clearRect(0, 0, c.width, c.height)
 
         ctx.lineWidth   = "3"
@@ -923,7 +702,7 @@
         this.copiedNode             = this.selectedNode
         this.copiedNode.is_disabled = true
         this.cutFlag                = true
-        
+
         http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
           this.selectedNode = null
         }).catch((error) => {
@@ -938,7 +717,7 @@
       pasteCopiedNode() {
         if (!this.copiedNode) { return; }
         let new_parent = 0
-        
+
         if (this.selectedNode) {
           new_parent = this.selectedNode.id
         }
@@ -962,7 +741,7 @@
 
         if (this.cutFlag) {
           dupNode.is_disabled = false
-          
+
           http
             .put(`/nodes/${dupNode.id}.json`, {node: dupNode})
             .then((res) => {
@@ -991,7 +770,7 @@
         this.nodeUpdatedFlag = false
         let index = this.currentMindMap.nodes.findIndex((nod) => nod.id == node.id)
         if (index != -1) {
-          var formData = files ? new FormData() : {node: node}
+          let formData = files ? new FormData() : {node: node}
           if (files) {
             files.forEach((file) => {
               formData.append("node[node_files][]", file)
@@ -1042,9 +821,9 @@
       // =============== Node CRUD OPERATIONS =====================
 
       // =============== Map CRUD OPERATIONS =====================
-      saveCurrentMap(files=null) {
+      saveCurrentMap(files = null) {
         if (this.currentMindMap.id) {
-          var formData = files ? new FormData() : {mindmap: this.currentMindMap}
+          let formData = files ? new FormData() : {mindmap: this.currentMindMap}
           if (files) {
             files.forEach((file) => {
               formData.append("mindmap[node_files][]", file)
@@ -1062,7 +841,7 @@
             this.fileLoading = false
           })
         } else {
-          http.post(`/mindmaps.json`, {mindmap: this.currentMindMap}).then((res) => {
+          http.post(`/mindmaps.json`, { mindmap: this.currentMindMap }).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
             this.selectedNode   = null
@@ -1080,10 +859,9 @@
             this.stopWatch    = true
             this.removeLines()
             this.scrollToCenter()
-            this.$refs.resetMapModal.close()
           })
           .catch((err) => {
-            this.$refs.resetMapModal.close()
+            consoel.log(err)
           })
       },
 
@@ -1091,9 +869,7 @@
 
       // =============== OTHERS =====================
       updateQuery() {
-        let query = {}
-        query['key'] = this.currentMindMap.unique_key
-        this.$router.push({query: query})
+        this.$router.push({ name: 'maproot', params: { key: this.currentMindMap.unique_key } })
       },
       updateCentralIdea: _.debounce(
         function(input) {
@@ -1125,9 +901,7 @@
 
         return new_location
       },
-      goHome() {
-        window.open("/","_self")
-      },
+
       nodeQuadrant(node) {
         let center_x = Math.floor(this.windowWidth/2)
         let center_y = Math.floor(this.windowHeight/2)
@@ -1153,7 +927,8 @@
         http.get(`/nodes/hide_children.json?id=${node.id}&flag=${flag}`)
           .then((res) => {})
           .catch((error) => {
-            alert("There was an error while collapsing/expanding child nodes.")
+            let err_msg = error.response.status === 401 ? "Unauthorized request!" : "There was an error while collapsing/expanding child nodes."
+            alert(err_msg)
             console.log(error)
           })
       },
@@ -1168,7 +943,7 @@
       },
       // =============== SCALING ====================
       transformScale(event) {
-        if(this.openVModal) { return; }
+        if (this.openVModal) { return; }
         if (event.deltaY < 0) {
           if (this.scaleFactor < 1.50) {
             this.scaleFactor = this.scaleFactor + 0.03
@@ -1192,11 +967,11 @@
         domtoimage.toPng(elm)
           .then((url) => {
             Jimp.read(url).then((image) => {
-              var size = VM.getExportCanvasSize()
+              let size = VM.getExportCanvasSize()
               image.crop(size.x, size.y, size.w, size.h)
-              image.getBase64(Jimp.MIME_PNG, 
+              image.getBase64(Jimp.MIME_PNG,
                 ((err, baseUrl) => {
-                  var downloadLink = document.createElement("a")
+                  let downloadLink = document.createElement("a")
                   document.body.appendChild(downloadLink)
                   downloadLink.href = baseUrl
                   downloadLink.download = map_key + ".png"
@@ -1214,10 +989,10 @@
             VM.exportLoading = false
             console.error('oops, something went wrong!', err)
           })
-        
+
         elm.style.transform = "scale(" + this.scaleFactor +")"
         VM.$refs.exportBtn.blur()
-      }, 
+      },
       zoomInScale() {
         if (this.scaleFactor < 1.50) {
           this.scaleFactor = this.scaleFactor + 0.05
@@ -1238,7 +1013,7 @@
         setTimeout(() => {
           let cal_height = this.windowHeight/2 - window.innerHeight/2
           document.getElementById("slideSection").scrollTop = cal_height
-          
+
           let cal_width = this.windowWidth/2 - window.innerWidth/2
           document.getElementById("slideSection").scrollLeft = cal_width + (1 - this.scaleFactor) * cal_width/2
         }, 200)
@@ -1254,20 +1029,20 @@
       slideTheCanvas(e) {
         let slider = this.$refs.slideSection
         if (!this.isSlideDown) { return; }
-        
+
         let x     = e.pageX - slider.offsetLeft
         let walkX = x - this.slideStartX
         walkX     = this.slideScrollLeft - walkX
-        
-        if (walkX > (this.windowWidth * (1-this.scaleFactor)/2)) { 
+
+        if (walkX > (this.windowWidth * (1-this.scaleFactor)/2)) {
           slider.scrollLeft = walkX
         }
 
         let y     = e.pageY - slider.offsetTop
         let walkY = y - this.slideStartY
         walkY     = this.slideScrollTop - walkY
-        
-        if (walkY > (this.windowHeight * (1-this.scaleFactor)/2)) { 
+
+        if (walkY > (this.windowHeight * (1-this.scaleFactor)/2)) {
           slider.scrollTop = walkY
         }
       },
@@ -1280,19 +1055,20 @@
         this.descEditMode = false
       },
       openAttachments(tab="description-tab") {
-        if(!this.selectedNode) { return; }
+        if (!this.selectedNode) { return; }
         this.openVModal = true
         this.nodeNotes = this.selectedNode.description
         this.attachFiles = this.selectedNode.attach_files
-        this.$refs.attachmentModal.open(tab)
+        this.$refs['attachment-modal'].$refs.attachmentModal.open(tab)
       },
-      updateNodeDescription() {
-        if(!this.selectedNode) { return; }
+      updateNodeDescription(notes) {
+        if (!this.selectedNode) { return; }
         this.nodeUpdatedFlag = true
-        this.selectedNode.description = this.nodeNotes
+        this.selectedNode.description = notes
         this.$forceUpdate()
         this.saveNode(this.selectedNode)
         this.descEditMode = false
+        this.$refs["attachment-modal"].$refs.attachmentModal.close()
       },
       addFileToNode(files) {
         this.uploadFiles = files
@@ -1301,36 +1077,19 @@
         this.saveNode(this.selectedNode, this.uploadFiles)
         this.uploadFiles = []
       },
-      removeFile(file) {
-        this.fileLoading = true
-        
-        http
-          .put(`/nodes/${this.selectedNode.id}/destroy_file.json`, {file: file})
-          .then((res) => {
-            _.remove(this.attachFiles, (f) => f.id === file.id)
-            this.$forceUpdate()
-            this.fileLoading  = false
-          }).catch((error) => {
-            console.log(error)
-            this.fileLoading  = false
-            console.log("Unable to remove the file..")
-          })
-      },
-      fileLink(file) {
-        return window.location.origin + file.uri
-      },
 
       // central Idea Attachments
       openCentralAttachModal(e) {
         this.attachFiles = this.currentMindMap.attach_files
         this.openVModal = true
         this.centralNotes = this.currentMindMap.description
-        this.$refs.centralAttachmentModal.open(e.target.dataset.tab)
+        this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.open(e.target.dataset.tab)
       },
-      updateMapNotes() {
-        this.currentMindMap.description = this.centralNotes
+      updateMapNotes(notes) {
+        this.currentMindMap.description = notes
         this.saveCurrentMap()
         this.descEditMode = false
+        this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.close()
       },
       addFileToCentralNode(files) {
         this.uploadFiles = files
@@ -1338,27 +1097,11 @@
         this.saveCurrentMap(this.uploadFiles)
         this.uploadFiles = []
       },
-      removeCentralNodeFile(file) {
-        if(!file) { return; }
-        this.fileLoading = true
-        
-        http
-          .put(`/mindmaps/${this.currentMindMap.unique_key}/destroy_file.json`, {file: file})
-          .then((res) => {
-            _.remove(this.attachFiles, (f) => f.id === file.id)
-            this.$forceUpdate()
-            this.fileLoading = false
-          }).catch((error) => {
-            console.log(error)
-            this.fileLoading = false
-            console.log("Unable to destroy the file..")
-          })
-      },
 
       // export word functions
       exportToWord() {
         this.openVModal = true
-        this.$refs.exportToWordModal.open()
+        this.$refs['export-to-word-modal'].$refs.exportToWordModal.open()
       },
 
       getExportCanvasSize() {
@@ -1375,7 +1118,7 @@
 
         size.x = min_x < size.x ? min_x : size.x
         size.y = min_y < size.y ? min_y : size.y
-        size.w = max_x - size.x < size.w ? size.w : max_x - size.x 
+        size.w = max_x - size.x < size.w ? size.w : max_x - size.x
         size.h = max_y - size.y < size.h ? size.h : max_y - size.y
 
         if (size.x > 0) size.x = size.x - ASPECT_MARGIN
@@ -1388,8 +1131,8 @@
     },
 
     mounted() {
-      if (this.$route.query.key) {
-        this.getMindmap(this.$route.query.key)
+      if (this.$route.params.key) {
+        this.getMindmap(this.$route.params.key)
       } else {
         this.getNewMindmap()
       }
@@ -1412,12 +1155,12 @@
       "currentMindMap.name": {
         handler: function(new_map) {
           this.centralIdea = this.currentMindMap.name
-          if (this.stopWatch) { 
+          if (this.stopWatch) {
             this.stopWatch = false
             return
           }
           this.saveCurrentMap()
-        },
+          },
         deep: true
       },
       "currentMindMap.description": {
@@ -1459,7 +1202,7 @@
       centralIdea(value) {
         let dheight            = Math.ceil(value.length / 15)
         dheight                = dheight > 1 ? dheight * 2 : 3
-        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+        this.centralIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       },
       descEditMode(value) {
         document.getElementsByClassName("ql-toolbar")[0].style.display = value ? "block" : "none"

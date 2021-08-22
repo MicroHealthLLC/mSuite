@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%= render 'layouts/head_items' %>
+  </head>
+
+  <body class="of_a">
+    <% if user_signed_in? %>
+      <%= render 'layouts/navbar' %>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>

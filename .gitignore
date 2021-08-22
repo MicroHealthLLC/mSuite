@@ -40,3 +40,5 @@ yarn-debug.log*
 # Ignore dump
 dump.rdb
 
+# Ignore env files
+.env

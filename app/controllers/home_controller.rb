@@ -1,5 +1,5 @@
-class HomeController < ApplicationController
-  
+class HomeController < AuthenticatedController
+  layout "file_manager"
   def index
   end
 end

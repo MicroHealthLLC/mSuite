@@ -1,6 +1,9 @@
-import Mindmap        from 'components/mindmaps/mindmap.vue'
-import router         from 'routers/mindmaps'
+
+import Mindmap from 'components/mindmaps/mindmap.vue'
+import router from 'routers/mindmaps'
 import ActionCableVue from 'actioncable-vue'
+import SyncLoader from 'vue-spinner/src/SyncLoader.vue'
+import { SweetModal, SweetModalTab } from "sweet-modal-vue"
 
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
@@ -11,8 +14,12 @@ Vue.use(ActionCableVue, {
   connectImmediately: true
 })
 
+Vue.component('sync-loader', SyncLoader)
+Vue.component('sweet-modal', SweetModal)
+Vue.component('sweet-modal-tab', SweetModalTab)
+
 // eslint-disable-next-line no-unused-vars
-const mindmapApp = new Vue({
+window._MindmapApp_ = new Vue({
   router,
   el: '#map_dashboard',
   template: '<Mindmap />',

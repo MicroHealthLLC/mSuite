@@ -1,17 +1,17 @@
 <template>
   <div @mousedown.stop="startDragIdea" class="main">
-    <span @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
-    <span 
+    <span v-if="editable" @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
+    <span
       v-if="hasChild"
-      class="collapse_child" 
+      class="collapse_child"
       :class="C_expandCollapseIconPositionClass">
-      <span 
-        v-show="hideChildren" 
+      <span
+        v-show="hideChildren"
         class="collapse_icon"
         @click.stop="expandChildren"
       ><i class="fa fa-plus-square"></i></span>
-      <span 
-        v-show="!hideChildren" 
+      <span
+        v-show="!hideChildren"
         class="collapse_icon"
         @click.stop="unexpandChildren"
       ><i class="fa fa-minus-square"></i></span>
@@ -32,17 +32,18 @@
 </template>
 
 <script>
-  import _ from 'lodash'
+  import {debounce} from 'lodash'
 
   export default {
     props: [
-      'value', 
-      'isSelected', 
-      'quadrant', 
-      'hasChild', 
-      'hideChildren', 
+      'value',
+      'isSelected',
+      'quadrant',
+      'hasChild',
+      'hideChildren',
       'isEdited',
-      'nodeAttr'
+      'nodeAttr',
+      'editable'
     ],
 
     data() {
@@ -84,7 +85,7 @@
       startDrag(event) {
         this.$emit('start-drag', event)
       },
-      updateIdea: _.debounce(
+      updateIdea: debounce(
         function(input) {
           this.localValue     = this.$refs.new_idea.value
           this.tempLocalValue = this.$refs.new_idea.value
@@ -106,16 +107,16 @@
         this.$emit('switch-expand-children', this.DV_collapse)
       },
       editNode(event) {
+        if (!this.editable) return false
         this.$emit('edit-node', event)
       },
       addAttachModal(event) {
         this.$emit('open-attachment', event.target.dataset.tab)
       }
     },
-
     watch: {
       nodeAttr: {
-        handler: function() {
+        handler() {
           this.fileCount      = this.nodeAttr.attach_files.length
           this.hasDescription = !!this.nodeAttr.description
         }, deep: true
@@ -130,12 +131,12 @@
       tempLocalValue(value) {
         let dheight        = Math.ceil(value.length / 15)
         dheight            = dheight > 1 ? dheight * 2 : 3
-        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       },
       isSelected() {
         let dheight        = Math.ceil(this.value.length / 15)
         dheight            = dheight > 1 ? dheight * 2 : 3
-        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em" 
+        this.newIdeaHeight = dheight > 8 ? "8em" : dheight + "em"
       }
     }
   }

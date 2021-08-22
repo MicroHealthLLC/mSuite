@@ -1,5 +1,6 @@
 <template>
   <draggable
+    :disabled="!editable"
     :list="children"
     ghost-class="ghost"
     tag="p"
@@ -10,15 +11,16 @@
     <span :style="listItemStyle" class="list-item m-2" v-for="(elem, index) in children" :key="elem.id">
       <p :style="liDataStyle" class="li-data ml-2">
         <span :style="liNumberStyle">
-          <span>{{getlistIndex(index)}}</span> 
+          <span>{{getlistIndex(index)}}</span>
           <span :style="elemTitleStyle">{{elem.title}}</span>
         </span>
         <span :style="liDataDesStyle" class="ml-4" v-html="elem.description"></span>
       </p>
-      <nested-list 
-        v-if="elem.children.length > 0" 
-        :children="elem.children" 
-        :group="elem.parent_node.toString()" 
+      <nested-list
+        :editable="editable"
+        v-if="elem.children.length > 0"
+        :children="elem.children"
+        :group="elem.parent_node.toString()"
         :prefix-index="getlistIndex(index)"
       />
     </span>
@@ -27,8 +29,8 @@
 
 <script>
   import draggable from "vuedraggable"
-  import http      from "../../common/http"
-  
+  import http from "../../common/http"
+
   export default {
     name: 'nested-list',
     components: {
@@ -46,6 +48,10 @@
       prefixIndex: {
         required: false,
         type: String
+      },
+      editable: {
+        required: false,
+        type: Boolean
       }
     },
     computed: {

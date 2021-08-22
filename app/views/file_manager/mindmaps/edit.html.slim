@@ -1,0 +1,30 @@
+.container
+  .card.mb-3.mt-5
+    = form_for(@mindmap, url: file_manager_mindmap_path(@mindmap))  do |f|
+      .card-header
+        h5.card-title Edit Mindmap
+      .card-body
+        .form-group
+          label Name
+          = f.text_field :name, required: true, class: "form-control"
+        / .form-group
+        /   label  Unique Key
+        /   = f.text_field :unique_key, required: true, disabled: true, class: "form-control"
+        .form-group
+          label Category
+          = f.select :category_id, Category.all.collect {|c| [ c.name, c.id ] }, { include_blank: true }, class: "form-control"
+        .form-group
+          label State
+          = f.select :status, options_for_select(Mindmap.statuses.keys.to_a, selected: @mindmap.status), {}, class: "form-control"
+        .form-group
+          label Share As
+          = f.select :share, options_for_select(Mindmap.shares.keys.to_a, selected: @mindmap.share), {}, class: "form-control"
+        .form-group
+          label Shared With
+          = f.select :shared_user_ids, options_for_select(User.all.map { |u| [u.full_name, u.id]}, selected: @mindmap.shared_users.ids), {}, class: "form-control", id: "mindmap-shared-users", multiple: "multiple"
+        .form-group
+          label Description
+          = f.text_area :description, rows: 4, class: "form-control"
+      .card-footer.pb-5
+        = link_to 'Cancel', file_manager_path, :"data-no-turbolink" => true, method: :get, class: "btn btn-info float-right"
+        = f.submit 'Submit', class: "btn btn-primary float-right mr-3"
