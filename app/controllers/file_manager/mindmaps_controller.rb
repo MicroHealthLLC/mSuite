@@ -38,6 +38,7 @@ class FileManager::MindmapsController < AuthenticatedController
       :name,
       :status,
       :share,
+      :category_id,
       :description,
       shared_user_ids: []
     )

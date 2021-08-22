@@ -4,9 +4,11 @@ table.table.table-striped
       th scope="col"  id
       th scope="col"  Name
       th scope="col"  Unique Key
+      th scope="col"  Category
       th scope="col"  State
       th scope="col"  Share
-      th scope="col"  Description
+      th scope="col"  Shared With
+      / th scope="col"  Description
       th scope="col"  Actions
   tbody
     - mindmaps.each do |mindmap|
@@ -18,11 +20,17 @@ table.table.table-striped
         td scope="row"
           = mindmap.unique_key
         td scope="row"
-          = mindmap.status
+          = mindmap.category.try(:name)
         td scope="row"
-          = mindmap.share
+          span.badge.badge-secondary.text-uppercase
+            = mindmap.status
         td scope="row"
-          = mindmap.description
+          span.badge.badge-secondary.text-uppercase
+            = mindmap.share
+        / td scope="row"
+          / = mindmap.description
+        td scope="row"
+          = mindmap.shared_users.map(&:full_name).join(', ')
         td scope="row"
           - if mindmap.user_id == current_user.id
             = link_to "<i class='fas fa-edit' title='Edit'></i>".html_safe, edit_file_manager_mindmap_path(mindmap), class: 'text-secondary'
