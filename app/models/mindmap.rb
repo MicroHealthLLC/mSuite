@@ -1,7 +1,10 @@
 class Mindmap < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :category, optional: true
+
   has_many :nodes, dependent: :destroy
+  has_many :stages, dependent: :destroy
+
   has_many_attached :node_files, dependent: :destroy
 
   has_many :mindmap_users, dependent: :destroy
@@ -10,9 +13,11 @@ class Mindmap < ApplicationRecord
   before_validation :generate_random_key, on: :create
   validates :unique_key, presence: true, uniqueness: true
   validates :unique_key, length: { in: 10..20 }
+  validates :mm_type, presence: true
 
   enum status: { active: 0, archived: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
+  enum mm_type: { simple: 0, kanban: 1, flow_chart: 2 }
 
   cattr_accessor :access_user
 
@@ -30,6 +35,13 @@ class Mindmap < ApplicationRecord
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
       attach_files: attach_files,
+      editable: editable?
+    ).as_json
+  end
+
+  def kanban_to_json
+    self.as_json.merge(
+      nodes: self.nodes.map(&:to_json),
       editable: editable?
     ).as_json
   end

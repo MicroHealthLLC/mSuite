@@ -2,6 +2,9 @@
   <div class="main_div">
     <h1 class="main_heading"></h1>
     <div class="box_shadow box main_box">
+      <select class="selectPicker" v-model="selectedType">
+        <option v-for="t in mindmapTypes" :value="t.key">{{ t.value }}</option>
+      </select>
       <div class="row w_10">
         <div class="offset-3 col-6 new_button_container">
           <button @click.stop="createNewMap" class="btn_2 new_button pointer">
@@ -29,18 +32,22 @@
 
 <script>
   import http from '../common/http'
-
   export default {
     data() {
       return {
         mapName: "",
-        mapsArr: []
+        mapsArr: [],
+        selectedType: 'simple',
+        mindmapTypes: [
+          { key: 'simple', value: 'Mindmap' },
+          { key: 'kanban', value: 'Kanban' }
+        ]
       }
     },
 
     methods: {
       createNewMap() {
-        http.post(`/mindmaps.json`, { mindmap: { name: "Central Idea" } }).then((res) => {
+        http.post(`/mindmaps.json`, { mindmap: { name: "Central Idea", mm_type: this.selectedType } }).then((res) => {
           window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
         }).catch((error) => {
           alert("Unable to open/create mindmap.")
@@ -154,5 +161,15 @@
   color: #e9ecef;
   font-style: italic;
   letter-spacing: 6px;
+}
+.selectPicker {
+  justify-content: center;
+  border-radius: 50px;
+  width: 50%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  height: 30px;
 }
 </style>

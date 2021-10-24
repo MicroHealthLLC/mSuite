@@ -12,16 +12,25 @@ class NodesController < AuthenticatedController
     end
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
-      format.json { render json: {node: @node.to_json}}
+      format.json { render json: {node: @node.mindmap.mm_type == 0 ? @node.to_json : @node}}
       format.html { }
     end
   end
+
 
   def update
     @node.update(node_params)
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
     respond_to do |format|
-      format.json { render json: {node: @node.to_json}}
+      format.json { render json: {node: @node.mindmap.mm_type == 0 ? @node.to_json : @node}}
+      format.html { }
+    end
+  end
+
+  def index
+    @nodes = Node.where(mindmap_id: params[:mindmap_id])
+    respond_to do |format|
+      format.json { render json: {nodes: @nodes}}
       format.html { }
     end
   end
@@ -107,9 +116,11 @@ class NodesController < AuthenticatedController
   def node_params
     params.require(:node).permit(
       :title,
+      :status,
       :position_x,
       :position_y,
       :parent_node,
+      :stage_id,
       :mindmap_id,
       :is_disabled,
       :line_color,

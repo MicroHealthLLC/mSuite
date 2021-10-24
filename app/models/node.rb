@@ -1,5 +1,7 @@
 class Node < ApplicationRecord
   belongs_to :mindmap, optional: true
+  belongs_to :stages, optional:true
+
   has_many_attached :node_files, dependent: :destroy
 
   before_create :set_default_export_index
@@ -73,7 +75,9 @@ class Node < ApplicationRecord
   end
 
   def set_default_export_index
-    self.export_index = self.mindmap.nodes.where(parent_node: self.parent_node).count
+    if self.mindmap.mm_type == 0
+      self.export_index = self.mindmap.nodes.where(parent_node: self.parent_node).count
+    end
   end
 
   def update_export_order(old_i, new_i)

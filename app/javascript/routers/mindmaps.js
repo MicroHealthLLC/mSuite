@@ -1,12 +1,12 @@
 
-import NewMindMap from '../components/mindmaps/mindmap_new'
+import MindmapsWrapper from '../components/mindmaps_wrapper'
 
 export default new VueRouter({
   routes: [
     {
       name: 'maproot',
       path: '/:key',
-      component: NewMindMap
+      component: MindmapsWrapper
     }
   ],
   hashbang: false,

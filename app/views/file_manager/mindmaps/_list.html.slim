@@ -5,6 +5,7 @@ table.table.table-striped
       th scope="col"  Name
       th scope="col"  Unique Key
       th scope="col"  Category
+      th scope="col"  Type
       th scope="col"  State
       th scope="col"  Share
       th scope="col"  Shared With
@@ -21,6 +22,9 @@ table.table.table-striped
           = mindmap.unique_key
         td scope="row"
           = mindmap.category.try(:name)
+        td scope="row"
+          span.badge.badge-secondary.text-uppercase
+            = mindmap.mm_type
         td scope="row"
           span.badge.badge-secondary.text-uppercase
             = mindmap.status
