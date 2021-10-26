@@ -4,18 +4,19 @@
       <a class="navbar-brand" href="#" @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
+      <div class="float-right pt-2 pr-2">
+        <button role="button" class="btn btn-success" @click.prevent="addStage">
+          <i class="fas fa-plus"></i>
+          Add Stage
+        </button>
+      </div>
     </nav>
-    <div class="float-right pt-2 pr-2">
-      <button role="button" class="btn btn-success" @click.prevent="addStage">
-        <i class="fas fa-plus"></i>
-        Add Stage
-      </button>
-    </div>
-    <div class="row overflow-auto d-inline-block">
-      <kanban-board :stages="computedStages" :blocks="blocks" @update-block="updateBlockPosition" >
+
+    <div class="row kanban_board">
+      <kanban-board :stages="computedStages" :blocks="blocks" @update-block="updateBlockPosition">
         <div v-for="stage in computedStages" :slot="stage" class="w-100">
           <div>
-            <div class="w-100 d-inline-block">
+            <div class="w-100">
               <div>
                 <span class="float-left col-10">{{ stage }}</span>
               </div>
@@ -29,16 +30,16 @@
                 </b-dropdown>
               </div>
             </div>
-            <button @click.prevent="addBlock(stage)"class="bg-transparent border-0">Add Block</button>
+            <button @click.prevent="addBlock(stage)"class="bg-transparent border-0">Add a Task</button>
           </div>
         </div>
 
         <div v-for="block in blocks" :slot="block.id" :key="block.id">
           <div class="d-inline-block w-100">
-            <div class="text-dark float-left">
+            <div class="text-dark float-left col-10">
               {{ block.title }}
             </div>
-            <div @click="editBlockKanban(block)" class="float-right pointer">
+            <div @click="editBlockKanban(block)" class="float-right pointer col-2">
               <i class="fas fa-edit text-dark"></i>
             </div>
           </div>
@@ -85,7 +86,7 @@
     computed: {
       computedStages() {
         return this.allStages.map(stage => stage.title)
-      }
+      },
     },
     methods: {
       getAllStages() {
@@ -191,9 +192,9 @@
           this.$refs['edit-block'].$refs['editBlockKanban'].open()
         }
       },
-      updateBlock(block_title){
-        let id = this.block.id
-        let node = {node: {id,title: block_title}}
+      updateBlock(block){
+        let id = block.id
+        let node = {node: {id,title: block.title,description: block.description}}
         http
         .patch(`/nodes/${id}.json`,node)
         .then((res)=>{

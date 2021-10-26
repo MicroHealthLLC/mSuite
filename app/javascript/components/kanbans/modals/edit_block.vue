@@ -1,52 +1,39 @@
 <template>
   <div>
   <sweet-modal ref="editBlockKanban">
-    <sweet-modal-tab title="Edit" id="edit">
-      <h2 class="center_flex">EDIT BLOCK TITLE</h2>
-      <div class="form-outline">
-        <input type="text" id="edit_title_block" v-model="block_title" class="form-control form-icon-trailing" />
-        <label class="form-label" for="form1">Title of Block</label>
+    <div class="d-inline-block">
+      <div class="float-left">
+        <div class="d-inline-block">
+          <div>
+            <i class="material-icons float-left mr-2">
+              description
+            </i>
+            <h4 class="float-left">Title</h4>
+          </div>
+          <div>
+            <textarea v-model="block.title" class="textarea_title"   @focus="editable_title = true" @blur="blurTitle" :class="[editable_title ? 'editable' : 'non-editable']"></textarea>
+          </div>
+        </div>
+        <div class="d-flex mt-2">
+          <div>
+            <i class="material-icons float-left mr-2">
+              toc
+            </i>
+            <h4 class="float-left">Description</h4>
+          </div>
+        </div>
+        <div>
+          <textarea v-model="block.description" class="form-control textarea_description" @focus="editable_description = true" @blur="blurDescription" :class="[(editable_description ? 'editable' : 'non-editable'),(block.description === '' ? 'bg-light' : 'bg-white')]" placeholder="Place Some Value Here"></textarea>
+        </div>
       </div>
-      <div class="center_flex mt_2">
-        <a
-          href="javascript:;"
-          class="btn_2 bg-success text-white mr_1"
-          @click.stop="block_edit"
-        >
-          <i class="material-icons mr-1">save</i>
-          Update
-        </a>
-        <a
-          href="javascript:;"
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="closeModal"
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
+    </div>
+    <div class="float-right bg-light">
+      <div @click="block_delete" class="pointer">
+        <i class="material-icons float-left delete_size">
+          delete
+        </i>Delete Task
       </div>
-    </sweet-modal-tab>
-    <sweet-modal-tab title="Delete" id="delete">
-      <h2 class="center_flex">Do you want to delete this block</h2>
-      <div class="center_flex mt_2">
-        <a
-          href="javascript:;"
-          class="btn_2 bg-success text-white mr_1"
-          @click.stop="block_delete"
-        >
-          <i class="material-icons mr-1">delete</i>
-          YES
-        </a>
-        <a
-          href="javascript:;"
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="closeModal"
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
-      </div>
-    </sweet-modal-tab>
+    </div>
   </sweet-modal>
   </div>
 </template>
@@ -57,22 +44,26 @@
     props:['block'],
     data(){
       return{
-        block_title: this.block.title
+        editable_title: false,
+        editable_description: false
       }
     },
     methods:{
       closeModal(){
         this.$refs.editBlockKanban.close()
       },
-      block_edit(){
-        this.$emit('block-edit',this.block_title)
-        this.block_title=""
-        this.$refs.editBlockKanban.close()
-      },
       block_delete() {
         this.$emit('block-delete',this.block)
         this.block_title=""
         this.$refs.editBlockKanban.close()
+      },
+      blurTitle() {
+        this.editable_title = false
+        this.$emit('block-edit',this.block)
+      },
+      blurDescription() {
+        this.editable_description = false
+        this.$emit('block-edit',this.block)
       }
     }
   }

@@ -120,7 +120,30 @@ ul.drag-list, ul.drag-inner-list {
     cursor: pointer;
   }
 
-.dropdown-menu.show {
-  background: aliceblue;
-}
+  .dropdown-menu.show {
+    background: aliceblue;
+  }
 
+  .textarea_title {
+    width:400px;
+    height:50px;
+  }
+  .textarea_description {
+
+  }
+
+  .delete_size {
+    font-size: 20px
+  }
+  .editable {
+    border-color: blue;
+    resize: vertical;
+  }
+  .non-editable {
+    border: none;
+    resize: none;
+  }
+  .kanban_board {
+    overflow-x: scroll;
+    overflow-y: hidden;
+  }

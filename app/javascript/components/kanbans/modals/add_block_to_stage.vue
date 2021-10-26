@@ -3,7 +3,7 @@
     <sweet-modal ref="addBlockToStage" id="add_block" class="of_v">
       <div class="form-outline">
         <input type="text" id="title_block" v-model="blockName" class="form-control form-icon-trailing" />
-        <label class="form-label">Description of Block</label>
+        <label class="form-label">Title of Block</label>
       </div>
       <div class="center_flex mt_2">
         <a
