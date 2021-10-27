@@ -1,28 +1,24 @@
 <template>
   <div>
     <sweet-modal ref="addStageToKanban" id="add_stage" class="of_v">
-      <div class="form-outline">
-        <input type="text" id="title_stage" v-model="stageName" class="form-control form-icon-trailing" />
-        <label class="form-label" for="form1">Title of Stage</label>
+      <div class="d-grid">
+        <div>
+          <i class="material-icons float-left mr-2">
+            description
+          </i>
+          <h4 class="float-left">Title of Stage</h4>
+        </div>
+        <div>
+          <input v-model="stageName" class="form-control" placeholder="Title"/>
+        </div>
       </div>
-      <div class="center_flex mt_2">
-        <a
-          href="javascript:;"
-          class="btn_2 bg-success text-white mr_1"
-          @click.stop="stage_added"
-        >
-          <i class="material-icons mr-1">save</i>
-          Save
-        </a>
-        <a
-          href="javascript:;"
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="closeModal"
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
+    <div class="d-flex mt-2">
+      <div @click="stage_added" class="pointer edit_buttons">
+        <span class="material-icons float-left delete_size mr-2 ">
+          save
+        </span>Save
       </div>
+    </div>
     </sweet-modal>
   </div>
 </template>

@@ -1,6 +1,6 @@
 class NodesController < AuthenticatedController
   before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
-
+  before_action :set_nodes, only:[:index,:update_status]
   def create
     # get nested children
     @node = Node.create(node_params)
@@ -28,7 +28,14 @@ class NodesController < AuthenticatedController
   end
 
   def index
-    @nodes = Node.where(mindmap_id: params[:mindmap_id])
+    respond_to do |format|
+      format.json { render json: {nodes: @nodes}}
+      format.html { }
+    end
+  end
+
+  def update_status
+    @nodes.where(stage_id: params[:stage_id]).update_all(status:params[:status])
     respond_to do |format|
       format.json { render json: {nodes: @nodes}}
       format.html { }
@@ -112,7 +119,9 @@ class NodesController < AuthenticatedController
   def set_node
     @node = Node.find_by_id(params[:id])
   end
-
+  def set_nodes
+    @nodes = Node.where(mindmap_id: params[:mindmap_id])
+  end
   def node_params
     params.require(:node).permit(
       :title,

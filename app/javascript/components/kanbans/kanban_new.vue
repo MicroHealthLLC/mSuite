@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading">
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-light navbar-background">
       <a class="navbar-brand" href="#" @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
@@ -18,10 +18,10 @@
           <div>
             <div class="w-100">
               <div>
-                <span class="float-left col-10">{{ stage }}</span>
+                <h2 class="float-left col-10">{{ stage }}</h2>
               </div>
               <div class="float-right">
-                <b-dropdown dropright toggle-class="col-6 bg-transparent border-0 float right" no-caret>
+                <b-dropdown  id="dropdown-left" toggle-class="col-6 bg-transparent border-0" no-caret>
                   <template #button-content>
                     <i class="fas fa-ellipsis-h text-secondary"></i>
                   </template>
@@ -30,25 +30,25 @@
                 </b-dropdown>
               </div>
             </div>
-            <button @click.prevent="addBlock(stage)"class="bg-transparent border-0">Add a Task</button>
           </div>
         </div>
-
         <div v-for="block in blocks" :slot="block.id" :key="block.id">
-          <div class="d-inline-block w-100">
-            <div class="text-dark float-left col-10">
+          <div class="d-inline-block w-100 ">
+            <div class="text-dark pointer" @click="editBlockKanban(block)">
               {{ block.title }}
             </div>
-            <div @click="editBlockKanban(block)" class="float-right pointer col-2">
-              <i class="fas fa-edit text-dark"></i>
-            </div>
+          </div>
+        </div>
+        <div v-for="stage,index in computedStages" :slot="`footer-${stage}`">
+          <div @mouseover.self="hover_addtask = index" @mouseleave.self="hover_addtask = false" :class="hover_addtask === index ? 'hover_task' : ''" @click.prevent="addBlock(stage)" class="pointer add-block">
+            <button class="bg-transparent border-0 pe-none"><i class="material-icons task_plus position-absolute">add</i><span class="task_plus ml-4">Add a Task</span></button>
           </div>
         </div>
       </kanban-board>
     </div>
     <add-stage-to-kanban ref="add-stage-to-kanban" @stage-added="addStageToMindmap"></add-stage-to-kanban>
     <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
-    <edit-stage ref="edit-stage" @stage-edit="editStageTitle" :stage="stage_title"></edit-stage>
+    <edit-stage ref="edit-stage" @stage-edit="editStageTitle" :stage="stage"></edit-stage>
     <edit-block ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
   </div>
 </template>
@@ -75,8 +75,9 @@
         allStages:[],
         blocks: [],
         stage_id:"",
-        stage_title:"",
-        block: {}
+        stage:{},
+        block: {},
+        hover_addtask:false
       }
     },
     mounted() {
@@ -87,6 +88,13 @@
       computedStages() {
         return this.allStages.map(stage => stage.title)
       },
+    },
+    watch:{
+      "currentMindMap.id"() {
+        if (this.currentMindMap.id) {
+          this.$cable.subscribe({ channel: 'WebNotificationsChannel', room: this.currentMindMap.id})
+        }
+      }
     },
     methods: {
       getAllStages() {
@@ -123,7 +131,7 @@
         })
       },
       addBlockToStage(block) {
-        let data = { node: { title: block.title, stage_id: this.allStages.find(stage => stage.title === this.stage_title).id, mindmap_id: this.currentMindMap.id, status: this.stage_title} }
+        let data = { node: { title: block.title, stage_id: this.allStages.find(stage => stage.title === this.stage_title).id, mindmap_id: this.currentMindMap.id, status: this.stage_title,description:block.description} }
         http
         .post(`/nodes.json`, data)
         .then((res) => {
@@ -134,7 +142,8 @@
         })
       },
       updateBlockPosition(id, status) {
-        let block = {node: {id,status }}
+        let stage_id = this.allStages.find(stg=>stg.title === status).id
+        let block = {node: {id,status,stage_id}}
         http
         .patch(`/nodes/${id}.json`,block)
         .then((res)=>{
@@ -174,16 +183,20 @@
       },
       editStage(stage){
         if (this.currentMindMap.editable) {
-          this.stage_title=stage
+          this.stage=this.allStages.find(st=>st.title===stage)
           this.$refs['edit-stage'].$refs['editStageKanban'].open()
         }
       },
-      editStageTitle(new_stage_title){
-        let id = this.allStages.find(stg => stg.title === this.stage_title).id
-        let data = {stage: {title:new_stage_title,id }}
-        http.patch(`/stages/${id}.json`,data)
+      editStageTitle(stage){
+        let data = {stage: {title:stage.title,id:stage.id}}
+        http.patch(`/stages/${stage.id}.json`,data)
         .then(result => {
           this.allStages.find(stg => stg.id === result.data.stage.id).title = result.data.stage.title;
+        })
+        http
+        .patch(`/nodes/update_status.json?mindmap_id=${this.currentMindMap.id}&stage_id=${stage.id}&status=${stage.title}`)
+        .then(response=>{
+          this.blocks = response.data.nodes
         })
       },
       editBlockKanban(block){

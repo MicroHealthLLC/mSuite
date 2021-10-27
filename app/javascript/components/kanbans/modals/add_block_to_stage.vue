@@ -1,28 +1,35 @@
 <template>
   <div>
     <sweet-modal ref="addBlockToStage" id="add_block" class="of_v">
-      <div class="form-outline">
-        <input type="text" id="title_block" v-model="blockName" class="form-control form-icon-trailing" />
-        <label class="form-label">Title of Block</label>
+      <div class="d-grid">
+        <div>
+          <i class="material-icons float-left mr-2">
+            description
+          </i>
+          <h4 class="float-left">Title</h4>
+        </div>
+        <div>
+          <input type="text" v-model="title_block" class="form-control" placeholder="Title" />
+        </div>
+      <div class="d-flex mt-2">
+        <div>
+          <i class="material-icons float-left mr-2">
+            toc
+          </i>
+          <h4 class="float-left">Description</h4>
+        </div>
       </div>
-      <div class="center_flex mt_2">
-        <a
-          href="javascript:;"
-          class="btn_2 bg-success text-white mr_1"
-          @click.stop="block_added"
-        >
-          <i class="material-icons mr-1">save</i>
-          Save
-        </a>
-        <a
-          href="javascript:;"
-          class="btn_2 bg-primary text-white mr_1"
-          @click.stop="closeModal"
-        >
-          <i class="material-icons mr-1">cancel</i>
-          Cancel
-        </a>
+      <div>
+        <textarea v-model="description_block" class="form-control"  placeholder="Place Some Value Here"></textarea>
       </div>
+    </div>
+    <div class="d-flex mt-2">
+      <div @click="block_added" class="pointer edit_buttons">
+        <span class="material-icons float-left delete_size mr-2 ">
+          save
+        </span>Save
+      </div>
+    </div>
     </sweet-modal>
   </div>
 </template>
@@ -32,7 +39,11 @@
     name:"AddBlockToStage",
     data(){
       return{
-        blockName: "",
+        title_focus: false,
+        description_focus: false,
+        title_block: "",
+        description_block:"",
+        block:Object
       }
     },
     methods:{
@@ -40,9 +51,10 @@
         this.$refs.addBlockToStage.close()
       },
       block_added(){
-        let block = { title: this.blockName }
-        this.$emit('block-added', block)
-        this.blockName = ""
+        this.block = { title: this.title_block,description:this.description_block}
+        this.$emit('block-added', this.block)
+        this.title_block= ""
+        this.description_block=""
         this.$refs.addBlockToStage.close()
       }
     }

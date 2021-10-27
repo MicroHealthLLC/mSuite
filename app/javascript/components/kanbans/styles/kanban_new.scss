@@ -5,8 +5,7 @@ ul.drag-list, ul.drag-inner-list {
   }
 
   .drag-container {
-    margin: 20px auto;
-    float: left;
+    margin: 20px;
   }
 
   .drag-list {
@@ -20,10 +19,11 @@ ul.drag-list, ul.drag-inner-list {
     position: relative;
     background-color: #ebecf0;
     border-radius: 0.25rem !important;
+    max-height: 85vh;
   }
 
-  .drag-column span {
-    font-size: 0.8rem;
+  .drag-column h2 {
+    font-size: 1.0rem;
     margin: 0;
     text-transform: uppercase;
     font-weight: 600;
@@ -36,11 +36,14 @@ ul.drag-list, ul.drag-inner-list {
     justify-content: space-between;
     width: 270px;
     padding: 10px;
+    padding-bottom: 0px;
   }
 
   .drag-inner-list {
     color: white;
-    min-height: 20px;
+    min-height: 10px;
+    max-height: 70vh;
+    overflow-y: auto;
   }
 
   .drag-item {
@@ -53,6 +56,7 @@ ul.drag-list, ul.drag-inner-list {
     padding-top: 0.25rem !important;
     border-radius: 0.25rem !important;
     background-color: white;
+    box-shadow: 0 1px 0 #091e4240;
   }
   .drag-item.is-moving {
     transform: scale(1.5);
@@ -63,17 +67,7 @@ ul.drag-list, ul.drag-inner-list {
     cursor: pointer;
   }
 
-  .drag-options {
-    position: absolute;
-    top: 44px;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-    transform: translateX(100%);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  }
+
   .drag-options.active {
     transform: translateX(0);
     opacity: 1;
@@ -129,7 +123,8 @@ ul.drag-list, ul.drag-inner-list {
     height:50px;
   }
   .textarea_description {
-
+    width: 400px;
+    height: 100px;
   }
 
   .delete_size {
@@ -146,4 +141,64 @@ ul.drag-list, ul.drag-inner-list {
   .kanban_board {
     overflow-x: scroll;
     overflow-y: hidden;
+    height:90vh;
+    background-color: #F8F9F9;
+  }
+  .task_plus {
+    color:#5e6c84;
+    font-size:0.8 rem;
+  }
+
+  .dropdown_button {
+    outline: none;
+  }
+
+  .hover_task {
+    background-color: #091e4214;
+    color: #172b4d;
+    background-size: 10px;
+  }
+  .add-block {
+    border-radius: 3px;
+    color: #5e6c84;
+    display: block;
+    flex: 1 0 auto;
+    margin: 2px 7px 8px 8px;
+    padding: 4px 8px;
+    position: relative;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .navbar-background {
+    background-color: #c7c7c7;
+  }
+
+  .edit_buttons {
+    background-color: #D3D3D3;
+    border: none;
+    border-radius: 3px;
+    box-shadow: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    height: 32px;
+    margin-top: 8px;
+    max-width: 300px;
+    overflow: hidden;
+    padding: 6px 12px;
+    position: relative;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    transition-duration: 85ms;
+    transition-property: background-color,border-color,box-shadow;
+    transition-timing-function: ease;
+    -webkit-user-select: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .d-grid {
+    display: grid;
   }

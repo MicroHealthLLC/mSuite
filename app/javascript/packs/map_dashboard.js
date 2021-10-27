@@ -13,9 +13,6 @@ Vue.use(ActionCableVue, {
   connectionUrl: `${base_url}/cable`,
   connectImmediately: true
 })
-
-
-
 Vue.component('sync-loader', SyncLoader)
 Vue.component('sweet-modal', SweetModal)
 Vue.component('sweet-modal-tab', SweetModalTab)
