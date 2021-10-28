@@ -135,7 +135,7 @@
         http
         .post(`/nodes.json`, data)
         .then((res) => {
-          this.blocks.push({id: res.data.node.id, status: res.data.node.status, title: res.data.node.title} )
+          this.blocks.push(res.data.node)
         })
         .catch((err) => {
           console.log(err)
@@ -173,7 +173,6 @@
           if (response.data.success === true){
             this.allStages = this.allStages.filter(stg => stg.title !== stage)
             this.blocks = this.blocks.filter(block => block.status !== stage)
-            console.log(this.allStages)
           }
           else {
             alert("Stage unable to be deleted")
@@ -225,7 +224,6 @@
         .then(response => {
           if (response.data.success === true){
             this.blocks = this.blocks.filter(blk => blk.id !== block.id)
-            console.log(this.blocks)
           }
           else {
             alert("Stage unable to be deleted")
