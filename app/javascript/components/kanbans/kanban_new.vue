@@ -18,10 +18,10 @@
           <div>
             <div class="w-100">
               <div>
-                <h2 class="float-left col-10">{{ stage }}</h2>
+                <h2 class="float-left col-10 pl-2">{{ stage }}</h2>
               </div>
               <div class="float-right">
-                <b-dropdown  id="dropdown-left" toggle-class="col-6 bg-transparent border-0" no-caret>
+                <b-dropdown  id="dropdown-left" menu-class="menu-dropdown" toggle-class="col-6 bg-transparent border-0 btn-shadow py-0" no-caret>
                   <template #button-content>
                     <i class="fas fa-ellipsis-h text-secondary"></i>
                   </template>
@@ -89,13 +89,6 @@
         return this.allStages.map(stage => stage.title)
       },
     },
-    watch:{
-      "currentMindMap.id"() {
-        if (this.currentMindMap.id) {
-          this.$cable.subscribe({ channel: 'WebNotificationsChannel', room: this.currentMindMap.id})
-        }
-      }
-    },
     methods: {
       getAllStages() {
         http
@@ -108,6 +101,7 @@
           console.log(err)
         })
       },
+
       getAllNodes(){
         http
         .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
@@ -119,8 +113,15 @@
           console.log(err)
         })
       },
+
       addStageToMindmap(stage_name) {
-        let data = { stage: { title: stage_name, mindmap_id: this.currentMindMap.id } }
+        let data = {
+          stage: {
+            title: stage_name,
+            mindmap_id: this.currentMindMap.id
+          }
+        }
+
         http
         .post(`/stages.json`, data)
         .then((res) => {
@@ -130,8 +131,18 @@
           console.log(error)
         })
       },
+
       addBlockToStage(block) {
-        let data = { node: { title: block.title, stage_id: this.allStages.find(stage => stage.title === this.stage_title).id, mindmap_id: this.currentMindMap.id, status: this.stage_title,description:block.description} }
+        let data = {
+          node: {
+            title: block.title,
+            stage_id: this.allStages.find(stage => stage.title === this.stage_title).id,
+            mindmap_id: this.currentMindMap.id,
+            status: this.stage_title,
+            description: block.description
+          }
+        }
+
         http
         .post(`/nodes.json`, data)
         .then((res) => {
@@ -141,9 +152,16 @@
           console.log(err)
         })
       },
-      updateBlockPosition(id, status) {
-        let stage_id = this.allStages.find(stg=>stg.title === status).id
-        let block = {node: {id,status,stage_id}}
+
+      updateBlockPosition(id, status, position) {
+        let stage_id = this.allStages.find(stg => stg.title === status).id
+        let block = {
+          node: {
+            stage_id: stage_id,
+            position: position
+          }
+        }
+
         http
         .patch(`/nodes/${id}.json`,block)
         .then((res)=>{
@@ -153,21 +171,29 @@
           console.log(err)
         })
       },
+
       addStage(){
         if (this.currentMindMap.editable) {
           this.$refs['add-stage-to-kanban'].$refs['addStageToKanban'].open()
         }
       },
+
       addBlock(stage){
         if (this.currentMindMap.editable) {
           this.stage_title = stage
           this.$refs['add-block-to-stage'].$refs['addBlockToStage'].open()
         }
       },
+
       deleteStage(stage){
         let id = this.allStages.find(stg => stg.title === stage).id
-        let data={ stage: { id }}
-        http.delete(`/stages/${id}.json`,data)
+        let data={
+          stage: {
+            id: id
+          }
+        }
+        http
+        .delete(`/stages/${id}.json`,data)
         .then(response =>
         {
           if (response.data.success === true){
@@ -180,30 +206,37 @@
         })
         .catch(error => {console.log(error)})
       },
+
       editStage(stage){
         if (this.currentMindMap.editable) {
           this.stage=this.allStages.find(st=>st.title===stage)
           this.$refs['edit-stage'].$refs['editStageKanban'].open()
         }
       },
+
       editStageTitle(stage){
-        let data = {stage: {title:stage.title,id:stage.id}}
-        http.patch(`/stages/${stage.id}.json`,data)
-        .then(result => {
-          this.allStages.find(stg => stg.id === result.data.stage.id).title = result.data.stage.title;
-        })
+        let data = {
+          stage: {
+            title: stage.title
+          }
+        }
+
         http
-        .patch(`/nodes/update_status.json?mindmap_id=${this.currentMindMap.id}&stage_id=${stage.id}&status=${stage.title}`)
-        .then(response=>{
-          this.blocks = response.data.nodes
+        .patch(`/stages/${stage.id}.json`, data)
+        .then(result => {
+          let index = this.allStages.findIndex(stg => stg.id === result.data.stage.id)
+          if (index > -1) this.allStages[index] = result.data.stage
+          this.updateStageTasks(stage.id)
         })
       },
+
       editBlockKanban(block){
         if (this.currentMindMap.editable) {
           this.block=block
           this.$refs['edit-block'].$refs['editBlockKanban'].open()
         }
       },
+
       updateBlock(block){
         let id = block.id
         let node = {node: {id,title: block.title,description: block.description}}
@@ -216,6 +249,7 @@
           console.log(err)
         })
       },
+
       deleteBlock(block){
         let id = this.block.id
         let data = {node: {id}}
@@ -235,6 +269,13 @@
       },
       goHome(){
         window.open('/',"_self")
+      },
+
+      updateStageTasks(stageId) {
+        let stage = this.allStages.find(s => s.id === stageId)
+        this.blocks.filter(b => b.stage_id == stage.id).map((b) => {
+          b.status = stage.title
+        })
       }
     }
   }

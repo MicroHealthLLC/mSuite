@@ -13,7 +13,6 @@ Rails.application.routes.draw do
   get 'mindmaps/find_or_create' => 'mindmaps#find_or_create'
   get 'mindmaps/list_all_maps' => 'mindmaps#list_all_maps'
   get 'nodes/hide_children' => 'nodes#hide_children'
-  patch 'nodes/update_status' => 'nodes#update_status'
 
   resources :mindmaps, except: [:edit, :destroy] do
     member do

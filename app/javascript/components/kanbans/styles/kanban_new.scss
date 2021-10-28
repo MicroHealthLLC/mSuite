@@ -1,204 +1,207 @@
 ul.drag-list, ul.drag-inner-list {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
 
-  .drag-container {
-    margin: 20px;
-  }
+.drag-container {
+  margin: 20px;
+}
 
-  .drag-list {
-    display: flex;
-    align-items: flex-start;
-  }
+.drag-list {
+  display: flex;
+  align-items: flex-start;
+}
 
-  .drag-column {
-    flex: 1;
-    margin: 0 10px;
-    position: relative;
-    background-color: #ebecf0;
-    border-radius: 0.25rem !important;
-    max-height: 85vh;
-  }
+.drag-column {
+  flex: 1;
+  margin: 0 5px;
+  position: relative;
+  background-color: #ebecf0;
+  border-radius: 0.25rem !important;
+  max-height: 85vh;
+}
 
-  .drag-column h2 {
-    font-size: 1.0rem;
-    margin: 0;
-    text-transform: uppercase;
-    font-weight: 600;
-    word-break: break-word;
-  }
+.drag-column h2 {
+  font-size: 1.0rem;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  word-break: break-word;
+}
 
-  .drag-column-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 270px;
-    padding: 10px;
-    padding-bottom: 0px;
-  }
+.drag-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 270px;
+  padding: 10px;
+  padding-bottom: 0px;
+}
 
-  .drag-inner-list {
-    color: white;
-    min-height: 10px;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
+.drag-inner-list {
+  color: white;
+  min-height: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
 
-  .drag-item {
-    padding: 10px;
-    margin: 10px;
-    background: rgba(0, 0, 0, 0.4);
-    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    word-break: break-word;
-    padding-bottom: 0.25rem !important;
-    padding-top: 0.25rem !important;
-    border-radius: 0.25rem !important;
-    background-color: white;
-    box-shadow: 0 1px 0 #091e4240;
-  }
-  .drag-item.is-moving {
-    transform: scale(1.5);
-    background: rgba(0, 0, 0, 0.8);
-  }
+.drag-item {
+  padding: 10px;
+  margin: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  word-break: break-word;
+  padding-bottom: 0.25rem !important;
+  padding-top: 0.25rem !important;
+  border-radius: 0.25rem !important;
+  background-color: white;
+  box-shadow: 0 1px 0 #091e4240;
+}
+.drag-item.is-moving {
+  transform: scale(1.5);
+  background: rgba(0, 0, 0, 0.8);
+}
 
-  .drag-header-more {
-    cursor: pointer;
-  }
+.drag-header-more {
+  cursor: pointer;
+}
 
 
-  .drag-options.active {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  .drag-options-label {
-    display: block;
-    margin: 0 0 5px 0;
-  }
-  .drag-options-label input {
-    opacity: 0.6;
-  }
-  .drag-options-label span {
-    display: inline-block;
-    font-size: 0.9rem;
-    font-weight: 400;
-    margin-left: 5px;
-  }
+.drag-options.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+.drag-options-label {
+  display: block;
+  margin: 0 0 5px 0;
+}
+.drag-options-label input {
+  opacity: 0.6;
+}
+.drag-options-label span {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-left: 5px;
+}
 
-  /* Dragula CSS  */
-  .gu-mirror {
-    position: fixed !important;
-    margin: 0 !important;
-    z-index: 9999 !important;
-    opacity: 0.8;
-    list-style-type: none;
-  }
+/* Dragula CSS  */
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  opacity: 0.8;
+  list-style-type: none;
+}
 
-  .gu-hide {
-    display: none !important;
-  }
+.gu-hide {
+  display: none !important;
+}
 
-  .gu-unselectable {
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
-  }
+.gu-unselectable {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
 
-  .gu-transit {
-    opacity: 0.2;
-  }
+.gu-transit {
+  opacity: 0.2;
+}
 
-  .pointer {
-    cursor: pointer;
-  }
+.pointer {
+  cursor: pointer;
+}
 
-  .dropdown-menu.show {
-    background: aliceblue;
-  }
+.dropdown-menu.show {
+  background: aliceblue;
+}
 
-  .textarea_title {
-    width:400px;
-    height:50px;
-  }
-  .textarea_description {
-    width: 400px;
-    height: 100px;
-  }
+.textarea_title {
+  width:400px;
+  height:50px;
+}
+.textarea_description {
+  width: 400px;
+  height: 100px;
+}
 
-  .delete_size {
-    font-size: 20px
-  }
-  .editable {
-    border-color: blue;
-    resize: vertical;
-  }
-  .non-editable {
-    border: none;
-    resize: none;
-  }
-  .kanban_board {
-    overflow-x: scroll;
-    overflow-y: hidden;
-    height:90vh;
-    background-color: #F8F9F9;
-  }
-  .task_plus {
-    color:#5e6c84;
-    font-size:0.8 rem;
-  }
+.delete_size {
+  font-size: 20px
+}
+.editable {
+  border-color: blue;
+  resize: vertical;
+}
+.non-editable {
+  border: none;
+  resize: none;
+}
+.kanban_board {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height:90vh;
+  background-color: #F8F9F9;
+}
+.task_plus {
+  color:#5e6c84;
+  font-size:0.8 rem;
+}
 
-  .dropdown_button {
-    outline: none;
-  }
+.dropdown_button {
+  outline: none;
+}
 
-  .hover_task {
-    background-color: #091e4214;
-    color: #172b4d;
-    background-size: 10px;
-  }
-  .add-block {
-    border-radius: 3px;
-    color: #5e6c84;
-    display: block;
-    flex: 1 0 auto;
-    margin: 2px 7px 8px 8px;
-    padding: 4px 8px;
-    position: relative;
-    text-decoration: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
+.hover_task {
+  background-color: #091e4214;
+  color: #172b4d;
+  background-size: 10px;
+}
+.add-block {
+  border-radius: 3px;
+  color: #5e6c84;
+  display: block;
+  flex: 1 0 auto;
+  margin: 2px 7px 8px 8px;
+  padding: 4px 8px;
+  position: relative;
+  text-decoration: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 
-  .navbar-background {
-    background-color: #c7c7c7;
-  }
+.navbar-background {
+  background-color: #c7c7c7;
+}
 
-  .edit_buttons {
-    background-color: #D3D3D3;
-    border: none;
-    border-radius: 3px;
-    box-shadow: none;
-    box-sizing: border-box;
-    cursor: pointer;
-    display: block;
-    height: 32px;
-    margin-top: 8px;
-    max-width: 300px;
-    overflow: hidden;
-    padding: 6px 12px;
-    position: relative;
-    text-decoration: none;
-    text-overflow: ellipsis;
-    transition-duration: 85ms;
-    transition-property: background-color,border-color,box-shadow;
-    transition-timing-function: ease;
-    -webkit-user-select: none;
-    user-select: none;
-    white-space: nowrap;
-  }
+.edit_buttons {
+  background-color: #D3D3D3;
+  border: none;
+  border-radius: 3px;
+  box-shadow: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  height: 32px;
+  margin-top: 8px;
+  max-width: 300px;
+  overflow: hidden;
+  padding: 6px 12px;
+  position: relative;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  transition-duration: 85ms;
+  transition-property: background-color,border-color,box-shadow;
+  transition-timing-function: ease;
+  -webkit-user-select: none;
+  user-select: none;
+  white-space: nowrap;
+}
 
-  .d-grid {
-    display: grid;
-  }
+.d-grid {
+  display: grid;
+}
+.menu-dropdown {
+  top: -27px !important;
+}

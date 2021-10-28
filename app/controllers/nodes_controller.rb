@@ -1,6 +1,7 @@
 class NodesController < AuthenticatedController
   before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
-  before_action :set_nodes, only:[:index,:update_status]
+  before_action :set_nodes, only:[:index]
+
   def create
     # get nested children
     @node = Node.create(node_params)
@@ -12,7 +13,7 @@ class NodesController < AuthenticatedController
     end
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
     respond_to do |format|
-      format.json { render json: {node: @node.mindmap.mm_type == 0 ? @node.to_json : @node}}
+      format.json { render json: {node: @node.to_json}}
       format.html { }
     end
   end
@@ -22,22 +23,14 @@ class NodesController < AuthenticatedController
     @node.update(node_params)
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
     respond_to do |format|
-      format.json { render json: {node: @node.mindmap.mm_type == 0 ? @node.to_json : @node}}
+      format.json { render json: {node: @node.to_json}}
       format.html { }
     end
   end
 
   def index
     respond_to do |format|
-      format.json { render json: {nodes: @nodes}}
-      format.html { }
-    end
-  end
-
-  def update_status
-    @nodes.where(stage_id: params[:stage_id]).update_all(status:params[:status])
-    respond_to do |format|
-      format.json { render json: {nodes: @nodes}}
+      format.json { render json: {nodes: @nodes.map(&:to_json)}}
       format.html { }
     end
   end
@@ -125,7 +118,6 @@ class NodesController < AuthenticatedController
   def node_params
     params.require(:node).permit(
       :title,
-      :status,
       :position_x,
       :position_y,
       :parent_node,
@@ -134,6 +126,7 @@ class NodesController < AuthenticatedController
       :is_disabled,
       :line_color,
       :description,
+      :position,
       node_files: []
     )
   end
