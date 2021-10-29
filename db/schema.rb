@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_16_092913) do
+ActiveRecord::Schema.define(version: 2021_10_28_120905) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(version: 2021_08_16_092913) do
     t.bigint "category_id"
     t.integer "share", default: 0
     t.datetime "expires_at"
+    t.integer "mm_type", default: 0, null: false
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 
@@ -89,6 +90,9 @@ ActiveRecord::Schema.define(version: 2021_08_16_092913) do
     t.string "line_color"
     t.text "description"
     t.integer "export_index"
+    t.integer "stage_id"
+    t.string "status"
+    t.integer "position", default: 0
     t.index ["mindmap_id"], name: "index_nodes_on_mindmap_id"
   end
 
@@ -97,6 +101,13 @@ ActiveRecord::Schema.define(version: 2021_08_16_092913) do
     t.text "office365_secret"
     t.text "google_oauth_key"
     t.text "google_oauth_secret"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "stages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "title"
+    t.integer "mindmap_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
