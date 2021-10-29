@@ -1,11 +1,19 @@
 class Node < ApplicationRecord
+  include ActiveModel::Dirty
+
+  default_scope { order('position ASC') }
+
   belongs_to :mindmap, optional: true
+  belongs_to :stage, optional: true
+
   has_many_attached :node_files, dependent: :destroy
 
   before_create :set_default_export_index
 
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
+
+  after_update :position_changed, if: Proc.new { |p| p.saved_change_to_attribute?(:position) || p.saved_change_to_attribute?(:stage_id) }
 
   def to_json
     attach_files = []
@@ -17,7 +25,10 @@ class Node < ApplicationRecord
         }
       end
     end
-    self.as_json.merge(attach_files: attach_files).as_json
+    self.as_json.merge(
+                       attach_files: attach_files,
+                       status: stage.try(:title)
+                       ).as_json
   end
 
   def parent_changed
@@ -73,7 +84,8 @@ class Node < ApplicationRecord
   end
 
   def set_default_export_index
-    self.export_index = self.mindmap.nodes.where(parent_node: self.parent_node).count
+    self.export_index = self.mindmap.nodes.where(parent_node: self.parent_node).count if self.mindmap.simple?
+    self.position = self.stage.nodes.last.position + 1 rescue 0 if self.stage.present?
   end
 
   def update_export_order(old_i, new_i)
@@ -89,6 +101,11 @@ class Node < ApplicationRecord
       peers.update_all("export_index = export_index - 1")
     end
     self.update_columns(export_index: new_i)
+  end
+
+  def position_changed
+    self.stage.nodes.where.not(id: id).where("position = ?", position).update_all("position = position - 1")
+    self.stage.nodes.where.not(id: id).where("position >= ?", position).update_all("position = position + 1")
   end
 
   private

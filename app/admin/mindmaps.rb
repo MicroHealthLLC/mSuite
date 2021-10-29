@@ -27,6 +27,7 @@ ActiveAdmin.register Mindmap do
 
     f.inputs 'Mindmap Details' do
       f.input :name
+      f.input :mm_type
       f.input :unique_key, input_html: { disabled: true, :'data-id' => mindmap.id, autocomplete: :off }
       f.input :category
       f.input :status, include_blank: false, include_hidden: false, label: "State"
@@ -42,6 +43,7 @@ ActiveAdmin.register Mindmap do
     selectable_column
     column :name
     column :unique_key
+    column :mm_type
     column :category
     # column :description
     column "Creator", :user

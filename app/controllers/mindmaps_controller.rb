@@ -119,6 +119,7 @@ class MindmapsController < AuthenticatedController
   def mindmap_params
     params.require(:mindmap).permit(
       :name,
+      :mm_type,
       :description,
       node_files: []
     )

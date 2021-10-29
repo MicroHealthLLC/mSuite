@@ -1,5 +1,5 @@
 
-import Mindmap from 'components/mindmaps/mindmap.vue'
+import Mindmap from 'components/dashboard.vue'
 import router from 'routers/mindmaps'
 import ActionCableVue from 'actioncable-vue'
 import SyncLoader from 'vue-spinner/src/SyncLoader.vue'
@@ -13,7 +13,6 @@ Vue.use(ActionCableVue, {
   connectionUrl: `${base_url}/cable`,
   connectImmediately: true
 })
-
 Vue.component('sync-loader', SyncLoader)
 Vue.component('sweet-modal', SweetModal)
 Vue.component('sweet-modal-tab', SweetModalTab)

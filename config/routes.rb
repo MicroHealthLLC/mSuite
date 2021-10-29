@@ -22,7 +22,9 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :nodes, except: [:new, :edit, :show, :index] do
+  resources :stages, except: [:new]
+
+  resources :nodes, except: [:new, :edit, :show] do
     member do
       put :update_export_order
       put :destroy_file
