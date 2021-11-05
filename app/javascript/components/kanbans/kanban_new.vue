@@ -16,7 +16,7 @@
       </div>
     </nav>
 
-    <div class="row kanban_board">
+    <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" @update-block="updateBlockPosition">
         <div v-for="stage in computedStages" :slot="stage" class="w-100">
           <div>
@@ -36,12 +36,12 @@
             </div>
           </div>
         </div>
-        <div v-for="block in blocks" :slot="block.id" :key="block.id">
-          <div class="d-inline-block w-100 ">
-            <div class="text-dark pointer" @click="editBlockKanban(block)">
-              {{ block.title }}
+        <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
+            <div class="d-inline-block w-100 block">
+              <div class="text-dark pointer" @click="editBlockKanban(block)">
+                {{ block.title }}
+              </div>
             </div>
-          </div>
         </div>
         <div v-for="stage,index in computedStages" :slot="`footer-${stage}`">
           <div @mouseover.self="hover_addtask = index" @mouseleave.self="hover_addtask = false" :class="hover_addtask === index ? 'hover_task' : ''" @click.prevent="addBlock(stage)" class="pointer add-block">
@@ -71,12 +71,16 @@
 <script>
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
+  import {deepclone} from 'lodash'
   import AddStageToKanban from './modals/add_stage_to_kanban'
   import AddBlockToStage from './modals/add_block_to_stage'
   import editStage from './modals/edit_stage'
   import editBlock from './modals/edit_block'
   import MakePrivateModal from "../../common/modals/make_private_modal"
-  Vue.use(vueKanban)
+  var autoScroll = require('dom-autoscroller');
+  var dragula = require('dragula')
+  Vue.use(vueKanban);
+
   export default {
     props: ['currentMindMap'],
     components:{
@@ -100,11 +104,27 @@
     mounted() {
       this.getAllStages()
       this.getAllNodes()
+      setTimeout(()=>{
+        var elements = Array.from(document.querySelectorAll(".drag-inner-list,#kanban-board"));
+        console.log(elements)
+        autoScroll(
+          elements,
+          {
+            margin: 20,
+            maxSpeed: 7,
+            scrollWhenOutside: true,
+            autoScroll: function(){
+                //Only scroll when the pointer is down, and there is a child being dragged.
+               return this.down
+            }
+          }
+        );
+      },1000)
     },
     computed: {
       computedStages() {
         return this.allStages.map(stage => stage.title)
-      },
+      }
     },
     methods: {
       getAllStages() {
@@ -118,7 +138,9 @@
           console.log(err)
         })
       },
-
+      ddd(){
+        debugger
+      },
       getAllNodes(){
         http
         .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
@@ -182,7 +204,8 @@
         http
         .patch(`/nodes/${id}.json`,block)
         .then((res)=>{
-          this.blocks.find(b => b.id === res.data.node.id).status = res.data.node.status;
+          let block_id = this.blocks.findIndex(b => b.id === Number(id))
+          this.blocks[block_id].index = res.data.node.position
         })
         .catch(err => {
           console.log(err)
