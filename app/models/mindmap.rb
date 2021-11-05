@@ -17,7 +17,7 @@ class Mindmap < ApplicationRecord
 
   enum status: { active: 0, archived: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
-  enum mm_type: { simple: 0, kanban: 1, flow_chart: 2 }
+  enum mm_type: { simple: 0, kanban: 1, flow_chart: 2, tree_map: 3 }
 
   cattr_accessor :access_user
 

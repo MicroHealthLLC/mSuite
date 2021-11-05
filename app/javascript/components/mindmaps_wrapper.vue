@@ -15,11 +15,13 @@
   import http from "./../common/http"
   import MindmapView from "./mindmaps/mindmap_new"
   import KanbanView from "./kanbans/kanban_new"
+  import TreeMap from "./treemaps/tree_map"
 
   export default {
     components: {
       MindmapView,
-      KanbanView
+      KanbanView,
+      TreeMap
     },
     data() {
       return {
@@ -37,6 +39,8 @@
         switch (this.currentMindMap.mm_type) {
           case "kanban":
             return "KanbanView"
+          case "tree_map":
+            return "TreeMap"
           default:
             return "MindmapView"
         }

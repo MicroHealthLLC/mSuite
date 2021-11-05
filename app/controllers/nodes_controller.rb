@@ -127,6 +127,7 @@ class NodesController < AuthenticatedController
       :line_color,
       :description,
       :position,
+      :node_width,
       node_files: []
     )
   end

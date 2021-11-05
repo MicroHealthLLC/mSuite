@@ -14,8 +14,19 @@ class Node < ApplicationRecord
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
 
   after_update :position_changed, if: Proc.new { |p| p.saved_change_to_attribute?(:position) || p.saved_change_to_attribute?(:stage_id) }
+  validates :title, uniqueness: true, if: :validate_title
+
+  def validate_title
+    return self.mindmap.mm_type == "tree_map"
+  end
 
   def to_json
+    parent = ''
+    if self.parent_node == 0 || self.parent_node == nil
+      parent = Mindmap.find_by_id(self.mindmap_id).name
+    else
+      parent = Node.find_by_id(self.parent_node).title
+    end
     attach_files = []
     if self.node_files.attached?
       attach_files = self.node_files.map do |file|
@@ -27,7 +38,8 @@ class Node < ApplicationRecord
     end
     self.as_json.merge(
                        attach_files: attach_files,
-                       status: stage.try(:title)
+                       status: stage.try(:title),
+                       parent: parent
                        ).as_json
   end
 
