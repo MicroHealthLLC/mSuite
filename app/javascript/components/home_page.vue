@@ -40,7 +40,8 @@
         selectedType: 'simple',
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap' },
-          { key: 'kanban', value: 'Kanban' }
+          { key: 'kanban', value: 'Kanban' },
+          { key: 'tree_map', value: 'TreeMap' }
         ]
       }
     },

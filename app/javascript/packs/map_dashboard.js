@@ -4,6 +4,9 @@ import router from 'routers/mindmaps'
 import ActionCableVue from 'actioncable-vue'
 import SyncLoader from 'vue-spinner/src/SyncLoader.vue'
 import { SweetModal, SweetModalTab } from "sweet-modal-vue"
+import { Chrome } from 'vue-color'
+import Vuex from 'vuex'
+import store from '../store/TreeMap'
 
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
@@ -13,14 +16,17 @@ Vue.use(ActionCableVue, {
   connectionUrl: `${base_url}/cable`,
   connectImmediately: true
 })
+Vue.use(Vuex);
 Vue.component('sync-loader', SyncLoader)
 Vue.component('sweet-modal', SweetModal)
+Vue.component('chrome-picker', Chrome)
 Vue.component('sweet-modal-tab', SweetModalTab)
 
 // eslint-disable-next-line no-unused-vars
 window._MindmapApp_ = new Vue({
   router,
   el: '#map_dashboard',
+  store,
   template: '<Mindmap />',
   components: { Mindmap }
 })
