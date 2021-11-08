@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sweet-modal ref="addNodeToTreeMap" id="add_node" class="of_v" title="Add Node TreeMap">
+    <sweet-modal ref="addNodeToTreeMap" id="add_node" class="of_v" title="Add Node TreeMap" @close="resetValue">
       <div class="row my-2">
         <label class="align-self-center mb-0 text-left col-3 px-0 float-left font-weight-bold" for="">Select Parent</label>
         <select v-model="node.parent_label" class="form-control col-9">
@@ -24,13 +24,13 @@
       <div class="row my-2">
         <p class="align-self-start mb-0 text-left mb-0 text-left col-3 px-0 float-left font-weight-bold">Color</p>
         <div class="col-9 px-0">
-          <chrome-picker v-model="colors" />
+          <ColorPicker />
         </div>
       </div>
       <hr/>
       <b-row>
         <b-col cols="12">
-          <button @click="saveNode" class="btn btn-success float-right" color="light-grey" :disabled="disableAddNode">Add Node</button>
+          <button @click="saveNode" class="btn btn-success float-left" color="light-grey" :disabled="disableAddNode">Add Node</button>
         </b-col>
       </b-row>
     </sweet-modal>
@@ -38,9 +38,14 @@
 </template>
 
 <script>
+  import ColorPicker from './color_picker'
+  import { mapGetters, mapActions } from 'vuex'
 
   export default {
     name:"AddNode",
+    components: {
+      ColorPicker
+    },
     props: [
       'nodes',
       'treeMap'
@@ -57,11 +62,15 @@
       }
     },
     methods:{
+      resetValue(){
+        this.node.label = ''
+        this.node.parent_label = ''
+      },
       closeModal(){
         this.$refs.addNodeToTreeMap.close()
       },
       saveNode() {
-        this.node.color = this.colors.hex
+        this.node.color = this.getColorCode
         this.node.label = this.node.label.trim();
         if (this.node.parent_label == 'treeMap'){
           this.node.parent_label = ''
@@ -69,12 +78,19 @@
         this.$emit('saveNode', this.node)
         this.node.label = ''
         this.$refs.addNodeToTreeMap.close()
+      },
+      setColor(value){
+        this.colors.hex = value
+        this.node.color = value
       }
     },
     computed: {
       disableAddNode() {
         return this.node.label.length > 0 ? false : true;
-      }
+      },
+      ...mapGetters([
+          'getColorCode'
+        ])
     }
   }
 </script>

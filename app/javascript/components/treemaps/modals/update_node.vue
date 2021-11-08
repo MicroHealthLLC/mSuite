@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sweet-modal ref="updateNodeToTreeMap" id="update_node" class="of_v" title="Update Node">
+    <sweet-modal ref="updateNodeToTreeMap" id="update_node" class="of_v" title="Update Node" @click="resetValue">
       <b-row>
         <b-col cols="12">
           <b-row class="align-items-center">
@@ -38,13 +38,13 @@
                 <p class="align-self-start text-left mb-2 text-left col-12 px-0 float-left font-weight-bold">Color</p>
               </b-col>
               <b-col cols="9" class="mb-2">
-                <chrome-picker v-model="colors" />
+                <ColorPicker />
               </b-col>
             </b-row>
             <hr/>
-            <b-row class="float-right">
-                <button @click="updatedNode" class="btn btn-info mx-2 px-4">Update</button>
-                <button @click="deleteNode" class="btn btn-danger mx-2 px-4">Delete</button>
+            <b-row class="float-left">
+              <button @click="updatedNode" class="btn btn-info mx-2 px-4">Update</button>
+              <button @click="deleteNode" class="btn btn-danger mx-2 px-4">Delete</button>
             </b-row>
           </div>
         </b-col>
@@ -54,8 +54,14 @@
 </template>
 
 <script>
+  import ColorPicker from './color_picker'
+  import { mapGetters, mapActions } from 'vuex'
+
   export default {
     name:"UpdateNode",
+    components:{
+      ColorPicker
+    },
     props: [
       'nodes'
     ],
@@ -63,7 +69,9 @@
       return{
         selectNodeId: null,
         enteredTitle: '',
-        colors: {hex: ''},
+        colors: {
+          hex: ''
+        },
         selectNode: {},
         showFormNode: false,
         node: {
@@ -74,15 +82,32 @@
       }
     },
     computed: {
+      getColor(){
+        return this.getColorCode
+      },
+      ...mapGetters([
+          'getColorCode'
+        ])
     },
     methods:{
+      ...mapActions([
+          'addColor'
+        ]),
+      resetValue(){
+        this.enteredTitle = ''
+        this.node.label = ''
+        this.node.parent_label = ''
+        this.node.color = ''
+        this.selectNode = {}
+        this.showFormNode = false
+      },
       closeModal(){
         this.$refs.updateNodeToTreeMap.close()
       },
       updatedNode() {
         this.selectNodeId = ''
         this.showFormNode = false
-        this.selectNode.line_color = this.colors.hex
+        this.selectNode.line_color = this.getColorCode
         this.selectNode.title = this.enteredTitle
         this.$emit('updatedNode', this.selectNode)
         this.$refs.updateNodeToTreeMap.close()
@@ -98,7 +123,7 @@
       selectedNode(){
         let id  = this.selectNodeId
         this.selectNode  = this.nodes.find( x => x.id == id )
-        this.colors.hex = this.selectNode.line_color
+        this.addColor({hex: this.selectNode.line_color})
         this.showFormNode = true
       }
     },
@@ -109,3 +134,5 @@
     }
   }
 </script>
+<style>
+</style>
