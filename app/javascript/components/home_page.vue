@@ -3,9 +3,9 @@
     <h1 class="main_heading">mConcept Maps</h1>
     <div class="box_shadow box main_box">
       <div class="w-100 text-center mb-3">
-         <input type="text" v-model="mindmapName" class="w-75 mindmap-name rounded" placeholder="Enter name of Concept Map here then select map type below">
+         <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="Enter name of Concept Map here then select map type below">
       </div>
-      <div class="row container">
+      <div class="row container pl-0">
         <div v-for="type in mindmapTypes">
           <div class="col mr-4 item" >
             <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"/>
@@ -50,7 +50,7 @@
     },
     methods: {
       createNewMap() {
-        http.post(`/mindmaps.json`, { mindmap: { name: this.mindmapName, mm_type: this.selectedType } }).then((res) => {
+        http.post(`/mindmaps.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type: this.selectedType } }).then((res) => {
           window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
         }).catch((error) => {
           alert("Unable to open/create mindmap.")
@@ -96,7 +96,7 @@
 .main_box {
   margin-left: auto;
   margin-right: auto;
-  width: 75%;
+  width: 50%;
   height: max-content;
   background-image: linear-gradient(white, grey);
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.8);
