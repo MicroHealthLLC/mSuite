@@ -29,7 +29,7 @@
                   <template #button-content>
                     <i class="fas fa-ellipsis-h text-secondary"></i>
                   </template>
-                  <b-dropdown-item @click="editStage(stage)">Edit</b-dropdown-item>
+                  <b-dropdown-item @click="updateStage(stage)">Edit</b-dropdown-item>
                   <b-dropdown-item @click="deleteStage(stage)">Delete</b-dropdown-item>
                 </b-dropdown>
               </div>
@@ -53,9 +53,8 @@
     <add-stage-to-kanban ref="add-stage-to-kanban" @stage-added="addStageToMindmap"></add-stage-to-kanban>
     <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
 
-    <edit-stage ref="edit-stage" @stage-edit="editStageTitle" :stage="stage"></edit-stage>
-
-    <edit-block ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
+    <edit-stage v-if="stage.title" @stage-edit="editStageTitle" ref="edit-stage" :stage="stage"></edit-stage>
+    <edit-block v-if="block.title" ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" :password="currentMindMap.password"></make-private-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
@@ -78,7 +77,6 @@
   import editBlock from './modals/edit_block'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   var autoScroll = require('dom-autoscroller');
-  var dragula = require('dragula')
   Vue.use(vueKanban);
 
   export default {
@@ -106,7 +104,6 @@
       this.getAllNodes()
       setTimeout(()=>{
         var elements = Array.from(document.querySelectorAll(".drag-inner-list,#kanban-board"));
-        console.log(elements)
         autoScroll(
           elements,
           {
@@ -124,7 +121,7 @@
     computed: {
       computedStages() {
         return this.allStages.map(stage => stage.title)
-      }
+      },
     },
     methods: {
       getAllStages() {
@@ -137,9 +134,6 @@
         .catch((err) => {
           console.log(err)
         })
-      },
-      ddd(){
-        debugger
       },
       getAllNodes(){
         http
@@ -247,10 +241,13 @@
         .catch(error => {console.log(error)})
       },
 
-      editStage(stage){
+      updateStage(stage){
         if (this.currentMindMap.editable) {
-          this.stage=this.allStages.find(st=>st.title===stage)
-          this.$refs['edit-stage'].$refs['editStageKanban'].open()
+            this.stage = this.allStages.find(stg=>stg.title===stage)
+            setTimeout(()=>{
+              this.$refs['edit-stage'].$refs['editStageKanban'].open()
+            })
+
         }
       },
 
@@ -260,12 +257,13 @@
             title: stage.title
           }
         }
-
         http
         .patch(`/stages/${stage.id}.json`, data)
         .then(result => {
           let index = this.allStages.findIndex(stg => stg.id === result.data.stage.id)
-          if (index > -1) this.allStages[index] = result.data.stage
+          if (index > -1) {
+            Vue.set(this.allStages[index], 'title', result.data.stage.title)
+          }
           this.updateStageTasks(stage.id)
         })
       },
@@ -273,7 +271,9 @@
       editBlockKanban(block){
         if (this.currentMindMap.editable) {
           this.block=block
-          this.$refs['edit-block'].$refs['editBlockKanban'].open()
+          setTimeout(()=>{
+            this.$refs['edit-block'].$refs['editBlockKanban'].open()
+          })
         }
       },
 
@@ -283,7 +283,8 @@
         http
         .patch(`/nodes/${id}.json`,node)
         .then((res)=>{
-          this.blocks.find(b => b.id === res.data.node.id).title = res.data.node.title;
+          let index = this.blocks.findIndex(b => b.id === res.data.node.id)
+          Vue.set(this.blocks,index,res.data.node)
         })
         .catch(err => {
           console.log(err)
@@ -310,7 +311,6 @@
       goHome(){
         window.open('/',"_self")
       },
-
       updateStageTasks(stageId) {
         let stage = this.allStages.find(s => s.id === stageId)
         this.blocks.filter(b => b.stage_id == stage.id).map((b) => {
