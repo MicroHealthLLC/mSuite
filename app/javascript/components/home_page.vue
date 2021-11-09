@@ -7,8 +7,9 @@
       </div>
       <div class="row container pl-0">
         <div v-for="type in mindmapTypes">
-          <div class="col mr-4 item" >
-            <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"/>
+          <div class="col mr-4 item" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
+            <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
+            />
             <span class="mr-2 text-center">{{type.value}}</span>
           </div>
         </div>
@@ -40,6 +41,7 @@
         mapName: "",
         mapsArr: [],
         mindmapName:"",
+        hovered:false,
         selectedType: 'simple',
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "/assets/mindmap_main_menu.png" },
@@ -189,6 +191,7 @@
   display: inline-block;
   text-align: center;
   width: 120px;
+  cursor: pointer;
 }
 .mindmap-name {
   background-color: white;
@@ -207,5 +210,10 @@
 
 ::-ms-input-placeholder { /* Microsoft Edge */
   color: black;
+}
+.hovering {
+  -ms-transform: scale(1.2); /* IE 9 */
+  -webkit-transform: scale(1.2); /* Safari 3-8 */
+  transform: scale(1.2);
 }
 </style>
