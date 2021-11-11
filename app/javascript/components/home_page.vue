@@ -1,37 +1,41 @@
 <template>
-  <div class="main_div">
-    <h1 class="main_heading"></h1>
-    <div class="box_shadow box main_box">
-      <select class="selectPicker" v-model="selectedType">
-        <option v-for="t in mindmapTypes" :value="t.key">{{ t.value }}</option>
-      </select>
-      <div class="row w_10">
-        <div class="offset-3 col-6 new_button_container">
-          <button @click.stop="createNewMap" class="btn_2 new_button pointer">
-          <i class="material-icons mr-1">add</i> Create New Map</button>
+  <div>
+    <div class="main_div">
+      <h1 class="main_heading"></h1>
+      <div class="box_shadow box main_box">
+        <select class="selectPicker" v-model="selectedType">
+          <option v-for="t in mindmapTypes" :value="t.key">{{ t.value }}</option>
+        </select>
+        <div class="row w_10">
+          <div class="offset-3 col-6 new_button_container">
+            <button @click.stop="createNewMap" class="btn_2 new_button pointer">
+            <i class="material-icons mr-1">add</i> Create New Map</button>
+          </div>
         </div>
-      </div>
-      <div class="row w_10">
-        <div class="col-12 input_label">
-          <h4>Or create/open a Map with the unique key</h4>
-        </div>
-        <div class="offset-2 col-8">
-          <div class="input-group md-form form-sm form-1 pl-0">
-            <input class="form-control my-0 py-1" type="text" v-model="mapName" placeholder="Please enter Map unique key">
-            <div class="input-group-prepend">
-              <span @click="openOrCreateMap" class="add_icon_span input-group-text lighten-3 pointer" id="basic-text1">
-                <i class="material-icons mr-1">done</i>
-              </span>
+        <div class="row w_10">
+          <div class="col-12 input_label">
+            <h4>Or create/open a Map with the unique key</h4>
+          </div>
+          <div class="offset-2 col-8">
+            <div class="input-group md-form form-sm form-1 pl-0">
+              <input class="form-control my-0 py-1" type="text" v-model="mapName" placeholder="Please enter Map unique key" autocomplete="new-password">
+              <div class="input-group-prepend">
+                <span @click="openOrCreateMap" class="add_icon_span input-group-text lighten-3 pointer" id="basic-text1">
+                  <i class="material-icons mr-1">done</i>
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <home-password-modal ref="home-password-modal" @passwordCheck="passwordCheck"></home-password-modal>
   </div>
 </template>
 
 <script>
   import http from '../common/http'
+  import HomePasswordModal from '../common/modals/home_password_modal'
   export default {
     data() {
       return {
@@ -42,10 +46,14 @@
           { key: 'simple', value: 'Mindmap' },
           { key: 'kanban', value: 'Kanban' },
           { key: 'tree_map', value: 'TreeMap' }
-        ]
+        ],
+        password:"",
+        mindmap:{}
       }
     },
-
+    components:{
+      HomePasswordModal
+    },
     methods: {
       createNewMap() {
         http.post(`/mindmaps.json`, { mindmap: { name: "Central Idea", mm_type: this.selectedType } }).then((res) => {
@@ -62,7 +70,13 @@
         }
 
         http.get(`/mindmaps/find_or_create.json?key=${this.mapName}`).then((res) => {
-          window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
+          if (!res.data.mindmap.password)
+            {window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")}
+          else{
+            this.mindmap_unique = res.data.mindmap.unique_key
+            this.$refs['home-password-modal'].$refs['homePasswordModal'].open()
+            return
+          }
         }).catch((error) => {
           alert("Unable to open/create mindmap with this name. Please try again changing the name.")
           console.log(error)
@@ -70,6 +84,15 @@
       },
       openMindMap(key) {
         window.open(`/mindmaps/${key}`, "_self")
+      },
+      passwordCheck(password){
+        http.get(`/mindmaps/${this.mindmap_unique}.json?password_check=${password}`).then((res)=>{
+          window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
+          this.mindmap={}
+        }).catch(error=>{
+          alert("Wrong Password Entered. Kindly Enter Correct Password to access Mindmap")
+          console.log(error)
+        })
       }
     }
   }

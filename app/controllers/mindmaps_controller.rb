@@ -1,12 +1,12 @@
 class MindmapsController < AuthenticatedController
-  before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
-  before_action :set_access_user
+  #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
+  #before_action :set_access_user
   before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap]
-
+  before_action :check_password, only:[:show]
   def index; end
 
   def new
-    @mindmap = current_user.mindmaps.new(name: "Central Idea")
+    @mindmap = Mindmap.new(name: "Central Idea")
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
@@ -14,7 +14,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def create
-    @mindmap = current_user.mindmaps.create(mindmap_params)
+    @mindmap = Mindmap.create(mindmap_params)
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { }
@@ -31,6 +31,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def show
+    session[:mindmap_id]=@mindmap.id
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json } }
       format.html { render action: 'index' }
@@ -49,7 +50,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def find_or_create
-    @mindmap = current_user.mindmaps.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
+    @mindmap = Mindmap.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
     respond_to do |format|
       format.json { render json: {success: true, mindmap: @mindmap}}
       format.html { }
@@ -104,7 +105,19 @@ class MindmapsController < AuthenticatedController
 
   def set_mindmap
     @mindmap = Mindmap.find_by(unique_key: params[:id])
-    check_auth
+    #check_auth
+  end
+
+  def check_password
+    if session[:mindmap_id] == @mindmap.id
+      return
+    elsif @mindmap.password
+      if params[:password_check]
+        render json:{error:"Wrong Password Entered. Kindly Enter Correct Password to Enter Mindmap"} unless @mindmap.check_password(params[:password_check])
+      else
+        redirect_to root_path, alert:"Sorry Kindly Provide Access Password for this Mconcept Map"
+      end
+    end
   end
 
   def check_auth
@@ -121,6 +134,7 @@ class MindmapsController < AuthenticatedController
       :name,
       :mm_type,
       :description,
+      :password,
       node_files: []
     )
   end

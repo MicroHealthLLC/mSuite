@@ -1,9 +1,13 @@
 <template>
   <div v-if="!loading">
-    <nav class="navbar navbar-light navbar-background">
+    <nav class="navbar navbar-light navbar-background d-block">
       <a class="navbar-brand" href="#" @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
+      <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
+          <i class="fas fa-shield-alt"></i>
+          Make Private
+      </button>
       <div class="float-right pt-2 pr-2">
         <button role="button" class="btn btn-success" @click.prevent="addStage">
           <i class="fas fa-plus"></i>
@@ -47,9 +51,27 @@
       </kanban-board>
     </div>
     <add-stage-to-kanban ref="add-stage-to-kanban" @stage-added="addStageToMindmap"></add-stage-to-kanban>
-    <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
-    <edit-stage ref="edit-stage" @stage-edit="editStageTitle" :stage="stage"></edit-stage>
-    <edit-block ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
+    <add-block-to-stage
+      ref="add-block-to-stage"
+      @block-added="addBlockToStage">
+    </add-block-to-stage>
+
+    <edit-stage ref="edit-stage"
+      @stage-edit="editStageTitle"
+      :stage="stage">
+    </edit-stage>
+
+    <edit-block
+      ref="edit-block"
+      @block-edit="updateBlock"
+      @block-delete="deleteBlock"
+      :block="block">
+    </edit-block>
+
+    <make-private-modal
+      ref="make-private-modal"
+      @password-apply="passwordProtect"
+    ></make-private-modal>
   </div>
 </template>
 
@@ -60,6 +82,7 @@
   import AddBlockToStage from './modals/add_block_to_stage'
   import editStage from './modals/edit_stage'
   import editBlock from './modals/edit_block'
+  import MakePrivateModal from "../../common/modals/make_private_modal"
   Vue.use(vueKanban)
   export default {
     props: ['currentMindMap'],
@@ -67,7 +90,8 @@
       AddStageToKanban,
       AddBlockToStage,
       editStage,
-      editBlock
+      editBlock,
+      MakePrivateModal
     },
     data() {
       return {
@@ -276,7 +300,17 @@
         this.blocks.filter(b => b.stage_id == stage.id).map((b) => {
           b.status = stage.title
         })
-      }
+      },
+      openPrivacy() {
+        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordProtect(password){
+        http
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}`,{mindmap:{password:password}})
+        .then(res=>{
+          this.currentMindMap.password = res.data.mindmap.password
+        })
+      },
     }
   }
 </script>

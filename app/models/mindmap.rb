@@ -1,4 +1,9 @@
+require 'bcrypt'
+
 class Mindmap < ApplicationRecord
+  include ActiveModel::Dirty
+  include BCrypt
+
   belongs_to :user, optional: true
   belongs_to :category, optional: true
 
@@ -20,6 +25,7 @@ class Mindmap < ApplicationRecord
   enum mm_type: { simple: 0, kanban: 1, flow_chart: 2, tree_map: 3 }
 
   cattr_accessor :access_user
+  before_update :hash_password, if: :will_save_change_to_password?
 
   def to_json
     attach_files = []
@@ -46,6 +52,10 @@ class Mindmap < ApplicationRecord
     ).as_json
   end
 
+  def check_password(password)
+    Password.new(self.password) == password
+  end
+
   def compute_child
     center_node = { "id"=> 0, "name"=> self.name, "children"=> [] }
     compute_child_nodes(center_node)
@@ -63,6 +73,10 @@ class Mindmap < ApplicationRecord
 
   def editable?
     access_user.try(:admin?) || (user.try(:id) === access_user.try(:id)) || (shared_users.pluck(:user_id).include?(access_user.try(:id)))
+  end
+
+  def hash_password
+    self.password = Password.create(self.password)
   end
 
   private

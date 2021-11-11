@@ -11,6 +11,15 @@
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
           </a>
+          <a
+            href="javascript:;"
+            role="button"
+            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.stop="openPrivacy"
+          >
+            <i class="fas fa-shield-alt icons d-flex center_flex"></i>
+            <span class="fa-icon-text">Make Private</span>
+          </a>
         </span>
         <span v-if="currentMindMap.editable" class="ml_14">
           <a
@@ -204,6 +213,11 @@
       @nullify-attachment-modals="nullifyAttachmentModal"
     ></export-to-word-modal>
 
+    <make-private-modal
+      ref="make-private-modal"
+      @password-apply="passwordProtect"
+    ></make-private-modal>
+
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
@@ -224,6 +238,7 @@
   import CentralAttachmentModal from "./modals/central_attachment_modal"
   import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
+  import MakePrivateModal from "../../common/modals/make_private_modal"
   import http from "../../common/http"
 
   export default {
@@ -235,7 +250,8 @@
       AttachmentModal,
       CentralAttachmentModal,
       ConfirmSaveKeyModal,
-      ExportToWordModal
+      ExportToWordModal,
+      MakePrivateModal
     },
 
     data() {
@@ -864,7 +880,16 @@
             consoel.log(err)
           })
       },
-
+      openPrivacy() {
+        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordProtect(password){
+        http
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}`,{mindmap:{password:password}})
+        .then(res=>{
+          this.currentMindMap.password = res.data.mindmap.password
+        })
+      },
       // =============== Map CRUD OPERATIONS =====================
 
       // =============== OTHERS =====================

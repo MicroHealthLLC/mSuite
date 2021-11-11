@@ -307,6 +307,7 @@ a:hover, .btn1:hover, .btn2:hover {
 .material-icons.home_icon::before{
   content:"home";
 }
+
 .edit_delete_btn:hover .home_icon::before{
   text-transform: capitalize;
   font-family: sans-serif;
@@ -314,6 +315,10 @@ a:hover, .btn1:hover, .btn2:hover {
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
+}
+
+.material-icons.security_icon::before{
+  content:"security";
 }
 .material-icons.delete_icon::before{
   content:"delete";

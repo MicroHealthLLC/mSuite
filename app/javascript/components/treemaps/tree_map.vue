@@ -1,9 +1,13 @@
 <template>
   <div>
-    <nav class="navbar navbar-light navbar-background">
+    <nav class="navbar navbar-light navbar-background d-block">
       <a class="navbar-brand" href="#" @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
+      <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
+          <i class="fas fa-shield-alt"></i>
+          Make Private
+      </button>
       <div class="float-right pt-2 pr-2">
         <button role="button" class="btn btn-info" @click.prevent="addedTreeMap">
           <i class="fas fa-plus"></i>
@@ -28,6 +32,10 @@
     <add-node ref="add-node" :treeMap="currentMindMap" :nodes="nodes" @saveNode="submitChildNode"></add-node>
     <update-tree-map ref="update-tree-map" :treeMaps="currentMindMap" @updateTreeMap="updateTreeMaps"></update-tree-map>
     <update-node ref="update-node" :nodes="nodes" @updatedNode="updateSelectedNode" @deleteNode="deleteSelectedNode"></update-node>
+    <make-private-modal
+      ref="make-private-modal"
+      @password-apply="passwordProtect"
+    ></make-private-modal>
   </div>
 </template>
 
@@ -38,15 +46,17 @@
   import AddNode from './modals/add_node'
   import UpdateNode from './modals/update_node'
   import UpdateTreeMap from './modals/update_tree_map'
-
+  import MakePrivateModal from "../../common/modals/make_private_modal"
   export default {
     components: {
     // Adding imported widgets here
       JqxTreeMap,
       AddNode,
       UpdateNode,
-      UpdateTreeMap
+      UpdateTreeMap,
+      MakePrivateModal
     },
+    props:['currentMindMap'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
@@ -156,7 +166,17 @@
         this.treemap_data = []
         this.treemap_data = array_nodes
         this.$refs.myTreeMap.source = this.treemap_data
-      }
+      },
+      openPrivacy() {
+        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordProtect(password){
+        http
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}`,{mindmap:{password:password}})
+        .then(res=>{
+          this.currentMindMap.password = res.data.mindmap.password
+        })
+      },
     }
   }
 </script>
