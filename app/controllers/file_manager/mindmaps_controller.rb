@@ -1,5 +1,7 @@
 class FileManager::MindmapsController < AuthenticatedController
   layout "file_manager"
+  before_action :authenticate_user!
+  before_action :require_admin
   before_action :set_resource, except: [:index]
 
   def index

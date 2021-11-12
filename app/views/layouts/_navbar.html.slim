@@ -11,21 +11,21 @@ nav#nav-wrap.navbar.navbar-expand-lg.blue-gradient.navbar-light.bg-light
 
 
     ul.navbar-nav.my-2.my-lg-0
-      -if user_signed_in?
-        -if current_user.admin?
-          li.nav-item
-            =link_to admin_root_path, class: "nav-link", data: { turbolinks: false } do
-              | Admin Panel
-        li.nav-item
-            =link_to file_manager_path, class: "nav-link", data: { turbolinks: false } do
-              | File Manager
-        li.nav-item
-          =link_to destroy_user_session_path, method: :delete, class: "nav-link" do
-            | Log out
-      -else
-        li.nav-item
-          =link_to new_user_session_path, class: "nav-link" do
-            | Log in
-        li.nav-item
-          =link_to new_user_registration_path, class: "nav-link" do
-            | Sign up
+       -if user_signed_in?
+         -if current_user.admin?
+            li.nav-item
+             =link_to destroy_user_session_path, method: :delete, class: "nav-link" do
+              | Log out
+    /       li.nav-item
+    /         =link_to admin_root_path, class: "nav-link", data: { turbolinks: false } do
+    /           | Admin Panel
+    /     li.nav-item
+    /         =link_to file_manager_path, class: "nav-link", data: { turbolinks: false } do
+    /           | File Manager
+    /   -else
+    /     li.nav-item
+    /       =link_to new_user_session_path, class: "nav-link" do
+    /         | Log in
+    /     li.nav-item
+    /       =link_to new_user_registration_path, class: "nav-link" do
+    /         | Sign up

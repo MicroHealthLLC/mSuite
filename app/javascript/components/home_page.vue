@@ -45,7 +45,6 @@
         ]
       }
     },
-
     methods: {
       createNewMap() {
         http.post(`/mindmaps.json`, { mindmap: { name: "Central Idea", mm_type: this.selectedType } }).then((res) => {
@@ -62,7 +61,7 @@
         }
 
         http.get(`/mindmaps/find_or_create.json?key=${this.mapName}`).then((res) => {
-          window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
+          {window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")}
         }).catch((error) => {
           alert("Unable to open/create mindmap with this name. Please try again changing the name.")
           console.log(error)

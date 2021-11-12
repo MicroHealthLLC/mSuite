@@ -11,6 +11,15 @@
           >
             <i class="material-icons home_icon icons d-flex center_flex"></i>
           </a>
+          <a
+            href="javascript:;"
+            role="button"
+            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.stop="openPrivacy"
+          >
+            <i class="fas fa-shield-alt icons d-flex center_flex"></i>
+            <span class="fa-icon-text">Make Private</span>
+          </a>
         </span>
         <span v-if="currentMindMap.editable" class="ml_14">
           <a
@@ -204,6 +213,19 @@
       @nullify-attachment-modals="nullifyAttachmentModal"
     ></export-to-word-modal>
 
+    <make-private-modal
+      ref="make-private-modal"
+      @password-apply="passwordProtect"
+      :password="currentMindMap.password"
+    ></make-private-modal>
+    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
+      Incorrect Password, Please Try Again!
+    </sweet-modal>
+
+    <sweet-modal ref="successModal" class="of_v" icon="success">
+      Password updated successfully!
+    </sweet-modal>
+
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
@@ -224,6 +246,7 @@
   import CentralAttachmentModal from "./modals/central_attachment_modal"
   import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
+  import MakePrivateModal from "../../common/modals/make_private_modal"
   import http from "../../common/http"
 
   export default {
@@ -235,7 +258,8 @@
       AttachmentModal,
       CentralAttachmentModal,
       ConfirmSaveKeyModal,
-      ExportToWordModal
+      ExportToWordModal,
+      MakePrivateModal
     },
 
     data() {
@@ -864,7 +888,22 @@
             consoel.log(err)
           })
       },
-
+      openPrivacy() {
+        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordProtect(new_password, old_password){
+        http
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
+        .then(res=>{
+          if (res.data.mindmap) {
+            this.currentMindMap.password = res.data.mindmap.password
+            this.$refs['successModal'].open()
+          }
+          else {
+            this.$refs['errorModal'].open()
+          }
+        })
+      },
       // =============== Map CRUD OPERATIONS =====================
 
       // =============== OTHERS =====================
