@@ -1,35 +1,21 @@
 <template>
   <div>
-    <sweet-modal ref="addBlockToStage" id="add_block" class="of_v">
-      <div class="d-grid">
-        <div>
-          <i class="material-icons float-left mr-2">
-            description
-          </i>
-          <h4 class="float-left">Title</h4>
-        </div>
-        <div>
-          <input type="text" v-model="title_block" class="form-control" placeholder="Title" />
-        </div>
-      <div class="d-flex mt-2">
-        <div>
-          <i class="material-icons float-left mr-2">
-            toc
-          </i>
-          <h4 class="float-left">Description</h4>
-        </div>
-      </div>
-      <div>
-        <textarea v-model="description_block" class="form-control"  placeholder="Place Some Value Here"></textarea>
-      </div>
+    <sweet-modal ref="addBlockToStage" id="add_block" class="of_v" title="Add Task">
+    <div>
+      <b-row class="mb-2 align-items-center">
+        <b-col cols="2"><span class="float-left align-self-center font-weight-bold">Title</span></b-col>
+        <b-col cols="10">
+          <input type="text" v-model="title_block" class="form-control" placeholder="Add a Title of Task" />
+        </b-col>
+      </b-row>
+      <b-row class="align-items-center">
+        <b-col cols="2"><span class="font-weight-bold">Description</span></b-col>
+        <b-col cols="10">
+          <textarea v-model="description_block" class="form-control"  placeholder="Add a Detailed Description"></textarea>
+        </b-col>
+      </b-row>
     </div>
-    <div class="d-flex mt-2">
-      <div @click="block_added" class="pointer edit_buttons">
-        <span class="material-icons float-left delete_size mr-2 ">
-          save
-        </span>Save
-      </div>
-    </div>
+    <button slot="button" @click="block_added"class="btn btn-success" :disabled="title_block.length < 1">Save</button>
     </sweet-modal>
   </div>
 </template>

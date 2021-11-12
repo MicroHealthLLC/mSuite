@@ -16,7 +16,7 @@
       </div>
     </nav>
 
-    <div class="row kanban_board">
+    <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" @update-block="updateBlockPosition">
         <div v-for="stage in computedStages" :slot="stage" class="w-100">
           <div>
@@ -29,19 +29,19 @@
                   <template #button-content>
                     <i class="fas fa-ellipsis-h text-secondary"></i>
                   </template>
-                  <b-dropdown-item @click="editStage(stage)">Edit</b-dropdown-item>
+                  <b-dropdown-item @click="updateStage(stage)">Edit</b-dropdown-item>
                   <b-dropdown-item @click="deleteStage(stage)">Delete</b-dropdown-item>
                 </b-dropdown>
               </div>
             </div>
           </div>
         </div>
-        <div v-for="block in blocks" :slot="block.id" :key="block.id">
-          <div class="d-inline-block w-100 ">
-            <div class="text-dark pointer" @click="editBlockKanban(block)">
-              {{ block.title }}
+        <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
+            <div class="d-inline-block w-100 block">
+              <div class="text-dark pointer" @click="editBlockKanban(block)">
+                {{ block.title }}
+              </div>
             </div>
-          </div>
         </div>
         <div v-for="stage,index in computedStages" :slot="`footer-${stage}`">
           <div @mouseover.self="hover_addtask = index" @mouseleave.self="hover_addtask = false" :class="hover_addtask === index ? 'hover_task' : ''" @click.prevent="addBlock(stage)" class="pointer add-block">
@@ -53,9 +53,8 @@
     <add-stage-to-kanban ref="add-stage-to-kanban" @stage-added="addStageToMindmap"></add-stage-to-kanban>
     <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
 
-    <edit-stage ref="edit-stage" @stage-edit="editStageTitle" :stage="stage"></edit-stage>
-
-    <edit-block ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
+    <edit-stage v-if="stage.title" @stage-edit="editStageTitle" ref="edit-stage" :stage="stage"></edit-stage>
+    <edit-block v-if="block.title" ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" :password="currentMindMap.password"></make-private-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
@@ -71,12 +70,15 @@
 <script>
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
+  import {deepclone} from 'lodash'
   import AddStageToKanban from './modals/add_stage_to_kanban'
   import AddBlockToStage from './modals/add_block_to_stage'
   import editStage from './modals/edit_stage'
   import editBlock from './modals/edit_block'
   import MakePrivateModal from "../../common/modals/make_private_modal"
-  Vue.use(vueKanban)
+  var autoScroll = require('dom-autoscroller');
+  Vue.use(vueKanban);
+
   export default {
     props: ['currentMindMap'],
     components:{
@@ -100,6 +102,21 @@
     mounted() {
       this.getAllStages()
       this.getAllNodes()
+      setTimeout(()=>{
+        var elements = Array.from(document.querySelectorAll(".drag-inner-list,#kanban-board"));
+        autoScroll(
+          elements,
+          {
+            margin: 20,
+            maxSpeed: 7,
+            scrollWhenOutside: true,
+            autoScroll: function(){
+                //Only scroll when the pointer is down, and there is a child being dragged.
+               return this.down
+            }
+          }
+        );
+      },1000)
     },
     computed: {
       computedStages() {
@@ -118,7 +135,6 @@
           console.log(err)
         })
       },
-
       getAllNodes(){
         http
         .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
@@ -182,7 +198,8 @@
         http
         .patch(`/nodes/${id}.json`,block)
         .then((res)=>{
-          this.blocks.find(b => b.id === res.data.node.id).status = res.data.node.status;
+          let block_id = this.blocks.findIndex(b => b.id === Number(id))
+          this.blocks[block_id].index = res.data.node.position
         })
         .catch(err => {
           console.log(err)
@@ -224,10 +241,13 @@
         .catch(error => {console.log(error)})
       },
 
-      editStage(stage){
+      updateStage(stage){
         if (this.currentMindMap.editable) {
-          this.stage=this.allStages.find(st=>st.title===stage)
-          this.$refs['edit-stage'].$refs['editStageKanban'].open()
+            this.stage = this.allStages.find(stg=>stg.title===stage)
+            setTimeout(()=>{
+              this.$refs['edit-stage'].$refs['editStageKanban'].open()
+            })
+
         }
       },
 
@@ -237,12 +257,13 @@
             title: stage.title
           }
         }
-
         http
         .patch(`/stages/${stage.id}.json`, data)
         .then(result => {
           let index = this.allStages.findIndex(stg => stg.id === result.data.stage.id)
-          if (index > -1) this.allStages[index] = result.data.stage
+          if (index > -1) {
+            Vue.set(this.allStages[index], 'title', result.data.stage.title)
+          }
           this.updateStageTasks(stage.id)
         })
       },
@@ -250,7 +271,9 @@
       editBlockKanban(block){
         if (this.currentMindMap.editable) {
           this.block=block
-          this.$refs['edit-block'].$refs['editBlockKanban'].open()
+          setTimeout(()=>{
+            this.$refs['edit-block'].$refs['editBlockKanban'].open()
+          })
         }
       },
 
@@ -260,7 +283,8 @@
         http
         .patch(`/nodes/${id}.json`,node)
         .then((res)=>{
-          this.blocks.find(b => b.id === res.data.node.id).title = res.data.node.title;
+          let index = this.blocks.findIndex(b => b.id === res.data.node.id)
+          Vue.set(this.blocks,index,res.data.node)
         })
         .catch(err => {
           console.log(err)
@@ -287,7 +311,6 @@
       goHome(){
         window.open('/',"_self")
       },
-
       updateStageTasks(stageId) {
         let stage = this.allStages.find(s => s.id === stageId)
         this.blocks.filter(b => b.stage_id == stage.id).map((b) => {

@@ -1,14 +1,17 @@
 <template>
   <div class="main_div">
-    <h1 class="main_heading"></h1>
+    <h1 class="main_heading">mConcept Maps</h1>
     <div class="box_shadow box main_box">
-      <select class="selectPicker" v-model="selectedType">
-        <option v-for="t in mindmapTypes" :value="t.key">{{ t.value }}</option>
-      </select>
-      <div class="row w_10">
-        <div class="offset-3 col-6 new_button_container">
-          <button @click.stop="createNewMap" class="btn_2 new_button pointer">
-          <i class="material-icons mr-1">add</i> Create New Map</button>
+      <div class="w-100 text-center mb-3">
+         <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="Enter name of Concept Map here then select map type below">
+      </div>
+      <div class="row container pl-0">
+        <div v-for="type in mindmapTypes">
+          <div class="col mr-4 item" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
+            <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
+            />
+            <span class="mr-2 text-center">{{type.value}}</span>
+          </div>
         </div>
       </div>
       <div class="row w_10">
@@ -37,17 +40,19 @@
       return {
         mapName: "",
         mapsArr: [],
+        mindmapName:"",
+        hovered:false,
         selectedType: 'simple',
         mindmapTypes: [
-          { key: 'simple', value: 'Mindmap' },
-          { key: 'kanban', value: 'Kanban' },
-          { key: 'tree_map', value: 'TreeMap' }
+          { key: 'simple', value: 'Mindmap', imgsrc: "/assets/mindmap_main_menu.png" },
+          { key: 'kanban', value: 'Kanban', imgsrc: "/assets/kanban_main_menu.png"  },
+          { key: 'tree_map', value: 'Tree Map', imgsrc: "/assets/tree_map_main_menu.png"  }
         ]
       }
     },
     methods: {
       createNewMap() {
-        http.post(`/mindmaps.json`, { mindmap: { name: "Central Idea", mm_type: this.selectedType } }).then((res) => {
+        http.post(`/mindmaps.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type: this.selectedType } }).then((res) => {
           window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
         }).catch((error) => {
           alert("Unable to open/create mindmap.")
@@ -69,6 +74,10 @@
       },
       openMindMap(key) {
         window.open(`/mindmaps/${key}`, "_self")
+      },
+      mindMapCreate(key) {
+        this.selectedType = key
+        this.createNewMap()
       }
     }
   }
@@ -82,12 +91,13 @@
   background-image: linear-gradient(grey, white);
 }
 .main_heading {
-  font-family: fantasy;
-  margin: 12vh;
-  text-decoration: underline;
+  font-family: 'Montserrat', sans-serif;
+  margin: 8vh;
+  text-align: center;
 }
 .main_box {
-  margin-left: 25%;
+  margin-left: auto;
+  margin-right: auto;
   width: 50%;
   height: max-content;
   background-image: linear-gradient(white, grey);
@@ -171,5 +181,39 @@
   margin-right: auto;
   margin-bottom: 20px;
   height: 30px;
+}
+.mindmap-img-size {
+  width: 80px;
+  height: 80px;
+}
+.item {
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 120px;
+  cursor: pointer;
+}
+.mindmap-name {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 10px;
+}
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: black;
+  opacity: 0.25; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: black;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: black;
+}
+.hovering {
+  -ms-transform: scale(1.2); /* IE 9 */
+  -webkit-transform: scale(1.2); /* Safari 3-8 */
+  transform: scale(1.2);
 }
 </style>

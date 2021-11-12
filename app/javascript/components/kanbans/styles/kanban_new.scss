@@ -16,15 +16,18 @@ ul.drag-list, ul.drag-inner-list {
 .drag-column {
   flex: 1;
   margin: 0 5px;
-  position: relative;
   background-color: #ebecf0;
   border-radius: 0.25rem !important;
-  max-height: 85vh;
+  flex-direction: column;
+  max-height: 100%;
+  position: relative;
+  white-space: normal;
 }
 
 .drag-column h2 {
   font-size: 1.0rem;
   margin: 0;
+  max-height: 100%;
   text-transform: uppercase;
   font-weight: 600;
   word-break: break-word;
@@ -39,11 +42,12 @@ ul.drag-list, ul.drag-inner-list {
   padding-bottom: 0px;
 }
 
-.drag-inner-list {
+ul.drag-inner-list {
   color: white;
   min-height: 10px;
   max-height: 70vh;
-  overflow-y: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .drag-item {
@@ -128,7 +132,8 @@ ul.drag-list, ul.drag-inner-list {
 }
 
 .delete_size {
-  font-size: 20px
+  font-size: 19px;
+  margin-top: 0.1rem;
 }
 .editable {
   border-color: blue;
@@ -175,33 +180,13 @@ ul.drag-list, ul.drag-inner-list {
   background-color: #c7c7c7;
 }
 
-.edit_buttons {
-  background-color: #D3D3D3;
-  border: none;
-  border-radius: 3px;
-  box-shadow: none;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: block;
-  height: 32px;
-  margin-top: 8px;
-  max-width: 300px;
-  overflow: hidden;
-  padding: 6px 12px;
-  position: relative;
-  text-decoration: none;
-  text-overflow: ellipsis;
-  transition-duration: 85ms;
-  transition-property: background-color,border-color,box-shadow;
-  transition-timing-function: ease;
-  -webkit-user-select: none;
-  user-select: none;
-  white-space: nowrap;
-}
 
 .d-grid {
   display: grid;
 }
 .menu-dropdown {
   top: -27px !important;
+}
+.bg-lg {
+  background-color: lightgreen;
 }

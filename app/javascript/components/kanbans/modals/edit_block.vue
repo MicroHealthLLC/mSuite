@@ -1,40 +1,22 @@
 <template>
   <div>
-  <sweet-modal ref="editBlockKanban">
-    <div class="d-grid">
-      <div>
-        <i class="material-icons float-left mr-2">
-          description
-        </i>
-        <h4 class="float-left">Title</h4>
-      </div>
-      <div>
-        <input v-model="block.title" class="form-control" placeholder="Title" />
-      </div>
-      <div class="d-flex mt-2">
-        <div>
-          <i class="material-icons float-left mr-2">
-            toc
-          </i>
-          <h4 class="float-left">Description</h4>
-        </div>
-      </div>
-      <div>
-        <textarea v-model="block.description" class="form-control " placeholder="Description"></textarea>
-      </div>
+  <sweet-modal ref="editBlockKanban" title="Edit Task" @open="openedModalBlock">
+    <div>
+      <b-row class="mb-2 align-items-center">
+        <b-col cols="2"><span class="float-left align-self-center font-weight-bold">Title</span></b-col>
+        <b-col cols="10">
+          <input type="text" v-model="block_update.title" class="form-control" placeholder="Add a Title of Task" />
+        </b-col>
+      </b-row>
+      <b-row class="align-items-center">
+        <b-col cols="2"><span class="font-weight-bold">Description</span></b-col>
+        <b-col cols="10">
+          <textarea v-model="block_update.description" class="form-control"  placeholder="Add a Detailed Description"></textarea>
+        </b-col>
+      </b-row>
     </div>
-    <div class="d-flex mt-2">
-      <div @click="block_delete" class="edit_buttons pointer mr-2">
-        <i class="material-icons float-left delete_size mr-2">
-          delete
-        </i>Delete Task
-      </div>
-      <div @click="block_edit" class="pointer edit_buttons">
-        <span class="material-icons float-left delete_size mr-2 ">
-          save
-        </span>Save Task
-      </div>
-    </div>
+    <button slot="button" @click="block_edit"class="btn btn-success mr-2" :disabled="EmptyTitle">Save</button>
+    <button slot="button" @click="block_delete" class="btn btn-danger">Delete</button>
   </sweet-modal>
   </div>
 </template>
@@ -46,7 +28,13 @@
     data(){
       return{
         editable_title: false,
-        editable_description: false
+        editable_description: false,
+        block_update:{}
+      }
+    },
+    computed:{
+      EmptyTitle(){
+        return this.block_update.title < 1 ? true : false
       }
     },
     methods:{
@@ -59,8 +47,11 @@
         this.$refs.editBlockKanban.close()
       },
       block_edit() {
-        this.$emit('block-edit',this.block)
+        this.$emit('block-edit',this.block_update)
         this.$refs.editBlockKanban.close()
+      },
+      openedModalBlock(){
+        this.block_update = JSON.parse(JSON.stringify(this.block))
       },
     }
   }
