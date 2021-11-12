@@ -22,18 +22,21 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    @mindmap.update(mindmap_params)
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
-    respond_to do |format|
-      format.json { render json: {mindmap: @mindmap.to_json}}
-      format.html { }
+    if (@mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) &&
+        params[:mindmap][:password].present?) ||
+        (@mindmap.password.blank? && params[:mindmap][:password].present?)
+      @mindmap.update(mindmap_params)
+      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
+      respond_to do |format|
+        format.json { render json: {mindmap: @mindmap.to_json}}
+        format.html { }
+      end
     end
   end
 
   def show
-    session[:mindmap_id]=@mindmap.id
     respond_to do |format|
-      format.json { render json: { mindmap: @mindmap.to_json } }
+      format.json { render json: { mindmap: @mindmap.to_json, is_verified: @is_verified } }
       format.html { render action: 'index' }
     end
   end
@@ -109,13 +112,15 @@ class MindmapsController < AuthenticatedController
   end
 
   def check_password
+    @is_verified = true
     if session[:mindmap_id] == @mindmap.id
       return
-    elsif @mindmap.password
+    elsif @mindmap.password.present?
       if params[:password_check]
-        render json:{error:"Wrong Password Entered. Kindly Enter Correct Password to Enter Mindmap"} unless @mindmap.check_password(params[:password_check])
+        @is_verified = @mindmap.check_password(params[:password_check])
+        session[:mindmap_id] = @mindmap.id if @is_verified
       else
-        redirect_to root_path, alert:"Sorry Kindly Provide Access Password for this Mconcept Map"
+        @is_verified = false
       end
     end
   end

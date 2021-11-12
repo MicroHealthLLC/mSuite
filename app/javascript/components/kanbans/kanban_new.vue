@@ -51,27 +51,20 @@
       </kanban-board>
     </div>
     <add-stage-to-kanban ref="add-stage-to-kanban" @stage-added="addStageToMindmap"></add-stage-to-kanban>
-    <add-block-to-stage
-      ref="add-block-to-stage"
-      @block-added="addBlockToStage">
-    </add-block-to-stage>
+    <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
 
-    <edit-stage ref="edit-stage"
-      @stage-edit="editStageTitle"
-      :stage="stage">
-    </edit-stage>
+    <edit-stage ref="edit-stage" @stage-edit="editStageTitle" :stage="stage"></edit-stage>
 
-    <edit-block
-      ref="edit-block"
-      @block-edit="updateBlock"
-      @block-delete="deleteBlock"
-      :block="block">
-    </edit-block>
+    <edit-block ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
 
-    <make-private-modal
-      ref="make-private-modal"
-      @password-apply="passwordProtect"
-    ></make-private-modal>
+    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" :password="currentMindMap.password"></make-private-modal>
+    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
+      Incorrect Password, Please Try Again!
+    </sweet-modal>
+
+    <sweet-modal ref="successModal" class="of_v" icon="success">
+      Password updated successfully!
+    </sweet-modal>
   </div>
 </template>
 
@@ -304,11 +297,17 @@
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
-      passwordProtect(password){
+      passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}`,{mindmap:{password:password}})
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
         .then(res=>{
-          this.currentMindMap.password = res.data.mindmap.password
+          if (res.data.mindmap) {
+            this.currentMindMap.password = res.data.mindmap.password
+            this.$refs['successModal'].open()
+          }
+          else {
+            this.$refs['errorModal'].open()
+          }
         })
       },
     }

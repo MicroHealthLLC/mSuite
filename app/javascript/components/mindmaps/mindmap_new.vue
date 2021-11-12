@@ -216,7 +216,15 @@
     <make-private-modal
       ref="make-private-modal"
       @password-apply="passwordProtect"
+      :password="currentMindMap.password"
     ></make-private-modal>
+    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
+      Incorrect Password, Please Try Again!
+    </sweet-modal>
+
+    <sweet-modal ref="successModal" class="of_v" icon="success">
+      Password updated successfully!
+    </sweet-modal>
 
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
@@ -883,11 +891,17 @@
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
-      passwordProtect(password){
+      passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}`,{mindmap:{password:password}})
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
         .then(res=>{
-          this.currentMindMap.password = res.data.mindmap.password
+          if (res.data.mindmap) {
+            this.currentMindMap.password = res.data.mindmap.password
+            this.$refs['successModal'].open()
+          }
+          else {
+            this.$refs['errorModal'].open()
+          }
         })
       },
       // =============== Map CRUD OPERATIONS =====================

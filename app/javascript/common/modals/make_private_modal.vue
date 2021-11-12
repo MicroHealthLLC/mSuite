@@ -5,34 +5,37 @@
         <i class="material-icons">security</i>
       </div>
     </div>
-    <div class="d-grid">
-        <div>
-          <h4 class="float-left">PASSWORD PROTECT</h4>
-        </div>
-        <div>
-          <input type="password" v-model="password" class="form-control" placeholder="Insert Password to Protect Mindmap" autocomplete="new-password"/>
-        </div>
-      </div>
-    <div class="d-flex mt-2">
-      <button @click="private_password" class="btn btn-success">
-        Save
-      </button>
+
+    <h4 class="float-left">PASSWORD PROTECT</h4>
+
+    <div v-if="password">
+      <input type="password" v-model="old_password" class="form-control" placeholder="Insert Old password"/>
+      <br/>
     </div>
+
+    <div>
+      <input type="password" v-model="new_password" class="form-control" placeholder="Insert new password"/>
+    </div>
+
+    <button slot="button" @click="private_password" class="btn btn-success"> Save </button>
   </sweet-modal>
 </template>
 <script>
 
   export default{
     name:"makePrivateModal",
+    props:['password'],
     data(){
       return{
-        password:""
+        old_password: "",
+        new_password: ""
       }
     },
     methods:{
-     private_password(){
-        this.$emit("password-apply",this.password)
-        this.password=""
+      private_password(){
+        this.$emit("password-apply", this.new_password, this.old_password)
+        this.new_password = ""
+        this.old_password = ""
         this.$refs['makePrivateModal'].close();
       }
     }

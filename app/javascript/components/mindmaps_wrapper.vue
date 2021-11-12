@@ -16,17 +16,20 @@
   import MindmapView from "./mindmaps/mindmap_new"
   import KanbanView from "./kanbans/kanban_new"
   import TreeMap from "./treemaps/tree_map"
+  import PasswordView from "./password_view"
 
   export default {
     components: {
       MindmapView,
       KanbanView,
-      TreeMap
+      TreeMap,
+      PasswordView
     },
     data() {
       return {
         loading: true,
-        currentMindMap: {}
+        currentMindMap: {},
+        is_verified: false
       }
     },
     mounted() {
@@ -36,13 +39,18 @@
     },
     computed: {
       viewIs() {
-        switch (this.currentMindMap.mm_type) {
-          case "kanban":
-            return "KanbanView"
-          case "tree_map":
-            return "TreeMap"
-          default:
-            return "MindmapView"
+        if (this.is_verified) {
+          switch (this.currentMindMap.mm_type) {
+            case "kanban":
+              return "KanbanView"
+            case "tree_map":
+              return "TreeMap"
+            default:
+              return "MindmapView"
+          }
+        }
+        else {
+          return "PasswordView"
         }
       }
     },
@@ -52,6 +60,7 @@
           .get(`/mindmaps/${id}.json`)
           .then((res) => {
             this.currentMindMap = res.data.mindmap
+            this.is_verified = res.data.is_verified
             this.loading = false
           })
       }

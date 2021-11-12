@@ -322,6 +322,7 @@ PLATFORMS
 DEPENDENCIES
   activeadmin
   activeadmin_addons
+  bcrypt
   bootsnap (>= 1.1.0)
   bootstrap (~> 4.3.1)
   byebug
