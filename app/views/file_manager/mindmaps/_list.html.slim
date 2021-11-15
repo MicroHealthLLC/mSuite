@@ -36,6 +36,6 @@ table.table.table-striped
         td scope="row"
           = mindmap.shared_users.map(&:full_name).join(', ')
         td scope="row"
-          - if mindmap.user_id == current_user.id
-            = link_to "<i class='fas fa-edit' title='Edit'></i>".html_safe, edit_file_manager_mindmap_path(mindmap), class: 'text-secondary'
+          /- if mindmap.user_id == current_user.id
+          = link_to "<i class='fas fa-edit' title='Edit'></i>".html_safe, edit_file_manager_mindmap_path(mindmap), class: 'text-secondary'
           = link_to "<i class='fas fa-eye' title='Show'></i>".html_safe, mindmap_path(mindmap.unique_key), class: 'ml-4 text-info'

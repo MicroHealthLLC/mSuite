@@ -41,14 +41,7 @@ class Mindmap < ApplicationRecord
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
       attach_files: attach_files,
-      editable: editable?
-    ).as_json
-  end
-
-  def kanban_to_json
-    self.as_json.merge(
-      nodes: self.nodes.map(&:to_json),
-      editable: editable?
+      editable: true
     ).as_json
   end
 
@@ -71,9 +64,9 @@ class Mindmap < ApplicationRecord
     )
   end
 
-  def editable?
-    access_user.try(:admin?) || (user.try(:id) === access_user.try(:id)) || (shared_users.pluck(:user_id).include?(access_user.try(:id)))
-  end
+  # def editable?
+  #   access_user.try(:admin?) || (user.try(:id) === access_user.try(:id)) || (shared_users.pluck(:user_id).include?(access_user.try(:id)))
+  # end
 
   def hash_password
     self.password = Password.create(self.password)
