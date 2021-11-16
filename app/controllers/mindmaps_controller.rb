@@ -22,15 +22,16 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if (@mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) &&
-        params[:mindmap][:password].present?) ||
-        (@mindmap.password.blank? && params[:mindmap][:password].present?)
-      @mindmap.update(mindmap_params)
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
-      respond_to do |format|
-        format.json { render json: {mindmap: @mindmap.to_json}}
-        format.html { }
+    if params[:mindmap][:password] && params[:mindmap][:old_password]
+      if  !@mindmap.password_update(params[:mindmap][:password], params[:mindmap][:old_password])
+        return
       end
+    end
+    @mindmap.update(mindmap_params)
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
+    respond_to do |format|
+      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.html { }
     end
   end
 

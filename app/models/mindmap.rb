@@ -79,6 +79,10 @@ class Mindmap < ApplicationRecord
     self.password = Password.create(self.password)
   end
 
+  def password_update(new_password,old_password)
+    self.password.present? && self.check_password(old_password) && new_password.present? || self.password.blank? && new_password.present?
+  end
+
   private
 
   def compute_child_nodes(node)

@@ -68,11 +68,6 @@
       return {
         color: null,
         nodes: [],
-        currentMindMap: {
-          mindmap_key: null,
-          name: null,
-          id: null
-        },
         width: 850,
         height: 600,
         colorRange: 50,
@@ -123,7 +118,7 @@
           name: obj.name,
           mm_type: 'tree_map'
         }
-        await http.put(`/mindmaps/${this.currentMindMap.mindmap_key}`, data);
+        await http.put(`/mindmaps/${this.currentMindMap.unique_key}`, data);
         this.getTreeMap()
       },
       updateSelectedNode: async function(obj){
@@ -152,13 +147,10 @@
         })
       },
       getTreeMap: async function(){
-        this.currentMindMap.mindmap_key = this.$route.fullPath.replace('/','');
         let _this = this
         let array_nodes = null
-        let response = await http.get(`/mindmaps/${this.currentMindMap.mindmap_key}.json`);
+        let response = await http.get(`/mindmaps/${this.currentMindMap.unique_key}.json`);
         this.parent_nodes.label = response.data.mindmap.name
-        this.currentMindMap.id = response.data.mindmap.id
-        this.currentMindMap.name = response.data.mindmap.name
         this.nodes = response.data.mindmap.nodes
         array_nodes = this.nodes.map((node, index) => {
           return {
