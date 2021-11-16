@@ -39,8 +39,11 @@
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer" @click="editBlockKanban(block)">
-                {{ block.title }}
+              <div class="text-dark pointer w-100 d-flex" @mouseleave.self="hover_task = ''" @mouseover.self="hover_task = index"  @click="selectedNode(index)" >
+                <textarea-autosize :rows="1" type="text" v-debounce:1000ms="blurEvent"  v-model="block.title"  @mouseover.native="hover_task = index" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text w-100"/>
+                <div v-if="hover_task===index && selected==='' " class="pointer float-right" @click="deleteBlockConfirm(block)">
+                  <i class="fas fa-times text-dark position-absolute icon-delete"></i>
+                </div>
               </div>
             </div>
         </div>
@@ -50,9 +53,10 @@
     <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
 
     <edit-stage v-if="stage.title" @stage-edit="editStageTitle" ref="edit-stage" :stage="stage"></edit-stage>
-    <edit-block v-if="block.title" ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
+    <delete-block-modal ref="delete-block-modal" @delete_task="deleteBlock(block)"></delete-block-modal>
+
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
     </sweet-modal>
@@ -71,14 +75,21 @@
 <script>
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
-  import {deepclone} from 'lodash'
   import AddStageToKanban from './modals/add_stage_to_kanban'
   import AddBlockToStage from './modals/add_block_to_stage'
   import editStage from './modals/edit_stage'
-  import editBlock from './modals/edit_block'
   import MakePrivateModal from "../../common/modals/make_private_modal"
+  import DeleteBlockModal from './modals/delete_block_modal'
+  import vueDebounce from 'vue-debounce'
+  import VueTextareaAutosize from 'vue-textarea-autosize'
+
+  Vue.use(VueTextareaAutosize)
+
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
+  Vue.use(vueDebounce,{
+    listenTo: 'keyup',
+  })
 
   export default {
     props: ['currentMindMap'],
@@ -86,8 +97,8 @@
       AddStageToKanban,
       AddBlockToStage,
       editStage,
-      editBlock,
-      MakePrivateModal
+      MakePrivateModal,
+      DeleteBlockModal
     },
     data() {
       return {
@@ -97,7 +108,9 @@
         stage_id:"",
         stage:{},
         block: {},
-        hover_addtask:''
+        hover_addtask:'',
+        hover_task:'',
+        selected:''
       }
     },
     mounted() {
@@ -269,18 +282,11 @@
         })
       },
 
-      editBlockKanban(block){
-        if (this.currentMindMap.editable) {
-          this.block=block
-          setTimeout(()=>{
-            this.$refs['edit-block'].$refs['editBlockKanban'].open()
-          })
-        }
-      },
-
-      updateBlock(block){
+      updateBlock(block,event){
+        this.selected=""
+        let title = event.target.value.length < 1 ? '0' : event.target.value
         let id = block.id
-        let node = {node: {id,title: block.title,description: block.description}}
+        let node = {node: {id,title: title,description: block.description}}
         http
         .patch(`/nodes/${id}.json`,node)
         .then((res)=>{
@@ -337,6 +343,17 @@
             this.$refs['errorModal'].open()
           }
         })
+      },
+      blurEvent(val,e){
+        e.target.blur()
+      },
+      deleteBlockConfirm(block){
+        this.block = block;
+        this.$refs['delete-block-modal'].$refs['deleteBlock'].open()
+      },
+      selectedNode(index){
+        this.selected = index
+        this.hover_task = ''
       },
     }
   }

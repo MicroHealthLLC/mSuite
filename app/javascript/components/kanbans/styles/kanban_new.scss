@@ -176,3 +176,22 @@ ul.drag-inner-list {
 .bg-lg {
   background-color: lightgreen;
 }
+
+.resize-text{
+  resize: none;
+}
+.label-textarea{
+  max-width: fit-content
+}
+.focus-task {
+  outline: none !important;
+  border:1px solid blue;
+  box-shadow: 0 0 10px #719ECE;
+}
+.icon-delete{
+  right: 20px;
+  opacity: 0.5;
+}
+.icon-delete:hover{
+  opacity:1
+}
