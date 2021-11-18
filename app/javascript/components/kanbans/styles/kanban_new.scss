@@ -178,6 +178,7 @@ ul.drag-inner-list {
 }
 
 .resize-text{
+  width: 95% !important;
   resize: none;
 }
 .label-textarea{
@@ -189,7 +190,7 @@ ul.drag-inner-list {
   box-shadow: 0 0 10px #719ECE;
 }
 .icon-delete{
-  right: 20px;
+  right: 15px;
   opacity: 0.5;
 }
 .icon-delete:hover{
