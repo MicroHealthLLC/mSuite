@@ -40,7 +40,7 @@
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
-                <textarea-autosize :rows="1" type="text" v-debounce:1000ms="blurEvent"  v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text"/>
+                <textarea-autosize :rows="1" type="text" v-debounce:1000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text"/>
                 <div class="pointer float-right" @click="deleteBlockConfirm(block)">
                   <i class="fas fa-times text-danger position-absolute icon-delete" title="Delete Task"></i>
                 </div>
@@ -109,7 +109,6 @@
         stage:{},
         block: {},
         hover_addtask:'',
-        hover_task:'',
         selected:''
       }
     },
