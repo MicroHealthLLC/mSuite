@@ -5,7 +5,7 @@ class FileManager::MindmapsController < AuthenticatedController
   before_action :set_resource, except: [:index]
 
   def index
-    @mindmaps = current_user.mindmaps
+    @mindmaps = Mindmap.all
     @shared_mindmaps = Mindmap.joins(:mindmap_users).where("mindmap_users.user_id = ?", current_user.id)
     @shared_mindmaps = @shared_mindmaps.where.not(share: :only_me, user_id: current_user.id)
   end
