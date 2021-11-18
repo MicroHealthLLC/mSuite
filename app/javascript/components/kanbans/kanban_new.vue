@@ -18,22 +18,23 @@
 
     <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" @update-block="updateBlockPosition">
-        <div v-for="stage in computedStages" :slot="stage" class="w-100">
-          <div>
-            <div class="w-100">
-              <div>
-                <h2 class="float-left col-10 pl-2">{{ stage }}</h2>
-              </div>
-              <div class="float-right">
-                <b-dropdown  id="dropdown-left" menu-class="menu-dropdown" toggle-class="col-6 bg-transparent border-0 btn-shadow py-0" no-caret>
-                  <template #button-content>
-                    <i class="fas fa-ellipsis-h text-secondary"></i>
-                  </template>
-                  <b-dropdown-item @click="updateStage(stage)">Edit</b-dropdown-item>
-                  <b-dropdown-item @click="deleteStage(stage)">Delete</b-dropdown-item>
-                </b-dropdown>
-              </div>
+        <div v-for="stage,index in computedStages" :slot="stage" class="w-100">
+          <div class="w-100">
+            <div>
+              <h2 class="float-left col-10 pl-2 mb-2">{{ stage }}</h2>
             </div>
+            <div class="float-right">
+              <b-dropdown  id="dropdown-left" menu-class="menu-dropdown" toggle-class="col-6 bg-transparent border-0 btn-shadow py-0" no-caret>
+                <template #button-content>
+                  <i class="fas fa-ellipsis-h text-secondary"></i>
+                </template>
+                <b-dropdown-item @click="updateStage(stage)">Edit</b-dropdown-item>
+                <b-dropdown-item @click="deleteStage(stage)">Delete</b-dropdown-item>
+              </b-dropdown>
+            </div>
+          </div>
+          <div @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlock(stage)" class="pointer d-inline-block w-100">
+            <button class="bg-transparent border-0 pe-none"><i class="material-icons task_plus position-absolute">add</i><span class="task_plus ml-4">Add a Task</span></button>
           </div>
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
@@ -42,11 +43,6 @@
                 {{ block.title }}
               </div>
             </div>
-        </div>
-        <div v-for="stage,index in computedStages" :slot="`footer-${stage}`">
-          <div @mouseover.self="hover_addtask = index" @mouseleave.self="hover_addtask = false" :class="hover_addtask === index ? 'hover_task' : ''" @click.prevent="addBlock(stage)" class="pointer add-block">
-            <button class="bg-transparent border-0 pe-none"><i class="material-icons task_plus position-absolute">add</i><span class="task_plus ml-4">Add a Task</span></button>
-          </div>
         </div>
       </kanban-board>
     </div>
@@ -101,7 +97,7 @@
         stage_id:"",
         stage:{},
         block: {},
-        hover_addtask:false
+        hover_addtask:''
       }
     },
     mounted() {
