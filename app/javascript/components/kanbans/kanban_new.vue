@@ -56,9 +56,14 @@
     <edit-stage v-if="stage.title" @stage-edit="editStageTitle" ref="edit-stage" :stage="stage"></edit-stage>
     <edit-block v-if="block.title" ref="edit-block" @block-edit="updateBlock" @block-delete="deleteBlock" :block="block"></edit-block>
 
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" :password="currentMindMap.password"></make-private-modal>
+    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
+    </sweet-modal>
+    <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
+      Your Password and Confirm Password are Mismatched, Please Try Again!
+      <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
+      <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
 
     <sweet-modal ref="successModal" class="of_v" icon="success">
@@ -319,6 +324,10 @@
       },
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordAgain(){
+        this.$refs['passwordMismatched'].close()
+        this.openPrivacy()
       },
       passwordProtect(new_password, old_password){
         http

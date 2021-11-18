@@ -9,15 +9,20 @@
     <h4 class="float-left">PASSWORD PROTECT</h4>
 
     <div v-if="password">
-      <input type="password" v-model="old_password" class="form-control" placeholder="Insert Old password"/>
+      <input type="password" v-model="old_password" class="form-control" placeholder="Insert Old password"  />
       <br/>
     </div>
 
     <div>
-      <input type="password" v-model="new_password" class="form-control" placeholder="Insert new password"/>
+      <input type="password" v-model="new_password" class="form-control" placeholder="Insert new password" />
+      <br/>
     </div>
 
-    <button slot="button" @click="private_password" class="btn btn-success"> Save </button>
+    <div>
+      <input type="password" v-model="confirm_password" class="form-control" placeholder="Confirm password"/>
+    </div>
+
+    <button slot="button" @click="private_password" :disabled="old_password.length < 1 && password != null || new_password.length < 1 || confirm_password.length < 1" class="btn btn-success"> Save </button>
   </sweet-modal>
 </template>
 <script>
@@ -28,15 +33,26 @@
     data(){
       return{
         old_password: "",
-        new_password: ""
+        new_password: "",
+        confirm_password: "",
       }
     },
     methods:{
       private_password(){
-        this.$emit("password-apply", this.new_password, this.old_password)
-        this.new_password = ""
-        this.old_password = ""
-        this.$refs['makePrivateModal'].close();
+        if (this.new_password === this.confirm_password){
+          this.$emit("password-apply", this.new_password, this.old_password)
+          this.new_password = ""
+          this.old_password = ""
+          this.confirm_password = ""
+          this.$refs['makePrivateModal'].close();
+        }
+        else if(this.new_password !== this.confirm_password){
+          this.$emit("password_mismatched")
+          this.new_password = ""
+          this.old_password = ""
+          this.confirm_password = ""
+          this.$refs['makePrivateModal'].close();
+        }
       }
     }
   }
