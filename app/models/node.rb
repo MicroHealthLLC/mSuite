@@ -14,11 +14,15 @@ class Node < ApplicationRecord
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
 
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
-  before_destroy :position_updated
+  before_destroy :position_updated, if: :validate_kanban
   validates :title, uniqueness: true, if: :validate_title
 
   def validate_title
     return self.mindmap.mm_type == "tree_map"
+  end
+
+  def validate_kanban
+    return self.mindmap.mm_type == "kanban"
   end
 
   def to_json
