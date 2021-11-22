@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   get 'mindmaps/list_all_maps' => 'mindmaps#list_all_maps'
   get 'nodes/hide_children' => 'nodes#hide_children'
 
-  resources :mindmaps, except: [:edit, :destroy] do
+  resources :mindmaps, except: [:edit] do
     member do
       get :compute_child_nodes
       put :destroy_file

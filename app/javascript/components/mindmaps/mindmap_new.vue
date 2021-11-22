@@ -67,6 +67,15 @@
         </span>
         <span>
           <a
+            href="javascript:;"
+            role="button"
+            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent="$refs['delete-map-modal'].$refs['deleteMapModal'].open"
+          >
+            <i class="fas fa-trash-alt icons d-flex center_flex"></i>
+            <span class="fa-icon-text">Delete Map</span>
+          </a>
+          <a
             v-if="currentMindMap.editable"
             href="javascript:;"
             role="button"
@@ -232,7 +241,10 @@
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
     </sweet-modal>
+    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
 
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">
+    </delete-password-modal>
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
@@ -254,6 +266,8 @@
   import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
   import MakePrivateModal from "../../common/modals/make_private_modal"
+  import DeleteMapModal from '../../common/modals/delete_modal'
+  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import http from "../../common/http"
 
   export default {
@@ -266,7 +280,9 @@
       CentralAttachmentModal,
       ConfirmSaveKeyModal,
       ExportToWordModal,
-      MakePrivateModal
+      MakePrivateModal,
+      DeleteMapModal,
+      DeletePasswordModal
     },
 
     data() {
@@ -913,6 +929,35 @@
           else {
             this.$refs['errorModal'].open()
           }
+        })
+      },
+      confirmDeleteMindmap(){
+        if (this.currentMindMap.password){
+          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
+        }
+        else{
+          this.deleteMindmap()
+        }
+      },
+      passwordCheck(password){
+        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .then(res=>{
+          if (res.data.is_verified){
+            this.deleteMindmap()
+          }
+          else{
+            this.$refs['errorModal'].open()
+          }
+        })
+      },
+      deleteMindmap(){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .then(res=>{
+          window.open('/','_self')
+        })
+        .catch(error=>{
+          console.log(error)
         })
       },
       // =============== Map CRUD OPERATIONS =====================
