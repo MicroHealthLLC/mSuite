@@ -9,10 +9,6 @@
           Make Private
       </button>
       <div class="float-right pt-2 pr-2">
-        <button role="button" class="btn btn-info" @click.prevent="addedTreeMap">
-          <i class="fas fa-plus"></i>
-          Update TreeMap
-        </button>
         <button role="button" class="btn btn-primary" @click.prevent="updateNodeToMap">
           <i class="fas fa-plus"></i>
           Update Node
@@ -30,11 +26,14 @@
     <div class="row mt-3">
       <div class="col-12">
         <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)"
-            :colorRange="50"/>
+            :colorRange="50" :renderCallbacks="renderCallbacks"/>
+        <div v-if="colorSelected">
+          <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
+        </div>
       </div>
+
     </div>
     <add-node ref="add-node" :treeMap="currentMindMap" :nodes="nodes" @saveNode="submitChildNode"></add-node>
-    <update-tree-map ref="update-tree-map" :treeMaps="currentMindMap" @updateTreeMap="updateTreeMaps"></update-tree-map>
     <update-node ref="update-node" :nodes="nodes" @updatedNode="updateSelectedNode" @deleteNode="deleteSelectedNode"></update-node>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
 
@@ -63,26 +62,27 @@
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import AddNode from './modals/add_node'
   import UpdateNode from './modals/update_node'
-  import UpdateTreeMap from './modals/update_tree_map'
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
+
   export default {
     components: {
     // Adding imported widgets here
       JqxTreeMap,
       AddNode,
       UpdateNode,
-      UpdateTreeMap,
       MakePrivateModal,
       DeleteMapModal,
       DeletePasswordModal
     },
-    props:['currentMindMap'], //Props to be used in the widget
+    //props:['currentMindMap'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
-        color: null,
+        nodeColor: { hex: '#194d33' },
+        colorSelected: false,
+        selectedNodeColor: null,
         nodes: [],
         currentMindMap: {
           mindmap_key: null,
@@ -90,8 +90,12 @@
           id: null
         },
         width: 850,
+        parent_node: null,
+        child_node: null,
         height: 600,
         colorRange: 50,
+        node:{},
+        node_title:'',
         treemap_data: [],
         parent_nodes: {
           label: 'centralized',
@@ -100,18 +104,18 @@
         },
         renderCallbacks: {
           '*': (elementObject, value) => {
-            if (value.data === undefined) {
-              let element = elementObject[0];
-              element.style.backgroundColor = '#fff';
-              element.style.border = '1px solid #555';
-            }
-            else {
-              elementObject.jqxTooltip({
-                content: '<div><div style="font-weight: bold; max-width: 200px; font-family: verdana; font-size: 13px;">' + value.data.title + '</div><div style="width: 200px; font-family: verdana; font-size: 12px;">' + value.data.description + '</div></div>',
-                position: 'mouse',
-                autoHideDelay: 6000
-              });
-            }
+            elementObject.click(() => {
+              if (event.target.tagName === 'SPAN')
+              {
+                this.setNodeSelected(value)
+                this.textEdit(event,value,elementObject)
+              }
+              else if (event.target.tagName === 'DIV')
+                {
+                  this.setNodeSelected(value)
+                  this.colorChange(event,value)
+                }
+            });
           }
         }
       }
@@ -126,9 +130,6 @@
       updateNodeToMap: function () {
         this.$refs['update-node'].$refs['updateNodeToTreeMap'].open()
       },
-      addedTreeMap: function () {
-        this.$refs['update-tree-map'].$refs['updateTreeMapRef'].open()
-      },
       onBindingComplete: function (event) {
       },
       goHome(){
@@ -140,10 +141,12 @@
           mm_type: 'tree_map'
         }
         await http.put(`/mindmaps/${this.currentMindMap.mindmap_key}`, data);
+        this.parent_node = null
         this.getTreeMap()
       },
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj);
+        this.child_node = null
         this.getTreeMap()
       },
       deleteSelectedNode: async function(obj){
@@ -237,6 +240,48 @@
         .catch(error=>{
           console.log(error)
         })
+      },
+      setNodeSelected(v){
+        this.node.label = v.label
+        if(this.node.label){
+          this.child_node = this.nodes.find(n=>n.title === this.node.label)
+          this.parent_node = (this.node.label == this.currentMindMap.name) ? true : null
+        }
+      },
+      textEdit(e,v,el){
+        let _this = this
+        e.target.contentEditable = true
+        e.target.focus();
+        e.target.addEventListener('keyup',function(){
+          if (event.keyCode === 13) {
+            _this.node_title = e.target.innerText
+            if(_this.parent_node){
+              _this.currentMindMap.name = _this.node_title
+              _this.updateTreeMaps(_this.currentMindMap)
+            }else{
+              _this.child_node.title = _this.node_title
+              _this.updateSelectedNode(_this.child_node)
+            }
+          }
+        })
+      },
+      updateColorNode(){
+        this.colorSelected = false
+        this.selectedNodeColor.line_color = this.selectedNodeColor.line_color.hex
+        this.updateSelectedNode(this.selectedNodeColor)
+      },
+      colorChange(e,v){
+        if(this.colorSelected){
+          return this.colorSelected = false
+        }
+        if(this.parent_node){
+          this.selectedNodeColor = this.parent_node
+        }else{
+          this.colorSelected = true
+          this.selectedNodeColor = this.child_node
+          this.nodeColor.hex = this.child_node.line_color
+          this.selectedNodeColor.line_color = this.nodeColor
+        }
       }
     }
   }
