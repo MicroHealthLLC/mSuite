@@ -196,3 +196,13 @@ ul.drag-inner-list {
 .icon-delete:hover{
   opacity:1
 }
+.stage-title {
+  background: transparent;
+}
+.stage-title:hover{
+  cursor: pointer !important;
+}
+.stage-title:focus{
+  background: darkgray !important;
+  cursor: auto !important;
+}
