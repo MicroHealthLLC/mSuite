@@ -7,8 +7,8 @@ class Mindmap < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :category, optional: true
 
-  has_many :nodes, dependent: :delete_all
-  has_many :stages, dependent: :delete_all
+  has_many :nodes, dependent: :destroy
+  has_many :stages, dependent: :destroy
 
   has_many_attached :node_files, dependent: :destroy
 
@@ -57,8 +57,7 @@ class Mindmap < ApplicationRecord
 
   def reset_mindmap
     self.nodes.destroy_all
-    self.stages.destroy_all if self.mm_type == 'kanban'
-    self.node_files.map(&:purge) if self.mm_type == 'simple'
+    self.node_files.map(&:purge)
     self.update_columns(
       name: "Central Idea",
       description: ""
