@@ -205,7 +205,7 @@
             this.$refs['successModal'].open()
           }
           else {
-            this.$refs['errorModal'].open()
+            if (res.data.error) this.$refs['errorModal'].open()
           }
         })
       },
