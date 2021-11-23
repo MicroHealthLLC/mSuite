@@ -13,6 +13,10 @@
           <i class="fas fa-plus"></i>
           Add Stage
         </button>
+        <button role="button" class="btn btn-danger" @click.prevent="$refs['delete-map-modal'].$refs['deleteMapModal'].open">
+          <i class="fas fa-trash"></i>
+          Delete Map
+        </button>
       </div>
     </nav>
 
@@ -69,6 +73,10 @@
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
     </sweet-modal>
+    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
+
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">
+    </delete-password-modal>
   </div>
 </template>
 
@@ -80,6 +88,8 @@
   import editStage from './modals/edit_stage'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeleteBlockModal from './modals/delete_block_modal'
+  import DeleteMapModal from '../../common/modals/delete_modal'
+  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import vueDebounce from 'vue-debounce'
   import VueTextareaAutosize from 'vue-textarea-autosize'
 
@@ -98,7 +108,9 @@
       AddBlockToStage,
       editStage,
       MakePrivateModal,
-      DeleteBlockModal
+      DeleteBlockModal,
+      DeleteMapModal,
+      DeletePasswordModal
     },
     data() {
       return {
@@ -353,6 +365,35 @@
       selectedNode(index){
         this.selected = index
       },
+      confirmDeleteMindmap(){
+        if (this.currentMindMap.password){
+          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
+        }
+        else{
+          this.deleteMindmap()
+        }
+      },
+      passwordCheck(password){
+        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .then(res=>{
+          if (res.data.is_verified){
+            this.deleteMindmap()
+          }
+          else{
+            this.$refs['errorModal'].open()
+          }
+        })
+      },
+      deleteMindmap(){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .then(res=>{
+          window.open('/','_self')
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      }
     }
   }
 </script>

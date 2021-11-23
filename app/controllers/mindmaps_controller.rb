@@ -1,7 +1,7 @@
 class MindmapsController < AuthenticatedController
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
-  before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap]
+  before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
   before_action :check_password, only:[:show]
   def index; end
 
@@ -90,6 +90,15 @@ class MindmapsController < AuthenticatedController
     respond_to do |format|
       format.json {render json: {success: true}}
       format.html {}
+    end
+  end
+
+  def destroy
+    if @mindmap.destroy
+      respond_to do |format|
+        format.json { render json: {success: true}}
+        format.html { }
+      end
     end
   end
 
