@@ -2,7 +2,8 @@ class MindmapsController < AuthenticatedController
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
   before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
-  before_action :check_password, only:[:show]
+  before_action :verify_password, only: :show
+  before_action :check_password_update, only: :update
   def index; end
 
   def new
@@ -22,15 +23,11 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if (@mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) &&
-        params[:mindmap][:password].present?) ||
-        (@mindmap.password.blank? && params[:mindmap][:password].present?)
-      @mindmap.update(mindmap_params)
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
-      respond_to do |format|
-        format.json { render json: {mindmap: @mindmap.to_json}}
-        format.html { }
-      end
+    @mindmap.update(mindmap_params)
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
+    respond_to do |format|
+      format.json { render json: {mindmap: @mindmap.to_json}}
+      format.html { }
     end
   end
 
@@ -120,7 +117,7 @@ class MindmapsController < AuthenticatedController
     #check_auth
   end
 
-  def check_password
+  def verify_password
     @is_verified = true
     if session[:mindmap_id] == @mindmap.id
       return
@@ -155,5 +152,15 @@ class MindmapsController < AuthenticatedController
 
   def file_params
     params.require(:file).permit(:id, :uri)
+  end
+
+  def check_password_update
+    if params[:mindmap][:password].present?
+      unless @mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) || @mindmap.password.blank?
+        respond_to do |format|
+          format.json { render json: {error: "Password Mismatched"}}
+        end
+      end
+    end
   end
 end
