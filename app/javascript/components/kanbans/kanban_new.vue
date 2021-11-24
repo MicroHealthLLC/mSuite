@@ -63,6 +63,9 @@
     <sweet-modal ref="errorStageModal" class="of_v" icon="error" title="Stage Title Error">
       Stage Title Cannot Be Empty
     </sweet-modal>
+    <sweet-modal ref="duplicateStageModal" class="of_v" icon="error" title="Stage Title Duplicate Error">
+      Stage Title Cannot Be Duplicate
+    </sweet-modal>
 
     <sweet-modal ref="deleteStageConfirm" class="of_v" icon="warning" title="Delete Stage">
       Do you want to delete this stage?
@@ -195,9 +198,9 @@
           this.getAllStages()
           return
         }
-        else if(this.allStages.includes(stg=>stg.title === val))
+        else if(this.checkDuplicate(val))
         {
-          alert("Duplicate Stages not allowed")
+          this.$refs['duplicateStageModal'].open()
           this.getAllStages()
           return
         }
@@ -308,6 +311,10 @@
 
       editStageTitle(val){
         val.length < 1 ? this.$refs['errorStageModal'].open() : ''
+        if (this.checkDuplicate(val)){
+          this.$refs['duplicateStageModal'].open()
+          return
+        }
         let data = {
           stage: {
             title: val.length > 0 ? val : this.stage.title
@@ -434,7 +441,15 @@
       deleteStageConfirm(stage){
         this.stage = stage
         this.$refs['deleteStageConfirm'].open()
+      },
+      checkDuplicate(val){
+        let is_val = false
+        this.allStages.forEach((x) => {
+          if(x.title === val && x.title!==this.stage.title) is_val = true
+        })
+        return is_val
       }
+    }
   }
 </script>
 
