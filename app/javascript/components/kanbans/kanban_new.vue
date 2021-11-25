@@ -18,31 +18,36 @@
 
     <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
-        <div v-for="stage,index in computedStages" :slot="stage" class="w-100">
+        <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
           <div class="w-100">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex" @click=" stage !== '' ? updateStage(stage) : ''">
+              <div class="text-dark pointer w-100 d-flex" @click="stage !== '' ? updateStage(stage) : ''">
                 <textarea-autosize @keydown.enter.prevent.native="blurEvent" :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
-                <div class="pointer float-right" @click="deleteStageConfirm(stage)">
-                  <i v-if="stage!==''"class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
-                  <i v-else class="fas fa-plus position-absolute mt-1 add-icon" title="Add Stage"></i>
+                <div v-if="stage !== ''" class="pointer float-right" @click="deleteStageConfirm(stage)">
+                  <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
+                </div>
+                <div v-else class="pointer float-right">
+                  <i class="fas fa-plus position-absolute mt-1 add-icon" title="Add Stage"></i>
                 </div>
               </div>
             </div>
           </div>
           <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100">
-            <button class="bg-transparent border-0 pe-none"><i class="material-icons task_plus position-absolute">add</i><span class="task_plus ml-4">Add a Task</span></button>
+            <button class="bg-transparent border-0 pe-none">
+              <i class="material-icons task_plus position-absolute"> add </i>
+              <span class="task_plus ml-4"> Add a Task </span>
+            </button>
           </div>
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
-            <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
-                <textarea-autosize :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
-                <div class="pointer float-right" @click="deleteBlockConfirm(block)">
-                  <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
-                </div>
+          <div class="d-inline-block w-100 block">
+            <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
+              <textarea-autosize :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
+              <div class="pointer float-right" @click="deleteBlockConfirm(block)">
+                <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
               </div>
             </div>
+          </div>
         </div>
       </kanban-board>
     </div>
@@ -57,6 +62,7 @@
     <sweet-modal ref="errorStageModal" class="of_v" icon="error" title="Stage Title Error">
       Stage Title Cannot Be Empty
     </sweet-modal>
+
     <sweet-modal ref="duplicateStageModal" class="of_v" icon="error" title="Stage Title Duplicate Error">
       Stage Title Cannot Be Duplicate
     </sweet-modal>
@@ -76,10 +82,9 @@
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
     </sweet-modal>
-    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
 
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">
-    </delete-password-modal>
+    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">s</delete-password-modal>
   </div>
 </template>
 
@@ -125,7 +130,7 @@
         selected:'',
         new_stage: '',
         config:{
-          accepts(block,target,source){
+          accepts(block, target, source){
             return target.dataset.status !== ''
           }
         }
@@ -152,10 +157,10 @@
     },
     computed: {
       computedStages() {
-        return this.allStages.map(stage => stage.title.length>0 ? stage.title : '')
+        return this.allStages.map(stage => stage.title.length > 0 ? stage.title : '')
       },
       checkTempDelete() {
-        return this.allStages.some(stage=>stage.title==='')
+        return this.allStages.some(stage => stage.title === '')
       }
     },
     methods: {
@@ -210,6 +215,7 @@
           this.new_stage = ''
         })
         .catch((error) => {
+          console.log(error)
         })
       },
       addBlockToStage(stage) {
