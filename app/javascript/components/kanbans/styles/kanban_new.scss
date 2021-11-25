@@ -178,10 +178,6 @@ ul.drag-inner-list {
   background-color: lightgreen;
 }
 
-.resize-text{
-  width: 95% !important;
-  resize: vertical !important;
-}
 .label-textarea{
   max-width: fit-content
 }
@@ -191,10 +187,17 @@ ul.drag-inner-list {
   box-shadow: 0 0 10px #719ECE;
 }
 .icon-delete{
-  right: 15px;
   opacity: 0.5;
 }
 .icon-delete:hover{
+  opacity: 1;
+  cursor: pointer !important;
+}
+.icon-delete-stage{
+  right: 15px;
+  opacity: 0.5;
+}
+.icon-delete-stage:hover{
   opacity: 1;
   cursor: pointer !important;
 }
@@ -214,6 +217,7 @@ ul.drag-inner-list {
 }
 .block-title{
   resize: none !important;
+  width: 90% !important;
 }
 .block-title:focus{
   background: lightgrey;

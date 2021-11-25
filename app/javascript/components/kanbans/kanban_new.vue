@@ -21,11 +21,11 @@
         <div v-for="stage,index in computedStages" :slot="stage" class="w-100">
           <div class="w-100">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex" @click="stage!=='' ? updateStage(stage) : ''">
+              <div class="text-dark pointer w-100 d-flex" @click=" stage !== '' ? updateStage(stage) : ''">
                 <textarea-autosize @keydown.enter.prevent.native="blurEvent" :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
-                <div class="pointer float-right" @click="checkDeleteStatus(stage)">
-                  <i v-if="stage!==''"class="fas fa-times text-danger position-absolute mt-1 icon-delete" title="Delete Stage"></i>
-                  <i v-else class="fas fa-plus position-absolute mt-1 add-icon" title="Delete Stage"></i>
+                <div class="pointer float-right" @click="deleteStageConfirm(stage)">
+                  <i v-if="stage!==''"class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
+                  <i v-else class="fas fa-plus position-absolute mt-1 add-icon" title="Add Stage"></i>
                 </div>
               </div>
             </div>
@@ -39,7 +39,7 @@
               <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
                 <textarea-autosize :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
                 <div class="pointer float-right" @click="deleteBlockConfirm(block)">
-                  <i class="fas fa-times text-danger position-absolute icon-delete" title="Delete Task"></i>
+                  <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
                 </div>
               </div>
             </div>
@@ -252,9 +252,6 @@
           console.log(err)
         })
       },
-      checkDeleteStatus(stage){
-        stage !=='' ? this.deleteStageConfirm(stage) : this.deleteTempStage()
-      },
       deleteStage(){
         this.$refs['deleteStageConfirm'].close()
         let id = this.allStages.find(stg => stg.title === this.stage.title).id
@@ -270,16 +267,13 @@
           if (response.data.success === true){
             this.allStages = this.allStages.filter(stg => stg.title !== this.stage.title)
             this.blocks = this.blocks.filter(block => block.status !== this.stage.title)
+            this.stage = {}
           }
           else {
             alert("Stage unable to be deleted")
           }
         })
         .catch(error => {console.log(error)})
-      },
-      deleteTempStage(){
-        this.getAllStages()
-        this.new_stage = ''
       },
       updateStage(stage){
         if (this.currentMindMap.editable) {
