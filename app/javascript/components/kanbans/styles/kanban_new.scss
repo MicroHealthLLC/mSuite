@@ -112,6 +112,7 @@ ul.drag-inner-list {
 
 .gu-transit {
   opacity: 0.2;
+  cursor: grabbing !important;
 }
 
 .pointer {
@@ -177,22 +178,57 @@ ul.drag-inner-list {
   background-color: lightgreen;
 }
 
-.resize-text{
-  width: 95% !important;
-  resize: none;
-}
 .label-textarea{
   max-width: fit-content
 }
 .focus-task {
   outline: none !important;
-  border:1px solid blue;
+  border: 1px solid blue;
   box-shadow: 0 0 10px #719ECE;
 }
 .icon-delete{
-  right: 15px;
   opacity: 0.5;
 }
 .icon-delete:hover{
-  opacity:1
+  opacity: 1;
+  cursor: pointer !important;
+}
+.icon-delete-stage{
+  right: 15px;
+  opacity: 0.5;
+}
+.icon-delete-stage:hover{
+  opacity: 1;
+  cursor: pointer !important;
+}
+.stage-title {
+  background: transparent;
+  width: 90% !important;
+}
+.stage-title:hover{
+  cursor: pointer !important;
+}
+.stage-title:focus{
+  background: darkgray !important;
+  border-radius: 5px;
+  cursor: auto !important;
+  padding-left: 5px;
+  margin-right: 25px;
+}
+.block-title{
+  resize: none !important;
+  width: 90% !important;
+}
+.block-title:focus{
+  background: lightgrey;
+  border-radius: 5px;
+  padding-left: 6px;
+  cursor: auto !important;
+}
+.block-title:hover {
+  cursor: pointer !important;
+}
+.add-icon{
+  color: dodgerblue;
+  right: 15px;
 }
