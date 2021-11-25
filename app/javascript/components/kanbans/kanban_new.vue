@@ -4,14 +4,10 @@
       <a class="navbar-brand" href="#" @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
-      <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
+      <div class="float-right pt-2 pr-2">
+        <button role="button" class="btn btn-info mr-2" @click.prevent="openPrivacy">
           <i class="fas fa-shield-alt"></i>
           Make Private
-      </button>
-      <div class="float-right pt-2 pr-2">
-        <button :disabled="checkTempDelete" role="button" class="btn btn-success" @click.prevent="addStageToMindmap">
-          <i class="fas fa-plus"></i>
-          Add Stage
         </button>
         <button role="button" class="btn btn-danger" @click.prevent="$refs['delete-map-modal'].$refs['deleteMapModal'].open">
           <i class="fas fa-trash"></i>
@@ -25,22 +21,23 @@
         <div v-for="stage,index in computedStages" :slot="stage" class="w-100">
           <div class="w-100">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex" @click="updateStage(stage)" >
-                <textarea-autosize :id="index" :rows="1" type="text" v-debounce:1000ms="blurEvent" :value="stage" class=" border-0 resize-text stage-title " placeholder="Enter Stage Title to Save"/>
+              <div class="text-dark pointer w-100 d-flex" @click="stage!=='' ? updateStage(stage) : ''">
+                <textarea-autosize @keydown.enter.prevent.native="blurEvent" :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 <div class="pointer float-right" @click="checkDeleteStatus(stage)">
-                  <i class="fas fa-times text-danger position-absolute mt-1" title="Delete Task"></i>
+                  <i v-if="stage!==''"class="fas fa-times text-danger position-absolute mt-1 icon-delete" title="Delete Stage"></i>
+                  <i v-else class="fas fa-plus position-absolute mt-1 add-icon" title="Delete Stage"></i>
                 </div>
               </div>
             </div>
           </div>
-          <div v-if="stage!=='' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlock(stage)" class="pointer d-inline-block w-100">
+          <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100">
             <button class="bg-transparent border-0 pe-none"><i class="material-icons task_plus position-absolute">add</i><span class="task_plus ml-4">Add a Task</span></button>
           </div>
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
-                <textarea-autosize :rows="1" type="text" v-debounce:1000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text"/>
+                <textarea-autosize :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
                 <div class="pointer float-right" @click="deleteBlockConfirm(block)">
                   <i class="fas fa-times text-danger position-absolute icon-delete" title="Delete Task"></i>
                 </div>
@@ -49,9 +46,6 @@
         </div>
       </kanban-board>
     </div>
-    <add-block-to-stage ref="add-block-to-stage" @block-added="addBlockToStage"></add-block-to-stage>
-
-    <edit-stage v-if="stage.title" @stage-edit="editStageTitle" ref="edit-stage" :stage="stage"></edit-stage>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
     <delete-block-modal ref="delete-block-modal" @delete_task="deleteBlock(block)"></delete-block-modal>
@@ -170,10 +164,12 @@
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
         .then((res) => {
           this.allStages = res.data.stages
+          this.allStages.push({title:''})
           })
         .catch((err) => {
           console.log(err)
         })
+
       },
       getAllNodes(){
         http
@@ -186,21 +182,16 @@
           console.log(err)
         })
       },
-
-      addStageToMindmap() {
-        let stage = {title:''}
-        this.allStages.push(stage)
-        this.new_stage = this.allStages.length - 1
-      },
       createNewStage(val){
         if (val.length < 1){
-          this.$refs['errorStageModal'].open()
+          this.allStages.pop()
           this.getAllStages()
           return
         }
         else if(this.checkDuplicate(val))
         {
           this.$refs['duplicateStageModal'].open()
+          this.allStages.pop()
           this.getAllStages()
           return
         }
@@ -215,19 +206,19 @@
         .then((res) => {
           this.allStages.pop()
           this.allStages.push(res.data.stage)
+          this.allStages.push({title:''})
           this.new_stage = ''
         })
         .catch((error) => {
         })
       },
-      addBlockToStage(block) {
+      addBlockToStage(stage) {
         let data = {
           node: {
-            title: block.title,
-            stage_id: this.allStages.find(stage => stage.title === this.stage_title).id,
+            title: "",
+            stage_id: this.allStages.find(stg => stg.title === stage).id,
             mindmap_id: this.currentMindMap.id,
-            status: this.stage_title,
-            description: block.description
+            status: stage,
           }
         }
 
@@ -261,19 +252,6 @@
           console.log(err)
         })
       },
-
-      addStage(){
-        if (this.currentMindMap.editable) {
-          this.$refs['add-stage-to-kanban'].$refs['addStageToKanban'].open()
-        }
-      },
-
-      addBlock(stage){
-        if (this.currentMindMap.editable) {
-          this.stage_title = stage
-          this.$refs['add-block-to-stage'].$refs['addBlockToStage'].open()
-        }
-      },
       checkDeleteStatus(stage){
         stage !=='' ? this.deleteStageConfirm(stage) : this.deleteTempStage()
       },
@@ -305,14 +283,19 @@
       },
       updateStage(stage){
         if (this.currentMindMap.editable) {
-            this.stage = this.allStages.find(stg=>stg.title===stage)
+            this.stage = this.allStages.find(stg=>stg.title === stage)
         }
       },
 
       editStageTitle(val){
+        val = val.replace(/\r?\n|\r/g, "")
         val.length < 1 ? this.$refs['errorStageModal'].open() : ''
-        if (this.checkDuplicate(val)){
+        if (val.length > 0 && this.checkDuplicate(val)){
           this.$refs['duplicateStageModal'].open()
+          let index = this.allStages.findIndex(stg => stg.id === this.stage.id)
+          this.allStages[index].title = ''
+          this.getAllStages()
+          this.getAllNodes()
           return
         }
         let data = {
@@ -320,32 +303,35 @@
             title: val.length > 0 ? val : this.stage.title
           }
         };
+
         http
         .patch(`/stages/${this.stage.id}.json`, data)
         .then(result => {
           let index = this.allStages.findIndex(stg => stg.id === result.data.stage.id)
-          if (val.length<1){
+          if (val.length < 1){
             this.allStages[index].title = ''
             this.getAllStages()
             this.getAllNodes()
           }
           else if (index > -1) {
-            Vue.set(this.allStages, index, result.data.stage)
+            Vue.set(this.allStages[index], 'title', '')
+            Vue.set(this.allStages[index], 'title', result.data.stage.title.trim())
+            this.stage = {}
           }
           this.updateStageTasks(this.stage.id)
         })
       },
 
       updateBlock(block,event){
-        this.selected=""
-        let title = event.target.value.length < 1 ? '0' : event.target.value
+        this.selected = ""
+        let title = event.target.value
         let id = block.id
-        let node = {node: {id,title: title,description: block.description}}
+        let node = {node: {id, title: title, description: block.description}}
         http
-        .patch(`/nodes/${id}.json`,node)
+        .patch(`/nodes/${id}.json`, node)
         .then((res)=>{
           let index = this.blocks.findIndex(b => b.id === res.data.node.id)
-          Vue.set(this.blocks,index,res.data.node)
+          Vue.set(this.blocks, index, res.data.node)
         })
         .catch(err => {
           console.log(err)
@@ -400,7 +386,6 @@
       },
       blurEvent(val,e){
         e.target.blur()
-        this.new_stage === '' ? this.editStageTitle(val) : this.createNewStage(val)
       },
       deleteBlockConfirm(block){
         this.block = block;
@@ -445,9 +430,12 @@
       checkDuplicate(val){
         let is_val = false
         this.allStages.forEach((x) => {
-          if(x.title === val && x.title!==this.stage.title) is_val = true
+          if(x.title === val && x.title !== this.stage.title) is_val = true
         })
         return is_val
+      },
+      newStageTitle(e){
+        this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
       }
     }
   }
