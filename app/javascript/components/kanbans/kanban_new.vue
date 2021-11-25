@@ -317,9 +317,9 @@
           else if (index > -1) {
             Vue.set(this.allStages[index], 'title', '')
             Vue.set(this.allStages[index], 'title', result.data.stage.title.trim())
+            this.updateStageTasks(this.stage.id)
             this.stage = null
           }
-          this.updateStageTasks(this.stage.id)
         })
       },
 
@@ -385,8 +385,8 @@
           }
         })
       },
-      blurEvent(val,e){
-        e.target.blur()
+      blurEvent(val, e){
+        if (e.target) e.target.blur()
       },
       deleteBlockConfirm(block){
         this.block = block;
