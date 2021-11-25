@@ -19,9 +19,9 @@
     <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
         <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
-          <div class="w-100">
+          <div class="w-100 mb-2">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex" @click="stage !== '' ? updateStage(stage) : ''">
+              <div class="text-dark pointer w-100 d-flex" @click="updateStage(stage)">
                 <textarea-autosize @keydown.enter.prevent.native="blurEvent" :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 <div v-if="stage !== ''" class="pointer float-right" @click="deleteStageConfirm(stage)">
                   <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
@@ -121,15 +121,14 @@
     data() {
       return {
         loading: true,
-        allStages:[],
+        allStages: [],
         blocks: [],
-        stage_id:"",
-        stage:{},
+        stage_id: "",
+        stage: null,
         block: {},
-        hover_addtask:'',
-        selected:'',
-        new_stage: '',
-        config:{
+        hover_addtask: '',
+        selected: '',
+        config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
           }
@@ -212,7 +211,6 @@
           this.allStages.pop()
           this.allStages.push(res.data.stage)
           this.allStages.push({title:''})
-          this.new_stage = ''
         })
         .catch((error) => {
           console.log(error)
@@ -273,7 +271,7 @@
           if (response.data.success === true){
             this.allStages = this.allStages.filter(stg => stg.title !== this.stage.title)
             this.blocks = this.blocks.filter(block => block.status !== this.stage.title)
-            this.stage = {}
+            this.stage = null
           }
           else {
             alert("Stage unable to be deleted")
@@ -281,9 +279,12 @@
         })
         .catch(error => {console.log(error)})
       },
-      updateStage(stage){
-        if (this.currentMindMap.editable) {
-            this.stage = this.allStages.find(stg=>stg.title === stage)
+      updateStage(stage) {
+        if (stage === null) {
+          this.stage = {}
+        }
+        else if (this.currentMindMap.editable) {
+          this.stage = this.allStages.find(stg => stg.title === stage)
         }
       },
 
@@ -316,7 +317,7 @@
           else if (index > -1) {
             Vue.set(this.allStages[index], 'title', '')
             Vue.set(this.allStages[index], 'title', result.data.stage.title.trim())
-            this.stage = {}
+            this.stage = null
           }
           this.updateStageTasks(this.stage.id)
         })
@@ -430,12 +431,14 @@
       checkDuplicate(val){
         let is_val = false
         this.allStages.forEach((x) => {
-          if(x.title === val && x.title !== this.stage.title) is_val = true
+          if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
         })
         return is_val
       },
-      newStageTitle(e){
-        this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
+      newStageTitle(e) {
+        if (this.stage !== null) {
+          this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
+        }
       }
     }
   }

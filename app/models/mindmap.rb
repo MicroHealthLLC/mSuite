@@ -26,6 +26,7 @@ class Mindmap < ApplicationRecord
 
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
+  after_create  :pre_made_stages, if: :check_kanban
 
   def to_json
     attach_files = []
@@ -45,6 +46,10 @@ class Mindmap < ApplicationRecord
     ).as_json
   end
 
+  def check_kanban
+    return self.mm_type == 'kanban'
+  end
+
   def check_password(password)
     Password.new(self.password) == password
   end
@@ -53,6 +58,10 @@ class Mindmap < ApplicationRecord
     center_node = { "id"=> 0, "name"=> self.name, "children"=> [] }
     compute_child_nodes(center_node)
     center_node
+  end
+
+  def pre_made_stages
+    self.stages.create([{title:'TO DO'},{title:'IN PROGRESS'},{title:'DONE'}])
   end
 
   def reset_mindmap
