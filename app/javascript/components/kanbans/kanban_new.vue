@@ -43,8 +43,10 @@
           <div class="d-inline-block w-100 block">
             <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
               <textarea-autosize :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
-              <div class="pointer float-right" @click="deleteBlockConfirm(block)">
-                <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
+              <div class="pointer float-right">
+                <div @click="deleteBlockConfirm(block)">
+                  <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
+                </div>
               </div>
             </div>
           </div>
@@ -98,6 +100,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import vueDebounce from 'vue-debounce'
+  import Sortable from 'sortablejs';
   import VueTextareaAutosize from 'vue-textarea-autosize'
 
   Vue.use(VueTextareaAutosize)
@@ -139,20 +142,48 @@
       this.getAllStages()
       this.getAllNodes()
       setTimeout(()=>{
-        var elements = Array.from(document.querySelectorAll(".drag-inner-list,#kanban-board"));
+        var elements = Array.from(document.querySelectorAll(".drag-inner-list, #kanban-board"));
         autoScroll(
           elements,
           {
             margin: 20,
             maxSpeed: 7,
             scrollWhenOutside: true,
-            autoScroll: function(){
-                //Only scroll when the pointer is down, and there is a child being dragged.
-               return this.down
+            autoScroll: function() {
+              return this.down
             }
           }
         );
-      },1000)
+        var dragElement = document.getElementsByClassName('drag-list')[0];
+        var newStageEle = null
+        var _this = this
+        var sortable = new Sortable(dragElement, {
+          sort:true,
+          delay: 0,
+          draggable: ".drag-column",
+          dragClass: "sortable-drag",
+          ghostClass: "sortable-ghost",
+          filter: ".drag-column-, .block-title",
+          onStart: function (evt) {
+            _this.allStages.pop();
+          },
+          onEnd: function (evt) {
+            var itemEl = evt.item;
+            console.log(evt.newIndex)
+            let title = itemEl.children[0].children[0].children[0].children[0].children[0].children[0].value
+            _this.changeStagePositions(title,evt.oldIndex,evt.newIndex)
+            _this.allStages.push({title: ''})
+          },
+          onFilter: function (evt) {
+            var item = evt.item
+            if (Sortable.utils.is(ctrl, ".drag-column-")) {  // Click on remove button
+              item.children[0].children[0].children[0].children[0].children[0].children[0].focus()
+            }
+            else if (Sortable.utils.is(ctrl, ".block-title")) {
+            }
+          }
+        });
+      }, 1000)
     },
     computed: {
       computedStages() {
@@ -439,7 +470,21 @@
         if (this.stage !== null) {
           this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
         }
-      }
+      },
+      changeStagePositions(title,old_pos,new_pos){
+        let id = this.allStages.find(stg=>stg.title === title).id
+        let data = {stage:{
+          id: id,
+          position: new_pos
+        }}
+        http
+        .patch(`/stages/${id}.json`, data)
+        .then(result => {
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+      },
     }
   }
 </script>

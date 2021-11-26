@@ -56,7 +56,8 @@ class StagesController < AuthenticatedController
   def stage_params
     params.require(:stage).permit(
       :title,
-      :mindmap_id
+      :mindmap_id,
+      :position
     )
   end
 end
