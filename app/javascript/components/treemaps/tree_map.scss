@@ -5,4 +5,27 @@
 .jqx-treemap-rectangle {
   border: 1px solid gray !important;
   padding: 2px !important;
+  margin: 5px;
+}
+.jqx-treemap-label, .jqx-treemap-rectangle span {
+  min-width: 5%;
+  max-width: 70% !important;
+  word-wrap:break-word;
+  text-align: center;
+}
+
+.focus-visible {
+  padding: 2px 5px;
+  border: 1px solid gray;
+  background-color: white;
+  color: black;
+  outline: unset;
+  border-radius: 7px;
+  text-align: left !important;
+}
+
+.cancel-btn{
+  width: 20px;
+  text-align: center;
+  float: right;
 }

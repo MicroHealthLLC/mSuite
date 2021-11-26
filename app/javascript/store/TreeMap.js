@@ -1,6 +1,6 @@
 
 const state = {
-  colorHex: ''
+  colorHex: '#69996D'
 }
 const actions = {
   addColor: ({ commit }, hex) => commit('setColor', hex),

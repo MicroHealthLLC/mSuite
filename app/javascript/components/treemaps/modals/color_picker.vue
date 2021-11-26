@@ -17,7 +17,7 @@
         },
         colorValue: '',
         displayPicker: false,
-        defaultColor: "#FF0000",
+        defaultColor: "#69996D",
       }
     },
     computed: {
@@ -26,7 +26,7 @@
       ])
     },
     mounted() {
-      this.setColor('#FF0000');
+      this.setColor('#69996D');
     },
     methods:{
       ...mapActions([
