@@ -146,6 +146,7 @@ class MindmapsController < AuthenticatedController
       :mm_type,
       :description,
       :password,
+      :line_color,
       node_files: []
     )
   end
