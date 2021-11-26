@@ -4,12 +4,12 @@
       <a class="navbar-brand" href="#" @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
-      <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
-          <i class="fas fa-shield-alt"></i>
-          Make Private
-      </button>
       <div class="float-right pt-2 pr-2">
-        <button role="button" class="btn btn-secondary" @click.prevent="AddNodeToMap">
+        <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
+            <i class="fas fa-shield-alt"></i>
+            Make Private
+        </button>
+        <button role="button" class="btn btn-primary" @click.prevent="AddNodeToMap">
           <i class="fas fa-plus"></i>
           Add Node
         </button>

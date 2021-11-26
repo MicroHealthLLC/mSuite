@@ -9,8 +9,8 @@
 }
 .jqx-treemap-label, .jqx-treemap-rectangle span {
   min-width: 5%;
-  max-width: 70% !important;
-  word-wrap:break-word;
+  max-width: 50% !important;
+  word-wrap: break-word;
   text-align: center;
 }
 
@@ -28,4 +28,5 @@
   width: 20px;
   text-align: center;
   float: right;
+  cursor: pointer;
 }
