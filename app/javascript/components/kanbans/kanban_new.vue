@@ -241,7 +241,8 @@
         .then((res) => {
           this.allStages.pop()
           this.allStages.push(res.data.stage)
-          this.allStages.push({title:''})
+          this.allStages.push({title: ''})
+          this.stage = null
         })
         .catch((error) => {
           console.log(error)
