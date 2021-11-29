@@ -5,13 +5,17 @@
         <img src="/assets/microhealthllc.png"/>
       </a>
       <div class="float-right pt-2 pr-2">
-        <button role="button" class="btn btn-info mr-2" @click.prevent="openPrivacy">
+        <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
           <i class="fas fa-shield-alt"></i>
           Make Private
         </button>
         <button role="button" class="btn btn-danger" @click.prevent="$refs['delete-map-modal'].$refs['deleteMapModal'].open">
           <i class="fas fa-trash"></i>
           Delete Map
+        </button>
+        <button role="button" class="btn btn-secondary" @click.prevent="exportImage">
+          <i class="fas fa-image"></i>
+          Export Image
         </button>
       </div>
     </nav>
@@ -33,10 +37,10 @@
             </div>
           </div>
           <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100">
-            <button class="bg-transparent border-0 pe-none">
-              <i class="material-icons task_plus position-absolute"> add </i>
+            <a role="button" class="bg-transparent border-0 pe-none">
+              <i class="fas fa-plus position-absolute mt-1 ml-1 text-secondary"></i>
               <span class="task_plus ml-4"> Add a Task </span>
-            </button>
+            </a>
           </div>
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
@@ -93,6 +97,7 @@
 <script>
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
+  import domtoimage from "dom-to-image-more"
   import AddBlockToStage from './modals/add_block_to_stage'
   import editStage from './modals/edit_stage'
   import MakePrivateModal from "../../common/modals/make_private_modal"
@@ -485,6 +490,27 @@
         .catch(err=>{
           console.log(err)
         })
+      },
+      exportImage(){
+        const VM = this
+        let elm = document.getElementById("kanban-board")
+        let inner_list = document.getElementsByClassName('drag-inner-list')
+        inner_list.forEach(i=>i.classList.add('mh-100'))
+        elm.style.transform = "scale(1)"
+        let map_key = VM.currentMindMap.unique_key || "image"
+        domtoimage.toPng(elm,{height:elm.scrollHeight,width:elm.scrollWidth-300})
+          .then((url) => {
+            let downloadLink = document.createElement("a")
+            document.body.appendChild(downloadLink)
+            downloadLink.href = url
+            downloadLink.download = map_key + ".png"
+            downloadLink.click()
+            document.body.removeChild(downloadLink)
+            inner_list.forEach(i=>i.classList.remove('mh-100'))
+          })
+          .catch((err) => {
+            console.error('oops, something went wrong!', err)
+          })
       },
     }
   }
