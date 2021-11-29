@@ -98,8 +98,6 @@
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
   import domtoimage from "dom-to-image-more"
-  import AddBlockToStage from './modals/add_block_to_stage'
-  import editStage from './modals/edit_stage'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeleteBlockModal from './modals/delete_block_modal'
   import DeleteMapModal from '../../common/modals/delete_modal'
@@ -119,8 +117,6 @@
   export default {
     props: ['currentMindMap'],
     components:{
-      AddBlockToStage,
-      editStage,
       MakePrivateModal,
       DeleteBlockModal,
       DeleteMapModal,
@@ -141,6 +137,30 @@
             return target.dataset.status !== ''
           }
         }
+      }
+    },
+    channels: {
+      WebNotificationsChannel: {
+        received(data) {
+          if (data.message === "Stage Created" && data.stage){
+            this.allStages.pop()
+            this.allStages.push(data.stage)
+            this.allStages.push({title:''})
+          }
+        }
+      }
+    },
+    watch:{
+      "currentMindMap.id"() {
+        if (this.currentMindMap.id) {
+          this.$cable.subscribe({ channel: 'WebNotificationsChannel', room: this.currentMindMap.id})
+        }
+      },
+      "currentMindMap.stages":{
+        handler: function() {
+          this.allStages = this.currentMindMap.stages
+        },
+        deep: true
       }
     },
     mounted() {
@@ -174,8 +194,7 @@
           },
           onEnd: function (evt) {
             var itemEl = evt.item;
-            console.log(evt.newIndex)
-            let title = itemEl.children[0].children[0].children[0].children[0].children[0].children[0].value
+            let title = itemEl.children[0].children[0].children[0].children[0].children[0].childrpen[0].value
             _this.changeStagePositions(title,evt.oldIndex,evt.newIndex)
             _this.allStages.push({title: ''})
           },

@@ -9,6 +9,7 @@ class StagesController < AuthenticatedController
         format.html { }
       end
     else
+      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Created", stage: @stage
       respond_to do |format|
         format.json { render json: {stage: @stage} }
         format.html { }
