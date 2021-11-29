@@ -31,3 +31,18 @@
   float: right;
   cursor: pointer;
 }
+
+.vc-chrome{
+  position: inherit;
+  padding: 0px;
+  width: 100% !important;
+}
+.card-poisiton{
+  position: absolute;
+  top: 50px;
+  right: 50px;
+}
+.border-none {
+  border: none;
+  border-radius: 0px;
+}
