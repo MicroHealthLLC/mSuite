@@ -129,23 +129,23 @@
       this.getTreeMap()
     },
     methods: {
-      exportImage(){
-        const VM = this
+      exportImage() {
+        const _this = this
         let elm = document.getElementById("treeMapGraph")
         elm.style.transform = "scale(1)"
-        let map_key = VM.currentMindMap.unique_key || "image"
-        domtoimage.toPng(elm,{height:elm.scrollHeight,width:elm.scrollWidth})
-          .then((url) => {
-            let downloadLink = document.createElement("a")
-            document.body.appendChild(downloadLink)
-            downloadLink.href = url
-            downloadLink.download = map_key + ".png"
-            downloadLink.click()
-            document.body.removeChild(downloadLink)
-          })
-          .catch((err) => {
-            console.error('oops, something went wrong!', err)
-          })
+        let map_key = _this.currentMindMap.unique_key || "image"
+        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
+        .then((url) => {
+          let downloadLink = document.createElement("a")
+          document.body.appendChild(downloadLink)
+          downloadLink.href = url
+          downloadLink.download = map_key + ".png"
+          downloadLink.click()
+          document.body.removeChild(downloadLink)
+        })
+        .catch((err) => {
+          console.error('oops, something went wrong!', err)
+        })
       },
       AddNodeToMap: function () {
         this.$refs['add-node'].$refs['addNodeToTreeMap'].open()
