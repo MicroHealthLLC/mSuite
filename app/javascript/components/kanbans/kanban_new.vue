@@ -142,28 +142,21 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          if (data.message === "Stage Created" && data.stage){
-            this.allStages.pop()
-            this.allStages.push(data.stage)
-            this.allStages.push({title:''})
+          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
+          {
+            window.open('/','_self')
           }
-        }
-      }
-    },
-    watch:{
-      "currentMindMap.id"() {
-        if (this.currentMindMap.id) {
-          this.$cable.subscribe({ channel: 'WebNotificationsChannel', room: this.currentMindMap.id})
-        }
-      },
-      "currentMindMap.stages":{
-        handler: function() {
-          this.allStages = this.currentMindMap.stages
+          this.getAllStages()
+          this.getAllNodes()
         },
-        deep: true
+        connected(){
+
+          console.log("I am connected")
+        }
       }
     },
     mounted() {
+      this.$cable.subscribe({channel:"WebNotificationsChannel",room: this.currentMindMap.id})
       this.getAllStages()
       this.getAllNodes()
       setTimeout(()=>{
@@ -203,7 +196,7 @@
             if (Sortable.utils.is(ctrl, ".drag-column-")) {  // Click on remove button
               item.children[0].children[0].children[0].children[0].children[0].children[0].focus()
             }
-            else if (Sortable.utils.is(ctrl, ".block-title")) {
+            else if (Sortable.utils.is(item, ".block-title")) {
             }
           }
         });

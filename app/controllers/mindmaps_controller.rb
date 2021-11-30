@@ -91,7 +91,9 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
+    # ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
     if @mindmap.destroy
+      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
       respond_to do |format|
         format.json { render json: {success: true}}
         format.html { }

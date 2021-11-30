@@ -19,6 +19,7 @@ class StagesController < AuthenticatedController
 
   def update
    if @stage.update(stage_params)
+    ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Updated", stage: @stage
       respond_to do |format|
         format.json { render json: {stage: @stage} }
         format.html { }
@@ -36,6 +37,7 @@ class StagesController < AuthenticatedController
 
   def destroy
     if @stage.destroy
+      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Deleted", stage: @stage
       respond_to do |format|
         format.json { render json: {success: true} }
         format.html { }
