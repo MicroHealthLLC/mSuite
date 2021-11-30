@@ -13,12 +13,18 @@
           <i class="fas fa-plus"></i>
           Add Node
         </button>
+        <button role="button" class="btn btn-secondary" @click.prevent="exportImage">
+          <i class="fas fa-image"></i>
+          Export Image
+        </button>
       </div>
     </nav>
     <div class="row mt-3">
       <div class="col-12">
-        <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)"
-            :colorRange="50" :renderCallbacks="renderCallbacks"/>
+        <div id="treeMapGraph">
+          <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)"
+              :colorRange="50" :renderCallbacks="renderCallbacks"/>
+        </div>
         <div v-if="colorSelected">
           <div class="card col-3 card-poisiton p-0 border-none">
             <div class="card-body p-0">
@@ -65,6 +71,7 @@
 
 <script>
   // Import the components that will be used
+  import domtoimage from "dom-to-image-more"
   import http from '../../common/http'
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import AddNode from './modals/add_node'
@@ -132,6 +139,24 @@
       this.getTreeMap()
     },
     methods: {
+      exportImage() {
+        const _this = this
+        let elm = document.getElementById("treeMapGraph")
+        elm.style.transform = "scale(1)"
+        let map_key = _this.currentMindMap.unique_key || "image"
+        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
+        .then((url) => {
+          let downloadLink = document.createElement("a")
+          document.body.appendChild(downloadLink)
+          downloadLink.href = url
+          downloadLink.download = map_key + ".png"
+          downloadLink.click()
+          document.body.removeChild(downloadLink)
+        })
+        .catch((err) => {
+          console.error('oops, something went wrong!', err)
+        })
+      },
       AddNodeToMap: function () {
         this.$refs['add-node'].$refs['addNodeToTreeMap'].open()
       },
