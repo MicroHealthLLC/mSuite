@@ -20,7 +20,16 @@
         <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)"
             :colorRange="50" :renderCallbacks="renderCallbacks"/>
         <div v-if="colorSelected">
-          <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
+          <div class="card col-3 card-poisiton p-0 border-none">
+            <div class="card-body p-0">
+              <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
+            </div>
+            <div class="card-button d-flex">
+              <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
+              <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -87,6 +96,7 @@
         colorRange: 50,
         node:{},
         node_title:'',
+        currentElementObj: null,
         oldEvenetElement: null,
         hiddenNode: false,
         treemap_data: [],
@@ -105,7 +115,7 @@
               }
               else if (event.target.tagName === 'DIV')
               {
-                this.colorChange(event,value)
+                this.colorChange(event,value,elementObject)
               }
               else if (event.target.tagName === 'path')
               {
@@ -299,7 +309,10 @@
         }
       },
       updateColorNode(){
+        this.currentElementObj[0].style.backgroundColor = this.selectedNodeColor.line_color.hex
         this.selectedNodeColor.line_color = this.selectedNodeColor.line_color.hex
+      },
+      saveNodeColor(){
         if(this.parent_node){
           this.updateTreeMaps(this.selectedNodeColor)
         }else{
@@ -308,26 +321,37 @@
         this.colorSelected = false
         this.selectedNodeColor = null
       },
-      colorChange(e,v){
+      closeModelPicker(){
+        this.currentElementObj[0].style.backgroundColor = this.oldElementColor
+        this.colorSelected = false
+      },
+      colorChange(e,v,elementObject){
         if(this.hiddenNode){
           this.node_title = this.oldEvenetElement.target.innerText
           this.putData()
           return;
         }
         if(this.colorSelected){
+          this.currentElementObj[0].style.backgroundColor = this.oldElementColor
           return this.colorSelected = false
         }
+        this.currentElementObj = elementObject
         this.setNodeSelected(v)
         this.colorSelected = true
+        this.oldElementColor = JSON.parse(JSON.stringify(this.currentElementObj[0].style.backgroundColor))
+
         if(this.parent_node){
-          this.selectedNodeColor = this.currentMindMap
-          this.nodeColor.hex = this.currentMindMap.line_color
-        }else{
-          let objKey = Object.assign({}, this.child_node);
+          let objKey = Object.assign({}, this.currentMindMap)
           this.selectedNodeColor = objKey
           this.nodeColor.hex = objKey.line_color
+          this.selectedNodeColor.line_color = this.nodeColor
+        }else{
+          let objKey = Object.assign({}, this.child_node)
+          this.selectedNodeColor = objKey
+          this.nodeColor.hex = objKey.line_color
+          this.selectedNodeColor.line_color = this.nodeColor
         }
-        this.selectedNodeColor.line_color = this.nodeColor
+
       },
       deleteNode(e,v){
         this.setNodeSelected(v)
