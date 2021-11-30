@@ -491,14 +491,14 @@
           console.log(err)
         })
       },
-      exportImage(){
-        const VM = this
+      exportImage() {
+        const _this = this
         let elm = document.getElementById("kanban-board")
         let inner_list = document.getElementsByClassName('drag-inner-list')
         inner_list.forEach(i=>i.classList.add('mh-100'))
         elm.style.transform = "scale(1)"
-        let map_key = VM.currentMindMap.unique_key || "image"
-        domtoimage.toPng(elm,{height:elm.scrollHeight,width:elm.scrollWidth-300})
+        let map_key = _this.currentMindMap.unique_key || "image"
+        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
           .then((url) => {
             let downloadLink = document.createElement("a")
             document.body.appendChild(downloadLink)
