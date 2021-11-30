@@ -46,10 +46,13 @@
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
           <div class="d-inline-block w-100 block">
             <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
-              <textarea-autosize :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
+              <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
                   <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
+                </div>
+                <div>
+                  <i class="fas fa-arrows-alt position-relative ml-2" title="Drag Task"></i>
                 </div>
               </div>
             </div>
@@ -186,17 +189,18 @@
             _this.allStages.pop();
           },
           onEnd: function (evt) {
-            var itemEl = evt.item;
-            let title = itemEl.children[0].children[0].children[0].children[0].children[0].childrpen[0].value
-            _this.changeStagePositions(title,evt.oldIndex,evt.newIndex)
+            var itemEl = evt.item
+            let title = itemEl.getElementsByTagName('textarea')[0].value
+            _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
             _this.allStages.push({title: ''})
           },
           onFilter: function (evt) {
-            var item = evt.item
-            if (Sortable.utils.is(ctrl, ".drag-column-")) {  // Click on remove button
-              item.children[0].children[0].children[0].children[0].children[0].children[0].focus()
+            var item = evt.item, ctrl = evt.target
+            if (Sortable.utils.is(ctrl, ".drag-column-")) {
+              item.getElementsByTagName('textarea')[0].focus()
             }
-            else if (Sortable.utils.is(item, ".block-title")) {
+            else if (Sortable.utils.is(ctrl, ".block-title")) {
+              ctrl.focus()
             }
           }
         });
@@ -424,7 +428,7 @@
       passwordProtect(new_password, old_password){
         http
         .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
-        .then(res=>{
+        .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
             this.$refs['successModal'].open()
@@ -489,8 +493,8 @@
           this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
         }
       },
-      changeStagePositions(title,old_pos,new_pos){
-        let id = this.allStages.find(stg=>stg.title === title).id
+      changeStagePositions(title, old_pos, new_pos){
+        let id = this.allStages.find(stg => stg.title === title).id
         let data = {stage:{
           id: id,
           position: new_pos
