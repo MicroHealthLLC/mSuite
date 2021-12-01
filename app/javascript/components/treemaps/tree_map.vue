@@ -136,7 +136,26 @@
       }
     },
     mounted: async function () {
+      this.$cable.subscribe({
+        channel: "WebNotificationsChannel",
+        room: this.currentMindMap.id,
+      });
       this.getTreeMap()
+    },
+    channels: {
+      WebNotificationsChannel: {
+        connected() {},
+        rejected() {},
+        received(data) {
+          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
+          {
+            window.open('/','_self')
+          }else{
+            this.getTreeMap()
+          }
+        },
+        disconnected() {}
+      }
     },
     methods: {
       exportImage() {
@@ -199,18 +218,18 @@
         await http.put(`/mindmaps/${this.currentMindMap.unique_key}`, data);
         this.parent_node = null
         this.hiddenNode = false
-        this.getTreeMap()
+        // this.getTreeMap()
       },
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj);
         this.child_node = null
         this.hiddenNode = false
-        this.getTreeMap()
+        // this.getTreeMap()
       },
       deleteSelectedNode: async function(obj){
         await http.delete(`/nodes/${obj.id}.json`);
         this.$refs['deleteNodeConfirm'].close()
-        this.getTreeMap()
+        // this.getTreeMap()
       },
       submitChildNode: async function (obj) {
         let _this = this
@@ -224,7 +243,7 @@
           }
         }
         http.post(`/nodes.json`, data).then((res) => {
-          _this.getTreeMap()
+          // _this.getTreeMap()
         }).catch(err => {
           alert(err.message)
         })
