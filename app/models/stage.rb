@@ -10,10 +10,8 @@ class Stage < ApplicationRecord
   before_update :position_updated, if: Proc.new { |p| p.will_save_change_to_attribute?(:position)}
 
   def set_position
-    if params[:stage][:position] <= self.mindmap.stages.last.position
-      self.mindmap.stages.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
-    else
-      self.position = self.mindmap.stages.last.position + 1 rescue 0
+    if self.position <= self.mindmap.stages.last.position
+      self.mindmap.stages.where("position >= ?", self.position).where.not(id: id).update_all("position = position + 1")
     end
   end
 

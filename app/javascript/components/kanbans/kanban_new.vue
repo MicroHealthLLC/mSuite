@@ -243,18 +243,18 @@
       },
       createNewStage(val){
         if (val.length < 1){
-          this.allStages.pop()
           this.getAllStages()
-          return
+          this.new_stage = false
+          return;
         }
         else if(this.checkDuplicate(val))
         {
           this.$refs['duplicateStageModal'].open()
-          this.allStages.pop()
           this.getAllStages()
-          return
+          this.new_stage = false
+          return;
         }
-        let index=this.allStages.findIndex(stg=>stg.title==='')
+        let index=this.allStages.findIndex( stg => stg.title === '')
         let data = {
           stage: {
             title: val,
@@ -262,7 +262,6 @@
             position: index
           }
         }
-        debugger
         http
         .post(`/stages.json`, data)
         .then((res) => {
