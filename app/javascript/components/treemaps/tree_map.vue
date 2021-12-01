@@ -282,7 +282,7 @@
       },
       passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
@@ -330,6 +330,7 @@
         }
       },
       textEdit(eventElement){
+        var keyUpTimeOut
         let _this = this
         var oldTitle = _this.node.label
         eventElement.target.contentEditable = true
@@ -337,10 +338,10 @@
         _this.colorSelected = false
         _this.hiddenNode = true
         _this.oldEventElement = eventElement
-        eventElement.target.addEventListener('keyup',function(ent){
+        eventElement.target.addEventListener('keyup', function(){
+          clearTimeout(keyUpTimeOut)
+          var newTitle = event.target.innerText.split('\n').join('')
           if (event.keyCode === 13) {
-            // eventElement.target.blur();
-            var newTitle = event.target.innerText.split('\n').join('')
             if (newTitle) {
               _this.node_title = newTitle
               _this.putData()
@@ -349,6 +350,12 @@
               _this.$refs['errorNodeModal'].open()
               eventElement.target.innerText = oldTitle
             }
+          }
+          else if (newTitle && newTitle !== oldTitle) {
+            keyUpTimeOut = setTimeout(() => {
+              _this.node_title = newTitle
+              _this.putData()
+            }, 2000)
           }
         })
       },
@@ -382,7 +389,6 @@
         if(this.hiddenNode){
           let _this = this
           let oldTitle = _this.node.label
-          // _this.oldEventElement.blur();
           if (_this.oldEventElement.target.innerText) {
             _this.node_title = _this.oldEventElement.target.innerText
             _this.putData()
@@ -390,8 +396,8 @@
           else {
             _this.$refs['errorNodeModal'].open()
             _this.oldEventElement.target.innerText = oldTitle
+            _this.hiddenNode = false
           }
-          this.hiddenNode = false
           return;
         }
         else if(this.colorSelected){
