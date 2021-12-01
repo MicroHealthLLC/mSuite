@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading">
     <nav class="navbar navbar-light navbar-background d-block">
-      <a class="navbar-brand" href="#" @click="goHome">
+      <a class="navbar-brand pointer"  @click.stop="$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()">
         <img src="/assets/microhealthllc.png"/>
       </a>
       <div class="float-right pt-2 pr-2">
@@ -63,7 +63,7 @@
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
     <delete-block-modal ref="delete-block-modal" @delete_task="deleteBlock(block)"></delete-block-modal>
-
+    <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
     </sweet-modal>
@@ -105,6 +105,7 @@
   import DeleteBlockModal from './modals/delete_block_modal'
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
+  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import vueDebounce from 'vue-debounce'
   import Sortable from 'sortablejs';
   import VueTextareaAutosize from 'vue-textarea-autosize'
@@ -123,7 +124,8 @@
       MakePrivateModal,
       DeleteBlockModal,
       DeleteMapModal,
-      DeletePasswordModal
+      DeletePasswordModal,
+      ConfirmSaveKeyModal
     },
     data() {
       return {
@@ -151,10 +153,6 @@
           }
           this.getAllStages()
           this.getAllNodes()
-        },
-        connected(){
-
-          console.log("I am connected")
         }
       }
     },
