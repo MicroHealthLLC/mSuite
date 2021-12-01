@@ -61,6 +61,10 @@
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">
     </delete-password-modal>
 
+    <sweet-modal ref="errorNodeModal" class="of_v" icon="error" title="Node Title Error">
+      Nodes Title Cannot Be Empty
+    </sweet-modal>
+
     <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
       Do you want to delete this node?
       <button slot="button" @click="deleteSelectedNode(child_node)" class="btn btn-warning mr-2">Delete</button>
@@ -118,15 +122,15 @@
               if (event.target.tagName === 'SPAN')
               {
                 this.setNodeSelected(value)
-                this.textEdit(event,value,elementObject)
+                this.textEdit(event)
               }
               else if (event.target.tagName === 'DIV')
               {
-                this.colorChange(event,value,elementObject)
+                this.colorChange(value, elementObject)
               }
               else if (event.target.tagName === 'path')
               {
-                this.deleteNode(event, value)
+                this.deleteNode(value)
               }
             })
             elementObject.hover(() => {
@@ -218,18 +222,15 @@
         await http.put(`/mindmaps/${this.currentMindMap.unique_key}`, data);
         this.parent_node = null
         this.hiddenNode = false
-        // this.getTreeMap()
       },
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj);
         this.child_node = null
         this.hiddenNode = false
-        // this.getTreeMap()
       },
       deleteSelectedNode: async function(obj){
         await http.delete(`/nodes/${obj.id}.json`);
         this.$refs['deleteNodeConfirm'].close()
-        // this.getTreeMap()
       },
       submitChildNode: async function (obj) {
         let _this = this
@@ -243,9 +244,10 @@
           }
         }
         http.post(`/nodes.json`, data).then((res) => {
-          // _this.getTreeMap()
+          // success modal display
         }).catch(err => {
           alert(err.message)
+          // error modal display
         })
       },
       getTreeMap: async function(){
@@ -314,32 +316,39 @@
       deleteMindmap(){
         http
         .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
-        .then(res=>{
+        .then(res => {
           window.open('/','_self')
         })
-        .catch(error=>{
+        .catch(error => {
           console.log(error)
         })
       },
-      setNodeSelected(v){
-        this.node.label = v.label
+      setNodeSelected(value){
+        this.node.label = value.label
         if(this.node.label){
-          this.child_node = this.nodes.find(n=>n.title === this.node.label)
+          this.child_node = this.nodes.find(n => n.title === this.node.label)
           this.parent_node = (this.node.label == this.currentMindMap.name) ? true : null
         }
       },
-      textEdit(e,v,el){
+      textEdit(evenetElement){
         let _this = this
-        e.target.contentEditable = true
-        e.target.focus();
+        var oldTitle = _this.node.label
+        evenetElement.target.contentEditable = true
+        evenetElement.target.focus();
         _this.colorSelected = false
         _this.hiddenNode = true
-        _this.node_title = e.target.innerText
-        _this.oldEvenetElement = e
-        e.target.addEventListener('keyup',function(){
+        _this.oldEvenetElement = evenetElement
+        evenetElement.target.addEventListener('keyup',function(ent){
           if (event.keyCode === 13) {
-            _this.node_title = e.target.innerText.split('\n').join('')
-            _this.putData()
+            var newTitle = event.target.innerText.split('\n').join('')
+            if (newTitle) {
+              _this.node_title = newTitle
+              _this.putData()
+            }
+            else {
+              _this.$refs['errorNodeModal'].open()
+              evenetElement.target.innerText = oldTitle
+            }
           }
         })
       },
@@ -347,7 +356,7 @@
         if(this.parent_node){
           this.currentMindMap.name = this.node_title
           this.updateTreeMaps(this.currentMindMap)
-        }else{
+        } else {
           this.child_node.title = this.node_title
           this.updateSelectedNode(this.child_node)
         }
@@ -359,7 +368,7 @@
       saveNodeColor(){
         if(this.parent_node){
           this.updateTreeMaps(this.selectedNodeColor)
-        }else{
+        } else {
           this.updateSelectedNode(this.selectedNodeColor)
         }
         this.colorSelected = false
@@ -369,18 +378,27 @@
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
         this.colorSelected = false
       },
-      colorChange(e,v,elementObject){
+      colorChange(value, elementObject){
         if(this.hiddenNode){
-          this.node_title = this.oldEvenetElement.target.innerText
-          this.putData()
+          let _this = this
+          let oldTitle = _this.node.label
+          if (_this.oldEvenetElement.target.innerText) {
+            _this.node_title = _this.oldEvenetElement.target.innerText
+            _this.putData()
+          }
+          else {
+            _this.$refs['errorNodeModal'].open()
+            _this.oldEvenetElement.target.innerText = oldTitle
+          }
+          this.hiddenNode = false
           return;
         }
-        if(this.colorSelected){
+        else if(this.colorSelected){
           this.currentElementObj[0].style.backgroundColor = this.oldElementColor
           return this.colorSelected = false
         }
         this.currentElementObj = elementObject
-        this.setNodeSelected(v)
+        this.setNodeSelected(value)
         this.colorSelected = true
         this.oldElementColor = JSON.parse(JSON.stringify(this.currentElementObj[0].style.backgroundColor))
 
@@ -389,7 +407,7 @@
           this.selectedNodeColor = objKey
           this.nodeColor.hex = objKey.line_color
           this.selectedNodeColor.line_color = this.nodeColor
-        }else{
+        } else {
           let objKey = Object.assign({}, this.child_node)
           this.selectedNodeColor = objKey
           this.nodeColor.hex = objKey.line_color
@@ -397,11 +415,11 @@
         }
 
       },
-      deleteNode(e,v){
-        this.setNodeSelected(v)
+      deleteNode(value){
+        this.setNodeSelected(value)
         if(this.parent_node){
           this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
-        }else{
+        } else {
           this.$refs['deleteNodeConfirm'].open()
         }
       }
