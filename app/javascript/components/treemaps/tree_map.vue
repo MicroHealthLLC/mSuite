@@ -108,7 +108,7 @@
         node:{},
         node_title:'',
         currentElementObj: null,
-        oldEvenetElement: null,
+        oldEventElement: null,
         hiddenNode: false,
         treemap_data: [],
         parent_nodes: {
@@ -133,8 +133,6 @@
                 this.deleteNode(value)
               }
             })
-            elementObject.hover(() => {
-            })
           }
         }
       }
@@ -154,7 +152,7 @@
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
-          }else{
+          } else {
             this.getTreeMap()
           }
         },
@@ -211,6 +209,7 @@
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },
       goHome(){
+        this.colorChange('', this)
         window.open('/',"_self")
       },
       updateTreeMaps: async function (obj) {
@@ -330,16 +329,17 @@
           this.parent_node = (this.node.label == this.currentMindMap.name) ? true : null
         }
       },
-      textEdit(evenetElement){
+      textEdit(eventElement){
         let _this = this
         var oldTitle = _this.node.label
-        evenetElement.target.contentEditable = true
-        evenetElement.target.focus();
+        eventElement.target.contentEditable = true
+        eventElement.target.focus();
         _this.colorSelected = false
         _this.hiddenNode = true
-        _this.oldEvenetElement = evenetElement
-        evenetElement.target.addEventListener('keyup',function(ent){
+        _this.oldEventElement = eventElement
+        eventElement.target.addEventListener('keyup',function(ent){
           if (event.keyCode === 13) {
+            // eventElement.target.blur();
             var newTitle = event.target.innerText.split('\n').join('')
             if (newTitle) {
               _this.node_title = newTitle
@@ -347,7 +347,7 @@
             }
             else {
               _this.$refs['errorNodeModal'].open()
-              evenetElement.target.innerText = oldTitle
+              eventElement.target.innerText = oldTitle
             }
           }
         })
@@ -382,13 +382,14 @@
         if(this.hiddenNode){
           let _this = this
           let oldTitle = _this.node.label
-          if (_this.oldEvenetElement.target.innerText) {
-            _this.node_title = _this.oldEvenetElement.target.innerText
+          // _this.oldEventElement.blur();
+          if (_this.oldEventElement.target.innerText) {
+            _this.node_title = _this.oldEventElement.target.innerText
             _this.putData()
           }
           else {
             _this.$refs['errorNodeModal'].open()
-            _this.oldEvenetElement.target.innerText = oldTitle
+            _this.oldEventElement.target.innerText = oldTitle
           }
           this.hiddenNode = false
           return;
