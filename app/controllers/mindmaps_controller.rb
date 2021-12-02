@@ -124,7 +124,7 @@ class MindmapsController < AuthenticatedController
     if session[:mindmap_id] == @mindmap.id
       return
     elsif @mindmap.password.present?
-      if params[:password_check]
+      if params[:password_check].present?
         @is_verified = @mindmap.check_password(params[:password_check])
         session[:mindmap_id] = @mindmap.id if @is_verified
       else
