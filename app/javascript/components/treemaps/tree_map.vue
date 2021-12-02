@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav class="navbar navbar-light navbar-background d-block">
-      <a class="navbar-brand" href="#" @click="goHome">
+      <a class="navbar-brand pointer"  @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
       <div class="float-right pt-2 pr-2">
@@ -41,6 +41,7 @@
     </div>
 
     <add-node ref="add-node" :treeMap="currentMindMap" :nodes="nodes" @saveNode="submitChildNode"></add-node>
+    <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
 
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
@@ -80,6 +81,7 @@
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import AddNode from './modals/add_node'
   import DeleteMapModal from '../../common/modals/delete_modal'
+  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
 
@@ -90,7 +92,8 @@
       AddNode,
       MakePrivateModal,
       DeleteMapModal,
-      DeletePasswordModal
+      DeletePasswordModal,
+      ConfirmSaveKeyModal
     },
     props:['currentMindMap'], //Props to be used in the widget
     data: function () {
@@ -209,8 +212,7 @@
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },
       goHome(){
-        this.colorChange('', this)
-        window.open('/',"_self")
+        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       updateTreeMaps: async function (obj) {
         let data = {

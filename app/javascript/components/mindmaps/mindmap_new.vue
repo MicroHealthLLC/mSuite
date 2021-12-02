@@ -263,7 +263,7 @@
   import ResetMapModal from "./modals/reset_map_modal"
   import AttachmentModal from "./modals/attachment_modal"
   import CentralAttachmentModal from "./modals/central_attachment_modal"
-  import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
+  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeleteMapModal from '../../common/modals/delete_modal'
