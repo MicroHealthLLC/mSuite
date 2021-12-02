@@ -212,7 +212,6 @@
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },
       goHome(){
-        this.colorChange('', this)
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       updateTreeMaps: async function (obj) {

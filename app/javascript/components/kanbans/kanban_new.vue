@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading">
     <nav class="navbar navbar-light navbar-background d-block">
-      <a class="navbar-brand pointer"  @click.stop="$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()">
+      <a class="navbar-brand pointer"  @click="goHome">
         <img src="/assets/microhealthllc.png"/>
       </a>
       <div class="float-right pt-2 pr-2">
@@ -408,7 +408,7 @@
         })
       },
       goHome(){
-        window.open('/',"_self")
+        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       updateStageTasks(stageId) {
         let stage = this.allStages.find(s => s.id === stageId)
