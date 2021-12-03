@@ -51,7 +51,7 @@ class Mindmap < ApplicationRecord
   end
 
   def check_password(password)
-    Password.new(self.password) == password
+    Password.new(self.password) == password if password
   end
 
   def compute_child
@@ -78,7 +78,7 @@ class Mindmap < ApplicationRecord
   # end
 
   def hash_password
-    self.password = Password.create(self.password)
+    self.password = Password.create(self.password) if self.password.present?
   end
 
   private
