@@ -27,7 +27,7 @@
     </sweet-modal>
 
     <sweet-modal ref="blankPassword" class="of_v" icon="error" title="Blank Password">
-      Leading and Trailing spaces/blanks not considered in password!
+      Blank/Empty spaces not allowed in password!
     </sweet-modal>
   </div>
 </template>
@@ -45,10 +45,15 @@
       }
     },
     methods:{
-      private_password(){
-        this.new_password = this.new_password.trim()
-        this.confirm_password = this.confirm_password.trim()
-        if (this.new_password && this.new_password === this.confirm_password){
+      private_password() {
+        if (this.new_password.includes(' '))  {
+          this.new_password = ""
+          this.old_password = ""
+          this.confirm_password = ""
+          this.$refs['makePrivateModal'].close();
+          this.$refs['blankPassword'].open();
+        }
+        else if (this.new_password.trim() && this.new_password === this.confirm_password){
           this.$emit("password-apply", this.new_password, this.old_password)
           this.new_password = ""
           this.old_password = ""
@@ -61,13 +66,6 @@
           this.old_password = ""
           this.confirm_password = ""
           this.$refs['makePrivateModal'].close();
-        }
-        else {
-          this.new_password = ""
-          this.old_password = ""
-          this.confirm_password = ""
-          this.$refs['makePrivateModal'].close();
-          this.$refs['blankPassword'].open();
         }
       }
     }
