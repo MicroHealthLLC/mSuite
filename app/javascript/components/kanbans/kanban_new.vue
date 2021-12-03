@@ -25,8 +25,10 @@
         <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
           <div class="w-100 mb-2">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex" @click="updateStage(stage)">
-                <textarea-autosize @keydown.enter.prevent.native="blurEvent" :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
+              <div class="text-dark pointer w-100 d-flex">
+                <div @click="updateStage(stage)">
+                  <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
+                </div>
                 <div class="pointer float-right" @click="deleteStageConfirm(stage)">
                   <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
                 </div>
@@ -36,7 +38,7 @@
               </div>
             </div>
           </div>
-          <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100">
+          <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100" title="Add a Task">
             <a role="button" class="bg-transparent border-0 pe-none">
               <i class="fas fa-plus position-absolute mt-1 ml-1 text-secondary"></i>
               <span class="task_plus ml-4"> Add a Task </span>
@@ -78,7 +80,7 @@
 
     <sweet-modal ref="deleteStageConfirm" class="of_v" icon="warning" title="Delete Stage">
       Do you want to delete this stage?
-      <button slot="button" @click="deleteStage(stage)" class="btn btn-warning mr-2">Delete</button>
+      <button slot="button" @click="deleteStage" class="btn btn-warning mr-2">Delete</button>
       <button slot="button" @click="$refs['deleteStageConfirm'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
 
@@ -119,7 +121,6 @@
   })
 
   export default {
-    props: ['currentMindMap'],
     components:{
       MakePrivateModal,
       DeleteBlockModal,
@@ -130,6 +131,7 @@
     data() {
       return {
         loading: true,
+        currentMindMap:{},
         allStages: [],
         blocks: [],
         stage_id: "",
@@ -152,15 +154,14 @@
           {
             window.open('/','_self')
           }
-          this.getAllStages()
-          this.getAllNodes()
+          this.getMindmap(this.currentMindMap.unique_key)
         }
       }
     },
     mounted() {
-      this.$cable.subscribe({channel:"WebNotificationsChannel",room: this.currentMindMap.id})
-      this.getAllStages()
-      this.getAllNodes()
+      if (this.$route.params.key) {
+        this.getMindmap(this.$route.params.key)
+      }
       setTimeout(()=>{
         var elements = Array.from(document.querySelectorAll(".drag-inner-list, #kanban-board"));
         autoScroll(
@@ -190,6 +191,9 @@
             var itemEl = evt.item
             let title = itemEl.getElementsByTagName('textarea')[0].value
             _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
+           if (_this.new_stage){
+            _this.new_stage = false
+           }
           },
           onFilter: function (evt) {
             var item = evt.item, ctrl = evt.target
@@ -212,39 +216,84 @@
       }
     },
     methods: {
+      //=====================GETTING MINDMAP==============================//
+      getMindmap(id){
+        http
+        .get(`/mindmaps/${id}.json`)
+        .then((res) => {
+          this.currentMindMap = res.data.mindmap
+          this.$cable.subscribe({channel:"WebNotificationsChannel",room: this.currentMindMap.id})
+          this.getAllStages()
+          this.getAllNodes()
+        })
+
+      },
+      goHome(){
+        window.open('/',"_self")
+      },
+      //=====================GETTING MINDMAP==============================//
+
+
+      //=====================MINDMAP DELETE ==============================//
+      deleteMindmap(){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .then(res=>{
+          window.open('/','_self')
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
+      confirmDeleteMindmap(){
+        if (this.currentMindMap.password){
+          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
+        }
+        else{
+          this.deleteMindmap()
+        }
+      },
+      passwordCheck(password){
+        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .then(res=>{
+          if (res.data.is_verified){
+            this.deleteMindmap()
+          }
+          else{
+            this.$refs['errorModal'].open()
+          }
+        })
+      },
+          //=====================MINDMAP DELETE ==============================//
+
+
+
+      // =====================STAGES CRUD OPERATIONS==============================//
       getAllStages() {
         http
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
         .then((res) => {
           this.allStages = res.data.stages
+          this.new_stage = false
           })
         .catch((err) => {
           console.log(err)
         })
 
       },
-      getAllNodes(){
-        http
-        .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
-        .then((res) => {
-          this.blocks = res.data.nodes
-          this.loading = false
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      },
       addNewStage(stage){
         if (this.new_stage){
           return;
         }
-        this.allStages.splice(this.allStages.findIndex(stg=>stg.title===stage)+1,0,{title:''})
+        let index = this.allStages.findIndex(stg=>stg.title===stage) + 1
+        this.allStages.splice(index,0,{title:''})
         this.new_stage=true
       },
       createNewStage(val){
         if (val.length < 1){
           this.getAllStages()
           this.new_stage = false
+          this.stage = null
           return;
         }
         else if(this.checkDuplicate(val))
@@ -252,6 +301,7 @@
           this.$refs['duplicateStageModal'].open()
           this.getAllStages()
           this.new_stage = false
+          this.stage = null
           return;
         }
         let index=this.allStages.findIndex( stg => stg.title === '')
@@ -265,11 +315,12 @@
         http
         .post(`/stages.json`, data)
         .then((res) => {
-          this.allStages.splice(index-1,1,res.data.stage)
+          this.allStages.splice(index,1,res.data.stage)
           this.new_stage = false
           this.stage = null
         })
         .catch((error) => {
+          this.stage = null
           console.log(error)
         })
       },
@@ -292,30 +343,9 @@
           console.log(err)
         })
       },
-
-      updateBlockPosition(id, status, position) {
-        let stage_id = this.allStages.find(stg => stg.title === status).id
-        let block = {
-          node: {
-            stage_id: stage_id,
-            position: position
-          }
-        }
-
-        http
-        .patch(`/nodes/${id}.json`,block)
-        .then((res)=>{
-          let block_id = this.blocks.findIndex(b => b.id === Number(id))
-          this.blocks[block_id].index = res.data.node.position
-          this.blocks[block_id].status = status
-        })
-        .catch(err => {
-          console.log(err)
-        })
-      },
       deleteStage(){
         this.$refs['deleteStageConfirm'].close()
-        let id = this.allStages.find(stg => stg.title === this.stage.title).id
+        let id = this.allStages.find(stg => stg.title === this.stage).id
         let data={
           stage: {
             id: id
@@ -326,8 +356,9 @@
         .then(response =>
         {
           if (response.data.success === true){
-            this.allStages = this.allStages.filter(stg => stg.title !== this.stage.title)
-            this.blocks = this.blocks.filter(block => block.status !== this.stage.title)
+            debugger
+            this.allStages = this.allStages.filter(stg => stg.title !== this.stage)
+            this.blocks = this.blocks.filter(block => block.status !== this.stage)
             this.stage = null
           }
           else {
@@ -379,6 +410,90 @@
           }
         })
       },
+      updateStageTasks(stageId) {
+        let stage = this.allStages.find(s => s.id === stageId)
+        this.blocks.filter(b => b.stage_id == stage.id).map((b) => {
+          b.status = stage.title
+        })
+      },
+      deleteStageConfirm(stage){
+        if(stage==='')
+        {
+          this.allStages.splice(this.allStages.findIndex(stg=>stg.title===''),1)
+          this.stage=null
+          this.new_stage = false
+        }
+        else{
+          this.stage = stage
+          this.$refs['deleteStageConfirm'].open()
+        }
+
+      },
+      checkDuplicate(val){
+        let is_val = false
+        this.allStages.forEach((x) => {
+          if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
+        })
+        return is_val
+      },
+      newStageTitle(e) {
+        if (this.stage !== null) {
+          this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
+        }
+      },
+      changeStagePositions(title, old_pos, new_pos){
+        let id = this.allStages.find(stg => stg.title === title).id
+        let data = {stage:{
+          id: id,
+          position: new_pos
+        }}
+        http
+        .patch(`/stages/${id}.json`, data)
+        .then(result => {
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+      },
+      // =====================STAGES CRUD OPERATIONS==============================//
+
+
+      //=====================NODE CRUD OPERATIONS==============================//
+
+      getAllNodes(){
+        http
+        .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
+        .then((res) => {
+          this.blocks = res.data.nodes
+          this.new_stage = false
+          this.loading = false
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      },
+
+      updateBlockPosition(id, status, position) {
+        let stage_id = this.allStages.find(stg => stg.title === status).id
+        let block = {
+          node: {
+            stage_id: stage_id,
+            position: position
+          }
+        }
+
+        http
+        .patch(`/nodes/${id}.json`,block)
+        .then((res)=>{
+          let block_id = this.blocks.findIndex(b => b.id === Number(id))
+          this.blocks[block_id].index = res.data.node.position
+          this.blocks[block_id].status = status
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      },
+
 
       updateBlock(block,event){
         this.selected = ""
@@ -413,15 +528,9 @@
           console.log(err)
         })
       },
-      goHome(){
-        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
-      },
-      updateStageTasks(stageId) {
-        let stage = this.allStages.find(s => s.id === stageId)
-        this.blocks.filter(b => b.stage_id == stage.id).map((b) => {
-          b.status = stage.title
-        })
-      },
+      //=====================NODE CRUD OPERATIONS==============================//
+
+      //=====================PASSWORD PROTECT==============================//
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
@@ -442,6 +551,9 @@
           }
         })
       },
+
+      //=====================PASSWORD PROTECT==============================//
+      //=====================OTHER FUNCTIONS ==============================//
       blurEvent(val, e){
         if (e.target) e.target.blur()
       },
@@ -451,72 +563,6 @@
       },
       selectedNode(index){
         this.selected = index
-      },
-      confirmDeleteMindmap(){
-        if (this.currentMindMap.password){
-          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        }
-        else{
-          this.deleteMindmap()
-        }
-      },
-      passwordCheck(password){
-        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
-        .then(res=>{
-          if (res.data.is_verified){
-            this.deleteMindmap()
-          }
-          else{
-            this.$refs['errorModal'].open()
-          }
-        })
-      },
-      deleteMindmap(){
-        http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
-        .then(res=>{
-          window.open('/','_self')
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      deleteStageConfirm(stage){
-        if(stage==='')
-        {
-          this.allStages.splice(this.allStages.findIndex(stg=>stg.title===''),1)
-        }
-        else{
-          this.stage = stage
-          this.$refs['deleteStageConfirm'].open()
-        }
-
-      },
-      checkDuplicate(val){
-        let is_val = false
-        this.allStages.forEach((x) => {
-          if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
-        })
-        return is_val
-      },
-      newStageTitle(e) {
-        if (this.stage !== null) {
-          this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
-        }
-      },
-      changeStagePositions(title, old_pos, new_pos){
-        let id = this.allStages.find(stg => stg.title === title).id
-        let data = {stage:{
-          id: id,
-          position: new_pos
-        }}
-        http
-        .patch(`/stages/${id}.json`, data)
-        .then(result => {
-        })
-        .catch(err=>{
-          console.log(err)
-        })
       },
       exportImage() {
         const _this = this
@@ -539,6 +585,7 @@
             console.error('oops, something went wrong!', err)
           })
       },
+      //=====================OTHER FUNCTIONS ==============================//
     }
   }
 </script>

@@ -223,10 +223,10 @@ ul.drag-inner-list {
   background: lightgrey;
   border-radius: 5px;
   padding-left: 6px;
-  cursor: auto !important;
+  cursor: text !important;
 }
 .block-title:hover {
-  cursor: pointer !important;
+  cursor: pointer;
 }
 .add-icon{
   color: dodgerblue;

@@ -374,7 +374,10 @@
           ) {
             this.selectedNode = data.node
           }
-
+          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
+          {
+            window.open('/','_self')
+          }
           this.getMindmap(this.currentMindMap.unique_key)
         }
       }
