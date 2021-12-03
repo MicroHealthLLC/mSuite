@@ -9,10 +9,6 @@
             <i class="fas fa-shield-alt"></i>
             Make Private
         </button>
-        <button role="button" class="btn btn-primary" @click.prevent="AddNodeToMap">
-          <i class="fas fa-plus"></i>
-          Add Node
-        </button>
         <button role="button" class="btn btn-secondary" @click.prevent="exportImage">
           <i class="fas fa-image"></i>
           Export Image
@@ -40,8 +36,8 @@
       </div>
     </div>
 
-    <add-node ref="add-node" :treeMap="currentMindMap" :nodes="nodes" @saveNode="submitChildNode"></add-node>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
+
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
 
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
@@ -79,7 +75,6 @@
   import domtoimage from "dom-to-image-more"
   import http from '../../common/http'
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
-  import AddNode from './modals/add_node'
   import DeleteMapModal from '../../common/modals/delete_modal'
   import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
@@ -89,7 +84,6 @@
     components: {
     // Adding imported widgets here
       JqxTreeMap,
-      AddNode,
       MakePrivateModal,
       DeleteMapModal,
       DeletePasswordModal,
@@ -106,14 +100,15 @@
         width: 850,
         parent_node: null,
         child_node: null,
-        height: 600,
-        colorRange: 50,
+        addChildTreeMap: false,
         node:{},
         node_title:'',
+        newNodeValue: '',
         currentElementObj: null,
         oldEventElement: null,
         hiddenNode: false,
         treemap_data: [],
+        submitChild: false,
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -125,7 +120,7 @@
               if (event.target.tagName === 'SPAN')
               {
                 this.setNodeSelected(value)
-                this.textEdit(event)
+                this.textEdit(event, value)
               }
               else if (event.target.tagName === 'DIV')
               {
@@ -133,7 +128,11 @@
               }
               else if (event.target.tagName === 'path')
               {
-                this.deleteNode(value)
+                if(event.target.nearestViewportElement.classList.contains('fa-plus')){
+                  this.addNodeToTreeMap(value, event)
+                }else if(event.target.nearestViewportElement.classList.contains('fa-times')){
+                  this.deleteNode(value)
+                }
               }
             })
           }
@@ -181,35 +180,34 @@
           console.error('oops, something went wrong!', err)
         })
       },
-      AddNodeToMap: function () {
-        this.$refs['add-node'].$refs['addNodeToTreeMap'].open()
-      },
       onBindingComplete: function (event) {
         let nodestreeMaps = []
-        var node = document.createElement("i");
-        var textnode = document.createTextNode("")
-        node.appendChild(textnode);
-        node.setAttribute('class','fas fa-times cancel-btn mr-1 mt-1')
-        event.target.children[0].append(node)
+        var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mr-1 mt-1 pointer')
+        var nodeElementSecond = this.insertNodeElement('mr-2 fas fa-plus color-white cancel-btn mr-1 mt-1 pointer')
+        event.target.children[0].append(nodeElement, nodeElementSecond)
         this.appendElementTreeMap(event.target.children[0].children)
       },
       appendElementTreeMap(objArray){
         let jqxParentArray = new Array()
         objArray.forEach((e)=>{
-          var nodeElement = document.createElement("i");
-          var textnodeElement = document.createTextNode("")
-          nodeElement.appendChild(textnodeElement);
-          nodeElement.setAttribute('class','fas fa-times cancel-btn mr-1 mt-1 pointer')
-
+          var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mr-1 mt-1 pointer')
+          var nodeElementSecond = this.insertNodeElement('mr-2 fas fa-plus color-white cancel-btn mr-1 mt-1 pointer')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
           {
-            e.append(nodeElement)
+            e.append(nodeElement, nodeElementSecond)
             jqxParentArray = [].concat.apply(jqxParentArray, e.children)
           }
 
-          if(e.className == 'jqx-treemap-rectangle') e.append(nodeElement)
+          if(e.className == 'jqx-treemap-rectangle') e.append(nodeElement, nodeElementSecond)
         })
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
+      },
+      insertNodeElement(class_list){
+        var nodeElement = document.createElement("i");
+        var textnodeElement = document.createTextNode("")
+        nodeElement.appendChild(textnodeElement);
+        nodeElement.setAttribute('class', class_list)
+        return nodeElement
       },
       goHome(){
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
@@ -223,11 +221,13 @@
         await http.put(`/mindmaps/${this.currentMindMap.unique_key}`, data);
         this.parent_node = null
         this.hiddenNode = false
+        this.addChildTreeMap = false
       },
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj);
         this.child_node = null
         this.hiddenNode = false
+        this.addChildTreeMap = false
       },
       deleteSelectedNode: async function(obj){
         await http.delete(`/nodes/${obj.id}.json`);
@@ -245,6 +245,9 @@
           }
         }
         http.post(`/nodes.json`, data).then((res) => {
+          _this.submitChild = false
+          _this.addChildTreeMap = false
+          _this.hiddenNode = false
           // success modal display
         }).catch(err => {
           alert(err.message)
@@ -326,19 +329,24 @@
       },
       setNodeSelected(value){
         this.node.label = value.label
-        if(this.node.label){
+        if(this.node.label && value.label != "Enter Node Title Here"){
           this.child_node = this.nodes.find(n => n.title === this.node.label)
           this.parent_node = (this.node.label == this.currentMindMap.name) ? true : null
+        }else if(value.parent.label && value.label == "Enter Node Title Here"){
+          this.child_node = this.nodes.find(n => n.title === value.parent.label)
+          this.parent_node = (value.parent.label == this.currentMindMap.name) ? true : null
+          this.submitChild = true
         }
       },
-      textEdit(eventElement){
-        var keyUpTimeOut
+      textEdit(eventElement, value){
         let _this = this
+        _this.hiddenNode = true
+        if(value.label == 'Enter Node Title Here') return this.saveNodeElement(eventElement,value);
+        var keyUpTimeOut
         var oldTitle = _this.node.label
         eventElement.target.contentEditable = true
         eventElement.target.focus();
         _this.colorSelected = false
-        _this.hiddenNode = true
         _this.oldEventElement = eventElement
         eventElement.target.addEventListener('keyup', function(){
           clearTimeout(keyUpTimeOut)
@@ -361,11 +369,48 @@
           }
         })
       },
+      saveNodeElement(eventElement, value){
+        let _this = this
+        var keyUpTimeOut
+        var oldTitle = _this.node.label
+        var input = document.createElement("input");
+        input.type = "text";
+        input.setAttribute("id", "nodeField")
+        input.setAttribute("class", "input-field px-2")
+        eventElement.target.innerText = ''
+        eventElement.target.appendChild(input)
+        document.getElementById('nodeField').focus()
+        eventElement.target.addEventListener('keyup', (() => {
+          clearTimeout(keyUpTimeOut)
+          _this.newNodeValue = document.getElementById('nodeField').value
+          if (event.keyCode === 13) {
+            if(_this.newNodeValue && _this.newNodeValue != oldTitle) _this.postDataNode(_this.newNodeValue)
+            else {
+             _this.$refs['errorNodeModal'].open(); eventElement.target.innerText = oldTitle
+            }
+          }else if (_this.newNodeValue && _this.newNodeValue !== oldTitle)
+          {
+            keyUpTimeOut = setTimeout(() => {
+              _this.postDataNode(_this.newNodeValue)
+            }, 2000)
+          }
+         }), false)
+      },
+      postDataNode(){
+        let node = {
+          label: this.newNodeValue,
+          parent_label: null,
+          node_width: '50',
+          color: '#CCBBBB'
+        }
+        if(this.child_node) node.parent_label = this.child_node.id
+        this.submitChildNode(node)
+      },
       putData(){
-        if(this.parent_node){
+        if(!this.submitChild && this.parent_node){
           this.currentMindMap.name = this.node_title
           this.updateTreeMaps(this.currentMindMap)
-        } else {
+        }else if(this.child_node && !this.submitChild){
           this.child_node.title = this.node_title
           this.updateSelectedNode(this.child_node)
         }
@@ -388,8 +433,10 @@
         this.colorSelected = false
       },
       colorChange(value, elementObject){
+        if(value.label == 'Enter Node Title Here') return;
         if(this.hiddenNode){
           let _this = this
+          if(this.newNodeValue) return this.postDataNode();
           let oldTitle = _this.node.label
           if (_this.oldEventElement.target.innerText) {
             _this.node_title = _this.oldEventElement.target.innerText
@@ -425,12 +472,32 @@
 
       },
       deleteNode(value){
+        if(this.addChildTreeMap){
+          this.treemap_data.splice(-1, 1)
+          this.addChildTreeMap = false
+          return this.$refs.myTreeMap.source = this.treemap_data
+        }
         this.setNodeSelected(value)
         if(this.parent_node){
           this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
         } else {
           this.$refs['deleteNodeConfirm'].open()
         }
+      },
+      addNodeToTreeMap(value, event){
+        if(this.addChildTreeMap) return
+        this.setNodeSelected(value)
+        let node = {
+          label: 'Enter Node Title Here',
+          parent: '',
+          value: '50',
+          color: '#CCBBBB'
+        }
+        this.addChildTreeMap = true
+        if(this.child_node) node.parent = JSON.parse(JSON.stringify(this.child_node.title))
+        if(this.parent_node) node.parent = JSON.parse(JSON.stringify(this.currentMindMap.name))
+        this.treemap_data.push(node)
+        this.$refs.myTreeMap.source = this.treemap_data
       }
     }
   }
