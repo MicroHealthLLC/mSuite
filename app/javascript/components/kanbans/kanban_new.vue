@@ -154,7 +154,12 @@
           {
             window.open('/','_self')
           }
-          this.getMindmap(this.currentMindMap.unique_key)
+          if(data.message === "Password Updated")
+          {
+            setTimeout(()=>{location.reload()},500)
+          }
+          this.getAllStages()
+          this.getAllNodes()
         }
       }
     },
@@ -205,7 +210,7 @@
             }
           }
         });
-      }, 1000)
+      }, 1500)
     },
     computed: {
       computedStages() {

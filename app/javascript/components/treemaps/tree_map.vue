@@ -154,9 +154,15 @@
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
-          } else {
+          }
+          if(data.message === "Password Updated")
+          {
+            setTimeout(()=>{location.reload()},500)
+          }
+          else {
             this.getTreeMap()
           }
+
         },
         disconnected() {}
       }

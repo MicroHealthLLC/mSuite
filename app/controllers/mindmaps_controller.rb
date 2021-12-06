@@ -24,7 +24,8 @@ class MindmapsController < AuthenticatedController
 
   def update
     @mindmap.update(mindmap_params)
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "This is Message"
+    message = params[:mindmap][:password].present? ? "Password Updated" : "Mindmap Updated"
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message
     respond_to do |format|
       format.json { render json: {mindmap: @mindmap.to_json}}
       format.html { }
@@ -115,17 +116,16 @@ class MindmapsController < AuthenticatedController
 
   def set_mindmap
     @mindmap = Mindmap.find_by(unique_key: params[:id])
-    #check_auth
   end
 
   def verify_password
     @is_verified = true
-    if session[:mindmap_id] == @mindmap.id
+    if @mindmap.password.present? && session[:mindmap_id] == @mindmap.unique_key + @mindmap.password
       return
     elsif @mindmap.password.present?
       if params[:password_check].present?
         @is_verified = @mindmap.check_password(params[:password_check])
-        session[:mindmap_id] = @mindmap.id if @is_verified
+        session[:mindmap_id] = @mindmap.unique_key + @mindmap.password if @is_verified
       else
         @is_verified = false
       end
@@ -162,6 +162,8 @@ class MindmapsController < AuthenticatedController
         respond_to do |format|
           format.json { render json: {error: "Password Mismatched"}}
         end
+      else
+        session.delete(:mindmap_id)
       end
     end
   end
