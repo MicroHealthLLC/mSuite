@@ -134,7 +134,6 @@
         currentMindMap:{},
         allStages: [],
         blocks: [],
-        stage_id: "",
         stage: null,
         block: {},
         new_stage:false,
@@ -156,7 +155,9 @@
           }
           if(data.message === "Password Updated")
           {
-            setTimeout(()=>{location.reload()},500)
+            setTimeout(()=>{
+              location.reload()
+            }, 500)
           }
           this.getAllStages()
           this.getAllNodes()
@@ -227,7 +228,7 @@
         .get(`/mindmaps/${id}.json`)
         .then((res) => {
           this.currentMindMap = res.data.mindmap
-          this.$cable.subscribe({channel:"WebNotificationsChannel",room: this.currentMindMap.id})
+          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
           this.getAllStages()
           this.getAllNodes()
         })
@@ -361,7 +362,6 @@
         .then(response =>
         {
           if (response.data.success === true){
-            debugger
             this.allStages = this.allStages.filter(stg => stg.title !== this.stage)
             this.blocks = this.blocks.filter(block => block.status !== this.stage)
             this.stage = null

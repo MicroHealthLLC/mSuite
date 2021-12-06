@@ -157,7 +157,9 @@
           }
           if(data.message === "Password Updated")
           {
-            setTimeout(()=>{location.reload()},500)
+            setTimeout(()=>{
+              location.reload()
+            }, 500)
           }
           else {
             this.getTreeMap()
