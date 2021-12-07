@@ -40,7 +40,7 @@
           </div>
           <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100" title="Add a Task">
             <a role="button" class="bg-transparent border-0 pe-none">
-              <i class="fas fa-plus position-absolute mt-1 ml-1 text-secondary"></i>
+              <i class="fas fa-plus position-absolute mt-1 text-secondary"></i>
               <span class="task_plus ml-4"> Add a Task </span>
             </a>
           </div>
