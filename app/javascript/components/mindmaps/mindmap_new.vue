@@ -353,6 +353,10 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
+          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
+          {
+            window.open('/','_self')
+          }
           if (
             this.selectedNode !== null           &&
             data.message === "Node file deleted" &&
@@ -374,7 +378,6 @@
           ) {
             this.selectedNode = data.node
           }
-
           this.getMindmap(this.currentMindMap.unique_key)
         }
       }

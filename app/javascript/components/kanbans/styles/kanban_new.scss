@@ -203,7 +203,7 @@ ul.drag-inner-list {
 }
 .stage-title {
   background: transparent;
-  width: 90% !important;
+  width: 100% !important;
 }
 .stage-title:hover{
   cursor: pointer !important;
@@ -223,14 +223,14 @@ ul.drag-inner-list {
   background: lightgrey;
   border-radius: 5px;
   padding-left: 6px;
-  cursor: auto !important;
+  cursor: text !important;
 }
 .block-title:hover {
-  cursor: pointer !important;
+  cursor: pointer;
 }
 .add-icon{
   color: dodgerblue;
-  right: 15px;
+  right: 32px;
 }
 .sortable-drag {
   opacity: 0.8;
