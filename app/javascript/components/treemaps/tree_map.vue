@@ -182,23 +182,31 @@
       },
       onBindingComplete: function (event) {
         let nodestreeMaps = []
-        var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mr-1 mt-1 pointer')
-        var nodeElementSecond = this.insertNodeElement('mr-2 fas fa-plus color-white cancel-btn mr-1 mt-1 pointer')
+        var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer')
+        var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer')
         event.target.children[0].append(nodeElement, nodeElementSecond)
         this.appendElementTreeMap(event.target.children[0].children)
       },
       appendElementTreeMap(objArray){
         let jqxParentArray = new Array()
         objArray.forEach((e)=>{
-          var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mr-1 mt-1 pointer')
-          var nodeElementSecond = this.insertNodeElement('mr-2 fas fa-plus color-white cancel-btn mr-1 mt-1 pointer')
+          var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer')
+          var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
           {
+            e.style.marginTop = '3px'
+            e.style.width = e.style.width.split('px')[0] - 5 + 'px'
+            e.style.height = e.style.height.split('px')[0] - 5 + 'px'
             e.append(nodeElement, nodeElementSecond)
             jqxParentArray = [].concat.apply(jqxParentArray, e.children)
           }
 
-          if(e.className == 'jqx-treemap-rectangle') e.append(nodeElement, nodeElementSecond)
+          if(e.className == 'jqx-treemap-rectangle'){
+            e.style.marginTop = '3px'
+            e.style.width = e.style.width.split('px')[0] - 10 + 'px'
+            e.style.height = e.style.height.split('px')[0] - 10 + 'px'
+            e.append(nodeElement, nodeElementSecond)
+          }
         })
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },

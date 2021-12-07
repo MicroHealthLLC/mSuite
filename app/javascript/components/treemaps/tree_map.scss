@@ -5,7 +5,7 @@
 .jqx-treemap-rectangle {
   border: 1px solid gray !important;
   padding: 2px !important;
-  margin: 5px;
+  margin-left: 5px !important;
 }
 .jqx-treemap-label, .jqx-treemap-rectangle span {
   min-width: 5%;
@@ -55,4 +55,8 @@
 }
 .input-field {
   border-radius: 5px;
+}
+.svg-inline--fa, .fa-plus {
+  height: 1.1em;
+  width: 1.6em !important;
 }
