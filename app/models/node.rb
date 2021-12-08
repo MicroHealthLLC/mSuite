@@ -49,7 +49,7 @@ class Node < ApplicationRecord
   end
 
   def parent_changed
-    parent = self.parent_node != 0 ? Node.find_by_id(self.parent_node) : self
+    parent = (self.parent_node != 0 && self.parent_node != nil) ? Node.find_by_id(self.parent_node) : self
     update_parent_attr(Node.where(parent_node: self.id), parent)
   end
 
@@ -143,9 +143,10 @@ class Node < ApplicationRecord
 
   def update_parent_attr(nodes, parent)
     return if nodes.length == 0
-
     nodes.each do |nod|
-      nod.update_columns(line_color: parent.line_color)
+      unless(mindmap.mm_type == 'tree_map')
+        nod.update_columns(line_color: parent.line_color)
+      end
       update_parent_attr(Node.where(parent_node: nod.id), nod)
     end
   end

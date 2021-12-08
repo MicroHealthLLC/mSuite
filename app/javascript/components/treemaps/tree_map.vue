@@ -87,6 +87,7 @@
         child_node: null,
         addChildTreeMap: false,
         node:{},
+        dragedNode: null,
         node_title:'',
         newNodeValue: '',
         currentElementObj: null,
@@ -177,6 +178,8 @@
         let nodestreeMaps = []
         var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer', 'Delete Node')
         var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer', 'Add Child Node')
+        event.target.children[0].addEventListener('drop', this.dropNode)
+        event.target.children[0].addEventListener('dragover', this.allowdrop)
         event.target.children[0].append(nodeElement, nodeElementSecond)
         this.appendElementTreeMap(event.target.children[0].children)
       },
@@ -190,6 +193,7 @@
             e.style.marginTop = '3px'
             e.style.width = e.style.width.split('px')[0] - 5 + 'px'
             e.style.height = e.style.height.split('px')[0] - 5 + 'px'
+            this.bindDragAndDrop(e)
             e.append(nodeElement, nodeElementSecond)
             jqxParentArray = [].concat.apply(jqxParentArray, e.children)
           }
@@ -198,12 +202,41 @@
             e.style.marginTop = '3px'
             e.style.width = e.style.width.split('px')[0] - 10 + 'px'
             e.style.height = e.style.height.split('px')[0] - 10 + 'px'
+            this.bindDragAndDrop(e)
             e.append(nodeElement, nodeElementSecond)
           }
         })
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },
-      insertNodeElement(class_list, title){
+      bindDragAndDrop(event){
+        event.setAttribute("draggable", true)
+        event.addEventListener('dragstart', this.dragStart)
+        event.addEventListener('drop', this.dropNode)
+        event.addEventListener('dragover', this.allowdrop)
+      },
+      allowdrop(ev){
+        ev.preventDefault()
+      },
+      dropNode(e){
+        var dropNode = { label: '' }
+        if (event.target.tagName === 'SPAN') dropNode.label = e.target.innerText
+        if (event.target.tagName === 'DIV') dropNode.label = e.target.children[0].innerText
+        this.setNodeSelected(dropNode)
+        if(dropNode.label != this.dragedNode.title)
+        {
+          if(this.child_node) this.dragedNode.parent_node = this.child_node.id
+          else if(this.parent_node) this.dragedNode.parent_node = null
+          this.updateSelectedNode(this.dragedNode)
+        }
+      },
+      dragStart(e){
+        var dragNode = { label: '' }
+        if (event.target.tagName === 'SPAN') dragNode.label = e.target.innerText
+        if (event.target.tagName === 'DIV') dragNode.label = e.target.children[0].innerText
+        this.setNodeSelected(dragNode)
+        this.dragedNode = this.child_node
+      },
+      insertNodeElement(class_list, title) {
         var nodeElement = document.createElement("i");
         var textnodeElement = document.createTextNode("")
         nodeElement.appendChild(textnodeElement);
@@ -228,6 +261,7 @@
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj);
         this.child_node = null
+        this.parent_node = null
         this.hiddenNode = false
         this.addChildTreeMap = false
       },
