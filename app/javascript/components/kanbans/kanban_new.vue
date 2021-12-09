@@ -47,7 +47,7 @@
         </div>
       </kanban-board>
         <div v-if="colorSelected">
-          <div class="card col-3 card-poisiton p-0 border-none color-picker-placement">
+          <div class="card col-3 p-0 border-none color-picker-placement">
             <div class="card-body p-0">
               <chrome-picker v-model="selectedStage.stage_color" @input="updateColor"/>
             </div>
@@ -215,7 +215,7 @@
             }
           });
           this.updateBackgroundColors()
-        },1000)
+        }, 1500)
       })
     },
     computed: {
@@ -293,7 +293,7 @@
       },
       updateBackgroundColors(){
         let ArraybgColors = Array.from(document.getElementsByClassName('drag-column'))
-        ArraybgColors.forEach((bg,index) =>{
+        ArraybgColors.forEach((bg, index) => {
           bg.style.backgroundColor = this.allStages[index].stage_color
         })
       },
