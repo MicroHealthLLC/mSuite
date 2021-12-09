@@ -1,138 +1,6 @@
 <template>
   <div class="map-container">
-    <div class="buttons_area">
-      <div class="buttons_container mx-2">
-        <span class="flex">
-          <a
-            href="javascript:;"
-            role="button"
-            class="d-flex text-info edit_delete_btn ml-2 mr-3 center_flex"
-            @click.stop="goHome"
-          >
-            <i class="material-icons home_icon icons d-flex center_flex"></i>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.stop="openPrivacy"
-          >
-            <i class="fas fa-shield-alt icons d-flex center_flex"></i>
-            <span class="fa-icon-text">Make Private</span>
-          </a>
-        </span>
-        <span v-if="currentMindMap.editable" class="ml_14">
-          <a
-            href="javascript:;"
-            role="button"
-            :disabled="!selectedNode"
-            :class="{button_disabled: !selectedNode}"
-            class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="deleteSelectedNode"
-          >
-            <i class="material-icons delete_icon icons d-flex center_flex"></i>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            :disabled="!selectedNode"
-            :class="{button_disabled: !copiedNode}"
-            class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="pasteCopiedNode"
-          >
-            <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
-            <span class="fa-icon-text">Paste</span>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            :disabled="!selectedNode"
-            :class="{button_disabled: !selectedNode}"
-            class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="cutSelectedNode"
-          >
-            <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
-            <span class="fa-icon-text">Cut</span>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            :disabled="!selectedNode"
-            :class="{button_disabled: !selectedNode}"
-            class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="copySelectedNode"
-          >
-            <i class="material-icons copy_icon icons d-flex center_flex"></i>
-          </a>
-        </span>
-        <span>
-          <a
-            href="javascript:;"
-            role="button"
-            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent="$refs['delete-map-modal'].$refs['deleteMapModal'].open"
-          >
-            <i class="fas fa-trash-alt icons d-flex center_flex"></i>
-            <span class="fa-icon-text">Delete Map</span>
-          </a>
-          <a
-            v-if="currentMindMap.editable"
-            href="javascript:;"
-            role="button"
-            class="d-flex text-info edit_delete_btn mr-3 center_flex"
-            @click.stop="$refs['reset-map-modal'].$refs['resetMapModal'].open"
-          >
-            <i class="material-icons restore_icon icons d-flex center_flex"></i>
-          </a>
-          <a
-            ref="exportWordBtn"
-            role="button"
-            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.stop="exportToWord"
-          >
-            <i class="fas fa-file-word icons d-flex center_flex"></i>
-            <span class="fa-icon-text">Export Word</span>
-          </a>
-          <a
-            ref="exportBtn"
-            role="button"
-            href="javascript:;"
-            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent.stop="exportToImage"
-          >
-            <i class="material-icons export_icon icons d-flex center_flex"></i>
-          </a>
-          <span class="scaling_area">
-            <a
-              v-if="scaleFactor != 1"
-              href="javascript:;"
-              role="button"
-              class="fa-icon zoom_btn text-info edit_delete_btn center_flex mr-3"
-              @click.prevent="resetZoomScale"
-            >
-              <i class="fas fa-history icons d-flex center_flex"></i>
-              <span class="fa-icon-text">100%</span>
-            </a>
-            <a
-              href="javascript:;"
-              role="button"
-              class="zoom_btn text-info edit_delete_btn center_flex mr-3"
-              @click.prevent="zoomInScale"
-            >
-              <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
-            </a>
-            <a
-              href="javascript:;"
-              role="button"
-              class="zoom_btn text-info edit_delete_btn mr-3 center_flex"
-              @click.prevent="zoomOutScale"
-            >
-              <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
-            </a>
-          </span>
-        </span>
-      </div>
-    </div>
+    <navigation-bar @goHome="goHome" ref="navigationBar" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportToImage" @exportToWord="exportToWord" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" @zoomOutScale="zoomOutScale" @resetMap="resetMap" @copySelectedNode="copySelectedNode" @deleteSelectedNode="deleteSelectedNode" @pasteCopiedNode="pasteCopiedNode" @cutSelectedNode="cutSelectedNode" :current-mind-map="currentMindMap" :scaleFactor="scaleFactor" :selected-node="selectedNode" :copied-node="copiedNode"></navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
       <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
@@ -257,6 +125,7 @@
   import _ from "lodash"
   import Jimp from 'jimp'
   import domtoimage from "dom-to-image-more"
+  import NavigationBar from "../../common/navigation_bar"
   import InputField from "./idea_input_field"
   import NewMapModal from "./modals/new_map_modal"
   import OpenMapModal from "./modals/open_map_modal"
@@ -282,7 +151,8 @@
       ExportToWordModal,
       MakePrivateModal,
       DeleteMapModal,
-      DeletePasswordModal
+      DeletePasswordModal,
+      NavigationBar
     },
 
     data() {
@@ -901,6 +771,12 @@
           })
         }
       },
+      resetMap(){
+        this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
+      },
+      deleteMap(){
+        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
+      },
       resetMindmap() {
         http
           .get(`/mindmaps/${this.currentMindMap.unique_key}/reset_mindmap.json`)
@@ -1089,7 +965,7 @@
           })
 
         elm.style.transform = "scale(" + this.scaleFactor +")"
-        VM.$refs.exportBtn.blur()
+        VM.$refs.navigationBar.$refs.exportBtn.blur()
       },
       zoomInScale() {
         if (this.scaleFactor < 1.50) {
