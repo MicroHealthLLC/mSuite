@@ -111,7 +111,7 @@
     </sweet-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
 
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
     </delete-password-modal>
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
@@ -818,22 +818,21 @@
           this.deleteMindmap()
         }
       },
-      passwordCheck(password){
-        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+      deleteMindmapProtected(password){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
-          if (res.data.is_verified){
-            this.deleteMindmap()
-          }
-          else{
+          if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
-          }
+        })
+        .catch(error=>{
+          console.log(error)
         })
       },
       deleteMindmap(){
         http
         .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
         .then(res=>{
-          window.open('/','_self')
         })
         .catch(error=>{
           console.log(error)
