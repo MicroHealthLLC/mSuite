@@ -7,7 +7,7 @@
         :renderCallbacks="renderCallbacks"/>
       </div>
       <div v-if="colorSelected">
-        <div class="card col-3 card-poisiton p-0 border-none">
+        <div class="card col-3 card-position p-0 border-none">
           <div class="card-body p-0">
             <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
           </div>

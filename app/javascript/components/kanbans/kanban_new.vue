@@ -4,18 +4,21 @@
 
     <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
-        <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
-          <div class="w-100 mb-2">
+        <div v-for="stage, index in computedStages" :slot="stage" class="w-100" >
+          <div class="w-100 mb-2" :id="'stage_'+index">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">
                 <div @click="updateStage(stage)">
                   <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 </div>
-                <div class="pointer float-right" @click="deleteStageConfirm(stage)">
-                  <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
+                <div class="pointer float-right" @click="selectedStageBg(stage,$event)">
+                  <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1"></i>
                 </div>
                 <div class="pointer float-right" @click="addNewStage(stage)">
                    <i class="fas fa-plus position-absolute mt-1 add-icon" title="Add Stage"></i>
+                </div>
+                <div class="pointer float-right" @click="deleteStageConfirm(stage)">
+                  <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
                 </div>
               </div>
             </div>
@@ -29,7 +32,7 @@
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
           <div class="d-inline-block w-100 block">
-            <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)" >
+            <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)">
               <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
@@ -43,6 +46,17 @@
           </div>
         </div>
       </kanban-board>
+        <div v-if="colorSelected">
+          <div class="card col-3 p-0 border-none color-picker-placement">
+            <div class="card-body p-0">
+              <chrome-picker v-model="selectedStage.stage_color" @input="updateColor"/>
+            </div>
+            <div class="card-button d-flex">
+              <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
+              <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+            </div>
+          </div>
+        </div>
     </div>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
@@ -77,7 +91,7 @@
     </sweet-modal>
 
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">s</delete-password-modal>
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck"></delete-password-modal>
   </div>
 </template>
 
@@ -116,11 +130,16 @@
       return {
         loading: true,
         currentMindMap:{},
+        new_stage:false,
+        color: {hex: ''},
         allStages: [],
         blocks: [],
+        colorSelected: false,
         stage: null,
         block: {},
-        new_stage:false,
+        previousColor: null,
+        selectedStage: null,
+        selectedElement: null,
         hover_addtask: '',
         selected: '',
         config: {
@@ -152,50 +171,52 @@
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
       }
-      setTimeout(()=>{
-        var elements = Array.from(document.querySelectorAll(".drag-inner-list, #kanban-board"));
-        autoScroll(
-          elements,
-          {
-            margin: 20,
-            maxSpeed: 7,
-            scrollWhenOutside: true,
-            autoScroll: function() {
-              return this.down
+      this.$nextTick(function () {
+        setTimeout(()=>{
+          var elements = Array.from(document.querySelectorAll(".drag-inner-list, #kanban-board"));
+          autoScroll(
+            elements,
+            {
+              margin: 20,
+              maxSpeed: 7,
+              scrollWhenOutside: true,
+              autoScroll: function() {
+                return this.down
+              }
             }
-          }
-        );
-        var dragElement = document.getElementsByClassName('drag-list')[0];
-        var newStageEle = null
-        var _this = this
-        var sortable = new Sortable(dragElement, {
-          sort:true,
-          delay: 0,
-          draggable: ".drag-column",
-          dragClass: "sortable-drag",
-          ghostClass: "sortable-ghost",
-          filter: ".drag-column-, .block-title",
-          onStart: function (evt) {
-          },
-          onEnd: function (evt) {
-            var itemEl = evt.item
-            let title = itemEl.getElementsByTagName('textarea')[0].value
-            _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
-           if (_this.new_stage){
-            _this.new_stage = false
-           }
-          },
-          onFilter: function (evt) {
-            var item = evt.item, ctrl = evt.target
-            if (Sortable.utils.is(ctrl, ".drag-column-")) {
-              item.getElementsByTagName('textarea')[0].focus()
+          );
+          var dragElement = document.getElementsByClassName('drag-list')[0];
+          var newStageEle = null
+          var _this = this
+          var sortable = new Sortable(dragElement, {
+            sort:true,
+            delay: 0,
+            draggable: ".drag-column",
+            dragClass: "sortable-drag",
+            ghostClass: "sortable-ghost",
+            filter: ".drag-column-, .block-title",
+            onStart: function (evt) {
+              _this.allStages.pop();
+            },
+            onEnd: function (evt) {
+              var itemEl = evt.item
+              let title = itemEl.getElementsByTagName('textarea')[0].value
+              _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
+              _this.allStages.push({title: ''})
+            },
+            onFilter: function (evt) {
+              var item = evt.item, ctrl = evt.target
+              if (Sortable.utils.is(ctrl, ".drag-column-")) {
+                item.getElementsByTagName('textarea')[0].focus()
+              }
+              else if (Sortable.utils.is(ctrl, ".block-title")) {
+                ctrl.focus()
+              }
             }
-            else if (Sortable.utils.is(ctrl, ".block-title")) {
-              ctrl.focus()
-            }
-          }
-        });
-      }, 1500)
+          });
+          this.updateBackgroundColors()
+        }, 1500)
+      })
     },
     computed: {
       computedStages() {
@@ -259,6 +280,61 @@
 
 
       // =====================STAGES CRUD OPERATIONS==============================//
+      updateStageRequest(obj){
+        let data = {
+          stage:{
+            stage_color : obj.stage_color,
+            mindmap_id : this.currentMindMap.id,
+            title : obj.title,
+            position : obj.position
+          }
+        }
+        return http.patch(`/stages/${obj.id}.json`,data)
+      },
+      updateBackgroundColors(){
+        let ArraybgColors = Array.from(document.getElementsByClassName('drag-column'))
+        ArraybgColors.forEach((bg, index) => {
+          bg.style.backgroundColor = this.allStages[index].stage_color
+        })
+      },
+      updateColor(){
+        this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
+      },
+      selectedStageBg(stage,e){
+        if(this.selectedStage !== null && this.selectedElement !== null){
+          let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
+          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
+          this.selectedElement.style.backgroundColor = this.previousColor
+          this.selectedElement = null
+          this.selectedStage = null
+        }
+        this.selectedStage = this.allStages.find(stg => stg.title === stage)
+        this.previousColor = this.selectedStage.stage_color
+        this.selectedElement = document.getElementsByClassName('drag-column-' + stage)[0]
+        this.colorSelected = true
+      },
+      saveNodeColor(){
+        this.selectedStage.stage_color = this.selectedStage.stage_color.hex
+        const response = this.updateStageRequest(this.selectedStage)
+        response.then((res) => {
+          let index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
+          Vue.set(this.allStages[index], 'stage_color', res.data.stage.stage_color)
+          this.selectedStage = null
+          this.selectedElement = null
+          this.colorSelected = false
+        })
+        .catch( err => {
+          console.log(err)
+        })
+      },
+      closeModelPicker(){
+        let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
+        Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
+        this.selectedElement.style.backgroundColor = this.previousColor
+        this.selectedElement = null
+        this.selectedStage = null
+        this.colorSelected = false
+      },
       getAllStages() {
         http
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
@@ -379,14 +455,10 @@
           this.getAllNodes()
           return
         }
-        let data = {
-          stage: {
-            title: val.length > 0 ? val : this.stage.title
-          }
-        };
 
-        http
-        .patch(`/stages/${this.stage.id}.json`, data)
+        this.stage.title =  val.length > 0 ? val : this.stage.title
+        const response = this.updateStageRequest(this.stage)
+        response
         .then(result => {
           let index = this.allStages.findIndex(stg => stg.id === result.data.stage.id)
           if (val.length < 1){
@@ -397,6 +469,8 @@
           else if (index > -1) {
             Vue.set(this.allStages[index], 'title', '')
             Vue.set(this.allStages[index], 'title', result.data.stage.title.trim())
+            let stage_style = document.getElementsByClassName('drag-column-' + result.data.stage.title)[0]
+            stage_style.style.backgroundColor = result.data.stage.stage_color
             this.updateStageTasks(this.stage.id)
             this.stage = null
           }
@@ -434,13 +508,10 @@
         }
       },
       changeStagePositions(title, old_pos, new_pos){
-        let id = this.allStages.find(stg => stg.title === title).id
-        let data = {stage:{
-          id: id,
-          position: new_pos
-        }}
-        http
-        .patch(`/stages/${id}.json`, data)
+        let stage = this.allStages.find(stg => stg.title === title)
+        stage.position = new_pos
+        const response = this.updateStageRequest(stage)
+        response
         .then(result => {
         })
         .catch(err=>{
@@ -451,7 +522,17 @@
 
 
       //=====================NODE CRUD OPERATIONS==============================//
-
+      updateBlockRequest(obj){
+        let data = {
+          node: {
+            id: obj.id,
+            title: obj.title,
+            position: obj.position,
+            stage_id: obj.stage_id
+          }
+        }
+        return http.patch(`/nodes/${obj.id}.json`,data)
+      },
       getAllNodes(){
         http
         .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
@@ -467,15 +548,12 @@
 
       updateBlockPosition(id, status, position) {
         let stage_id = this.allStages.find(stg => stg.title === status).id
-        let block = {
-          node: {
-            stage_id: stage_id,
-            position: position
-          }
-        }
 
-        http
-        .patch(`/nodes/${id}.json`,block)
+        let block = this.blocks.find(blk => blk.id === Number(id))
+        block.position = position
+        block.stage_id = stage_id
+        const response = this.updateBlockRequest(block)
+        response
         .then((res)=>{
           let block_id = this.blocks.findIndex(b => b.id === Number(id))
           this.blocks[block_id].index = res.data.node.position
@@ -490,10 +568,9 @@
       updateBlock(block,event){
         this.selected = ""
         let title = event.target.value
-        let id = block.id
-        let node = {node: {id, title: title, description: block.description}}
-        http
-        .patch(`/nodes/${id}.json`, node)
+        block.title = title
+        const response = this.updateBlockRequest(block)
+        response
         .then((res)=>{
           let index = this.blocks.findIndex(b => b.id === res.data.node.id)
           Vue.set(this.blocks, index, res.data.node)
