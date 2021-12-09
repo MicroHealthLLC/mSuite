@@ -80,7 +80,7 @@
 }
 
 .start_dot_right {
-  left: 110px;
+  left: 80px;
 }
 
 .start_dot:hover {
@@ -90,7 +90,7 @@
 .collapse_child {
   color   : darkgray;
   position: absolute;
-  top     : 30px;
+  top     : 41px;
   z-index : 199;
 }
 
@@ -111,7 +111,7 @@
 }
 
 .collapse_icon {
-  background: white;
+  background: transparent;
   > svg {
     padding: 0;
   }
