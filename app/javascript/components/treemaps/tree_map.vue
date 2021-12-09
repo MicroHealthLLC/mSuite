@@ -1,37 +1,20 @@
 <template>
   <div>
-    <nav class="navbar navbar-light navbar-background d-block">
-      <a class="navbar-brand pointer"  @click="goHome">
-        <img src="/assets/microhealthllc.png"/>
-      </a>
-      <div class="float-right pt-2 pr-2">
-        <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
-            <i class="fas fa-shield-alt"></i>
-            Make Private
-        </button>
-        <button role="button" class="btn btn-secondary" @click.prevent="exportImage">
-          <i class="fas fa-image"></i>
-          Export Image
-        </button>
+    <navigation-bar @goHome="goHome" @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
+    <div class="row mt-5 main_body">
+      <div class="col-12 mt-4" id="treeMapGraph">
+        <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)" :colorRange="50"
+        :renderCallbacks="renderCallbacks"/>
       </div>
-    </nav>
-    <div class="row mt-3">
-      <div class="col-12">
-        <div id="treeMapGraph">
-          <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)"
-              :colorRange="50" :renderCallbacks="renderCallbacks"/>
-        </div>
-        <div v-if="colorSelected">
-          <div class="card col-3 card-poisiton p-0 border-none">
-            <div class="card-body p-0">
-              <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
-            </div>
-            <div class="card-button d-flex">
-              <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-              <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
-            </div>
+      <div v-if="colorSelected">
+        <div class="card col-3 card-poisiton p-0 border-none">
+          <div class="card-body p-0">
+            <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
           </div>
-
+          <div class="card-button d-flex">
+            <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
+            <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
@@ -74,6 +57,7 @@
   // Import the components that will be used
   import domtoimage from "dom-to-image-more"
   import http from '../../common/http'
+  import NavigationBar from "../../common/navigation_bar"
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import DeleteMapModal from '../../common/modals/delete_modal'
   import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
@@ -87,7 +71,8 @@
       MakePrivateModal,
       DeleteMapModal,
       DeletePasswordModal,
-      ConfirmSaveKeyModal
+      ConfirmSaveKeyModal,
+      NavigationBar
     },
     props:['currentMindMap'], //Props to be used in the widget
     data: function () {
@@ -190,16 +175,16 @@
       },
       onBindingComplete: function (event) {
         let nodestreeMaps = []
-        var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer')
-        var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer')
+        var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer', 'Delete Node')
+        var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer', 'Add Child Node')
         event.target.children[0].append(nodeElement, nodeElementSecond)
         this.appendElementTreeMap(event.target.children[0].children)
       },
       appendElementTreeMap(objArray){
         let jqxParentArray = new Array()
         objArray.forEach((e)=>{
-          var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer')
-          var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer')
+          var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer', 'Delete Node')
+          var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer', 'Add Child Node')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
           {
             e.style.marginTop = '3px'
@@ -218,11 +203,12 @@
         })
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },
-      insertNodeElement(class_list){
+      insertNodeElement(class_list, title){
         var nodeElement = document.createElement("i");
         var textnodeElement = document.createTextNode("")
         nodeElement.appendChild(textnodeElement);
         nodeElement.setAttribute('class', class_list)
+        nodeElement.title = title
         return nodeElement
       },
       goHome(){

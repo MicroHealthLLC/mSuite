@@ -1,26 +1,8 @@
 <template>
   <div v-if="!loading">
-    <nav class="navbar navbar-light navbar-background d-block">
-      <a class="navbar-brand pointer"  @click="goHome">
-        <img src="/assets/microhealthllc.png"/>
-      </a>
-      <div class="float-right pt-2 pr-2">
-        <button role="button" class="btn btn-info" @click.prevent="openPrivacy">
-          <i class="fas fa-shield-alt"></i>
-          Make Private
-        </button>
-        <button role="button" class="btn btn-danger" @click.prevent="$refs['delete-map-modal'].$refs['deleteMapModal'].open">
-          <i class="fas fa-trash"></i>
-          Delete Map
-        </button>
-        <button role="button" class="btn btn-secondary" @click.prevent="exportImage">
-          <i class="fas fa-image"></i>
-          Export Image
-        </button>
-      </div>
-    </nav>
+    <navigation-bar @goHome="goHome" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
 
-    <div class="row kanban_board" id="kanban-board">
+    <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
         <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
           <div class="w-100 mb-2">
@@ -101,6 +83,7 @@
 
 <script>
   import http from "../../common/http"
+  import NavigationBar from "../../common/navigation_bar"
   import vueKanban from 'vue-kanban'
   import domtoimage from "dom-to-image-more"
   import MakePrivateModal from "../../common/modals/make_private_modal"
@@ -126,7 +109,8 @@
       DeleteBlockModal,
       DeleteMapModal,
       DeletePasswordModal,
-      ConfirmSaveKeyModal
+      ConfirmSaveKeyModal,
+      NavigationBar
     },
     data() {
       return {
@@ -294,6 +278,9 @@
         let index = this.allStages.findIndex(stg=>stg.title===stage) + 1
         this.allStages.splice(index,0,{title:''})
         this.new_stage=true
+      },
+      deleteMap(){
+        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       createNewStage(val){
         if (val.length < 1){
