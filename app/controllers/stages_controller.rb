@@ -60,7 +60,8 @@ class StagesController < AuthenticatedController
     params.require(:stage).permit(
       :title,
       :mindmap_id,
-      :position
+      :position,
+      :stage_color
     )
   end
 end

@@ -194,7 +194,7 @@ ul.drag-inner-list {
   cursor: pointer !important;
 }
 .icon-delete-stage{
-  right: 15px;
+  right: 5px;
   opacity: 0.5;
 }
 .icon-delete-stage:hover{
@@ -203,7 +203,7 @@ ul.drag-inner-list {
 }
 .stage-title {
   background: transparent;
-  width: 100% !important;
+  width: 86% !important;
 }
 .stage-title:hover{
   cursor: pointer !important;
@@ -230,11 +230,17 @@ ul.drag-inner-list {
 }
 .add-icon{
   color: dodgerblue;
-  right: 32px;
+  right: 25px;
 }
 .sortable-drag {
   opacity: 0.8;
 }
 .sortable-ghost {
   opacity: 0.2;
+}
+.color-picker{
+  right:50px
+}
+.color-picker-placement {
+  margin-top: 150px
 }
