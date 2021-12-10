@@ -12,10 +12,10 @@
                   <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 </div>
                 <div class="pointer float-right" @click="selectedStageBg(stage,$event)">
-                  <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1"></i>
+                  <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
                 </div>
                 <div class="pointer float-right" @click="addNewStage(stage)">
-                   <i class="fas fa-plus position-absolute mt-1 add-icon" title="Add Stage"></i>
+                   <i class="fas fa-plus position-absolute mt-1 add-icon icon-opacity" title="Add Stage"></i>
                 </div>
                 <div class="pointer float-right" @click="deleteStageConfirm(stage)">
                   <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
@@ -36,10 +36,10 @@
               <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
-                  <i class="fas fa-times text-danger position-relative icon-delete ml-2" title="Delete Task"></i>
+                  <i class="fas fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
                 </div>
                 <div>
-                  <i class="fas fa-arrows-alt position-relative ml-2" title="Drag Task"></i>
+                  <i class="fas fa-arrows-alt position-relative ml-2 icon-opacity" title="Drag Task"></i>
                 </div>
               </div>
             </div>
