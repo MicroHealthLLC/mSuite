@@ -110,13 +110,16 @@
               }
               else if (event.target.tagName === 'DIV')
               {
-                this.colorChange(value, elementObject)
+                this.blurEventMethod(value, elementObject)
               }
               else if (event.target.tagName === 'path')
               {
                 if(event.target.nearestViewportElement.classList.contains('fa-plus')){
                   this.addNodeToTreeMap(value, event)
-                }else if(event.target.nearestViewportElement.classList.contains('fa-times')){
+                }else if(event.target.nearestViewportElement.classList.contains('fa-eye-dropper')){
+                  this.colorChange(value, elementObject)
+                }
+                else if(event.target.nearestViewportElement.classList.contains('fa-times')){
                   this.deleteNode(value)
                 }
               }
@@ -176,25 +179,27 @@
       },
       onBindingComplete: function (event) {
         let nodestreeMaps = []
-        var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer', 'Delete Node')
-        var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer', 'Add Child Node')
+        var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Mindmap')
+        var nodeElementSecond = this.insertNodeElement('fas fa-plus text-white cancel-btn mt-1 icon-opacity', 'Add Child Node')
+        var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
         event.target.children[0].addEventListener('drop', this.dropNode)
         event.target.children[0].addEventListener('dragover', this.allowdrop)
-        event.target.children[0].append(nodeElement, nodeElementSecond)
+        event.target.children[0].append(nodeElement, nodeElementSecond, nodeElementThird)
         this.appendElementTreeMap(event.target.children[0].children)
       },
       appendElementTreeMap(objArray){
         let jqxParentArray = new Array()
         objArray.forEach((e)=>{
-          var nodeElement = this.insertNodeElement('fas fa-times cancel-btn mt-1 pointer', 'Delete Node')
-          var nodeElementSecond = this.insertNodeElement('fas fa-plus color-white cancel-btn mt-1 pointer', 'Add Child Node')
+          var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Node')
+          var nodeElementSecond = this.insertNodeElement('fas fa-plus text-white cancel-btn mt-1 icon-opacity', 'Add Child Node')
+          var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
           {
             e.style.marginTop = '3px'
             e.style.width = e.style.width.split('px')[0] - 5 + 'px'
             e.style.height = e.style.height.split('px')[0] - 5 + 'px'
             this.bindDragAndDrop(e)
-            e.append(nodeElement, nodeElementSecond)
+            e.append(nodeElement, nodeElementSecond, nodeElementThird)
             jqxParentArray = [].concat.apply(jqxParentArray, e.children)
           }
 
@@ -203,7 +208,7 @@
             e.style.width = e.style.width.split('px')[0] - 10 + 'px'
             e.style.height = e.style.height.split('px')[0] - 10 + 'px'
             this.bindDragAndDrop(e)
-            e.append(nodeElement, nodeElementSecond)
+            e.append(nodeElement, nodeElementSecond, nodeElementThird)
           }
         })
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
@@ -468,7 +473,7 @@
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
         this.colorSelected = false
       },
-      colorChange(value, elementObject){
+      blurEventMethod(value, elementObject){
         if(value.label == 'Enter Node Title Here') return;
         if(this.hiddenNode){
           let _this = this
@@ -489,6 +494,9 @@
           this.currentElementObj[0].style.backgroundColor = this.oldElementColor
           return this.colorSelected = false
         }
+      },
+      colorChange(value, elementObject){
+        if(this.addChildTreeMap) return
         this.currentElementObj = elementObject
         this.setNodeSelected(value)
         this.colorSelected = true
