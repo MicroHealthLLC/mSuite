@@ -195,14 +195,13 @@
             dragClass: "sortable-drag",
             ghostClass: "sortable-ghost",
             filter: ".drag-column-, .block-title",
-            onStart: function (evt) {
-              _this.allStages.pop();
-            },
+            // onStart: function (evt) {
+            //   _this.allStages.pop();
+            // },
             onEnd: function (evt) {
               var itemEl = evt.item
               let title = itemEl.getElementsByTagName('textarea')[0].value
               _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
-              _this.allStages.push({title: ''})
             },
             onFilter: function (evt) {
               var item = evt.item, ctrl = evt.target
@@ -412,10 +411,10 @@
           console.log(err)
         })
       },
-      deleteStage(){
+      deleteStage() {
         this.$refs['deleteStageConfirm'].close()
         let id = this.allStages.find(stg => stg.title === this.stage).id
-        let data={
+        let data = {
           stage: {
             id: id
           }
@@ -507,7 +506,7 @@
           this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
         }
       },
-      changeStagePositions(title, old_pos, new_pos){
+      changeStagePositions(title, old_pos, new_pos) {
         let stage = this.allStages.find(stg => stg.title === title)
         stage.position = new_pos
         const response = this.updateStageRequest(stage)
