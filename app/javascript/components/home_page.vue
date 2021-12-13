@@ -16,7 +16,7 @@
       </div>
       <div class="row w_10">
         <div class="col-12 input_label">
-          <h4>Or create/open a Map with the unique key</h4>
+          <h4>Or Open a Map with the unique key</h4>
         </div>
         <div class="offset-2 col-8">
           <div class="input-group md-form form-sm form-1 pl-0">
