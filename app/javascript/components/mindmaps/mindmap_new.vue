@@ -111,7 +111,7 @@
     </sweet-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
 
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck">
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
     </delete-password-modal>
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
@@ -227,7 +227,12 @@
           {
             window.open('/','_self')
           }
-          if (
+          else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
+            setTimeout(() => {
+              location.reload()
+            }, 500)
+          }
+          else if (
             this.selectedNode !== null           &&
             data.message === "Node file deleted" &&
             this.selectedNode.id === data.node   &&
@@ -235,20 +240,22 @@
           ) {
             _.remove(this.attachFiles, (f) => f.id === data.file.id)
           }
-          if (
+          else if (
             data.message === "Central Node file deleted" &&
             this.openVModal === true
           ) {
             _.remove(this.attachFiles, (f) => f.id === data.file.id)
           }
-          if (
+          else if (
             this.selectedNode !== null         &&
             data.message === "Node is updated" &&
             this.selectedNode.id === data.node.id
           ) {
             this.selectedNode = data.node
           }
-          this.getMindmap(this.currentMindMap.unique_key)
+          else {
+            this.getMindmap(this.currentMindMap.unique_key)
+          }
         }
       }
     },
@@ -814,26 +821,25 @@
         if (this.currentMindMap.password){
           this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
         }
-        else{
+        else {
           this.deleteMindmap()
         }
       },
-      passwordCheck(password){
-        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+      deleteMindmapProtected(password){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
-          if (res.data.is_verified){
-            this.deleteMindmap()
-          }
-          else{
+          if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
-          }
+        })
+        .catch(error=>{
+          console.log(error)
         })
       },
       deleteMindmap(){
         http
         .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
         .then(res=>{
-          window.open('/','_self')
         })
         .catch(error=>{
           console.log(error)

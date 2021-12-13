@@ -91,7 +91,7 @@
     </sweet-modal>
 
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="passwordCheck"></delete-password-modal>
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
   </div>
 </template>
 
@@ -156,14 +156,16 @@
           {
             window.open('/','_self')
           }
-          if(data.message === "Password Updated")
+          else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
           {
-            setTimeout(()=>{
+            setTimeout(() => {
               location.reload()
             }, 500)
           }
-          this.getAllStages()
-          this.getAllNodes()
+          else {
+            this.getAllStages()
+            this.getAllNodes()
+          }
         }
       }
     },
@@ -631,6 +633,64 @@
       },
       selectedNode(index){
         this.selected = index
+      },
+      confirmDeleteMindmap(){
+        if (this.currentMindMap.password){
+          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
+        }
+        else{
+          this.deleteMindmap()
+        }
+      },
+      deleteMindmapProtected(password){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .then(res=>{
+          if (!res.data.success && this.currentMindMap.password)
+            this.$refs['errorModal'].open()
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
+      deleteMindmap(){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json`)
+        .then(res=>{
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
+      deleteStageConfirm(stage){
+        this.stage = stage
+        this.$refs['deleteStageConfirm'].open()
+      },
+      checkDuplicate(val){
+        let is_val = false
+        this.allStages.forEach((x) => {
+          if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
+        })
+        return is_val
+      },
+      newStageTitle(e) {
+        if (this.stage !== null) {
+          this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
+        }
+      },
+      changeStagePositions(title, old_pos, new_pos){
+        let id = this.allStages.find(stg => stg.title === title).id
+        let data = {stage:{
+          id: id,
+          position: new_pos
+        }}
+        http
+        .patch(`/stages/${id}.json`, data)
+        .then(result => {
+        })
+        .catch(err=>{
+          console.log(err)
+        })
       },
       exportImage() {
         const _this = this
