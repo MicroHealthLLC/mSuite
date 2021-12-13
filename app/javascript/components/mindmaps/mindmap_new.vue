@@ -227,7 +227,12 @@
           {
             window.open('/','_self')
           }
-          if (
+          else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
+            setTimeout(() => {
+              location.reload()
+            }, 500)
+          }
+          else if (
             this.selectedNode !== null           &&
             data.message === "Node file deleted" &&
             this.selectedNode.id === data.node   &&
@@ -235,20 +240,22 @@
           ) {
             _.remove(this.attachFiles, (f) => f.id === data.file.id)
           }
-          if (
+          else if (
             data.message === "Central Node file deleted" &&
             this.openVModal === true
           ) {
             _.remove(this.attachFiles, (f) => f.id === data.file.id)
           }
-          if (
+          else if (
             this.selectedNode !== null         &&
             data.message === "Node is updated" &&
             this.selectedNode.id === data.node.id
           ) {
             this.selectedNode = data.node
           }
-          this.getMindmap(this.currentMindMap.unique_key)
+          else {
+            this.getMindmap(this.currentMindMap.unique_key)
+          }
         }
       }
     },
@@ -814,7 +821,7 @@
         if (this.currentMindMap.password){
           this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
         }
-        else{
+        else {
           this.deleteMindmap()
         }
       },

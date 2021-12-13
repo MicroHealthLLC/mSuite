@@ -144,7 +144,7 @@
           {
             window.open('/','_self')
           }
-          if(data.message === "Password Updated")
+          else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
           {
             setTimeout(()=>{
               location.reload()

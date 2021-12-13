@@ -25,7 +25,7 @@ class MindmapsController < AuthenticatedController
   def update
     @mindmap.update(mindmap_params)
     message = params[:mindmap][:password].present? ? "Password Updated" : "Mindmap Updated"
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
     respond_to do |format|
       format.json { render json: {mindmap: @mindmap.to_json}}
       format.html { }
@@ -92,8 +92,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
-    if check_for_password
-      @mindmap.destroy
+    if check_for_password && @mindmap.destroy
       ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
       respond_to do |format|
         format.json { render json: {success: true}}
@@ -140,11 +139,12 @@ class MindmapsController < AuthenticatedController
 
   def check_for_password
     verfied_delete = false
-    if !@mindmap.password.present?
+    if @mindmap.password.blank?
       verfied_delete = true
     elsif params[:password_check] && @mindmap.password.present?
       verfied_delete = @mindmap.check_password(params[:password_check])
     end
+    verfied_delete
   end
 
   def check_auth
