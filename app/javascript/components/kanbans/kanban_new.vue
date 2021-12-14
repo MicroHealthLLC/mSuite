@@ -4,7 +4,7 @@
 
     <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
-        <div v-for="stage, index in computedStages" :slot="stage" class="w-100" >
+        <div v-for="stage, index in computedStages" :slot="stage" class="w-100" :id="stage">
           <div class="w-100 mb-2" :id="'stage_'+index">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">
@@ -14,7 +14,7 @@
                 <div class="pointer float-right" @click="selectedStageBg(stage,$event)">
                   <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
                 </div>
-                <div class="pointer float-right" @click="addNewStage(stage)">
+                <div class="pointer float-right" @click="addNewStage(stage,index)">
                    <i class="fas fa-plus position-absolute mt-1 add-icon icon-opacity" title="Add Stage"></i>
                 </div>
                 <div class="pointer float-right" @click="deleteStageConfirm(stage)">
@@ -52,8 +52,8 @@
               <chrome-picker v-model="selectedStage.stage_color" @input="updateColor"/>
             </div>
             <div class="card-button d-flex">
-              <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-              <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+              <button v-if="selectedStage.title.length>1" class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
+              <button v-if="selectedStage.title.length>1" class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
             </div>
           </div>
         </div>
@@ -137,6 +137,8 @@
         colorSelected: false,
         stage: null,
         block: {},
+        new_index: -1,
+        new_color:'',
         previousColor: null,
         selectedStage: null,
         selectedElement: null,
@@ -197,9 +199,6 @@
             dragClass: "sortable-drag",
             ghostClass: "sortable-ghost",
             filter: ".drag-column-, .block-title",
-            // onStart: function (evt) {
-            //   _this.allStages.pop();
-            // },
             onEnd: function (evt) {
               var itemEl = evt.item
               let title = itemEl.getElementsByTagName('textarea')[0].value
@@ -300,12 +299,15 @@
       },
       updateColor(){
         this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
+        if (this.selectedStage.title.length < 1) this.new_color = this.selectedStage.stage_color.hex
       },
       selectedStageBg(stage,e){
         if(this.selectedStage !== null && this.selectedElement !== null){
           let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
-          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
-          this.selectedElement.style.backgroundColor = this.previousColor
+          if (stage_index!==undefined) {
+            Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
+            this.selectedElement.style.backgroundColor = this.previousColor
+          }
           this.selectedElement = null
           this.selectedStage = null
         }
@@ -330,6 +332,12 @@
       },
       closeModelPicker(){
         let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
+        if (stage_index < 0){
+          this.selectedElement = null
+          this.selectedStage = null
+          this.colorSelected = false
+          return;
+        }
         Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
         this.selectedElement.style.backgroundColor = this.previousColor
         this.selectedElement = null
@@ -348,30 +356,41 @@
         })
 
       },
-      addNewStage(stage){
-        if (this.new_stage){
+      addNewStage(stage, stage_index){
+        if (this.new_index !== stage_index && this.new_stage) {
           return;
         }
-        let index = this.allStages.findIndex(stg=>stg.title===stage) + 1
-        this.allStages.splice(index,0,{title:''})
-        this.new_stage=true
+        if (this.new_stage && this.new_index === stage_index){
+          this.createNewStage(document.getElementById(stage_index).value.trim())
+          return;
+        }
+        this.allStages.splice(stage_index+1,0,{title:'',stage_color:"#ebecf0"})
+        this.new_stage = true
+        this.new_index = stage_index + 1
       },
       deleteMap(){
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       createNewStage(val){
         if (val.length < 1){
-          this.getAllStages()
-          this.new_stage = false
+          // this.getAllStages()
+          // this.new_stage = false
           this.stage = null
+          this.$refs['errorStageModal'].open()
+          this.selectedElement = null
+          this.selectedStage = null
+          this.colorSelected = false
           return;
         }
         else if(this.checkDuplicate(val))
         {
           this.$refs['duplicateStageModal'].open()
-          this.getAllStages()
-          this.new_stage = false
+          // this.getAllStages()
+          // this.new_stage = false
           this.stage = null
+          this.selectedElement = null
+          this.selectedStage = null
+          this.colorSelected = false
           return;
         }
         let index=this.allStages.findIndex( stg => stg.title === '')
@@ -379,18 +398,28 @@
           stage: {
             title: val,
             mindmap_id: this.currentMindMap.id,
-            position: index
+            position: index,
+            stage_color: document.getElementsByClassName('drag-column-')[0].style.backgroundColor
           }
         }
         http
         .post(`/stages.json`, data)
         .then((res) => {
           this.allStages.splice(index,1,res.data.stage)
+          setTimeout(()=>{
+            this.updateBackgroundColors()
+          },100)
           this.new_stage = false
           this.stage = null
+          this.selectedElement = null
+          this.selectedStage = null
+          this.colorSelected = false
         })
         .catch((error) => {
           this.stage = null
+          this.selectedElement = null
+          this.selectedStage = null
+          this.colorSelected = false
           console.log(error)
         })
       },
@@ -415,6 +444,13 @@
       },
       deleteStage() {
         this.$refs['deleteStageConfirm'].close()
+        if(this.stage==='')
+        {
+          this.allStages.splice(this.new_index,1)
+          this.stage=null
+          this.new_stage = false
+          return;
+        }
         let id = this.allStages.find(stg => stg.title === this.stage).id
         let data = {
           stage: {
@@ -484,16 +520,17 @@
         })
       },
       deleteStageConfirm(stage){
-        if(stage==='')
-        {
-          this.allStages.splice(this.allStages.findIndex(stg=>stg.title===''),1)
-          this.stage=null
-          this.new_stage = false
-        }
-        else{
+        // if(stage==='')
+        // {
+        //   this.allStages.splice(this.allStages.findIndex(stg=>stg.title===''),1)
+        //   this.stage=null
+        //   this.new_stage = false
+        // }
+        // else{
           this.stage = stage
+          this.colorSelected = false
           this.$refs['deleteStageConfirm'].open()
-        }
+        // }
 
       },
       checkDuplicate(val){
@@ -505,7 +542,7 @@
       },
       newStageTitle(e) {
         if (this.stage !== null) {
-          this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
+          this.stage.title ? this.editStageTitle(e.target.value.trim()) : ''
         }
       },
       changeStagePositions(title, old_pos, new_pos) {
