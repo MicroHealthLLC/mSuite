@@ -4,12 +4,12 @@
 
     <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
-        <div v-for="stage, index in computedStages" :slot="stage" class="w-100" :id="stage">
+        <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
           <div class="w-100 mb-2" :id="'stage_'+index">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">
                 <div @click="updateStage(stage)">
-                  <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
+                  <textarea-autosize @keydown.enter.prevent.native="stage.length < 1 ? addNewStage(stage,index) : '' " :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage.trim()" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 </div>
                 <div class="pointer float-right" @click="selectedStageBg(stage,$event)">
                   <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
@@ -52,8 +52,9 @@
               <chrome-picker v-model="selectedStage.stage_color" @input="updateColor"/>
             </div>
             <div class="card-button d-flex">
-              <button v-if="selectedStage.title.length>1" class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-              <button v-if="selectedStage.title.length>1" class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+              <button v-if="selectedStage.title.length>0" class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
+              <button v-if="selectedStage.title.length<1" class="btn btn-success w-50 border-none" @click="saveTempColor">Choose</button>
+              <button  class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
             </div>
           </div>
         </div>
@@ -129,8 +130,8 @@
     data() {
       return {
         loading: true,
-        currentMindMap:{},
-        new_stage:false,
+        currentMindMap: {},
+        new_stage: false,
         color: {hex: ''},
         allStages: [],
         blocks: [],
@@ -167,6 +168,9 @@
           else {
             this.getAllStages()
             this.getAllNodes()
+            setTimeout(() => {
+              this.updateBackgroundColors()
+            }, 100)
           }
         }
       }
@@ -193,7 +197,7 @@
           var newStageEle = null
           var _this = this
           var sortable = new Sortable(dragElement, {
-            sort:true,
+            sort: true,
             delay: 0,
             draggable: ".drag-column",
             dragClass: "sortable-drag",
@@ -246,11 +250,21 @@
 
 
       //=====================MINDMAP DELETE ==============================//
+      deleteMindmapProtected(password){
+        http
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .then(res=>{
+          if (!res.data.success && this.currentMindMap.password)
+            this.$refs['errorModal'].open()
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
       deleteMindmap(){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json`)
         .then(res=>{
-          window.open('/','_self')
         })
         .catch(error=>{
           console.log(error)
@@ -330,15 +344,18 @@
           console.log(err)
         })
       },
+      saveTempColor(){
+        let index = this.allStages.findIndex( stg => stg.title === this.selectedStage.title)
+        this.allStages[index].stage_color = this.selectedStage.stage_color.hex
+        this.selectedStage = null
+        this.selectedElement = null
+        this.colorSelected = false
+      },
       closeModelPicker(){
         let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
-        if (stage_index < 0){
-          this.selectedElement = null
-          this.selectedStage = null
-          this.colorSelected = false
-          return;
+        if(this.allStages[stage_index].title !== '') {
+          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
         }
-        Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
         this.selectedElement.style.backgroundColor = this.previousColor
         this.selectedElement = null
         this.selectedStage = null
@@ -364,7 +381,7 @@
           this.createNewStage(document.getElementById(stage_index).value.trim())
           return;
         }
-        this.allStages.splice(stage_index+1,0,{title:'',stage_color:"#ebecf0"})
+        this.allStages.splice(stage_index + 1, 0, {title:'' ,stage_color:"#ebecf0"})
         this.new_stage = true
         this.new_index = stage_index + 1
       },
@@ -372,9 +389,8 @@
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       createNewStage(val){
+        let index=this.allStages.findIndex( stg => stg.title === '')
         if (val.length < 1){
-          // this.getAllStages()
-          // this.new_stage = false
           this.stage = null
           this.$refs['errorStageModal'].open()
           this.selectedElement = null
@@ -385,30 +401,24 @@
         else if(this.checkDuplicate(val))
         {
           this.$refs['duplicateStageModal'].open()
-          // this.getAllStages()
-          // this.new_stage = false
           this.stage = null
           this.selectedElement = null
           this.selectedStage = null
           this.colorSelected = false
           return;
         }
-        let index=this.allStages.findIndex( stg => stg.title === '')
         let data = {
           stage: {
             title: val,
             mindmap_id: this.currentMindMap.id,
             position: index,
-            stage_color: document.getElementsByClassName('drag-column-')[0].style.backgroundColor
+            stage_color: this.allStages[index].stage_color
           }
         }
         http
         .post(`/stages.json`, data)
         .then((res) => {
           this.allStages.splice(index,1,res.data.stage)
-          setTimeout(()=>{
-            this.updateBackgroundColors()
-          },100)
           this.new_stage = false
           this.stage = null
           this.selectedElement = null
@@ -444,10 +454,10 @@
       },
       deleteStage() {
         this.$refs['deleteStageConfirm'].close()
-        if(this.stage==='')
+        if(this.stage === '')
         {
           this.allStages.splice(this.new_index,1)
-          this.stage=null
+          this.stage = null
           this.new_stage = false
           return;
         }
@@ -519,27 +529,6 @@
           b.status = stage.title
         })
       },
-      deleteStageConfirm(stage){
-        // if(stage==='')
-        // {
-        //   this.allStages.splice(this.allStages.findIndex(stg=>stg.title===''),1)
-        //   this.stage=null
-        //   this.new_stage = false
-        // }
-        // else{
-          this.stage = stage
-          this.colorSelected = false
-          this.$refs['deleteStageConfirm'].open()
-        // }
-
-      },
-      checkDuplicate(val){
-        let is_val = false
-        this.allStages.forEach((x) => {
-          if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
-        })
-        return is_val
-      },
       newStageTitle(e) {
         if (this.stage !== null) {
           this.stage.title ? this.editStageTitle(e.target.value.trim()) : ''
@@ -555,6 +544,11 @@
         .catch(err=>{
           console.log(err)
         })
+      },
+      deleteStageConfirm(stage){
+        this.stage = stage
+        this.colorSelected = false
+        this.$refs['deleteStageConfirm'].open()
       },
       // =====================STAGES CRUD OPERATIONS==============================//
 
@@ -647,7 +641,7 @@
       },
       passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
@@ -671,63 +665,12 @@
       selectedNode(index){
         this.selected = index
       },
-      confirmDeleteMindmap(){
-        if (this.currentMindMap.password){
-          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        }
-        else{
-          this.deleteMindmap()
-        }
-      },
-      deleteMindmapProtected(password){
-        http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
-        .then(res=>{
-          if (!res.data.success && this.currentMindMap.password)
-            this.$refs['errorModal'].open()
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      deleteMindmap(){
-        http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json`)
-        .then(res=>{
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      deleteStageConfirm(stage){
-        this.stage = stage
-        this.$refs['deleteStageConfirm'].open()
-      },
       checkDuplicate(val){
         let is_val = false
         this.allStages.forEach((x) => {
           if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
         })
         return is_val
-      },
-      newStageTitle(e) {
-        if (this.stage !== null) {
-          this.stage.title ? this.editStageTitle(e.target.value.trim()) : this.createNewStage(e.target.value.trim())
-        }
-      },
-      changeStagePositions(title, old_pos, new_pos){
-        let id = this.allStages.find(stg => stg.title === title).id
-        let data = {stage:{
-          id: id,
-          position: new_pos
-        }}
-        http
-        .patch(`/stages/${id}.json`, data)
-        .then(result => {
-        })
-        .catch(err=>{
-          console.log(err)
-        })
       },
       exportImage() {
         const _this = this
@@ -744,7 +687,7 @@
             downloadLink.download = map_key + ".png"
             downloadLink.click()
             document.body.removeChild(downloadLink)
-            inner_list.forEach(i=>i.classList.remove('mh-100'))
+            inner_list.forEach(i => i.classList.remove('mh-100'))
           })
           .catch((err) => {
             console.error('oops, something went wrong!', err)
