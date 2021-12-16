@@ -9,7 +9,7 @@
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">
                 <div @click="updateStage(stage)">
-                  <textarea-autosize @keydown.enter.prevent.native="stage.length < 1 ? addNewStage(stage,index) : '' " :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage.trim()" class=" border-0  stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
+                  <textarea-autosize @keydown.enter.prevent.native="stage.length < 1 ? addNewStage(stage, index) : '' " :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 </div>
                 <div class="pointer float-right" @click="selectedStageBg(stage,$event)">
                   <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
@@ -33,7 +33,7 @@
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
           <div class="d-inline-block w-100 block">
             <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)">
-              <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block,$event,index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
+              <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
                   <i class="fas fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
@@ -52,9 +52,9 @@
               <chrome-picker v-model="selectedStage.stage_color" @input="updateColor"/>
             </div>
             <div class="card-button d-flex">
-              <button v-if="selectedStage.title.length>0" class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-              <button v-if="selectedStage.title.length<1" class="btn btn-success w-50 border-none" @click="saveTempColor">Choose</button>
-              <button  class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+              <button v-if="selectedStage.title.length > 0" class="btn btn-success w-50 border-none" @click="saveNodeColor"> Update </button>
+              <button v-else class="btn btn-success w-50 border-none" @click="saveTempColor"> Choose </button>
+              <button class="btn btn-info w-50 border-none" @click="closeModelPicker"> Cancel </button>
             </div>
           </div>
         </div>
@@ -315,10 +315,10 @@
         this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
         if (this.selectedStage.title.length < 1) this.new_color = this.selectedStage.stage_color.hex
       },
-      selectedStageBg(stage,e){
+      selectedStageBg(stage, e){
         if(this.selectedStage !== null && this.selectedElement !== null){
           let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
-          if (stage_index!==undefined) {
+          if (stage_index !== undefined) {
             Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
             this.selectedElement.style.backgroundColor = this.previousColor
           }
@@ -381,7 +381,7 @@
           this.createNewStage(document.getElementById(stage_index).value.trim())
           return;
         }
-        this.allStages.splice(stage_index + 1, 0, {title:'' ,stage_color:"#ebecf0"})
+        this.allStages.splice(stage_index + 1, 0, {title: '', stage_color: "#ebecf0"})
         this.new_stage = true
         this.new_index = stage_index + 1
       },
@@ -389,7 +389,7 @@
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       createNewStage(val){
-        let index=this.allStages.findIndex( stg => stg.title === '')
+        let index = this.allStages.findIndex(stg => stg.title === '')
         if (val.length < 1){
           this.stage = null
           this.$refs['errorStageModal'].open()
@@ -418,7 +418,7 @@
         http
         .post(`/stages.json`, data)
         .then((res) => {
-          this.allStages.splice(index,1,res.data.stage)
+          this.allStages.splice(index, 1, res.data.stage)
           this.new_stage = false
           this.stage = null
           this.selectedElement = null
@@ -530,8 +530,8 @@
         })
       },
       newStageTitle(e) {
-        if (this.stage !== null) {
-          this.stage.title ? this.editStageTitle(e.target.value.trim()) : ''
+        if (this.stage !== null && this.stage.title) {
+          this.editStageTitle(e.target.value.trim())
         }
       },
       changeStagePositions(title, old_pos, new_pos) {
