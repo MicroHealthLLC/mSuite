@@ -11,7 +11,7 @@
                 <div @click="updateStage(stage)">
                   <textarea-autosize @keydown.enter.prevent.native="stage.length < 1 ? addNewStage(stage, index) : '' " :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
                 </div>
-                <div class="pointer float-right" @click="selectedStageBg(stage,$event)">
+                <div v-show="stage.length > 0" class="pointer float-right" @click="selectedStageBg(stage,$event)">
                   <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
                 </div>
                 <div class="pointer float-right" @click="addNewStage(stage,index)">
@@ -53,7 +53,6 @@
             </div>
             <div class="card-button d-flex">
               <button v-if="selectedStage.title.length > 0" class="btn btn-success w-50 border-none" @click="saveNodeColor"> Update </button>
-              <button v-else class="btn btn-success w-50 border-none" @click="saveTempColor"> Choose </button>
               <button class="btn btn-info w-50 border-none" @click="closeModelPicker"> Cancel </button>
             </div>
           </div>
@@ -244,7 +243,7 @@
 
       },
       goHome(){
-        window.open('/',"_self")
+        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       //=====================GETTING MINDMAP==============================//
 
@@ -313,17 +312,12 @@
       },
       updateColor(){
         this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
-        if (this.selectedStage.title.length < 1) this.new_color = this.selectedStage.stage_color.hex
       },
       selectedStageBg(stage, e){
         if(this.selectedStage !== null && this.selectedElement !== null){
           let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
-          if (stage_index !== undefined) {
-            Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
-            this.selectedElement.style.backgroundColor = this.previousColor
-          }
-          this.selectedElement = null
-          this.selectedStage = null
+          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
+          this.selectedElement.style.backgroundColor = this.previousColor
         }
         this.selectedStage = this.allStages.find(stg => stg.title === stage)
         this.previousColor = this.selectedStage.stage_color
@@ -353,9 +347,7 @@
       },
       closeModelPicker(){
         let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
-        if(this.allStages[stage_index].title !== '') {
-          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
-        }
+        Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
         this.selectedElement.style.backgroundColor = this.previousColor
         this.selectedElement = null
         this.selectedStage = null
@@ -381,7 +373,7 @@
           this.createNewStage(document.getElementById(stage_index).value.trim())
           return;
         }
-        this.allStages.splice(stage_index + 1, 0, {title: '', stage_color: "#ebecf0"})
+        this.allStages.splice(stage_index + 1, 0, {title: ''})
         this.new_stage = true
         this.new_index = stage_index + 1
       },
