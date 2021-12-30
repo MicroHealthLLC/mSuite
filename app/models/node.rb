@@ -136,7 +136,7 @@ class Node < ApplicationRecord
   end
 
   def position_updated
-    self.stage.nodes.where("position >= ?", position).update_all("position = position - 1")
+    self.stage.nodes.where("position >= ?", position).update_all("position = position - 1") if self.stage
   end
 
   private

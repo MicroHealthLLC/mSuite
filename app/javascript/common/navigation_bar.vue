@@ -66,7 +66,7 @@
         </span>
         <span>
           <a
-            v-if="currentMindMap.mm_type !== 'tree_map'"
+            v-if="isDeleteMindMap"
             href="javascript:;"
             role="button"
             class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -103,7 +103,7 @@
           >
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
-          <span class="scaling_area" v-if="currentMindMap.mm_type==='simple'">
+          <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart'">
             <a
               v-if="scaleFactor != 1"
               href="javascript:;"
@@ -184,6 +184,11 @@
       cutSelectedNode(){
         this.$emit("cutSelectedNode")
       },
+    },
+    computed: {
+      isDeleteMindMap(){
+        return (this.currentMindMap.mm_type === 'kanban' || this.currentMindMap.mm_type === 'simple' )
+      }
     }
 
   }

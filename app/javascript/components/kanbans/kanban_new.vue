@@ -105,17 +105,11 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
-  import vueDebounce from 'vue-debounce'
   import Sortable from 'sortablejs';
-  import VueTextareaAutosize from 'vue-textarea-autosize'
 
-  Vue.use(VueTextareaAutosize)
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
-  Vue.use(vueDebounce,{
-    listenTo: 'keyup',
-  })
 
   export default {
     components:{
