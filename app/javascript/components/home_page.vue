@@ -7,7 +7,7 @@
       </div>
       <div class="row container pl-0">
         <div v-for="type in mindmapTypes">
-          <div class="col mr-4 item" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
+          <div class="col m-2 item p-0" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
             <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
             />
             <span class="text-center">{{type.value}}</span>

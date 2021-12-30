@@ -19,7 +19,7 @@
               <span @click="addNode(node)" v-if="node.name != 'Enter title here'">
                 <i class="fas fa-plus float-right icon-opacity add-icon" title="Add Node"></i>
               </span>
-              <span @click="showColorPicker(node)" v-if="node.name !== currentMindMap.name && node.name !== 'Enter title here'">
+              <span @click="showColorPicker(node)" v-if="node.id !== undefined">
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
               </span>
             </div>
