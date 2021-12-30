@@ -243,7 +243,7 @@
 
       },
       goHome(){
-        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
+       this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       //=====================GETTING MINDMAP==============================//
 

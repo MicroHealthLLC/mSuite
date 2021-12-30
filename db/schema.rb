@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_06_111021) do
+ActiveRecord::Schema.define(version: 2021_12_21_164235) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 2021_12_06_111021) do
     t.integer "mm_type", default: 0, null: false
     t.string "password"
     t.string "line_color", default: "#B3FAFF"
+    t.binary "image"
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 
@@ -93,7 +94,6 @@ ActiveRecord::Schema.define(version: 2021_12_06_111021) do
     t.text "description"
     t.integer "export_index"
     t.integer "stage_id"
-    t.string "status"
     t.integer "position", default: 0
     t.integer "node_width", default: 0
     t.index ["mindmap_id"], name: "index_nodes_on_mindmap_id"

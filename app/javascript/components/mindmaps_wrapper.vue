@@ -7,6 +7,7 @@
       v-else
       :is="viewIs"
       :current-mind-map="currentMindMap"
+      :whiteboard-image="currentMindMap.image"
     />
   </div>
 </template>
@@ -16,6 +17,7 @@
   import MindmapView from "./mindmaps/mindmap_new"
   import KanbanView from "./kanbans/kanban_new"
   import TreeMap from "./treemaps/tree_map"
+  import Whiteboard from "./whiteboard/whiteboard"
   import PasswordView from "./password_view"
 
   export default {
@@ -23,7 +25,8 @@
       MindmapView,
       KanbanView,
       TreeMap,
-      PasswordView
+      PasswordView,
+      Whiteboard
     },
     data() {
       return {
@@ -45,6 +48,8 @@
               return "KanbanView"
             case "tree_map":
               return "TreeMap"
+            case "whiteboard":
+              return "Whiteboard"
             default:
               return "MindmapView"
           }
