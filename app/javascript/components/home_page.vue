@@ -7,7 +7,7 @@
       </div>
       <div class="row container pl-0">
         <div v-for="type in mindmapTypes">
-          <div class="col mr-4 item" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
+          <div class="col m-2 item p-0" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
             <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
             />
             <span class="text-center">{{type.value}}</span>
@@ -46,14 +46,15 @@
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "/assets/mindmap_main_menu.png" },
           { key: 'kanban', value: 'Kanban', imgsrc: "/assets/kanban_main_menu.png"  },
-          { key: 'tree_map', value: 'Tree Map', imgsrc: "/assets/tree_map_main_menu.png"  },
-          { key: 'whiteboard', value: 'White Board', imgsrc: "/assets/whiteboard_main_menu.png"  }
+          { key: 'whiteboard', value: 'White Board', imgsrc: "/assets/whiteboard_main_menu.png"  },
+          { key: 'tree_map', value: 'TreeMap', imgsrc: "/assets/tree_map_main_menu.png" },
+          { key: 'tree_chart', value: 'TreeChart', imgsrc: "/assets/tree_diagram.png" }
         ]
       }
     },
     methods: {
       createNewMap() {
-        http.post(`/mindmaps.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type: this.selectedType } }).then((res) => {
+        http.post(`/mindmaps.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type:this.selectedType } }).then((res) => {
           window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
         }).catch((error) => {
           alert("Unable to open/create mindmap.")

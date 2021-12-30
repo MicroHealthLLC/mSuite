@@ -19,6 +19,7 @@
   import TreeMap from "./treemaps/tree_map"
   import Whiteboard from "./whiteboard/whiteboard"
   import PasswordView from "./password_view"
+  import TreeChart from "./treechart/tree_chart"
 
   export default {
     components: {
@@ -26,7 +27,8 @@
       KanbanView,
       TreeMap,
       PasswordView,
-      Whiteboard
+      Whiteboard,
+      TreeChart
     },
     data() {
       return {
@@ -50,6 +52,8 @@
               return "TreeMap"
             case "whiteboard":
               return "Whiteboard"
+            case "tree_chart":
+              return "TreeChart"
             default:
               return "MindmapView"
           }

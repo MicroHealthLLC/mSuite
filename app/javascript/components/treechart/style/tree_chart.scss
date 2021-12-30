@@ -1,0 +1,25 @@
+.container {
+}
+
+.rich-media-node {
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-center;
+  justify-content: center;
+  color: white;
+  background-color: #EBECF0;
+  border-radius: 4px;
+}
+.node-slot{
+  text-align: center;
+}
+.position-arrow{
+  color: lightblue;
+}
+.z-index{
+  z-index: 1;
+}
+.mt-7{
+  margin-top: 8rem !important;
+}
