@@ -9,12 +9,12 @@
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">
                 <div @click="updateStage(stage)">
-                  <textarea-autosize @keydown.enter.prevent.native="stage.length < 1 ? addNewStage(stage, index) : '' " :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title"/>
+                  <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
                 </div>
-                <div v-show="stage.length > 0" class="pointer float-right" @click="selectedStageBg(stage,$event)">
+                <div class="pointer float-right" @click="stage.length > 0 ? selectedStageBg(stage,$event) : '' ">
                   <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
                 </div>
-                <div class="pointer float-right" @click="addNewStage(stage,index)">
+                <div class="pointer float-right" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
                    <i class="fas fa-plus position-absolute mt-1 add-icon icon-opacity" title="Add Stage"></i>
                 </div>
                 <div class="pointer float-right" @click="deleteStageConfirm(stage)">
@@ -366,11 +366,7 @@
 
       },
       addNewStage(stage, stage_index){
-        if (this.new_index !== stage_index && this.new_stage) {
-          return;
-        }
-        if (this.new_stage && this.new_index === stage_index){
-          this.createNewStage(document.getElementById(stage_index).value.trim())
+        if (this.new_stage) {
           return;
         }
         this.allStages.splice(stage_index + 1, 0, {title: ''})
@@ -382,15 +378,7 @@
       },
       createNewStage(val){
         let index = this.allStages.findIndex(stg => stg.title === '')
-        if (val.length < 1){
-          this.stage = null
-          this.$refs['errorStageModal'].open()
-          this.selectedElement = null
-          this.selectedStage = null
-          this.colorSelected = false
-          return;
-        }
-        else if(this.checkDuplicate(val))
+        if(this.checkDuplicate(val))
         {
           this.$refs['duplicateStageModal'].open()
           this.stage = null
@@ -525,6 +513,13 @@
         if (this.stage !== null && this.stage.title) {
           this.editStageTitle(e.target.value.trim())
         }
+        else if (this.new_stage && e.target.value !== '') {
+          this.createNewStage(e.target.value.trim())
+        }
+        else {
+          return;
+        }
+
       },
       changeStagePositions(title, old_pos, new_pos) {
         let stage = this.allStages.find(stg => stg.title === title)
