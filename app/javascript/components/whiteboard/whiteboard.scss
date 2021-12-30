@@ -1,0 +1,28 @@
+.w-5 {
+    width: 5%;
+  }
+.w-10 {
+  width: 10%;
+}
+.mt-7 {
+  margin-top: 5rem;
+}
+.tools {
+  line-height: 26px;
+  max-width: 120px;
+  padding-bottom: 1rem !important;
+  border-radius: 0px !important
+}
+.icon-height {
+  height: 9%;
+  display: flex;
+}
+.tool-column {
+  max-height: 32rem;
+  overflow: scroll;
+  display: block;
+  padding: 0px;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}

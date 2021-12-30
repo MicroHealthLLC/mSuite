@@ -163,6 +163,7 @@ class MindmapsController < AuthenticatedController
       :description,
       :password,
       :line_color,
+      :image,
       node_files: []
     )
   end

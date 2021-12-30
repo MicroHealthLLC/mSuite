@@ -10,7 +10,7 @@
           <div class="col mr-4 item" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered===type.key ? 'hovering':'' ">
             <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
             />
-            <span class="mr-2 text-center">{{type.value}}</span>
+            <span class="text-center">{{type.value}}</span>
           </div>
         </div>
       </div>
@@ -46,7 +46,8 @@
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "/assets/mindmap_main_menu.png" },
           { key: 'kanban', value: 'Kanban', imgsrc: "/assets/kanban_main_menu.png"  },
-          { key: 'tree_map', value: 'Tree Map', imgsrc: "/assets/tree_map_main_menu.png"  }
+          { key: 'tree_map', value: 'Tree Map', imgsrc: "/assets/tree_map_main_menu.png"  },
+          { key: 'whiteboard', value: 'White Board', imgsrc: "/assets/whiteboard_main_menu.png"  }
         ]
       }
     },

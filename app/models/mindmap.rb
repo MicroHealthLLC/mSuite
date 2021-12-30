@@ -22,7 +22,7 @@ class Mindmap < ApplicationRecord
 
   enum status: { active: 0, archived: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
-  enum mm_type: { simple: 0, kanban: 1, tree_map: 2 }
+  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, whiteboard: 4 }
 
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
