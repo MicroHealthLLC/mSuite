@@ -1,7 +1,7 @@
 <template>
   <div>
-    <navigation-bar @goHome="goHome" @openPrivacy="openPrivacy" @exportToImage="exportImage" @deleteMindmap="deleteMap"  :current-mind-map="currentMindMap"></navigation-bar>
-    <div class="row mt-7">
+    <navigation-bar v-if="isMounted" @goHome="goHome" @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @exportToImage="exportImage" @deleteMindmap="deleteMap" :current-mind-map="currentMindMap"></navigation-bar>
+    <div class="row mt-whiteboard">
       <div class="ml-2 border-1 border border-right-0 mb-0 tool-column">
         <div class="tools btn btn-info border pointer icon-height" @click="drawingMode('dash')">
           <span class="material-icons mr-1">
@@ -119,17 +119,16 @@
 </template>
 <script>
   import http from "../../common/http"
+  import NavigationBar from "../../common/navigation_bar";
   import domtoimage from "dom-to-image-more"
   import VueDrawingCanvas from 'vue-drawing-canvas';
-  import NavigationBar from "../../common/navigation_bar";
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   export default {
     props:['whiteboardImage'],
-    created(){
-      window._self = this
+    mounted(){
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
       }
@@ -143,7 +142,8 @@
       else{
         setTimeout(() => {
           this.$refs.VueCanvasDrawing.images = []
-          this.$refs.VueCanvasDrawing.drawInitialImage()
+          if (this.$refs.VueCanvasDrawing.initialImage !== null)
+            this.$refs.VueCanvasDrawing.drawInitialImage()
         }, 200)
       }
      }
@@ -159,6 +159,7 @@
     data(){
       return{
         eraser: false,
+        isMounted: false,
         line: 5,
         strokeType: "dash",
         color: "#000000",
@@ -199,9 +200,13 @@
         .get(`/mindmaps/${id}.json`)
         .then((res) => {
           this.currentMindMap = res.data.mindmap
+          this.isMounted = true
           this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
         })
 
+      },
+      mSuiteTitleUpdate(mSuite_name){
+        http.patch(`/mindmaps/${ this.currentMindMap.unique_key }.json`,{ mindmap: { name: mSuite_name }})
       },
       goHome(){
        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()

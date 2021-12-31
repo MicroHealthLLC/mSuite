@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading">
-    <navigation-bar @goHome="goHome" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
+    <navigation-bar @goHome="goHome" @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
 
     <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
@@ -633,7 +633,10 @@
           }
         })
       },
-
+      mSuiteTitleUpdate(mSuite_name){
+        http
+        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {name: mSuite_name}})
+      },
       //=====================PASSWORD PROTECT==============================//
       //=====================OTHER FUNCTIONS ==============================//
       blurEvent(val, e){

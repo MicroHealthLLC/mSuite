@@ -1,0 +1,18 @@
+
+.text-sapphire{
+  color: #1C326E;
+}
+.mindmap-title {
+  resize: none !important;
+  font-size: 15px;
+  background: transparent;
+}
+.mindmap-title:hover{
+  cursor: pointer !important;
+}
+.mindmap-title:focus{
+  background: white !important;
+  border-radius: 5px;
+  cursor: auto !important;
+  padding-left: 5px;
+}
