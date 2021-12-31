@@ -11,7 +11,7 @@
         ref="refTree"
       >
         <template v-slot:node="{ node }">
-          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart'+node.id" v-bind:style="{ backgroundColor: node.color }">
+          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" v-bind:style="{ backgroundColor: node.color }" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
             <div>
               <span @click="deleteMap(node)">
                 <i class="fas fa-times float-right icon-opacity text-danger" title=""></i>
@@ -22,12 +22,15 @@
               <span @click="showColorPicker(node)" v-if="node.id !== undefined">
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
               </span>
+              <div  v-if="node.id !== undefined">
+                <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node"></i>
+              </div>
             </div>
             <span class="text-dark my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
               {{ node.name }}
             </span>
             <span v-else-if="selectedNode.id == node.id">
-              <textarea-autosize type="text" v-model="selectedNode.name"  v-debounce:3000ms="blurEvent" @blur.native="saveNodeTreeChart" :rows="1" class="w-100 rounded my-2" placeholder="Enter title here"/>
+              <textarea-autosize type="text" v-model="selectedNode.name"  v-debounce:3000ms="blurEvent" @blur.native="saveNodeTreeChart" :rows="1" class="w-100 rounded my-2" placeholder="Enter title here" :id="'textArea' + node.id"/>
             </span>
             <span class="w-100 position-arrow text-center" @click="collapseNode(node)" :id="'collapsed'+node.id">
               <i class="fas fa-caret-square-down"></i>
@@ -102,6 +105,7 @@
     name: 'TreeChart',
     data(){
       return{
+        dragElement: null,
         colorSelected: false,
         exportLoading: false,
         scaleFactor: 1,
@@ -151,6 +155,22 @@
       NavigationBar
     },
     methods: {
+      dragStart(nodeId){
+        this.dragElement = this.nodes.find((node) => node.id == nodeId)
+      },
+      dragDrop(nodeId){
+        let dropElement = this.nodes.find((node) => node.id == nodeId)
+        if(nodeId && nodeId != this.dragElement.id && this.dragElement.id != dropElement.parent_node)
+        { 
+          this.dragElement.parent_node = nodeId
+          this.updateTreeChartNode(this.dragElement)
+        }
+        else if(nodeId === undefined)
+        {
+          this.dragElement.parent_node = null
+          this.updateTreeChartNode(this.dragElement)
+        }
+      },
       zoomInScale(){
         if (this.scaleFactor < 1.50) {
           this.scaleFactor = this.scaleFactor + 0.05
@@ -241,10 +261,14 @@
         }
       },
       showInputField(node){
+        let _this = this
         this.addNodeTree = false
         this.$refs.refTree.collapseEnabled = false
         this.selectedNode = node
         this.selectedNodeTitle = JSON.parse(JSON.stringify(node.name))
+        setTimeout(() => {
+          document.getElementById('textArea'+ _this.selectedNode.id).focus()
+        }, 300)
       },
       collapseNode(node){
         this.collapsed = !this.collapsed
