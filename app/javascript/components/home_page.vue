@@ -1,6 +1,6 @@
 <template>
   <div class="main_div">
-    <h1 class="main_heading">mSuite Maps</h1>
+    <h1 class="main_heading">mSuite</h1>
     <div class="box_shadow box main_box">
       <div class="w-100 text-center mb-3">
          <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="Enter name of Concept Map here then select map type below">
