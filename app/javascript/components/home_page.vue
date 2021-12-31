@@ -100,7 +100,7 @@
 .main_box {
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
+  width: 75%;
   height: max-content;
   background-image: linear-gradient(white, grey);
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.8);
