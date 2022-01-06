@@ -17,7 +17,7 @@ class MindmapsController < AuthenticatedController
   def create
     @mindmap = Mindmap.create(mindmap_params)
     respond_to do |format|
-      format.json { render json: { mindmap: @mindmap.to_json } }
+      format.json { render json: { mindmap: @mindmap.to_json, errors: @mindmap.errors.to_json } }
       format.html { }
     end
   end
