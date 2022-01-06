@@ -10,7 +10,6 @@ Rails.application.routes.draw do
   end
 
   put 'mindmaps/destroy_nodes' => 'mindmaps#destroy_nodes'
-  get 'mindmaps/find_or_create' => 'mindmaps#find_or_create'
   get 'mindmaps/list_all_maps' => 'mindmaps#list_all_maps'
   get 'nodes/hide_children' => 'nodes#hide_children'
 
