@@ -17,7 +17,7 @@
     </div>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
       {{ errorMsg }}
-      <button v-if="oldMSuiteName.length > 10 && oldMSuiteName.length < 20" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Continue</button>
+      <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Continue</button>
       <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try again</button>
       <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Random create</button>
     </sweet-modal>
