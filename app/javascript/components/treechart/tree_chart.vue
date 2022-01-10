@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navigation-bar @goHome="goHome" @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" :scaleFactor="scaleFactor" @zoomOutScale="zoomOutScale"></navigation-bar>
+    <navigation-bar @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" :scaleFactor="scaleFactor" @zoomOutScale="zoomOutScale"></navigation-bar>
     <!-- tree chart -->
     <section id="treeChartObj" class="main_body mt-5">
       <vue-tree
@@ -152,7 +152,7 @@
       DeleteMapModal,
       MakePrivateModal,
       DeletePasswordModal,
-      NavigationBar
+      NavigationBar,
     },
     methods: {
       dragStart(nodeId){
@@ -349,9 +349,6 @@
           this.getChildNode(_.uniq(childNodes))
         }
         this.treeChartObj.children = parent_nodes
-      },
-      goHome(){
-        window.open('/',"_self")
       },
       async submitChildNode(node){
         let _this = this

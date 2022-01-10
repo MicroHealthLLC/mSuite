@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navigation-bar v-if="isMounted" @goHome="goHome" @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @exportToImage="exportImage" @deleteMindmap="deleteMap" :current-mind-map="currentMindMap"></navigation-bar>
+    <navigation-bar v-if="isMounted" @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @exportToImage="exportImage" @deleteMindmap="deleteMap" :current-mind-map="currentMindMap"></navigation-bar>
     <div class="row mt-whiteboard">
       <div class="ml-2 border-1 border border-right-0 mb-0 tool-column">
         <div class="tools btn btn-info border pointer icon-height" @click="drawingMode('dash')">
@@ -124,7 +124,6 @@
   import VueDrawingCanvas from 'vue-drawing-canvas';
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
-  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   export default {
     props:['whiteboardImage'],
@@ -153,8 +152,7 @@
       NavigationBar,
       DeleteMapModal,
       DeletePasswordModal,
-      MakePrivateModal,
-      ConfirmSaveKeyModal,
+      MakePrivateModal
     },
     data(){
       return{
@@ -207,9 +205,6 @@
       },
       mSuiteTitleUpdate(mSuite_name){
         http.patch(`/mindmaps/${ this.currentMindMap.unique_key }.json`,{ mindmap: { name: mSuite_name }})
-      },
-      goHome(){
-       this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()

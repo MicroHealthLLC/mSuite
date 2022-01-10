@@ -148,10 +148,12 @@
         </span>
       </span>
     </div>
+    <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
   </div>
 </template>
 
 <script>
+  import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
   export default{
     name:"NavigationBar",
     props:["scaleFactor","currentMindMap","selectedNode","copiedNode"],
@@ -163,9 +165,12 @@
         editable: false
       }
     },
+    components:{
+      ConfirmSaveKeyModal
+    },
     methods:{
       goHome () {
-        this.$emit("goHome")
+        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       openPrivacy () {
         this.$emit("openPrivacy")
