@@ -19,7 +19,8 @@
 }
 .tool-column {
   max-height: 32rem;
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: block;
   padding: 0px;
 }
