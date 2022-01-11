@@ -1,6 +1,24 @@
 <template>
   <div class="map-container">
-    <navigation-bar ref="navigationBar" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportToImage" @exportToWord="exportToWord" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" @zoomOutScale="zoomOutScale" @resetMap="resetMap" @copySelectedNode="copySelectedNode" @deleteSelectedNode="deleteSelectedNode" @pasteCopiedNode="pasteCopiedNode" @cutSelectedNode="cutSelectedNode" :current-mind-map="currentMindMap" :scaleFactor="scaleFactor" :selected-node="selectedNode" :copied-node="copiedNode"></navigation-bar>
+    <navigation-bar
+      ref="navigationBar"
+      @openPrivacy="openPrivacy"
+      @deleteMindmap="deleteMap"
+      @exportToImage="exportImage($event)"
+      @exportToWord="exportToWord"
+      @resetZoomScale="resetZoomScale"
+      @zoomInScale="zoomInScale"
+      @zoomOutScale="zoomOutScale"
+      @resetMap="resetMap"
+      @copySelectedNode="copySelectedNode"
+      @deleteSelectedNode="deleteSelectedNode"
+      @pasteCopiedNode="pasteCopiedNode"
+      @cutSelectedNode="cutSelectedNode"
+      :current-mind-map="currentMindMap"
+      :scaleFactor="scaleFactor"
+      :selected-node="selectedNode"
+      :copied-node="copiedNode">
+    </navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
       <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
@@ -105,7 +123,6 @@
       Password updated successfully!
     </sweet-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
     </delete-password-modal>
     <section v-if="exportLoading" class="export-loading-tab">
@@ -118,9 +135,10 @@
 
 <script>
   import _ from "lodash"
+  import { jsPDF } from "jspdf";
+  import html2canvas from "html2canvas"
   import Jimp from 'jimp'
   import domtoimage from "dom-to-image-more"
-  import NavigationBar from "../../common/navigation_bar"
   import InputField from "./idea_input_field"
   import NewMapModal from "./modals/new_map_modal"
   import OpenMapModal from "./modals/open_map_modal"
@@ -145,7 +163,6 @@
       MakePrivateModal,
       DeleteMapModal,
       DeletePasswordModal,
-      NavigationBar
     },
 
     data() {
@@ -923,41 +940,56 @@
 
         this.drawLines()
       },
-      exportToImage(event) {
-        const VM = this
+      exportImage(option) {
+        const _this = this
         let elm = document.getElementById("map-container")
         elm.style.transform = "scale(1)"
-        let map_key = VM.currentMindMap.unique_key || "image"
-        VM.exportLoading = true
+        let map_key = _this.currentMindMap.unique_key || "image"
+        _this.exportLoading = true
 
         domtoimage.toPng(elm)
           .then((url) => {
             Jimp.read(url).then((image) => {
-              let size = VM.getExportCanvasSize()
+              let size = _this.getExportCanvasSize()
               image.crop(size.x, size.y, size.w, size.h)
               image.getBase64(Jimp.MIME_PNG,
                 ((err, baseUrl) => {
-                  let downloadLink = document.createElement("a")
-                  document.body.appendChild(downloadLink)
-                  downloadLink.href = baseUrl
-                  downloadLink.download = map_key + ".png"
-                  downloadLink.click()
-                  document.body.removeChild(downloadLink)
-                  VM.exportLoading = false
+                  if (option === 1){
+                    let downloadLink = document.createElement("a")
+                    document.body.appendChild(downloadLink)
+                    downloadLink.href = baseUrl
+                    downloadLink.download = map_key + ".png"
+                    downloadLink.click()
+                    document.body.removeChild(downloadLink)
+                    _this.exportLoading = false
+                  }
+                  else {
+                    var pdf = new jsPDF('l', 'px',[size.w,size.h],true);
+                    var width = pdf.internal.pageSize.getWidth();
+                    var height = pdf.internal.pageSize.getHeight();
+                    html2canvas(elm).then(canvas => {
+                      pdf.addImage(baseUrl, 'JPEG', 0, 0, size.w, size.h);
+                      pdf.save(this.currentMindMap.unique_key + '.pdf');
+                    });
+                    _this.exportLoading = false
+                  }
+                  this.$refs['navigationBar'].$refs['exportOption'].close()
                 })
               );
             }).catch((err) => {
-              VM.exportLoading = false
+              _this.exportLoading = false
               console.error('oops, something went wrong!', err)
+              this.$refs['navigationBar'].$refs['exportOption'].close()
             })
           })
           .catch((err) => {
-            VM.exportLoading = false
+            _this.exportLoading = false
             console.error('oops, something went wrong!', err)
+            this.$refs['navigationBar'].$refs['exportOption'].close()
           })
 
         elm.style.transform = "scale(" + this.scaleFactor +")"
-        VM.$refs.navigationBar.$refs.exportBtn.blur()
+        _this.$refs.navigationBar.$refs.exportBtn.blur()
       },
       zoomInScale() {
         if (this.scaleFactor < 1.50) {

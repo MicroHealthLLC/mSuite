@@ -1,6 +1,10 @@
 <template>
   <div>
-    <navigation-bar @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
+    <navigation-bar
+     @openPrivacy="openPrivacy"
+     :current-mind-map="currentMindMap"
+     :exportId="'treeMapGraph'">
+    </navigation-bar>
     <div class="row mt-5 main_body">
       <div class="col-12 mt-4" id="treeMapGraph">
         <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)" :colorRange="50"
@@ -54,8 +58,9 @@
 <script>
   // Import the components that will be used
   import domtoimage from "dom-to-image-more"
+  import { jsPDF } from "jspdf";
+  import html2canvas from "html2canvas"
   import http from '../../common/http'
-  import NavigationBar from "../../common/navigation_bar"
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
@@ -67,8 +72,7 @@
       JqxTreeMap,
       MakePrivateModal,
       DeleteMapModal,
-      DeletePasswordModal,
-      NavigationBar
+      DeletePasswordModal
     },
     props:['currentMindMap'], //Props to be used in the widget
     data: function () {
@@ -146,7 +150,8 @@
               location.reload()
             }, 500)
           }
-          else {
+          else
+          {
             this.getTreeMap()
           }
 
@@ -155,24 +160,6 @@
       }
     },
     methods: {
-      exportImage() {
-        const _this = this
-        let elm = document.getElementById("treeMapGraph")
-        elm.style.transform = "scale(1)"
-        let map_key = _this.currentMindMap.unique_key || "image"
-        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
-        .then((url) => {
-          let downloadLink = document.createElement("a")
-          document.body.appendChild(downloadLink)
-          downloadLink.href = url
-          downloadLink.download = map_key + ".png"
-          downloadLink.click()
-          document.body.removeChild(downloadLink)
-        })
-        .catch((err) => {
-          console.error('oops, something went wrong!', err)
-        })
-      },
       onBindingComplete: function (event) {
         let nodestreeMaps = []
         var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Mindmap')

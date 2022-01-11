@@ -1,6 +1,14 @@
 <template>
   <div>
-    <navigation-bar @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" :scaleFactor="scaleFactor" @zoomOutScale="zoomOutScale"></navigation-bar>
+    <navigation-bar
+      @openPrivacy="openPrivacy"
+      :current-mind-map="currentMindMap"
+      @resetZoomScale="resetZoomScale"
+      @zoomInScale="zoomInScale"
+      :scaleFactor="scaleFactor"
+      :exportId="'treeChartObj'"
+      @zoomOutScale="zoomOutScale">
+    </navigation-bar>
     <!-- tree chart -->
     <section id="treeChartObj" class="main_body mt-5">
       <vue-tree
@@ -83,7 +91,7 @@
 
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
     </delete-password-modal>
-    
+
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
@@ -94,12 +102,13 @@
 <script type="text/javascript">
   // Import the components that will be used
   import Jimp from 'jimp'
+  import { jsPDF } from "jspdf";
+  import html2canvas from "html2canvas"
   import http from '../../common/http'
   import DeleteMapModal from '../../common/modals/delete_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import domtoimage from "dom-to-image-more"
-  import NavigationBar from "../../common/navigation_bar"
   Vue.config.warnHandler = function(msg, vm, info) {}
   export default {
     name: 'TreeChart',
@@ -151,8 +160,7 @@
     components: {
       DeleteMapModal,
       MakePrivateModal,
-      DeletePasswordModal,
-      NavigationBar,
+      DeletePasswordModal
     },
     methods: {
       dragStart(nodeId){
@@ -369,27 +377,6 @@
       async updatedTreeChart(obj){
         await http.put(`/mindmaps/${obj.unique_key}`, obj);
       },
-      exportImage(){
-        const _this = this
-        let elm = document.getElementById("treeChartObj")
-        elm.style.transform = "scale(1)"
-        _this.exportLoading = true
-        let map_key = _this.currentMindMap.unique_key || "image"
-        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
-        .then((url) => {
-          let downloadLink = document.createElement("a")
-          document.body.appendChild(downloadLink)
-          downloadLink.href = url
-          downloadLink.download = map_key + ".png"
-          downloadLink.click()
-          _this.exportLoading = false
-          document.body.removeChild(downloadLink)
-        })
-        .catch((err) => {
-          _this.exportLoading = false
-          console.error('oops, something went wrong!', err)
-        })
-      },
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
@@ -472,7 +459,8 @@
               location.reload()
             }, 500)
           }
-          else {
+          else
+          {
             this.fetchTreeChart()
           }
 
@@ -480,12 +468,6 @@
         disconnected() {}
       }
     },
-    computed: {
-
-    },
-    watch: {
-
-    }
   }
 </script>
 <style type="text/css">

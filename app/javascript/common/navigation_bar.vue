@@ -20,7 +20,14 @@
           <span class="fa-icon-text">Make Private</span>
         </a>
       </span>
-      <span v-show="!editable" v-if="navigationTitle.includes(currentMindMap.mm_type)" @click="makeEditable" class="w-25 mt-1 pt-2 pointer" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
+      <span
+        v-show="!editable"
+        v-if="navigationTitle.includes(currentMindMap.mm_type)"
+        @click="makeEditable"
+        class="w-25 mt-1 pt-2 pointer"
+        data-toggle="tooltip"
+        :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}
+      </span>
       <textarea
         v-show="editable"
         v-if="navigationTitle.includes(currentMindMap.mm_type)"
@@ -32,7 +39,7 @@
         v-model="mSuiteName"
         class="border-0 mindmap-title w-25 text-sapphire font-weight-bold align-items-center pt-2 mt-1"
         @blur="mSuiteTitleUpdate"
-        placeholder="Enter Mindmap Title"
+        placeholder="Enter mSuite Map Title"
       >
       </textarea>
       <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'" class="ml_14">
@@ -114,7 +121,7 @@
           role="button"
           href="javascript:;"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-          @click.prevent.stop="exportToImage"
+          @click.prevent.stop="$refs['exportOption'].open()"
         >
           <i class="material-icons export_icon icons d-flex center_flex"></i>
         </a>
@@ -149,14 +156,23 @@
       </span>
     </div>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
+    <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
+      Kindly Choose the Format of Export
+      <button slot="button" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
+      <button slot="button" @click="exportImage(2)" class="btn btn-info float-left">Export to Pdf</button>
+      <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
+    </sweet-modal>
   </div>
 </template>
 
 <script>
   import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
+  import { jsPDF } from "jspdf";
+  import html2canvas from "html2canvas"
+  import domtoimage from "dom-to-image-more"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor","currentMindMap","selectedNode","copiedNode"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId"],
     data() {
       return{
         mSuiteName: this.currentMindMap.name,
@@ -167,6 +183,23 @@
     },
     components:{
       ConfirmSaveKeyModal
+    },
+    computed: {
+      isDeleteMindMap () {
+        return (this.deleteableMSuite.includes(this.currentMindMap.mm_type))
+      },
+      mSuiteTitle () {
+        return this.mSuiteName
+      }
+    },
+    filters: {
+      truncate: function(data,num){
+        let reqdString = data.split("").slice(0, num).join("");
+        if (reqdString.length < data.length) {
+          reqdString = reqdString.concat('.....')
+        }
+        return reqdString;
+      }
     },
     methods:{
       goHome () {
@@ -183,9 +216,6 @@
       },
       exportToWord () {
         this.$emit("exportToWord")
-      },
-      exportToImage () {
-        this.$emit("exportToImage")
       },
       resetZoomScale () {
         this.$emit("resetZoomScale")
@@ -223,24 +253,49 @@
       blurEvent (val, e) {
        if (e.target) e.target.blur();
       },
-    },
-    computed: {
-      isDeleteMindMap () {
-        return (this.deleteableMSuite.includes(this.currentMindMap.mm_type))
-      },
-      mSuiteTitle () {
-        return this.mSuiteName
-      }
-    },
-    filters: {
-      truncate: function(data,num){
-        let reqdString = data.split("").slice(0, num).join("");
-        if (reqdString.length < data.length) {
-          reqdString = reqdString.concat('.....')
+      exportImage(option) {
+        if (this.currentMindMap.mm_type === 'simple')
+        {
+          this.$emit('exportToImage',option)
         }
-        return reqdString;
-      }
-    }
+        else {
+          const _this = this
+          let elm = document.getElementById(this.exportId)
+          if (this.currentMindMap.mm_type === 'kanban')
+          {
+            let inner_list = document.getElementsByClassName('drag-inner-list')
+            inner_list.forEach(i=>i.classList.add('mh-100'))
+          }
+          elm.style.transform = "scale(1)"
+          let map_key = _this.currentMindMap.unique_key || "image"
+          domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
+          .then((url) => {
+            if (option === 1){
+              let downloadLink = document.createElement("a")
+              document.body.appendChild(downloadLink)
+              downloadLink.href = url
+              downloadLink.download = map_key + ".png"
+              downloadLink.click()
+              document.body.removeChild(downloadLink)
+            }
+            else {
+              var pdf = new jsPDF('l', 'px',[elm.scrollWidth,elm.scrollHeight],true);
+              var width = pdf.internal.pageSize.getWidth();
+              var height = pdf.internal.pageSize.getHeight();
+              html2canvas(elm).then(canvas => {
+                pdf.addImage(url, 'JPEG', 0, 0, width, height);
+                pdf.save(map_key + '.pdf');
+              });
+            }
+            _this.currentMindMap.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
+            _this.$refs['exportOption'].close()
+          })
+          .catch((err) => {
+            console.error('oops, something went wrong!', err)
+          })
+        }
+      },
+    },
   }
 </script>
 

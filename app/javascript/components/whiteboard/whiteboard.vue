@@ -1,6 +1,14 @@
 <template>
   <div>
-    <navigation-bar v-if="isMounted" @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @exportToImage="exportImage" @deleteMindmap="deleteMap" :current-mind-map="currentMindMap"></navigation-bar>
+    <navigation-bar
+      v-if="isMounted"
+      @mSuiteTitleUpdate="mSuiteTitleUpdate"
+      @openPrivacy="openPrivacy"
+      @deleteMindmap="deleteMap"
+      :current-mind-map="currentMindMap"
+      :exportId="'vue_canvas'"
+      ref="whiteBoardNavigation">
+    </navigation-bar>
     <div class="row mt-whiteboard">
       <div class="ml-2 border-1 border border-right-0 mb-0 tool-column">
         <div class="tools btn btn-info border pointer icon-height" @click="drawingMode('dash')">
@@ -117,7 +125,8 @@
 </template>
 <script>
   import http from "../../common/http"
-  import NavigationBar from "../../common/navigation_bar";
+  import { jsPDF } from "jspdf";
+  import html2canvas from "html2canvas"
   import domtoimage from "dom-to-image-more"
   import VueDrawingCanvas from 'vue-drawing-canvas';
   import DeleteMapModal from '../../common/modals/delete_modal';
@@ -157,7 +166,6 @@
     },
     components: {
       VueDrawingCanvas,
-      NavigationBar,
       DeleteMapModal,
       DeletePasswordModal,
       MakePrivateModal
@@ -194,7 +202,8 @@
               location.reload()
             }, 500)
           }
-          else {
+          else
+          {
             this.initialImage = JSON.parse(data.mindmap.image)
           }
         }
@@ -283,23 +292,6 @@
       redoUndoMap(process){
         process === 0 ? this.$refs.VueCanvasDrawing.redo() : this.$refs.VueCanvasDrawing.undo()
         this.saveImage()
-      },
-      exportImage() {
-        const _this = this
-        let elm = document.getElementById("vue_canvas")
-        let map_key = _this.currentMindMap.unique_key || "image"
-        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
-          .then((url) => {
-            let downloadLink = document.createElement("a")
-            document.body.appendChild(downloadLink)
-            downloadLink.href = url
-            downloadLink.download = map_key + ".png"
-            downloadLink.click()
-            document.body.removeChild(downloadLink)
-          })
-          .catch((err) => {
-            console.error('oops, something went wrong!', err)
-          })
       },
       drawingMode(shape){
         this.strokeType = shape
