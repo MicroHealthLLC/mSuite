@@ -1,5 +1,6 @@
 
 import Mindmap from 'components/dashboard.vue'
+import NavigationBar from "common/navigation_bar";
 import router from 'routers/mindmaps'
 import ActionCableVue from 'actioncable-vue'
 import SyncLoader from 'vue-spinner/src/SyncLoader.vue'
@@ -22,6 +23,7 @@ Vue.use(ActionCableVue, {
 Vue.use(Vuex);
 Vue.use(VueTextareaAutosize)
 Vue.component('vue-tree', VueTree)
+Vue.component('navigation-bar', NavigationBar)
 Vue.component('sync-loader', SyncLoader)
 Vue.component('sweet-modal', SweetModal)
 Vue.component('chrome-picker', Chrome)

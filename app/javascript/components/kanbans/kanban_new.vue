@@ -1,7 +1,13 @@
 <template>
   <div v-if="!loading">
-    <navigation-bar @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
-
+    <navigation-bar
+      @mSuiteTitleUpdate="mSuiteTitleUpdate"
+      @openPrivacy="openPrivacy"
+      @deleteMindmap="deleteMap"
+      :current-mind-map="currentMindMap"
+      ref="kanbanNavigation"
+      :exportId="'kanban-board'">
+    </navigation-bar>
     <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
         <div v-for="stage, index in computedStages" :slot="stage" class="w-100">
@@ -84,7 +90,6 @@
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
       <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
-
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
     </sweet-modal>
@@ -96,9 +101,7 @@
 
 <script>
   import http from "../../common/http"
-  import NavigationBar from "../../common/navigation_bar"
   import vueKanban from 'vue-kanban'
-  import domtoimage from "dom-to-image-more"
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeleteBlockModal from './modals/delete_block_modal'
   import DeleteMapModal from '../../common/modals/delete_modal'
@@ -114,8 +117,7 @@
       MakePrivateModal,
       DeleteBlockModal,
       DeleteMapModal,
-      DeletePasswordModal,
-      NavigationBar
+      DeletePasswordModal
     },
     data() {
       return {
@@ -155,7 +157,8 @@
               location.reload()
             }, 500)
           }
-          else {
+          else
+          {
             this.getAllStages()
             this.getAllNodes()
             setTimeout(() => {
@@ -649,27 +652,6 @@
           if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
         })
         return is_val
-      },
-      exportImage() {
-        const _this = this
-        let elm = document.getElementById("kanban-board")
-        let inner_list = document.getElementsByClassName('drag-inner-list')
-        inner_list.forEach(i=>i.classList.add('mh-100'))
-        elm.style.transform = "scale(1)"
-        let map_key = _this.currentMindMap.unique_key || "image"
-        domtoimage.toPng(elm, {height: elm.scrollHeight, width: elm.scrollWidth})
-          .then((url) => {
-            let downloadLink = document.createElement("a")
-            document.body.appendChild(downloadLink)
-            downloadLink.href = url
-            downloadLink.download = map_key + ".png"
-            downloadLink.click()
-            document.body.removeChild(downloadLink)
-            inner_list.forEach(i => i.classList.remove('mh-100'))
-          })
-          .catch((err) => {
-            console.error('oops, something went wrong!', err)
-          })
       },
       //=====================OTHER FUNCTIONS ==============================//
     }
