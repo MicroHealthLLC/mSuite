@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading">
-    <navigation-bar @goHome="goHome" @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
+    <navigation-bar @mSuiteTitleUpdate="mSuiteTitleUpdate" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
 
     <div class="row kanban_board mt-5" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
@@ -61,7 +61,6 @@
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
     <delete-block-modal ref="delete-block-modal" @delete_task="deleteBlock(block)"></delete-block-modal>
-    <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
     </sweet-modal>
@@ -104,7 +103,6 @@
   import DeleteBlockModal from './modals/delete_block_modal'
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
-  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import Sortable from 'sortablejs';
 
 
@@ -117,7 +115,6 @@
       DeleteBlockModal,
       DeleteMapModal,
       DeletePasswordModal,
-      ConfirmSaveKeyModal,
       NavigationBar
     },
     data() {
@@ -235,9 +232,6 @@
           this.getAllNodes()
         })
 
-      },
-      goHome(){
-       this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       //=====================GETTING MINDMAP==============================//
 

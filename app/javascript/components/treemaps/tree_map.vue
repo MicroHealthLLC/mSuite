@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navigation-bar @goHome="goHome" @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
+    <navigation-bar @openPrivacy="openPrivacy" @exportToImage="exportImage" :current-mind-map="currentMindMap"></navigation-bar>
     <div class="row mt-5 main_body">
       <div class="col-12 mt-4" id="treeMapGraph">
         <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)" :colorRange="50"
@@ -18,8 +18,6 @@
         </div>
       </div>
     </div>
-
-    <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
 
@@ -60,7 +58,6 @@
   import NavigationBar from "../../common/navigation_bar"
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import DeleteMapModal from '../../common/modals/delete_modal'
-  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
 
@@ -71,7 +68,6 @@
       MakePrivateModal,
       DeleteMapModal,
       DeletePasswordModal,
-      ConfirmSaveKeyModal,
       NavigationBar
     },
     props:['currentMindMap'], //Props to be used in the widget
@@ -248,9 +244,6 @@
         nodeElement.setAttribute('class', class_list)
         nodeElement.title = title
         return nodeElement
-      },
-      goHome(){
-        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       updateTreeMaps: async function (obj) {
         let data = {

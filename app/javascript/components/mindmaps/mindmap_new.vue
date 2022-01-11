@@ -1,6 +1,6 @@
 <template>
   <div class="map-container">
-    <navigation-bar @goHome="goHome" ref="navigationBar" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportToImage" @exportToWord="exportToWord" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" @zoomOutScale="zoomOutScale" @resetMap="resetMap" @copySelectedNode="copySelectedNode" @deleteSelectedNode="deleteSelectedNode" @pasteCopiedNode="pasteCopiedNode" @cutSelectedNode="cutSelectedNode" :current-mind-map="currentMindMap" :scaleFactor="scaleFactor" :selected-node="selectedNode" :copied-node="copiedNode"></navigation-bar>
+    <navigation-bar ref="navigationBar" @openPrivacy="openPrivacy" @deleteMindmap="deleteMap" @exportToImage="exportToImage" @exportToWord="exportToWord" @resetZoomScale="resetZoomScale" @zoomInScale="zoomInScale" @zoomOutScale="zoomOutScale" @resetMap="resetMap" @copySelectedNode="copySelectedNode" @deleteSelectedNode="deleteSelectedNode" @pasteCopiedNode="pasteCopiedNode" @cutSelectedNode="cutSelectedNode" :current-mind-map="currentMindMap" :scaleFactor="scaleFactor" :selected-node="selectedNode" :copied-node="copiedNode"></navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
       <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
@@ -78,11 +78,6 @@
       @add-file-to-central-node="addFileToCentralNode"
     ></central-attachment-modal>
 
-    <confirm-save-key-modal
-      ref="confirm-save-key-modal"
-      :current-mind-map="currentMindMap"
-    ></confirm-save-key-modal>
-
     <export-to-word-modal
       ref="export-to-word-modal"
       :current-mind-map="currentMindMap"
@@ -132,7 +127,6 @@
   import ResetMapModal from "./modals/reset_map_modal"
   import AttachmentModal from "./modals/attachment_modal"
   import CentralAttachmentModal from "./modals/central_attachment_modal"
-  import ConfirmSaveKeyModal from "../../common/modals/confirm_save_key_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeleteMapModal from '../../common/modals/delete_modal'
@@ -147,7 +141,6 @@
       ResetMapModal,
       AttachmentModal,
       CentralAttachmentModal,
-      ConfirmSaveKeyModal,
       ExportToWordModal,
       MakePrivateModal,
       DeleteMapModal,
@@ -336,13 +329,6 @@
         this.selectedNode = null
         this.dragging     = false
         this.draggingNode = false
-      },
-      goHome() {
-        if (this.currentMindMap.editable) {
-          this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
-        } else {
-          window.open("/", "_self")
-        }
       },
       // =============== GETTING MAP =====================
 
