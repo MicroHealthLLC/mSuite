@@ -677,3 +677,11 @@ a.edit_delete_btn {
   margin: 0px;
 }
 /*End Compnent NPMP*/
+
+.main_div .item{
+ display: flex !important;
+ flex-direction: column;
+}
+.main_div .item img{
+  margin: auto;
+ }
