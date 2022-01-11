@@ -76,8 +76,6 @@
           <vue-drawing-canvas
             ref="VueCanvasDrawing"
             :eraser="eraser"
-            :width="1275"
-            :height="550"
             :lineWidth="Number(line)"
             :color="color"
             :stroke-type="strokeType"
@@ -128,10 +126,20 @@
   export default {
     props:['whiteboardImage'],
     mounted(){
+      let _this = this
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
+        this.$refs.VueCanvasDrawing.width = window.innerWidth - 150
+        this.$refs.VueCanvasDrawing.height = window.innerHeight - 90
       }
       this.initialImage = JSON.parse(this.whiteboardImage)
+      $(window).resize(function() {
+        _this.$refs.VueCanvasDrawing.width = window.innerWidth - 150
+        _this.$refs.VueCanvasDrawing.height = window.innerHeight - 90
+          _this.$refs.VueCanvasDrawing.images = []
+        if (_this.$refs.VueCanvasDrawing.initialImage !== null)
+          _this.$refs.VueCanvasDrawing.drawInitialImage()
+      });
     },
     watch: {
      initialImage: function (newVal) {
@@ -292,12 +300,6 @@
           .catch((err) => {
             console.error('oops, something went wrong!', err)
           })
-      },
-      getCoordinates(e){
-        let coord = this.$refs.VueCanvasDrawing.getCoordinates(e)
-        this.exampleContent = ""
-        this.x = coord.x
-        this.y = coord.y
       },
       drawingMode(shape){
         this.strokeType = shape
