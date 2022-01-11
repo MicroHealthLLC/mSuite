@@ -6,7 +6,7 @@
          <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="Enter name of Concept Map here then select map type below">
       </div>
       <div class="row container pl-0">
-        <div v-for="type in mindmapTypes">
+        <div v-for="type in mindmapTypes" class="col-3">
           <div class="item p-0 my-2" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered === type.key ? 'hovering' : ''">
             <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
             />
@@ -192,7 +192,6 @@
     vertical-align: top;
     display: inline-block;
     text-align: center;
-    width: 6.9rem;
     cursor: pointer;
   }
   .mindmap-name {
