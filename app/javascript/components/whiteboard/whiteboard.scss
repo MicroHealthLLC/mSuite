@@ -1,6 +1,6 @@
 .w-5 {
-    width: 5%;
-  }
+  width: 5%;
+}
 .w-10 {
   width: 10%;
 }
@@ -10,17 +10,16 @@
 .tools {
   line-height: 26px;
   max-width: 120px;
-  padding-bottom: 1rem !important;
   border-radius: 0px !important
 }
 .icon-height {
-  height: 9%;
+  height: 7.7%;
   display: flex;
 }
 .tool-column {
-  max-height: 32rem;
-  overflow: scroll;
+  max-height: 33rem;
   display: block;
+  overflow-y: scroll;
   padding: 0px;
 }
 .rotate-180 {
