@@ -9,78 +9,78 @@
       :exportId="'vue_canvas'"
       ref="whiteBoardNavigation">
     </navigation-bar>
-    <div class="row mt-whiteboard">
-      <div class="ml-2 border-1 border border-right-0 mb-0 tool-column">
-        <div class="tools btn btn-info border pointer icon-height" @click="drawingMode('dash')">
-          <span class="material-icons mr-1">
+    <div class="row mt-5">
+      <div class="col-1 px-0 mt-3 sidebar">
+        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @click="drawingMode('dash')">
+          <span class="material-icons">
             edit
           </span>
-          <span>Pencil</span>
+          <span class="ml-1">Pencil</span>
         </div>
-        <div class="tools btn btn-info border pointer icon-height" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="line < 25 ? ++line : ''">
-          <span class="material-icons mr-2">
+        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="line < 25 ? ++line : ''">
+          <span class="material-icons">
             line_weight
           </span>
-          <span v-show="!increaseIcon">Increase</span>
-          <span v-show="increaseIcon">{{line}}</span>
+          <span class="ml-1" v-show="!increaseIcon">Increase</span>
+          <span class="ml-1" v-show="increaseIcon">{{line}}</span>
         </div>
-        <div class="tools btn btn-info border pointer icon-height" @click="line > 1 ? --line : ''" @mouseover="decreaseIcon = true" @mouseleave="decreaseIcon = false" >
-          <span class="material-icons mr-2 mt-4 rotate-180">
+        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @click="line > 1 ? --line : ''" @mouseover="decreaseIcon = true" @mouseleave="decreaseIcon = false" >
+          <span class="material-icons rotate-180">
             line_weight
           </span>
-          <span v-show="!decreaseIcon">Decrease</span>
-          <span v-show="decreaseIcon">{{line}}</span>
+          <span class="ml-1" v-show="!decreaseIcon">Decrease</span>
+          <span class="ml-1" v-show="decreaseIcon">{{line}}</span>
         </div>
-        <div @click="colorSelected=!colorSelected" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="colorSelected=!colorSelected" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             colorize
           </span>
-          <span>Color</span>
+          <span class="ml-1">Color</span>
         </div>
-        <div @click="eraser=true" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="eraser=true" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             delete
           </span>
-          <span>Eraser</span>
+          <span class="ml-1">Eraser</span>
         </div>
-        <div @click="drawingMode('circle')" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="drawingMode('circle')" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             panorama_fish_eye
           </span>
-          <span>Circle</span>
+          <span class="ml-1">Circle</span>
         </div>
-        <div @click="drawingMode('triangle')" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="drawingMode('triangle')" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             change_history
           </span>
-          <span>Triangle</span>
+          <span class="ml-1">Triangle</span>
         </div>
-        <div @click="drawingMode('square')" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="drawingMode('square')" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             crop_16_9
           </span>
-          <span>Rectangle</span>
+          <span class="ml-1">Rectangle</span>
         </div>
-        <div @click="redoUndoMap(0)" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="redoUndoMap(0)" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             redo
           </span>
-          <span>Redo</span>
+          <span class="ml-1">Redo</span>
         </div>
-        <div @click="redoUndoMap(1)" class="tools btn btn-info border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="redoUndoMap(1)" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
             undo
           </span>
-          <span>Undo</span>
+          <span class="ml-1">Undo</span>
         </div>
-        <div @click="resetMap" class="tools btn btn-danger border pointer icon-height">
-          <span class="material-icons mr-2">
+        <div @click="resetMap" class="rounded-0 pl-1 btn btn-danger border pointer d-flex">
+          <span class="material-icons">
             restart_alt
           </span>
-          <span>Reset</span>
+          <span class="ml-1">Reset</span>
         </div>
       </div>
-      <div id="vue_canvas" class="col-9 p-0 m-0 font-serif">
+      <div id="vue_canvas" class="col-11 p-0 m-0 font-serif mt-3">
           <vue-drawing-canvas
             ref="VueCanvasDrawing"
             :eraser="eraser"
@@ -138,13 +138,13 @@
       let _this = this
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
-        this.$refs.VueCanvasDrawing.width = window.innerWidth - 150
-        this.$refs.VueCanvasDrawing.height = window.innerHeight - 90
+        this.$refs.VueCanvasDrawing.width = window.innerWidth - 120
+        this.$refs.VueCanvasDrawing.height = window.innerHeight - 70 
       }
       this.initialImage = JSON.parse(this.whiteboardImage)
       $(window).resize(function() {
-        _this.$refs.VueCanvasDrawing.width = window.innerWidth - 150
-        _this.$refs.VueCanvasDrawing.height = window.innerHeight - 90
+        _this.$refs.VueCanvasDrawing.width = window.innerWidth - 120
+        _this.$refs.VueCanvasDrawing.height = window.innerHeight - 70
           _this.$refs.VueCanvasDrawing.images = []
         if (_this.$refs.VueCanvasDrawing.initialImage !== null)
           _this.$refs.VueCanvasDrawing.drawInitialImage()

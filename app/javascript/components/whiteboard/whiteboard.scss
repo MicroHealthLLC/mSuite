@@ -1,27 +1,7 @@
-.w-5 {
-  width: 5%;
-}
-.w-10 {
-  width: 10%;
-}
-.mt-whiteboard {
-  margin-top: 5rem;
-}
-.tools {
-  line-height: 26px;
-  max-width: 120px;
-  border-radius: 0px !important
-}
-.icon-height {
-  height: 7.7%;
-  display: flex;
-}
-.tool-column {
-  max-height: 33rem;
-  display: block;
-  overflow-y: scroll;
-  padding: 0px;
-}
 .rotate-180 {
   transform: rotate(180deg);
+}
+.sidebar {
+  height: 80vh;
+  overflow-y: auto;
 }
