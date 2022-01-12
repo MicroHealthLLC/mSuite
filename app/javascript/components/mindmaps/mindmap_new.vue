@@ -20,7 +20,7 @@
       :copied-node="copiedNode">
     </navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
-      <section v-if="!loading" id="map-container" @mousemove.prevent="doDrag" :style="C_scaleFactor">
+      <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <div class="row central_node_attachment text-secondary">
             <div class="add-central-notes col-6">

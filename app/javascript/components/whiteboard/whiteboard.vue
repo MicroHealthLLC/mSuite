@@ -80,7 +80,7 @@
           <span>Reset</span>
         </div>
       </div>
-      <div id="vue_canvas" class="col-9 p-0 m-0">
+      <div id="vue_canvas" class="col-9 p-0 m-0 font-serif">
           <vue-drawing-canvas
             ref="VueCanvasDrawing"
             :eraser="eraser"
