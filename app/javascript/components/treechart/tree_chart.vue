@@ -10,7 +10,7 @@
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
     <!-- tree chart -->
-    <section id="treeChartObj" class="main_body mt-5">
+    <section id="treeChartObj" class="main_body mt-5 font-serif">
       <vue-tree
         style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
         :dataset="treeChartObj"

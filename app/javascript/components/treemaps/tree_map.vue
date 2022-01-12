@@ -6,7 +6,7 @@
      :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-5 main_body">
-      <div class="col-12 mt-4" id="treeMapGraph">
+      <div class="col-12 mt-4 font-serif" id="treeMapGraph">
         <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)" :colorRange="50"
         :renderCallbacks="renderCallbacks"/>
       </div>
