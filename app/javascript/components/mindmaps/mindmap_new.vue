@@ -2,6 +2,7 @@
   <div class="map-container">
     <navigation-bar
       ref="navigationBar"
+      v-if="isMounted"
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage($event)"
@@ -168,6 +169,7 @@
     data() {
       return {
         selectedNode      : null,
+        isMounted         : false,
         currentNodes      : [],
         nodeParent        : null,
         nodeColor         : null,
@@ -312,6 +314,7 @@
           .get(`/mindmaps/${id}.json`)
           .then((res) => {
             this.stopWatch      = true
+            this.isMounted = true
             this.currentMindMap = res.data.mindmap
             this.currentNodes   = res.data.mindmap.nodes
 

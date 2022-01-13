@@ -165,6 +165,7 @@ class MindmapsController < AuthenticatedController
       :password,
       :line_color,
       :image,
+      :title,
       node_files: []
     )
   end
