@@ -18,7 +18,9 @@ class Mindmap < ApplicationRecord
   before_validation :generate_random_key, on: :create
   validates :unique_key, presence: true, uniqueness: true
   validates :unique_key, length: { in: 10..20 }
-  validates :mm_type, :name, presence: true
+  validates_uniqueness_of :name, case_sensitive: false
+  validates :name, presence: true
+  validates :mm_type, presence: true
 
   enum status: { active: 0, archived: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }

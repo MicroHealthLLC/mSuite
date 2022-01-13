@@ -15,10 +15,11 @@ class MindmapsController < AuthenticatedController
   end
 
   def create
-    @mindmap = Mindmap.create(mindmap_params)
-    respond_to do |format|
-      format.json { render json: { mindmap: @mindmap.to_json, errors: @mindmap.errors.to_json } }
-      format.html { }
+    @mindmap = Mindmap.new(mindmap_params)
+    if @mindmap.save
+      render json: { mindmap: @mindmap.to_json }
+    else
+      render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: 422
     end
   end
 
