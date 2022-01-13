@@ -16,7 +16,8 @@ class Mindmap < ApplicationRecord
   has_many :shared_users, through: :mindmap_users
 
   before_validation :generate_random_key, on: :create
-  validates :unique_key, presence: true, uniqueness: true
+  validates_uniqueness_of :unique_key, uniqueness: true, case_sensitive: false
+  validates :unique_key, presence: true
   validates :unique_key, length: { in: 10..20 }
   validates_uniqueness_of :name, case_sensitive: false, if: Proc.new { |mSuite| mSuite.name != 'Central Idea' }
   validates :name, presence: true
