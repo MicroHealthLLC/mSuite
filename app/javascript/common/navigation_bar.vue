@@ -20,17 +20,9 @@
           <span class="fa-icon-text">Make Private</span>
         </a>
       </span>
-      <span
-        v-show="!editable"
-        v-if="navigationTitle.includes(currentMindMap.mm_type)"
-        @click="makeEditable"
-        class="w-25 mt-1 pt-2 pointer"
-        data-toggle="tooltip"
-        :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}
-      </span>
+      <span v-show="!editable" @click="makeEditable" class="mt-1 pt-2 pointer text-sapphire w-25" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
       <textarea
         v-show="editable"
-        v-if="navigationTitle.includes(currentMindMap.mm_type)"
         :rows="1"
         id="mSuiteTitle"
         @keydown.enter.prevent="mSuiteTitleUpdate"
@@ -42,7 +34,7 @@
         placeholder="Enter mSuite Map Title"
       >
       </textarea>
-      <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'" class="ml_14">
+      <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'">
         <a
           href="javascript:;"
           role="button"
@@ -170,13 +162,13 @@
   import { jsPDF } from "jspdf";
   import html2canvas from "html2canvas"
   import domtoimage from "dom-to-image-more"
+  import http from "./http"
   export default{
     name:"NavigationBar",
     props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId"],
     data() {
       return{
-        mSuiteName: this.currentMindMap.name,
-        navigationTitle: ['kanban', 'whiteboard'],
+        mSuiteName: this.currentMindMap.title,
         deleteableMSuite: ['simple', 'kanban', 'whiteboard'],
         editable: false
       }
@@ -202,6 +194,14 @@
       }
     },
     methods:{
+      putMSuite (value) {
+        let _this = this
+        http.patch(`/mindmaps/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})
+        .then((res) => {
+          _this.currentMindMap = res.data.mindmap
+          _this.mSuiteName = res.data.mindmap.title
+        })
+      },
       goHome () {
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
@@ -247,11 +247,13 @@
       mSuiteTitleUpdate () {
         this.editable = false
         this.mSuiteName = this.mSuiteName.trim()
-        if(this.mSuiteName) this.$emit("mSuiteTitleUpdate", this.mSuiteName)
-        else this.mSuiteName = this.currentMindMap.name
+        if(this.mSuiteName) this.putMSuite(this.mSuiteName)
+        else this.mSuiteName = this.currentMindMap.title
       },
       blurEvent (val, e) {
-       if (e.target) e.target.blur();
+       if (e.target) {
+        e.target.blur()
+       };
       },
       exportImage(option) {
         if (this.currentMindMap.mm_type === 'simple')
@@ -295,6 +297,9 @@
           })
         }
       },
+      mSuiteTitle () {
+        return this.currentMindMap.title
+      }
     },
   }
 </script>

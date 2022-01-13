@@ -220,9 +220,6 @@
         })
 
       },
-      mSuiteTitleUpdate(mSuite_name){
-        http.patch(`/mindmaps/${ this.currentMindMap.unique_key }.json`,{ mindmap: { name: mSuite_name }})
-      },
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
