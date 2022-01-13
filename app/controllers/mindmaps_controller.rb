@@ -19,7 +19,7 @@ class MindmapsController < AuthenticatedController
     if @mindmap.save
       render json: { mindmap: @mindmap.to_json }
     else
-      render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: 422
+      render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: :found
     end
   end
 
