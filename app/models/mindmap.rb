@@ -18,7 +18,7 @@ class Mindmap < ApplicationRecord
   before_validation :generate_random_key, on: :create
   validates :unique_key, presence: true, uniqueness: true
   validates :unique_key, length: { in: 10..20 }
-  validates_uniqueness_of :name, case_sensitive: false
+  validates_uniqueness_of :name, case_sensitive: false, if: Proc.new { |mSuite| mSuite.name != 'Central Idea' }
   validates :name, presence: true
   validates :mm_type, presence: true
 
@@ -29,7 +29,7 @@ class Mindmap < ApplicationRecord
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
-
+  
   def to_json
     attach_files = []
     if self.node_files.attached?
