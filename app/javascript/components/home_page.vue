@@ -17,9 +17,9 @@
     </div>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
       {{ errorMsg }}
-      <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Continue</button>
-      <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try again</button>
-      <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Random create</button>
+      <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Open</button>
+      <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
+      <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
     </sweet-modal>
   </div>
 </template>
@@ -32,7 +32,7 @@
         mapName: "",
         oldMSuiteName: '',
         mapsArr: [],
-        errorMsg: 'This mSuite Map is already created! Do you want to continue?',
+        errorMsg: '',
         mindmapName: "",
         uniqueKey: '',
         hovered: false,
@@ -53,17 +53,14 @@
           if(res.data.mindmap.id !== null)
           {
             window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
-          }else{
-            _this.errorMsg = 'This Map Url ' + JSON.parse(res.data.errors).unique_key[0]
-            _this.selectedType = res.data.mindmap.mm_type
-            _this.uniqueKey = res.data.mindmap.unique_key
-            _this.oldMSuiteName = res.data.mindmap.name
-            _this.mindmapName = ''
-            _this.$refs['errorModal'].open()
           }
         }).catch((error) => {
-          alert("Unable to open/create mindmap.")
-          console.log(error)
+          _this.errorMsg = 'This Map Url ' + error.response.data.messages[0]
+          _this.selectedType = error.response.data.mindmap.mm_type
+          _this.uniqueKey = error.response.data.mindmap.unique_key
+          _this.oldMSuiteName = error.response.data.mindmap.name
+          _this.mindmapName = ''
+          _this.$refs['errorModal'].open()
         })
       },
       openMindMap(key) {
