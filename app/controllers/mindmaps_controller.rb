@@ -25,6 +25,7 @@ class MindmapsController < AuthenticatedController
 
   def update
     @mindmap.update(mindmap_params)
+    @mindmap.will_delete_at = @mindmap.will_delete_at.mjd - DateTime.now.to_date.mjd
     message = params[:mindmap][:password].present? ? "Password Updated" : "Mindmap Updated"
     ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
     respond_to do |format|
@@ -34,6 +35,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def show
+    @mindmap.will_delete_at = @mindmap.will_delete_at.mjd - DateTime.now.to_date.mjd
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json, is_verified: @is_verified } }
       format.html { render action: 'index' }
@@ -122,6 +124,12 @@ class MindmapsController < AuthenticatedController
 
   def set_mindmap
     @mindmap = Mindmap.find_by(unique_key: params[:id])
+    updateMindmap
+  end
+
+  def updateMindmap
+    in_active_days = @mindmap.will_delete_at.mjd - @mindmap.updated_at.to_date.mjd
+    @mindmap.update(will_delete_at: in_active_days.days.from_now)
   end
 
   def verify_password
@@ -166,6 +174,7 @@ class MindmapsController < AuthenticatedController
       :line_color,
       :image,
       :title,
+      :will_delete_at,
       node_files: []
     )
   end
