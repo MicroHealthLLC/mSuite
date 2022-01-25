@@ -21,10 +21,14 @@
       <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
       <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
     </sweet-modal>
+    <footer>
+    <cookie-law theme="dark-lime"></cookie-law>
+  </footer>
   </div>
 </template>
 
 <script>
+  import CookieLaw from 'vue-cookie-law'
   import http from '../common/http'
   export default {
     data() {
@@ -78,7 +82,8 @@
         this.selectedType = key
         this.createNewMap()
       }
-    }
+    },
+    components: { CookieLaw }
   }
 </script>
 

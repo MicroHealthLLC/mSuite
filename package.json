@@ -20,6 +20,7 @@
     "sweet-modal-vue": "^2.0.0",
     "vue": "^2.6.10",
     "vue-color": "^2.8.1",
+    "vue-cookie-law": "^1.13.3",
     "vue-debounce": "^3.0.1",
     "vue-drawing-canvas": "^1.0.6",
     "vue-kanban": "^1.8.0",
