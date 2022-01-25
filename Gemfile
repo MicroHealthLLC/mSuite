@@ -31,7 +31,7 @@ gem 'bcrypt'
 
 gem 'bootstrap', '~> 4.3.1'
 gem "slim-rails"
-gem 'redis', '~> 3.0'
+gem 'redis', '~> 4.2.0'
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
 
@@ -40,6 +40,8 @@ gem 'redis', '~> 3.0'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
+gem 'sidekiq', '~> 6.3', '>= 6.3.1'
+gem "sidekiq-cron"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

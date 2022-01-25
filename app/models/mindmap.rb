@@ -16,6 +16,7 @@ class Mindmap < ApplicationRecord
   has_many :shared_users, through: :mindmap_users
 
   before_validation :generate_random_key, on: :create
+  before_validation :set_will_delete_at_date, on: :create
   validates_uniqueness_of :unique_key, uniqueness: true, case_sensitive: false
   validates :unique_key, presence: true
   validates :unique_key, length: { in: 10..20 }
@@ -89,6 +90,10 @@ class Mindmap < ApplicationRecord
   def compute_child_nodes(node)
     node["children"] = self.nodes.where(parent_node: node["id"]).order(export_index: :asc).map(&:as_json)
     node["children"].each{ |nod| compute_child_nodes(nod) }
+  end
+
+  def set_will_delete_at_date
+    self.will_delete_at = 365.days.from_now
   end
 
   def generate_random_key
