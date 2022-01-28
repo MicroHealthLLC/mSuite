@@ -147,7 +147,7 @@
         </span>
       </span>
     </div>
-    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
+    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :defaultDeleteDays="defaultDeleteDays"></confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
@@ -165,7 +165,7 @@
   import http from "./http"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
@@ -200,6 +200,7 @@
         .then((res) => {
           _this.currentMindMap = res.data.mindmap
           _this.mSuiteName = res.data.mindmap.title
+          _this.defaultDeleteDays = res.data.defaultDeleteDays
         })
       },
       goHome () {

@@ -16,6 +16,7 @@
       @pasteCopiedNode="pasteCopiedNode"
       @cutSelectedNode="cutSelectedNode"
       :current-mind-map="currentMindMap"
+      :defaultDeleteDays="defaultDeleteDays"
       :scaleFactor="scaleFactor"
       :selected-node="selectedNode"
       :copied-node="copiedNode">
@@ -175,6 +176,7 @@
         nodeColor         : null,
         centralIdea       : '',
         currentMindMap    : {},
+        defaultDeleteDays : '',
         loading           : true,
         dragging          : false,
         draggingNode      : false,
@@ -315,6 +317,7 @@
           .then((res) => {
             this.stopWatch      = true
             this.isMounted = true
+            this.defaultDeleteDays = res.data.defaultDeleteDays
             this.currentMindMap = res.data.mindmap
             this.currentNodes   = res.data.mindmap.nodes
 
@@ -333,6 +336,7 @@
           .then((res) => {
             this.loading        = false
             this.currentMindMap = res.data.mindmap
+            this.defaultDeleteDays = res.data.defaultDeleteDays
             this.currentNodes   = res.data.mindmap.nodes
             this.updateQuery()
           }).catch((error) => {

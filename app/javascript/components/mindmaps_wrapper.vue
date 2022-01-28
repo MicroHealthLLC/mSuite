@@ -7,6 +7,7 @@
       v-else
       :is="viewIs"
       :current-mind-map="currentMindMap"
+      :defaultDeleteDays="defaultDeleteDays"
       :whiteboard-image="currentMindMap.image"
     />
   </div>
@@ -34,6 +35,7 @@
       return {
         loading: true,
         currentMindMap: {},
+        defaultDeleteDays: '',
         is_verified: false
       }
     },
@@ -69,6 +71,7 @@
           .get(`/mindmaps/${id}.json`)
           .then((res) => {
             this.currentMindMap = res.data.mindmap
+            this.defaultDeleteDays = res.data.defaultDeleteDays
             this.is_verified = res.data.is_verified
             this.loading = false
           })

@@ -7,6 +7,7 @@
       @exportToImage="exportImage"
       :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
+      :defaultDeleteDays="defaultDeleteDays"
       :exportId="'kanban-board'">
     </navigation-bar>
     
@@ -137,6 +138,7 @@
         previousColor: null,
         selectedStage: null,
         selectedElement: null,
+        defaultDeleteDays: '',
         hover_addtask: '',
         selected: '',
         config: {
@@ -235,6 +237,7 @@
         .get(`/mindmaps/${id}.json`)
         .then((res) => {
           this.currentMindMap = res.data.mindmap
+          this.defaultDeleteDays = res.data.defaultDeleteDays
           this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
           this.getAllStages()
           this.getAllNodes()

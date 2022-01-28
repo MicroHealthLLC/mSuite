@@ -6,6 +6,7 @@
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       :current-mind-map="currentMindMap"
+      :defaultDeleteDays="defaultDeleteDays"
       :exportId="'vue_canvas'"
       ref="whiteBoardNavigation">
     </navigation-bar>
@@ -179,6 +180,7 @@
         color: "#000000",
         backgroundColor: "#ffffff",
         currentMindMap: {},
+        defaultDeleteDays: '',
         initialImage: [],
         image: "",
         colorPicker: "#000000",
@@ -214,6 +216,7 @@
         http
         .get(`/mindmaps/${id}.json`)
         .then((res) => {
+          this.defaultDeleteDays = res.data.defaultDeleteDays
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
           this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
