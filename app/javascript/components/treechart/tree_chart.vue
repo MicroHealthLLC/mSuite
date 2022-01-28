@@ -7,6 +7,7 @@
       @zoomInScale="zoomInScale"
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
+      :defaultDeleteDays="defaultDeleteDays"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
     <!-- tree chart -->
@@ -149,7 +150,7 @@
         addNodeTree: false
       }
     },
-    props:['currentMindMap'],
+    props:['currentMindMap','defaultDeleteDays'],
     mounted: async function(){
       this.$cable.subscribe({
         channel: "WebNotificationsChannel",
@@ -308,6 +309,7 @@
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/mindmaps/${mindmap_key}.json`)
         this.selectedNode = {id: ''}
+        this.defaultDeleteDays = response.data.defaultDeleteDays
         this.currentMindMap.id = response.data.mindmap.id
         this.currentMindMap.name = response.data.mindmap.name
         this.currentMindMap.unique_key = response.data.mindmap.unique_key
@@ -389,6 +391,7 @@
         .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
+            this.defaultDeleteDays = response.data.defaultDeleteDays
             this.currentMindMap.password = res.data.mindmap.password
             this.$refs['successModal'].open()
           }

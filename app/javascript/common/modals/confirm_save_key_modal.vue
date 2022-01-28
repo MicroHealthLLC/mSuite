@@ -55,7 +55,7 @@
       </div>
     </sweet-modal>
     <sweet-modal ref="Error" class="of_v">
-      <p>Number of days not greater then 365</p>
+      <p>Number of days not greater then {{ defaultDeleteDays }}</p>
     </sweet-modal>
   </div>
 </template>
@@ -70,7 +70,7 @@
         deletedAtMSuite: JSON.stringify(JSON.parse(this.currentMindMap.will_delete_at))
       }
     },
-    props: ['currentMindMap'],
+    props: ['currentMindMap', 'defaultDeleteDays'],
     computed: {
       getBaseUrl () {
         return window.location.href
