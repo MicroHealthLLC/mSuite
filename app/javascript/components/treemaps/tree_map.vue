@@ -4,6 +4,7 @@
      @openPrivacy="openPrivacy"
      :current-mind-map="currentMindMap"
      :defaultDeleteDays="defaultDeleteDays"
+     @deleteMindmap="deleteMap"
      :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-5 main_body">
@@ -508,6 +509,9 @@
         } else {
           this.$refs['deleteNodeConfirm'].open()
         }
+      },
+      deleteMap(){
+        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       addNodeToTreeMap(value, event){
         if(this.addChildTreeMap) return

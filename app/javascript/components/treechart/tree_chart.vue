@@ -4,6 +4,7 @@
       @openPrivacy="openPrivacy"
       :current-mind-map="currentMindMap"
       @resetZoomScale="resetZoomScale"
+      @deleteMindmap="deleteMSuite"
       @zoomInScale="zoomInScale"
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
@@ -418,6 +419,9 @@
         .catch(error=>{
           console.log(error)
         })
+      },
+      deleteMSuite(){
+        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       deleteMap(node){
         if(this.addNodeTree){
