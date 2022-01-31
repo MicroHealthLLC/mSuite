@@ -79,7 +79,7 @@
     methods: {
       expireDate (event) {
         const value = event
-        if (value <= 365 && value > 0) {
+        if (value <= this.defaultDeleteDays && value > 0) {
           var day = new Date();
           var nextDay = new Date(day);
           nextDay.setDate(day.getDate() + parseInt(value));
