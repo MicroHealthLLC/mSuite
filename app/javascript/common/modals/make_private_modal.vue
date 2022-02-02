@@ -22,8 +22,7 @@
       <div>
         <input type="password" v-model="confirm_password" class="form-control" placeholder="Confirm password"/>
       </div>
-
-      <button slot="button" @click="private_password" :disabled="old_password.length < 1 && password != null || new_password.length < 1 || confirm_password.length < 1" class="btn btn-success"> Save </button>
+      <button slot="button" @click="private_password" :disabled="showSaveBTN" class="btn btn-success"> Save </button>
     </sweet-modal>
 
     <sweet-modal ref="blankPassword" class="of_v" icon="error" title="Blank Password">
@@ -46,6 +45,10 @@
     },
     methods:{
       private_password() {
+        if(this.password && this.new_password == "" && this.confirm_password == "" ){
+            this.new_password = this.password;
+            this.confirm_password = this.password;
+        }
         if (this.new_password.includes(' '))  {
           this.new_password = ""
           this.old_password = ""
@@ -66,6 +69,16 @@
           this.old_password = ""
           this.confirm_password = ""
           this.$refs['makePrivateModal'].close();
+        }
+      }
+    },
+    computed:{
+      showSaveBTN(){
+        if(!this.password){
+          if(this.old_password.length < 1 && this.password != null || this.new_password.length < 1 || this.confirm_password.length < 1)return true
+        }
+        if(this.password){
+          if(this.old_password.length < 1 || this.new_password != this.confirm_password) return true
         }
       }
     }
