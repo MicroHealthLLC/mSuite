@@ -16,8 +16,10 @@ ul.drag-list, ul.drag-inner-list {
 .drag-column {
   flex: 1;
   margin: 0 5px;
-  background-color: #ebecf0;
+  background-color: #FFF;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.25), 0 2.5px 2.5px rgba(0,0,0,0.22); 
   border-radius: 0.25rem !important;
+  margin-right: 15px;;
   flex-direction: column;
   max-height: 100%;
   position: relative;
@@ -148,7 +150,7 @@ ul.drag-inner-list {
   overflow-x: scroll;
   overflow-y: hidden;
   height: 100vh;
-  background-image: linear-gradient(90deg, #5DADE2, #CDD);
+  background-color: #FFF;
 }
 .task_plus {
   color:#5e6c84;

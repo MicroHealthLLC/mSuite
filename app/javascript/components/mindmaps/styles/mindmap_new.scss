@@ -37,11 +37,11 @@
 }
 
 .buttons_area {
-  position  : fixed;
+  position  : relative;
   overflow  : hidden;
   top       : 0;
+  background-color: #FFF;
   width     : 100%;
-  background-image: linear-gradient(90deg, #5DADE2, #CDD);
   padding   : 1vh;
   z-index   : 100;
   border-bottom: 1px solid white;
@@ -78,6 +78,9 @@
 .buttons_container {
   display        : flex;
   justify-content: space-between;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: solid 1px lightgray;
 }
 
 .header_logo {
@@ -186,6 +189,18 @@
   display        : flex;
   align-items    : center;
   justify-content: center;
+}
+
+.privacyBtn {
+  position: absolute;
+  bottom: 2.5%;
+  right: 0%;
+}
+
+.textWrapper{
+  background-color: #fafafa;
+  border-radius: .5rem;
+  border: solid lightgray 1px;
 }
 
 .export-loading-tab {

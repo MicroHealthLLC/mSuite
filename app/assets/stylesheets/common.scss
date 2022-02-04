@@ -304,10 +304,31 @@ a:hover, .btn1:hover, .btn2:hover {
 /*End Overflow*/
 /*Icons */
 
+/*MicroHealth brand / logo colors */
+.mh-green {
+  background-color: #9EC64C !important;
+  }
+  .mh-blue {
+  //  dark blue
+   background-color: #1D336F !important;
+  }
+  .mh-green-text {
+    color: #9EC64C !important;
+    }
+  .mh-blue-text {
+    //  dark blue
+     color: #1D336F !important;
+    }
+  .mh-orange {
+    background-color: #DD9036 !important;
+  }
+  .mh-orange-text {
+    color: #DD9036 !important;
+  }
+
 .material-icons.home_icon::before{
   content:"home";
 }
-
 .edit_delete_btn:hover .home_icon::before{
   text-transform: capitalize;
   font-family: sans-serif;
@@ -616,9 +637,10 @@ a.back-to-link{
   text-decoration: none;
 }
 a.edit_delete_btn {
-  background-color: #e9ecef;
-  border-radius: 25%;
+  background-color: #fff;
+  border-radius: 10%;
   float: right;
+  color: #1D336F !important;
   font-size: 1.25rem;
   height: 3rem;
   line-height: 2rem;
@@ -629,6 +651,10 @@ a.edit_delete_btn {
   text-decoration: none;
   transition: all .3s ease-in-out;
   width: 3rem;
+}
+.edit_delete_btn {
+  background-color: #FFF;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.25), 0 2.5px 2.5px rgba(0,0,0,0.22); 
 }
 .btn_2:hover, .btn_1:hover{
   color: white;

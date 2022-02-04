@@ -2,8 +2,7 @@
   <div class="map-container">
     <navigation-bar
       ref="navigationBar"
-      v-if="isMounted"
-      @openPrivacy="openPrivacy"
+      v-if="isMounted"     
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage($event)"
       @exportToWord="exportToWord"
@@ -133,6 +132,16 @@
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
       </div>
     </section>
+    <a
+      href="javascript:;"
+      role="button"
+      class="privacyBtn fa-icon d-flex pointer edit_delete_btn mr-3 center_flex"
+      @click.stop="openPrivacy"
+    >
+    <i class="fas fa-eye mh-text-orange icons d-flex center_flex"></i>
+    <!-- <i class="fas fa-eye-slash icons d-flex center_flex"></i> -->   
+      <span class="fa-icon-text">Make Private</span>
+    </a>
   </div>
 </template>
 
@@ -1112,7 +1121,10 @@
         this.openVModal = true
         this.$refs['export-to-word-modal'].$refs.exportToWordModal.open()
       },
-
+      // Taken from navigation bar.  Delete if no required in this file as it holds native method and may not need emit function
+      // openPrivacy () {
+      //   this.$emit("openPrivacy")
+      // },
       getExportCanvasSize() {
         const nodes = this.currentNodes
         let ASPECT_MARGIN = 150

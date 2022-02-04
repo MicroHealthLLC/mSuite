@@ -12,9 +12,9 @@
       :exportId="'kanban-board'">
     </navigation-bar>
     
-    <div class="row kanban_board mt-5" id="kanban-board">
+    <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
-        <div v-for="stage, index in computedStages" :slot="stage" class="w-100 font-serif">
+        <div v-for="stage, index in computedStages" :slot="stage" :key="index" class="w-100 font-serif" >
           <div class="w-100 mb-2" :id="'stage_'+index">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">

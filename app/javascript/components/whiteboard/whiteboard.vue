@@ -11,71 +11,71 @@
       :exportId="'vue_canvas'"
       ref="whiteBoardNavigation">
     </navigation-bar>
-    <div class="row mt-5">
-      <div class="col-1 px-0 mt-3 sidebar">
-        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" :class="isDrawing ? 'active':''" @click="toggleDrawing">
+    <div class="row">
+      <div class="col-1 px-0 sidebar">
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @click="drawingMode('dash')">
           <span class="material-icons">
             edit
           </span>
           <span class="ml-1">Pencil</span>
         </div>
-        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="increaseStroke">
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="increaseStroke">
           <span class="material-icons">
             line_weight
           </span>
           <span class="ml-1" v-show="!increaseIcon">Increase</span>
           <span class="ml-1" v-show="increaseIcon">{{line}}</span>
         </div>
-        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @click="decreaseStroke" @mouseover="decreaseIcon = true" @mouseleave="decreaseIcon = false" >
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @click="decreaseStroke" @mouseover="decreaseIcon = true" @mouseleave="decreaseIcon = false" >
           <span class="material-icons rotate-180">
             line_weight
           </span>
           <span class="ml-1" v-show="!decreaseIcon">Decrease</span>
           <span class="ml-1" v-show="decreaseIcon">{{line}}</span>
         </div>
-        <div @click="colorSelected=!colorSelected" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="colorSelected=!colorSelected" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             colorize
           </span>
           <span class="ml-1">Color</span>
         </div>
-        <div @click="deleteModal" class="rounded-0 pl-1 btn btn-info border pointer d-flex" :class="eraser ? 'active':''">
+        <div @click="deleteModal" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="eraser ? 'active':''">
           <span class="material-icons">
             delete
           </span>
           <span class="ml-1">Erase</span>
         </div>
-        <div @click="addCircleToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addCircleToCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             panorama_fish_eye
           </span>
           <span class="ml-1">Circle</span>
         </div>
-        <div @click="addTriangleToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addTriangleToCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             change_history
           </span>
           <span class="ml-1">Triangle</span>
         </div>
-        <div @click="addRectToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addRectToCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             crop_16_9
           </span>
           <span class="ml-1">Rectangle</span>
         </div>
-        <div @click="addTextToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addTextToCanvas" class="rounded-0 pl-1 whiteboard-btns btnborder pointer d-flex">
           <span class="material-icons">
             rtt
           </span>
           <span class="ml-1">Text</span>
         </div>
-        <div @click="redoCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="redoCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             redo
           </span>
           <span class="ml-1">Redo</span>
         </div>
-        <div @click="undoCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="undoCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             undo
           </span>
@@ -88,7 +88,7 @@
           <span class="ml-1">Reset</span>
         </div>
       </div>
-      <div id="vue_canvas" class="col-11 p-0 m-0 font-serif mt-3">
+      <div id="vue_canvas" class="col-11 p-0 m-0 font-serif">
         <canvas id="canvas" class="border"></canvas>
       </div>
       <div v-if="colorSelected">
@@ -250,7 +250,7 @@
           width: 125,
           height: 75,
           strokeWidth: this.line,
-          opacity: .8  
+          opacity: .8
         });
         this.canvas.add(this.rect);
       },
@@ -265,7 +265,7 @@
           width: 100,
           height: 100,
           strokeWidth: this.line,
-          opacity: .8  
+          opacity: .8
         });
         this.canvas.add(this.circle);
       },
@@ -379,7 +379,7 @@
         }
       },
       save() {
-        let mindmap = { mindmap: { image: JSON.stringify(this.canvas.toJSON()) } }  
+        let mindmap = { mindmap: { image: JSON.stringify(this.canvas.toJSON()) } }
         let id = this.currentMindMap.unique_key
           http
           .patch(`/msuite/${id}.json`,mindmap)
@@ -395,14 +395,14 @@
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
         var canvas2 = document.getElementsByTagName('canvas')[0];
-        canvas2.width = $(document).width() - 140; 
+        canvas2.width = $(document).width() - 140;
         canvas2.height = $(document).height() - 75;
       }
       this.canvas = new fabric.Canvas('canvas',{
         selection: false
       });
       this.mouseEvents();
-      this.canvas.renderAll();    
+      this.canvas.renderAll();
       this.initialImage = JSON.parse(this.whiteboardImage)
       if (this.initialImage) {
         this.canvas.loadFromJSON(this.initialImage);
@@ -421,5 +421,5 @@
   }
   .sidebar {
     height: 80vh;
-  } 
+  }
 </style>

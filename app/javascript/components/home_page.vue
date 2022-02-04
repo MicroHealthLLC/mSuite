@@ -1,28 +1,41 @@
 <template>
-  <div>
+  <div class="filter">
     <div class="main_div">
-      <div class="container-fluid">
+      <div class="container-fluid pl-0">
         <!-- //SEARCHBAR ROW -->
          <div class="row pl-0 searchbar-row">
             <div class="col text-center">
               <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite</h1></span>
             <div class="w-50 mx-auto my-4">
-              <span class="text-light searchbar-cta">TYPE YOUR CONCEPT TITLE HERE, THEN SELECT MAP TYPE BELOW</span>
-              <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="YOUR AWESOME CONCEPT TITLE">
+              <span class="text-light searchbar-cta"> <h3><i>QUICK COLLABORATIONS MADE SIMPLE</i></h3></span>
+              <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="ENTER YOUR CONCEPT TITLE, THEN SELECT MAP TYPE BELOW">
             </div>
             </div>
           </div>
           <!-- Row for wrapper containing grid-layout mindmap items -->
-        <div class="row mx-auto">
+        <div class="row mx-auto mm-icon-row">
           <div v-for="type, i in mindmapTypes" class="mx-auto py-auto col-lg-2 col-sm-6 col-md-2 icon-col" :key="i">
             <!-- <div class="item p-0 my-2 px-4" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered === type.key ? 'hovering' : ''"> -->
-              <div class="item icon-item">
-              <img :src="type.imgsrc" class="mindmap-img-size" @click.prevent="mindMapCreate(type.key)"
-              />
+              <div class="item icon-item" @click.prevent="mindMapCreate(type.key)">
+              <!-- <img :src="type.imgsrc" class="mindmap-img-size" />  -->
+              <i class="fal fa-mind-share mm-icon" v-if="type.key == 'simple'"></i>
+              <i class="far fa-columns mm-icon" v-if="type.key == 'kanban'"></i>
+              <i class="far fa-chalkboard mm-icon" v-if="type.key == 'whiteboard'"></i>
+              <i class="fad fa-th-large mm-icon" v-if="type.key == 'tree_map'"></i>
+              <i class="fal fa-sitemap mm-icon" v-if="type.key == 'tree_chart'"></i>
               <span class="text-center">{{type.value}}</span>
             </div>
           </div>
         </div>
+        <sweet-modal ref="errorModal" class="of_v" icon="error">
+          {{ errorMsg }}
+          <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Open</button>
+          <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
+          <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
+        </sweet-modal>
+        <footer>
+        <cookie-law theme="dark-lime"></cookie-law>
+      </footer>
       </div>
       <sweet-modal ref="errorModal" class="of_v" icon="error">
         {{ errorMsg }}
@@ -30,13 +43,9 @@
         <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
         <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
       </sweet-modal>
-      <footer>
-      <cookie-law theme="dark-lime"></cookie-law>
-    </footer>
     </div>
   </div>
 </template>
-
 <script>
   import CookieLaw from 'vue-cookie-law'
   import http from '../common/http'
@@ -102,7 +111,7 @@
     position: absolute;
     height: 80%;
     width: 100%;
-    background: url('../../assets/images/landing_bg.jpg') no-repeat center center fixed;
+    background:  linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../assets/images/landing_bg.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -143,7 +152,7 @@
   .icon-item {
   position: absolute;
   top: 50%;
-  left: 35%;
+  left: 32%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
   }
@@ -270,5 +279,16 @@
     -ms-transform: scale(1.2); /* IE 9 */
     -webkit-transform: scale(1.2); /* Safari 3-8 */
     transform: scale(1.2);
+  }
+
+  .mm-icon {
+    font-size: 5rem;
+    color: #DD9036;
+    font-weight: 300;
+  }
+  .mm-icon-row{
+    width: 100%;
+    position: fixed;
+    bottom: 8%;
   }
 </style>
