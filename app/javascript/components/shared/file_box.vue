@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     removeFile() {
-      let url = this.central ? `/mindmaps/${this.node.unique_key}/destroy_file.json` : `/nodes/${this.node.id}/destroy_file.json`
+      let url = this.central ? `/msuite/${this.node.unique_key}/destroy_file.json` : `/nodes/${this.node.id}/destroy_file.json`
 
       http
         .put(url, { file: this.file })

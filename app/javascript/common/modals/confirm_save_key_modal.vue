@@ -92,7 +92,7 @@
       },
       updateInActiveDate () {
         let _this = this
-        http.put(`/mindmaps/${this.currentMindMap.unique_key}.json`, this.currentMindMap)
+        http.put(`/msuite/${this.currentMindMap.unique_key}.json`, this.currentMindMap)
         .then((res) => {
           _this.currentMindMap = res.data.mindmap
         })

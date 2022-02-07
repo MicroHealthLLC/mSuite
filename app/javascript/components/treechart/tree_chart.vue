@@ -308,7 +308,7 @@
       },
       async fetchTreeChart(){
         let mindmap_key = window.location.pathname.split('/')[2]
-        let response = await http.get(`/mindmaps/${mindmap_key}.json`)
+        let response = await http.get(`/msuite/${mindmap_key}.json`)
         this.selectedNode = {id: ''}
         this.defaultDeleteDays = response.data.defaultDeleteDays
         this.currentMindMap.id = response.data.mindmap.id
@@ -378,7 +378,7 @@
         this.$refs['deleteNodeConfirm'].close()
       },
       async updatedTreeChart(obj){
-        await http.put(`/mindmaps/${obj.unique_key}`, obj);
+        await http.put(`/msuite/${obj.unique_key}`, obj);
       },
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
@@ -389,7 +389,7 @@
       },
       passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
             this.defaultDeleteDays = response.data.defaultDeleteDays
@@ -411,7 +411,7 @@
       },
       deleteMindmapProtected(password){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
@@ -443,7 +443,7 @@
       },
       deleteTreeChart(){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}`)
         .then(res => {
         })
         .catch(error => {

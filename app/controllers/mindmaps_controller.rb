@@ -35,7 +35,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def show
-    @mindmap.will_delete_at = @mindmap.will_delete_at.mjd - DateTime.now.to_date.mjd
+    @mindmap.will_delete_at = @mindmap.will_delete_at.mjd - DateTime.now.to_date.mjd if @mindmap
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json, is_verified: @is_verified, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i } }
       format.html { render action: 'index' }
@@ -134,9 +134,9 @@ class MindmapsController < AuthenticatedController
 
   def verify_password
     @is_verified = true
-    if @mindmap.password.present? && session[:mindmap_id] == @mindmap.unique_key + @mindmap.password
+    if @mindmap && @mindmap.password.present? && session[:mindmap_id] == @mindmap.unique_key + @mindmap.password
       return
-    elsif @mindmap.password.present?
+    elsif @mindmap && @mindmap.password.present?
       if params[:password_check].present?
         @is_verified = @mindmap.check_password(params[:password_check])
         session[:mindmap_id] = @mindmap.unique_key + @mindmap.password if @is_verified

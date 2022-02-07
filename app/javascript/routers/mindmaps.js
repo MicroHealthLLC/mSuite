@@ -11,7 +11,7 @@ export default new VueRouter({
   ],
   hashbang: false,
   mode: 'history',
-  base: '/mindmaps',
+  base: '/msuite',
   scrollBehavior () {
     return { x: 0, y: 0 }
   }

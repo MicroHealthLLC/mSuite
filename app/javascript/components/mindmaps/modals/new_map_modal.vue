@@ -48,7 +48,7 @@
         this.$refs.newMapModal.close()
       },
       openNewMapNewWindow() {
-        window.open(window.location.origin+'/mindmaps/new')
+        window.open(window.location.origin+'/msuite/new')
       }
     }
   }

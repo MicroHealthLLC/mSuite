@@ -196,7 +196,7 @@
     methods:{
       putMSuite (value) {
         let _this = this
-        http.patch(`/mindmaps/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})
+        http.patch(`/msuite/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})
         .then((res) => {
           _this.currentMindMap = res.data.mindmap
           _this.mSuiteName = res.data.mindmap.title

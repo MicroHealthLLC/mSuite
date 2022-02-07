@@ -234,7 +234,7 @@
       //=====================GETTING MINDMAP==============================//
       getMindmap(id){
         http
-        .get(`/mindmaps/${id}.json`)
+        .get(`/msuite/${id}.json`)
         .then((res) => {
           this.currentMindMap = res.data.mindmap
           this.defaultDeleteDays = res.data.defaultDeleteDays
@@ -250,7 +250,7 @@
       //=====================MINDMAP DELETE ==============================//
       deleteMindmapProtected(password){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
@@ -261,7 +261,7 @@
       },
       deleteMindmap(){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}.json`)
         .then(res=>{
         })
         .catch(error=>{
@@ -277,7 +277,7 @@
         }
       },
       passwordCheck(password){
-        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        http.get(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (res.data.is_verified){
             this.deleteMindmap()
@@ -627,7 +627,7 @@
       },
       passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password

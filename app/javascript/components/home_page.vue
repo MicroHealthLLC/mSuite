@@ -53,10 +53,10 @@
     methods: {
       createNewMap() {
         let _this = this
-        http.post(`/mindmaps.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type: this.selectedType } }).then((res) => {
+        http.post(`/msuite.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type: this.selectedType } }).then((res) => {
           if(res.data.mindmap.id !== null)
           {
-            window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
+            window.open(`/msuite/${res.data.mindmap.unique_key}`, "_self")
           }
         }).catch((error) => {
           _this.errorMsg = 'This Map Url ' + error.response.data.messages[0]
@@ -68,10 +68,10 @@
         })
       },
       openMindMap(key) {
-        window.open(`/mindmaps/${key}`, "_self")
+        window.open(`/msuite/${key}`, "_self")
       },
       continueMSuite(){
-        if(this.uniqueKey) window.open(`/mindmaps/${this.uniqueKey}`, "_self")
+        if(this.uniqueKey) window.open(`/msuite/${this.uniqueKey}`, "_self")
       },
       tryAgain(){
         this.selectedType = 'simple'
