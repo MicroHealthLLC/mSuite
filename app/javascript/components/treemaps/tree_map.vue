@@ -4,6 +4,7 @@
      @openPrivacy="openPrivacy"
      :current-mind-map="currentMindMap"
      :defaultDeleteDays="defaultDeleteDays"
+     :deleteAfter="deleteAfter"
      @deleteMindmap="deleteMap"
      :exportId="'treeMapGraph'">
     </navigation-bar>
@@ -76,7 +77,7 @@
       DeleteMapModal,
       DeletePasswordModal
     },
-    props:['currentMindMap','defaultDeleteDays'], //Props to be used in the widget
+    props:['currentMindMap','defaultDeleteDays','deleteAfter'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
@@ -286,6 +287,7 @@
         this.currentMindMap.id = response.data.mindmap.id
         this.currentMindMap.name = response.data.mindmap.name
         this.defaultDeleteDays = response.data.defaultDeleteDays
+        this.defaultDeleteDays = response.data.deleteAfter
         this.currentMindMap.line_color = response.data.mindmap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes

@@ -93,7 +93,7 @@ class Mindmap < ApplicationRecord
   end
 
   def set_will_delete_at_date
-    self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now
+    self.will_delete_at = ENV['EXP_DAYS'].to_i.days.from_now
   end
 
   def generate_random_key

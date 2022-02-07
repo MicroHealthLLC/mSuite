@@ -8,6 +8,7 @@
       :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
       :defaultDeleteDays="defaultDeleteDays"
+      :deleteAfter="deleteAfter"
       :exportId="'kanban-board'">
     </navigation-bar>
     
@@ -139,6 +140,7 @@
         selectedStage: null,
         selectedElement: null,
         defaultDeleteDays: '',
+        deleteAfter: '',
         hover_addtask: '',
         selected: '',
         config: {
@@ -238,6 +240,7 @@
         .then((res) => {
           this.currentMindMap = res.data.mindmap
           this.defaultDeleteDays = res.data.defaultDeleteDays
+          this.deleteAfter = res.data.deleteAfter
           this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
           this.getAllStages()
           this.getAllNodes()

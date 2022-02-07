@@ -7,6 +7,7 @@
       @deleteMindmap="deleteMap"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :deleteAfter="deleteAfter"
       :exportId="'vue_canvas'"
       ref="whiteBoardNavigation">
     </navigation-bar>
@@ -181,6 +182,7 @@
         backgroundColor: "#ffffff",
         currentMindMap: {},
         defaultDeleteDays: '',
+        deleteAfter: '',
         initialImage: [],
         image: "",
         colorPicker: "#000000",
@@ -217,6 +219,7 @@
         .get(`/msuite/${id}.json`)
         .then((res) => {
           this.defaultDeleteDays = res.data.defaultDeleteDays
+          this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
           this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })

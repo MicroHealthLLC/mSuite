@@ -12,7 +12,7 @@
           <p class="mb-0 text-left text-center"> If not oppend, this MSuite will automatically delete after
             <code class="pointer">
               <input
-                v-model="currentMindMap.will_delete_at"
+                :value="expDeleteDays"
                 type="number"
                 class="w-10"
                 @keydown.enter.prevent.native
@@ -66,19 +66,24 @@
     name: "ConfirmSaveKeyModal",
     data () {
       return {
-        showDays: JSON.stringify(JSON.parse(this.currentMindMap.will_delete_at)),
+        expDays: '',
         deletedAtMSuite: JSON.stringify(JSON.parse(this.currentMindMap.will_delete_at))
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays'],
+    props: ['currentMindMap', 'defaultDeleteDays','deleteAfter'],
     computed: {
       getBaseUrl () {
         return window.location.href
+      },
+      expDeleteDays () {
+        this.expDays = this.currentMindMap.will_delete_at
+        if(this.expDays == '5') this.expDays = this.deleteAfter        
+        return this.expDays
       }
     },
     methods: {
-      expireDate (event) {
-        const value = event
+      expireDate (val) {
+        const value = val
         if (value <= this.defaultDeleteDays && value > 0) {
           var day = new Date();
           var nextDay = new Date(day);
@@ -98,9 +103,11 @@
         })
       },
       goHome () {
+        if(this.expDays == '180') this.expireDate(this.expDays)
         window.open("/", "_self")
       },
       openPrivacy () {
+        if(this.expDays == '180') this.expireDate(this.expDays)
         this.$emit("openPrivacy")
       },
       closeModal() {
