@@ -8,6 +8,7 @@
       :is="viewIs"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :deleteAfter="deleteAfter"
       :whiteboard-image="currentMindMap.image"
     />
   </div>
@@ -36,6 +37,7 @@
         loading: true,
         currentMindMap: {},
         defaultDeleteDays: '',
+        deleteAfter: '',
         is_verified: false
       }
     },
@@ -72,6 +74,7 @@
           .then((res) => {
             this.currentMindMap = res.data.mindmap
             this.defaultDeleteDays = res.data.defaultDeleteDays
+            this.deleteAfter = res.data.deleteAfter
             this.is_verified = res.data.is_verified
             this.loading = false
           })

@@ -9,6 +9,7 @@
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
+      :deleteAfter="deleteAfter"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
     <!-- tree chart -->
@@ -311,6 +312,7 @@
         let response = await http.get(`/msuite/${mindmap_key}.json`)
         this.selectedNode = {id: ''}
         this.defaultDeleteDays = response.data.defaultDeleteDays
+        this.deleteAfter= response.data.deleteAfter
         this.currentMindMap.id = response.data.mindmap.id
         this.currentMindMap.name = response.data.mindmap.name
         this.currentMindMap.unique_key = response.data.mindmap.unique_key
@@ -393,6 +395,7 @@
         .then(res=>{
           if (res.data.mindmap) {
             this.defaultDeleteDays = response.data.defaultDeleteDays
+            this.deleteAfter= response.data.deleteAfter
             this.currentMindMap.password = res.data.mindmap.password
             this.$refs['successModal'].open()
           }
