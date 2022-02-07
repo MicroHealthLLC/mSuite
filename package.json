@@ -10,6 +10,8 @@
     "bootstrap-vue": "^2.21.2",
     "dom-autoscroller": "^2.3.4",
     "dom-to-image-more": "^2.8.0",
+    "fabric": "^4.6.0",
+    "fabric-history": "^1.6.0",
     "highlight.js": "^10.4.1",
     "html2canvas": "^1.4.0",
     "jimp": "^0.9.3",
