@@ -44,9 +44,9 @@
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "/assets/mindmap_main_menu.png" },
           { key: 'kanban', value: 'Kanban', imgsrc: "/assets/kanban_main_menu.png"  },
-          { key: 'whiteboard', value: 'White Board', imgsrc: "/assets/whiteboard_main_menu.png"  },
+          { key: 'whiteboard', value: 'WhiteBoard', imgsrc: "/assets/whiteboard_main_menu.png"  },
           { key: 'tree_map', value: 'TreeMap', imgsrc: "/assets/tree_map_main_menu.png" },
-          { key: 'tree_chart', value: 'TreeChart', imgsrc: "/assets/tree_diagram.png" }
+          { key: 'tree_chart', value: 'TreeChart', imgsrc: "/assets/tree_diagram.png" },
         ]
       }
     },

@@ -13,20 +13,20 @@
     </navigation-bar>
     <div class="row mt-5">
       <div class="col-1 px-0 mt-3 sidebar">
-        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @click="drawingMode('dash')">
+        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" :class="isDrawing ? 'active':''" @click="toggleDrawing">
           <span class="material-icons">
             edit
           </span>
           <span class="ml-1">Pencil</span>
         </div>
-        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="line < 25 ? ++line : ''">
+        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="increaseStroke">
           <span class="material-icons">
             line_weight
           </span>
           <span class="ml-1" v-show="!increaseIcon">Increase</span>
           <span class="ml-1" v-show="increaseIcon">{{line}}</span>
         </div>
-        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @click="line > 1 ? --line : ''" @mouseover="decreaseIcon = true" @mouseleave="decreaseIcon = false" >
+        <div class="rounded-0 pl-1 btn btn-info border pointer d-flex" @click="decreaseStroke" @mouseover="decreaseIcon = true" @mouseleave="decreaseIcon = false" >
           <span class="material-icons rotate-180">
             line_weight
           </span>
@@ -39,43 +39,49 @@
           </span>
           <span class="ml-1">Color</span>
         </div>
-        <div @click="eraser=true" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="deleteModal" class="rounded-0 pl-1 btn btn-info border pointer d-flex" :class="eraser ? 'active':''">
           <span class="material-icons">
             delete
           </span>
-          <span class="ml-1">Eraser</span>
+          <span class="ml-1">Erase</span>
         </div>
-        <div @click="drawingMode('circle')" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addCircleToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
           <span class="material-icons">
             panorama_fish_eye
           </span>
           <span class="ml-1">Circle</span>
         </div>
-        <div @click="drawingMode('triangle')" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addTriangleToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
           <span class="material-icons">
             change_history
           </span>
           <span class="ml-1">Triangle</span>
         </div>
-        <div @click="drawingMode('square')" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addRectToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
           <span class="material-icons">
             crop_16_9
           </span>
           <span class="ml-1">Rectangle</span>
         </div>
-        <div @click="redoUndoMap(0)" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="addTextToCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+          <span class="material-icons">
+            rtt
+          </span>
+          <span class="ml-1">Text</span>
+        </div>
+        <div @click="redoCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
           <span class="material-icons">
             redo
           </span>
           <span class="ml-1">Redo</span>
         </div>
-        <div @click="redoUndoMap(1)" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
+        <div @click="undoCanvas" class="rounded-0 pl-1 btn btn-info border pointer d-flex">
           <span class="material-icons">
             undo
           </span>
           <span class="ml-1">Undo</span>
         </div>
-        <div @click="resetMap" class="rounded-0 pl-1 btn btn-danger border pointer d-flex">
+        <div @click="resetModal" class="rounded-0 pl-1 btn btn-danger border pointer d-flex">
           <span class="material-icons">
             restart_alt
           </span>
@@ -83,18 +89,7 @@
         </div>
       </div>
       <div id="vue_canvas" class="col-11 p-0 m-0 font-serif mt-3">
-          <vue-drawing-canvas
-            ref="VueCanvasDrawing"
-            :eraser="eraser"
-            :lineWidth="Number(line)"
-            :color="color"
-            :stroke-type="strokeType"
-            :classes="['border']"
-            :image.sync="image"
-            :save-as="'jpeg'"
-            :initial-image.sync="initialImage"
-            @mouseup.native="saveImage"
-          />
+        <canvas id="canvas" class="border"></canvas>
       </div>
       <div v-if="colorSelected">
           <div class="card col-3 p-0 border-none color-picker-placement">
@@ -119,9 +114,13 @@
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
     </sweet-modal>
-
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
+    </sweet-modal>
+    <sweet-modal ref="resetModal" class="of_v" icon="warning">
+      Are you sure, You want to reset your whiteboard?
+        <button slot="button" @click="resetMap" class="btn btn-warning mr-2">Yes</button>
+        <button slot="button" @click="$refs['resetModal'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
   </div>
 </template>
@@ -130,68 +129,39 @@
   import { jsPDF } from "jspdf";
   import html2canvas from "html2canvas"
   import domtoimage from "dom-to-image-more"
-  import VueDrawingCanvas from 'vue-drawing-canvas';
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
+  import { fabric } from 'fabric';
+  import 'fabric-history';
+
   export default {
-    props:['whiteboardImage'],
-    mounted(){
-      let _this = this
-      if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-        this.$refs.VueCanvasDrawing.width = window.innerWidth - 120
-        this.$refs.VueCanvasDrawing.height = window.innerHeight - 70 
+    props: ['whiteboardImage'],
+    data() {
+      return {
+        isMounted: false,
+        line: 5,
+        color: "#AADDCC",
+        image: "",
+        defaultDeleteDays: '',
+        colorPicker: "#000000",
+        colorSelected: false,
+        increaseIcon: false,
+        decreaseIcon: false,
+        mousePressed: false,
+        isDrawing: false,
+        currentMindMap: {},
+        initialImage: [],
+        eraser: false,
+        keyUpTimeOut: null,
+        deleteAfter: '',
       }
-      this.initialImage = JSON.parse(this.whiteboardImage)
-      $(window).resize(function() {
-        _this.$refs.VueCanvasDrawing.width = window.innerWidth - 120
-        _this.$refs.VueCanvasDrawing.height = window.innerHeight - 70
-          _this.$refs.VueCanvasDrawing.images = []
-        if (_this.$refs.VueCanvasDrawing.initialImage !== null)
-          _this.$refs.VueCanvasDrawing.drawInitialImage()
-      });
-    },
-    watch: {
-     initialImage: function (newVal) {
-      if(newVal !== null && newVal.length < 1){
-         this.$refs.VueCanvasDrawing.trash.length < 1 ? this.$refs.VueCanvasDrawing.reset() : ''
-      }
-      else{
-        setTimeout(() => {
-          this.$refs.VueCanvasDrawing.images = []
-          if (this.$refs.VueCanvasDrawing.initialImage !== null)
-            this.$refs.VueCanvasDrawing.drawInitialImage()
-        }, 200)
-      }
-     }
     },
     components: {
-      VueDrawingCanvas,
+      fabric,
       DeleteMapModal,
       DeletePasswordModal,
       MakePrivateModal
-    },
-    data(){
-      return{
-        eraser: false,
-        isMounted: false,
-        line: 5,
-        strokeType: "dash",
-        color: "#000000",
-        backgroundColor: "#ffffff",
-        currentMindMap: {},
-        defaultDeleteDays: '',
-        deleteAfter: '',
-        initialImage: [],
-        image: "",
-        colorPicker: "#000000",
-        x: 0,
-        y: 0,
-        colorSelected: false,
-        increaseIcon: false,
-        decreaseIcon: false
-      }
     },
     channels: {
       WebNotificationsChannel: {
@@ -199,22 +169,20 @@
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
-          }
-          else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
-          {
+          } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
               location.reload()
             }, 500)
-          }
-          else
-          {
+          } else {
             this.initialImage = JSON.parse(data.mindmap.image)
+            this.canvas.loadFromJSON(this.initialImage);
+            this.canvas.renderAll();
           }
         }
       }
     },
-    methods:{
-      getMindmap(id){
+    methods: {
+      getMindmap(id) {
         http
         .get(`/msuite/${id}.json`)
         .then((res) => {
@@ -224,88 +192,233 @@
           this.isMounted = true
           this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
         })
-
       },
       openPrivacy() {
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
-      deleteMap(){
+      deleteMap() {
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
-      confirmDeleteMindmap(){
+      confirmDeleteMindmap() {
         if (this.currentMindMap.password){
           this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        }
-        else{
+        } else {
           this.deleteMindmap()
         }
       },
-      deleteMindmapProtected(password){
+      deleteMindmapProtected(password) {
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
         })
-        .catch(error=>{
+        .catch(error => {
           console.log(error)
         })
       },
-      deleteMindmap(){
+      deleteMindmap() {
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}.json`)
-        .then(res=>{
-        })
-        .catch(error=>{
+        .catch(error => {
           console.log(error)
         })
       },
-      passwordProtect(new_password, old_password){
+      passwordProtect(new_password, old_password) {
         http
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
         .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
             this.$refs['successModal'].open()
-          }
-          else {
+          } else {
             if (res.data.error) this.$refs['errorModal'].open()
           }
         })
       },
-      passwordAgain(){
+      passwordAgain() {
         this.$refs['passwordMismatched'].close()
         this.openPrivacy()
       },
-      saveImage(){
-        let mindmap = {mindmap:{image:JSON.stringify(this.$refs.VueCanvasDrawing.getAllStrokes())}}
-        let id = this.currentMindMap.unique_key
-        http
-        .patch(`/msuite/${id}.json`,mindmap)
-        .then(res=>{
+      addRectToCanvas() {
+        this.toggleResetDraw();
+        this.rect = new fabric.Rect({
+          left: 70,
+          top: 70,
+          fill:  "#ffffff",
+          stroke: this.color,
+          width: 125,
+          height: 75,
+          strokeWidth: 4, 
+          opacity: .8  
+        });
+        this.canvas.add(this.rect);
+      },
+      addCircleToCanvas() {
+        this.toggleResetDraw();
+        this.circle = new fabric.Circle({
+          left: 70,
+          top: 70,
+          radius: 50,
+          fill: "#ffffff",
+          stroke: this.color,
+          width: 100,
+          height: 100,
+          strokeWidth: 4, 
+          opacity: .8  
+        });
+        this.canvas.add(this.circle);
+      },
+      addTextToCanvas() {
+        this.toggleResetDraw();
+        this.text = new fabric.IText('Tap and Type', {
+          left: 70,
+          top: 70,
+          fill: this.color
         })
-        .catch(err=>{
-          console.log(err)
+        this.canvas.add(this.text);
+      },
+      addTriangleToCanvas() {
+        this.toggleResetDraw();
+        this.triangle = new fabric.Triangle({
+          left: 90,
+          top: 70,
+          fill:  "#ffffff",
+          stroke: this.color,
+          width: 100,
+          height: 100,
+          strokeWidth: 4, 
+          opacity: .8,
         })
+        this.canvas.add(this.triangle);
       },
-      resetMap(){
-        this.$refs['VueCanvasDrawing'].reset()
-        this.saveImage()
-      },
-      redoUndoMap(process){
-        process === 0 ? this.$refs.VueCanvasDrawing.redo() : this.$refs.VueCanvasDrawing.undo()
-        this.saveImage()
-      },
-      drawingMode(shape){
-        this.strokeType = shape
-        this.eraser = false
-      },
-      updateColor(){
+      updateColor() {
+        this.toggleResetDraw();
         this.color = this.colorPicker.hex
+      },
+      undoCanvas() {
+        this.toggleResetDraw();
+        this.canvas.undo();
+      },
+      redoCanvas() {
+        this.toggleResetDraw();
+        this.canvas.redo();
+      },
+      deleteModal() {
+        if (this.eraser) {
+          this.eraser = false;
+          this.isDrawing = false;
+          this.canvas.isDrawingMode = false;
+        } else {
+          this.eraser = true;
+          this.isDrawing= false;
+          this.canvas.isDrawingMode = false;
+          this.canvas.hoverCursor = 'grab';
+        }
+      },
+      resetModal() {
+        this.$refs['resetModal'].open();
+      },
+      resetMap() {
+        this.canvas.remove(...this.canvas.getObjects());
+        this.toggleResetDraw();
+        this.$refs['resetModal'].close()
+      },
+      increaseStroke() {
+        this.line < 25 ? ++this.line : ''
+        this.canvas.freeDrawingBrush.width = this.line;
+      },
+      decreaseStroke() {
+        this.line > 1 ? --this.line : ''
+        this.canvas.freeDrawingBrush.width = this.line;
+      },
+      toggleResetDraw() {
+        this.canvas.isDrawingMode = false;
+        this.isDrawing = false;
+        this.eraser = false;
+        this.canvas.hoverCursor = 'auto';
+      },
+      toggleDrawing() {
+        if (this.isDrawing) {
+          this.isDrawing = false;
+          this.canvas.isDrawingMode = false;
+          this.eraser = false;
+          this.canvas.renderAll();
+        } else {
+          this.isDrawing = true;
+          this.canvas.freeDrawingBrush.color = this.color;
+          this.canvas.freeDrawingBrush.width = this.line;
+          this.canvas.isDrawingMode = true;
+          this.eraser = false;
+          this.canvas.renderAll();
+        }
+      },
+      mouseEvents() {
+        let _this = this
+        this.canvas.on('mouse:down:before', (event) => {
+          _this.mousePressed = true;
+          clearTimeout(this.keyUpTimeOut)
+        })
+        this.canvas.on('mouse:down', (event) => {
+          if (_this.eraser) {
+            var activeObject = this.canvas.getActiveObject();
+            if (activeObject) {
+              _this.canvas.remove(activeObject);
+            }
+          }
+        })
+        this.canvas.on('mouse:up', (event) => {
+          _this.mousePressed = false;
+          _this.keyUpTimeOut = setTimeout(() => {
+            this.save();
+          }, 3000)
+        })
+        document.onkeydown = function() {
+          clearTimeout(_this.keyUpTimeOut)
+        }
+      },
+      save() {
+        let mindmap = { mindmap: { image: JSON.stringify(this.canvas.toJSON()) } }  
+        let id = this.currentMindMap.unique_key
+          http
+          .patch(`/mindmaps/${id}.json`,mindmap)
+          .then(res => {
+            console.log(res)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    mounted() {
+      if (this.$route.params.key) {
+        this.getMindmap(this.$route.params.key)
+        var canvas2 = document.getElementsByTagName('canvas')[0];
+        canvas2.width = $(document).width() - 140; 
+        canvas2.height = $(document).height() - 75;
+      }
+      this.canvas = new fabric.Canvas('canvas',{
+        selection: false
+      });
+      this.mouseEvents();
+      this.canvas.renderAll();    
+      this.initialImage = JSON.parse(this.whiteboardImage)
+      if (this.initialImage) {
+        this.canvas.loadFromJSON(this.initialImage);
+        this.canvas.renderAll();
       }
     }
   }
 </script>
+
 <style>
-  @import "./whiteboard.scss";
+  #canvas {
+    background-color: white;
+  }
+  .rotate-180 {
+    transform: rotate(180deg);
+  }
+  .sidebar {
+    height: 80vh;
+  } 
 </style>
