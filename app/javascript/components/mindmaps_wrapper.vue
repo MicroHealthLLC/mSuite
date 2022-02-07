@@ -68,7 +68,7 @@
     methods: {
       getMindmap(id) {
         http
-          .get(`/mindmaps/${id}.json`)
+          .get(`/msuite/${id}.json`)
           .then((res) => {
             this.currentMindMap = res.data.mindmap
             this.defaultDeleteDays = res.data.defaultDeleteDays

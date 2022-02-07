@@ -25,9 +25,9 @@
     },
     methods: {
       passwordCheck(password) {
-        http.get(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`).then((res)=>{
+        http.get(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`).then((res)=>{
           if (res.data.is_verified) {
-            window.open(`/mindmaps/${res.data.mindmap.unique_key}`, "_self")
+            window.open(`/msuite/${res.data.mindmap.unique_key}`, "_self")
           }
           else {
             this.$refs['error-modal'].$refs['errorModal'].open()
@@ -39,7 +39,7 @@
         })
       },
       openMindmap() {
-        window.open(`/mindmaps/${this.currentMindMap.unique_key}`, "_self")
+        window.open(`/msuite/${this.currentMindMap.unique_key}`, "_self")
       }
     }
   }

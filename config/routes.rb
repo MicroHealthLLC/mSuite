@@ -9,11 +9,11 @@ Rails.application.routes.draw do
     end
   end
 
-  put 'mindmaps/destroy_nodes' => 'mindmaps#destroy_nodes'
-  get 'mindmaps/list_all_maps' => 'mindmaps#list_all_maps'
+  put 'msuite/destroy_nodes' => 'mindmaps#destroy_nodes'
+  get 'msuite/list_all_maps' => 'mindmaps#list_all_maps'
   get 'nodes/hide_children' => 'nodes#hide_children'
 
-  resources :mindmaps, except: [:edit] do
+  resources :mindmaps, path: 'msuite', except: [:edit] do
     member do
       get :compute_child_nodes
       put :destroy_file

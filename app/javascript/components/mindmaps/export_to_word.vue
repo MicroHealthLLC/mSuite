@@ -50,7 +50,7 @@
     methods: {
       computeChildNodes() {
         http
-          .get(`/mindmaps/${this.mindMap.unique_key}/compute_child_nodes.json`)
+          .get(`/msuite/${this.mindMap.unique_key}/compute_child_nodes.json`)
           .then((res) => {
             this.DV_mindmap.children = res.data.mindmap.children
             this.loading = false

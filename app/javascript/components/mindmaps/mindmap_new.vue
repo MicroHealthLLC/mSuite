@@ -313,7 +313,7 @@
       // =============== GETTING MAP =====================
       getMindmap(id) {
         http
-          .get(`/mindmaps/${id}.json`)
+          .get(`/msuite/${id}.json`)
           .then((res) => {
             this.stopWatch      = true
             this.isMounted = true
@@ -332,7 +332,7 @@
       },
       getNewMindmap() {
         http
-          .post('/mindmaps.json', { mindmap: { name: "Central Idea" } })
+          .post('/msuite.json', { mindmap: { name: "Central Idea" } })
           .then((res) => {
             this.loading        = false
             this.currentMindMap = res.data.mindmap
@@ -753,7 +753,7 @@
         })
       },
       deletAllNodes(nodes) {
-        http.put('/mindmaps/destroy_nodes.json', {nodes: nodes})
+        http.put('/msuite/destroy_nodes.json', {nodes: nodes})
       },
       // =============== Node CRUD OPERATIONS =====================
 
@@ -766,7 +766,7 @@
               formData.append("mindmap[node_files][]", file)
             })
           }
-          http.put(`/mindmaps/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
+          http.put(`/msuite/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
             this.attachFiles    = res.data.mindmap.attach_files
@@ -778,7 +778,7 @@
             this.fileLoading = false
           })
         } else {
-          http.post(`/mindmaps.json`, { mindmap: this.currentMindMap }).then((res) => {
+          http.post(`/msuite.json`, { mindmap: this.currentMindMap }).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
             this.selectedNode   = null
@@ -796,7 +796,7 @@
       },
       resetMindmap() {
         http
-          .get(`/mindmaps/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.selectedNode = null
             this.stopWatch    = true
@@ -816,7 +816,7 @@
       },
       passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
@@ -837,7 +837,7 @@
       },
       deleteMindmapProtected(password){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
@@ -848,7 +848,7 @@
       },
       deleteMindmap(){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}`)
         .then(res=>{
         })
         .catch(error=>{

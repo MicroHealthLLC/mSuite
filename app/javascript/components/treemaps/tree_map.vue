@@ -240,7 +240,7 @@
           mm_type: 'tree_map',
           line_color: obj.line_color
         }
-        await http.put(`/mindmaps/${this.currentMindMap.unique_key}`, data);
+        await http.put(`/msuite/${this.currentMindMap.unique_key}`, data);
         this.parent_node = null
         this.hiddenNode = false
         this.addChildTreeMap = false
@@ -281,7 +281,7 @@
         this.currentMindMap.unique_key = this.$route.fullPath.replace('/','');
         let _this = this
         let array_nodes = null
-        let response = await http.get(`/mindmaps/${this.currentMindMap.unique_key}.json`);
+        let response = await http.get(`/msuite/${this.currentMindMap.unique_key}.json`);
         this.parent_nodes.label = response.data.mindmap.name
         this.currentMindMap.id = response.data.mindmap.id
         this.currentMindMap.name = response.data.mindmap.name
@@ -311,7 +311,7 @@
       },
       passwordProtect(new_password, old_password){
         http
-        .patch(`/mindmaps/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
@@ -332,7 +332,7 @@
       },
       deleteMindmapProtected(password){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
@@ -343,7 +343,7 @@
       },
       deleteMindmap(){
         http
-        .delete(`/mindmaps/${this.currentMindMap.unique_key}`)
+        .delete(`/msuite/${this.currentMindMap.unique_key}`)
         .then(res => {
         })
         .catch(error => {
