@@ -274,6 +274,7 @@
         this.text = new fabric.IText('Tap and Type', {
           left: 70,
           top: 70,
+          fontFamily: 'sans-serif',
           fill: this.color
         })
         this.canvas.add(this.text);
