@@ -30,5 +30,6 @@ module MindmapsRailsVue
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    Redis.exists_returns_integer =  true
   end
 end

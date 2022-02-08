@@ -1,0 +1,24 @@
+---
+:concurrency: 5
+:pidfile: tmp/pids/sidekiq.pid
+development:
+  :concurrency: 2
+  :queues:
+    - default
+    - mailers
+    - active_storage_purge
+    - active_storage_analysis
+staging:
+  :concurrency: 5
+  :queues:
+    - default
+    - mailers
+    - active_storage_purge
+    - active_storage_analysis
+production:
+  :concurrency: 10
+  :queues:
+    - default
+    - mailers
+    - active_storage_purge
+    - active_storage_analysis
