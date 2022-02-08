@@ -372,7 +372,7 @@
           _this.mousePressed = false;
           _this.keyUpTimeOut = setTimeout(() => {
             this.save();
-          }, 3000)
+          }, 1000)
         })
         document.onkeydown = function() {
           clearTimeout(_this.keyUpTimeOut)
@@ -382,7 +382,7 @@
         let mindmap = { mindmap: { image: JSON.stringify(this.canvas.toJSON()) } }  
         let id = this.currentMindMap.unique_key
           http
-          .patch(`/mindmaps/${id}.json`,mindmap)
+          .patch(`/msuite/${id}.json`,mindmap)
           .then(res => {
             console.log(res)
           })
