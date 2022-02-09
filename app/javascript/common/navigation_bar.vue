@@ -1,6 +1,6 @@
 <template>
   <div class="buttons_area">
-    <div class="buttons_container mx-2">
+    <div class="buttons_container p-2">
       <span class="flex">
         <a
           href="javascript:;"
@@ -10,17 +10,9 @@
         >
           <img src="/assets/microhealthllc.png"/>
         </a>
-        <a
-          href="javascript:;"
-          role="button"
-          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-          @click.stop="openPrivacy"
-        >
-          <i class="fas fa-shield-alt icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Make Private</span>
-        </a>
+    
       </span>
-      <span v-show="!editable" @click="makeEditable" class="mt-1 pt-2 pointer text-sapphire w-25" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
+      <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
       <textarea
         v-show="editable"
         :rows="1"
@@ -116,6 +108,7 @@
           @click.prevent.stop="$refs['exportOption'].open()"
         >
           <i class="material-icons export_icon icons d-flex center_flex"></i>
+            <!-- <font-awesome-icon icon="fa-solid fa-file-export d-flex center_flex" /> -->
         </a>
         <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart'">
           <a

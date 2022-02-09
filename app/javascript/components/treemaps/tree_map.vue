@@ -8,7 +8,7 @@
      @deleteMindmap="deleteMap"
      :exportId="'treeMapGraph'">
     </navigation-bar>
-    <div class="row mt-5 main_body">
+    <div class="row mt-1 main_body">
       <div class="col-12 mt-4 font-serif" id="treeMapGraph">
         <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)" :colorRange="50"
         :renderCallbacks="renderCallbacks"/>
@@ -101,7 +101,7 @@
         parent_nodes: {
           label: 'centralized',
           value: 100,
-          color: '#B3FAFF'
+          color: '#eeeeee'
         },
         renderCallbacks: {
           '*': (elementObject, value) => {

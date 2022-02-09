@@ -5,13 +5,19 @@
 .jqx-treemap-rectangle {
   border: 1px solid gray !important;
   padding: 2px !important;
+  position: relative;
+  width: auto !important;
   margin-left: 5px !important;
+  position: relative !important;
 }
 .jqx-treemap-label, .jqx-treemap-rectangle span {
   min-width: 5%;
   max-width: 50% !important;
   word-wrap: break-word;
   text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 47%;
 }
 
 .focus-visible {

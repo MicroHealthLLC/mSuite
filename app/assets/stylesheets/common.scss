@@ -310,7 +310,7 @@ a:hover, .btn1:hover, .btn2:hover {
   }
   .mh-blue {
   //  dark blue
-   background-color: #1D336F !important;
+   background-color: #d4d8e4 !important;
   }
   .mh-green-text {
     color: #9EC64C !important;
@@ -336,6 +336,13 @@ a:hover, .btn1:hover, .btn2:hover {
   text-align: center;
   text-decoration: none;
   -webkit-font-smoothing: auto;
+}
+
+span.jqx-treemap-label {
+  position: absolute;
+  top: 50% !important;
+  left: 47% !important;
+  padding: 2px 5px !important;
 }
 
 .material-icons.security_icon::before{
@@ -711,3 +718,9 @@ a.edit_delete_btn {
 .main_div .item img{
   margin: auto;
  }
+
+ .drag-column {
+  background-color: #fafafa !important;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.25), 0 2.5px 2.5px rgba(0,0,0,0.22); 
+  border-radius: 0.25rem !important;
+}
