@@ -249,7 +249,7 @@
           stroke: this.color,
           width: 125,
           height: 75,
-          strokeWidth: 4, 
+          strokeWidth: this.line,
           opacity: .8  
         });
         this.canvas.add(this.rect);
@@ -264,7 +264,7 @@
           stroke: this.color,
           width: 100,
           height: 100,
-          strokeWidth: 4, 
+          strokeWidth: this.line,
           opacity: .8  
         });
         this.canvas.add(this.circle);
@@ -288,7 +288,7 @@
           stroke: this.color,
           width: 100,
           height: 100,
-          strokeWidth: 4, 
+          strokeWidth: this.line,
           opacity: .8,
         })
         this.canvas.add(this.triangle);
