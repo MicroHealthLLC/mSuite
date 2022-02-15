@@ -13,7 +13,7 @@
     </navigation-bar>
     <div class="row">
       <div class="col-1 px-0 sidebar">
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @click="drawingMode('dash')">
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="isDrawing ? 'active':''" @click="toggleDrawing">
           <span class="material-icons">
             edit
           </span>

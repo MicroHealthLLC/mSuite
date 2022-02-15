@@ -115,14 +115,14 @@
               {
                 this.blurEventMethod(value, elementObject)
               }
-              else if (event.target.tagName === 'path')
+              else if (event.target.tagName === 'I')
               {
-                if(event.target.nearestViewportElement.classList.contains('fa-plus')){
+                if(event.target.classList.contains('fa-plus')){
                   this.addNodeToTreeMap(value, event)
-                }else if(event.target.nearestViewportElement.classList.contains('fa-eye-dropper')){
+                }else if(event.target.classList.contains('fa-eye-dropper')){
                   this.colorChange(value, elementObject)
                 }
-                else if(event.target.nearestViewportElement.classList.contains('fa-times')){
+                else if(event.target.classList.contains('fa-times')){
                   this.deleteNode(value)
                 }
               }
