@@ -63,7 +63,7 @@
           </span>
           <span class="ml-1">Rectangle</span>
         </div>
-        <div @click="addTextToCanvas" class="rounded-0 pl-1 whiteboard-btns btnborder pointer d-flex">
+        <div @click="addTextToCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             rtt
           </span>
