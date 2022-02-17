@@ -18,17 +18,19 @@
           <div class="w-100 mb-2" :id="'stage_'+index">
             <div class="d-inline-block w-100 block">
               <div class="text-dark pointer w-100 d-flex">
-                <div @click="updateStage(stage)">
-                  <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class=" border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
+                <div @click="updateStage(stage)" class="w-75">
+                  <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class="border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
                 </div>
-                <div class="pointer float-right" @click="stage.length > 0 ? selectedStageBg(stage,$event) : '' ">
-                  <i class="fas fa-eye-dropper ml-5 position-absolute color-picker mt-1 icon-opacity" title="Color Picker"></i>
-                </div>
-                <div class="pointer float-right" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
-                   <i class="fas fa-plus position-absolute mt-1 add-icon icon-opacity" title="Add Stage"></i>
-                </div>
-                <div class="pointer float-right" @click="deleteStageConfirm(stage)">
-                  <i class="fas fa-times text-danger position-absolute mt-1 icon-delete-stage" title="Delete Stage"></i>
+                <div class="d-flex w-25 justify-content-end">
+                  <div class="pointer" @click="stage.length > 0 ? selectedStageBg(stage,$event) : '' ">
+                    <i class="fas fa-eye-dropper color-picker mt-1 icon-opacity" title="Color Picker"></i>
+                  </div>
+                  <div class="pointer text-center" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
+                     <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
+                  </div>
+                  <div class="pointer" @click="deleteStageConfirm(stage)">
+                    <i class="fas fa-times text-danger mt-1 icon-delete-stage" title="Delete Stage"></i>
+                  </div>
                 </div>
               </div>
             </div>
