@@ -370,9 +370,13 @@
         })
         this.canvas.on('mouse:up', (event) => {
           _this.mousePressed = false;
-          _this.keyUpTimeOut = setTimeout(() => {
+        })
+        
+        this.canvas.on('selection:cleared', (event) => {
             this.save();
-          }, 1000)
+        })
+        this.canvas.on('selection:updated', (event) => {
+          this.save();
         })
         document.onkeydown = function() {
           clearTimeout(_this.keyUpTimeOut)
@@ -384,7 +388,6 @@
           http
           .patch(`/msuite/${id}.json`,mindmap)
           .then(res => {
-            console.log(res)
           })
           .catch(err => {
             console.log(err)
