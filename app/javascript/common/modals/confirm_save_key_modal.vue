@@ -67,7 +67,7 @@
     data () {
       return {
         expDays: '',
-        deletedAtMSuite: JSON.stringify(JSON.parse(this.currentMindMap.will_delete_at))
+        deletedAtMSuite: JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
       }
     },
     props: ['currentMindMap', 'defaultDeleteDays','deleteAfter'],
@@ -76,7 +76,8 @@
         return window.location.href
       },
       expDeleteDays () {
-        this.expDays = this.currentMindMap.will_delete_at
+        this.expDays = JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
+        this.findTotalDaysBetweenDates()
         if(this.expDays == '5') this.expDays = this.deleteAfter        
         return this.expDays
       }
@@ -115,6 +116,12 @@
       },
       deleteMSuite () {
         this.$emit("deleteMindmap")
+      },
+      findTotalDaysBetweenDates() {
+        let oneDay = 24 * 60 * 60 * 1000;
+        let currentDate = new Date();
+        let comingDate = new Date(this.expDays);
+        this.expDays = Math.round(Math.abs((currentDate - comingDate) / oneDay));
       }
     }
   }

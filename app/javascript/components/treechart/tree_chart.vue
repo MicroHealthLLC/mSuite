@@ -22,7 +22,7 @@
         ref="refTree"
       >
         <template v-slot:node="{ node }">
-          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" v-bind:style="{ backgroundColor: node.color }" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
+          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
             <div>
               <span @click="deleteMap(node)">
                 <i class="fas fa-times float-right icon-opacity text-danger" title=""></i>
@@ -30,7 +30,7 @@
               <span @click="addNode(node)" v-if="node.name != 'Enter title here'">
                 <i class="fas fa-plus float-right icon-opacity add-icon" title="Add Node"></i>
               </span>
-              <span @click="showColorPicker(node)" v-if="node.id !== undefined">
+              <span @click="showColorPicker(node)">
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
               </span>
               <div  v-if="node.id !== undefined">
@@ -219,7 +219,7 @@
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
-        if(this.currentMindMap.name == this.treeNodeTitle)
+        if(this.selectedNodeTitle == this.currentMindMap.name)
         {
           this.currentMindMap.line_color = this.treeNode.line_color
           this.updatedTreeChart(this.currentMindMap)
@@ -313,9 +313,7 @@
         this.selectedNode = {id: ''}
         this.defaultDeleteDays = response.data.defaultDeleteDays
         this.deleteAfter= response.data.deleteAfter
-        this.currentMindMap.id = response.data.mindmap.id
-        this.currentMindMap.name = response.data.mindmap.name
-        this.currentMindMap.unique_key = response.data.mindmap.unique_key
+        this.currentMindMap = response.data.mindmap
         this.treeChartObj.name = response.data.mindmap.name
         this.nodes = response.data.mindmap.nodes
         this.addNodeTree = false
@@ -473,7 +471,6 @@
           {
             this.fetchTreeChart()
           }
-
         },
         disconnected() {}
       }

@@ -27,7 +27,6 @@ class MindmapsController < AuthenticatedController
     @mindmap.update(mindmap_params)
     message = params[:mindmap][:password].present? ? "Password Updated" : "Mindmap Updated"
     ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
-    @mindmap.will_delete_at = @mindmap.will_delete_at.mjd - DateTime.now.to_date.mjd
     respond_to do |format|
       format.json { render json: {mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i}}
       format.html { }
@@ -35,7 +34,6 @@ class MindmapsController < AuthenticatedController
   end
 
   def show
-    @mindmap.will_delete_at = @mindmap.will_delete_at.mjd - DateTime.now.to_date.mjd if @mindmap
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json, is_verified: @is_verified, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i } }
       format.html { render action: 'index' }
