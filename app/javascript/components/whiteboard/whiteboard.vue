@@ -341,8 +341,7 @@
         this.$refs['resetModal'].open();
       },
       resetMap() {
-        this.canvas.remove(...this.canvas.getObjects());
-        this.toggleResetDraw();
+        this.updateWhiteBoard('{"version":"4.6.0","objects":[]}')
         this.$refs['resetModal'].close()
       },
       increaseStroke() {
@@ -378,10 +377,9 @@
         let _this = this
         this.canvas.on('mouse:down:before', (event) => {
           _this.mousePressed = true;
-          clearTimeout(this.keyUpTimeOut)
         })
         this.canvas.on('mouse:down', (event) => {
-          this.colorSelected=false
+          if(_this.colorSelected) this.cancelUpdateColor()
           if (_this.eraser) {
             var activeObject = this.canvas.getActiveObject();
             if (activeObject) {
@@ -390,7 +388,7 @@
           }
         })
         this.canvas.on('mouse:up', (event) => {
-          _this.mousePressed = false;
+          _this.mousePressed = false
         })
         this.canvas.on('selection:created', (event) => {
           this.activeObject = this.canvas.getActiveObject();
@@ -398,28 +396,19 @@
         })
         this.canvas.on('selection:cleared', (event) => {
           if(this.saveData){
-            this.save();
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           }
         })
         this.canvas.on('selection:updated', (event) => {
           if(this.saveData){
-            this.save();
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           }
         })
-        document.onkeydown = function() {
-          clearTimeout(_this.keyUpTimeOut)
-        }
       },
-      save() {
-        let mindmap = { mindmap: { image: JSON.stringify(this.canvas.toJSON()) } }
+      updateWhiteBoard(obj) {
+        let mindmap = { mindmap: { image: obj } }
         let id = this.currentMindMap.unique_key
-          http
-          .patch(`/msuite/${id}.json`,mindmap)
-          .then(res => {
-          })
-          .catch(err => {
-            console.log(err)
-          })
+        http.patch(`/msuite/${id}.json`,mindmap)
       }
     },
     mounted() {
