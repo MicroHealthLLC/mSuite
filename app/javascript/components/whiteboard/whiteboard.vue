@@ -94,10 +94,11 @@
       <div v-if="colorSelected">
           <div class="card col-3 p-0 border-none color-picker-placement">
             <div class="card-body p-0">
-              <chrome-picker @input="updateColor" v-model="colorPicker"/>
+              <chrome-picker @input="beforeUpdateColor" v-model="colorPicker"/>
             </div>
             <div class="card-button d-flex">
-              <button class="btn btn-success w-100 border-none" @click="colorSelected=false">Close</button>
+              <button class="btn btn-success w-50 border-none" @click="updateColor">Update</button>
+              <button class="btn btn-info w-50 border-none" @click="cancelUpdateColor">Cancel</button>
             </div>
           </div>
       </div>
@@ -155,6 +156,7 @@
         eraser: false,
         keyUpTimeOut: null,
         deleteAfter: '',
+        saveData: true,
       }
     },
     components: {
@@ -293,9 +295,27 @@
         })
         this.canvas.add(this.triangle);
       },
+      beforeUpdateColor(){
+        this.toggleResetDraw();
+        this.activeObject.set("stroke", this.colorPicker.hex8);
+        this.saveData = false
+        this.canvas.renderAll();
+      },
       updateColor() {
         this.toggleResetDraw();
-        this.color = this.colorPicker.hex
+        this.color = this.colorPicker.hex8
+        this.saveData = true
+        this.colorSelected = false
+      },
+      cancelUpdateColor(){
+        this.colorSelected = false
+        http
+        .get(`/msuite/${this.$route.params.key}.json`)
+        .then((res) => {
+          this.initialImage = JSON.parse(res.data.mindmap.image)
+          this.canvas.loadFromJSON(this.initialImage);
+          this.canvas.renderAll();
+        })
       },
       undoCanvas() {
         this.toggleResetDraw();
@@ -321,8 +341,7 @@
         this.$refs['resetModal'].open();
       },
       resetMap() {
-        this.canvas.remove(...this.canvas.getObjects());
-        this.toggleResetDraw();
+        this.updateWhiteBoard('{"version":"4.6.0","objects":[]}')
         this.$refs['resetModal'].close()
       },
       increaseStroke() {
@@ -358,9 +377,9 @@
         let _this = this
         this.canvas.on('mouse:down:before', (event) => {
           _this.mousePressed = true;
-          clearTimeout(this.keyUpTimeOut)
         })
         this.canvas.on('mouse:down', (event) => {
+          if(_this.colorSelected) this.cancelUpdateColor()
           if (_this.eraser) {
             var activeObject = this.canvas.getActiveObject();
             if (activeObject) {
@@ -369,29 +388,27 @@
           }
         })
         this.canvas.on('mouse:up', (event) => {
-          _this.mousePressed = false;
+          _this.mousePressed = false
         })
-        
+        this.canvas.on('selection:created', (event) => {
+          this.activeObject = this.canvas.getActiveObject();
+          this.canvas.renderAll();
+        })
         this.canvas.on('selection:cleared', (event) => {
-            this.save();
+          if(this.saveData){
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          }
         })
         this.canvas.on('selection:updated', (event) => {
-          this.save();
+          if(this.saveData){
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          }
         })
-        document.onkeydown = function() {
-          clearTimeout(_this.keyUpTimeOut)
-        }
       },
-      save() {
-        let mindmap = { mindmap: { image: JSON.stringify(this.canvas.toJSON()) } }
+      updateWhiteBoard(obj) {
+        let mindmap = { mindmap: { image: obj } }
         let id = this.currentMindMap.unique_key
-          http
-          .patch(`/msuite/${id}.json`,mindmap)
-          .then(res => {
-          })
-          .catch(err => {
-            console.log(err)
-          })
+        http.patch(`/msuite/${id}.json`,mindmap)
       }
     },
     mounted() {
