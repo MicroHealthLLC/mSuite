@@ -5,7 +5,7 @@ class FileInActiveWorker
     mSuites = Mindmap.where(will_delete_at: DateTime.now.to_date)
     if mSuites.length > 0
     	mSuites.each do |mSuite|
-    		mSuite.delete
+    		mSuite.destroy
     	end
     end
   end
