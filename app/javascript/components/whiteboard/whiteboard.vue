@@ -347,10 +347,18 @@
       increaseStroke() {
         this.line < 25 ? ++this.line : ''
         this.canvas.freeDrawingBrush.width = this.line;
+        if(this.activeObject){
+          this.activeObject.set("strokeWidth", this.line)
+          this.canvas.renderAll()
+        }
       },
       decreaseStroke() {
         this.line > 1 ? --this.line : ''
         this.canvas.freeDrawingBrush.width = this.line;
+        if(this.activeObject){
+          this.activeObject.set("strokeWidth", this.line)
+          this.canvas.renderAll()
+        }
       },
       toggleResetDraw() {
         this.canvas.isDrawingMode = false;
@@ -392,6 +400,8 @@
         })
         this.canvas.on('selection:created', (event) => {
           this.activeObject = this.canvas.getActiveObject();
+          this.line = this.activeObject.strokeWidth
+          this.colorPicker = this.activeObject.stroke
           this.canvas.renderAll();
         })
         this.canvas.on('selection:cleared', (event) => {
