@@ -46,6 +46,14 @@
         </a>
         <a
           href="javascript:;"
+          class="btn_2 bg-success text-white mr_1"
+          @click.stop="saveMSuite"
+          :title="'Save MSuite'"
+        >
+          Save
+        </a>
+        <a
+          href="javascript:;"
           class="btn_2 bg-danger text-white mr_1"
           @click.prevent="deleteMSuite"
           title="Delete Permanently"
@@ -106,6 +114,10 @@
       goHome () {
         if(this.expDays == '180') this.expireDate(this.expDays)
         window.open("/", "_self")
+      },
+      saveMSuite() {
+        if(this.expDays == '180') this.expireDate(this.expDays)
+        this.closeModal()
       },
       openPrivacy () {
         if(this.expDays == '180') this.expireDate(this.expDays)
