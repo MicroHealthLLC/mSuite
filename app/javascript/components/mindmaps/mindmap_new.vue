@@ -2,7 +2,8 @@
   <div class="map-container">
     <navigation-bar
       ref="navigationBar"
-      v-if="isMounted"     
+      v-if="isMounted"
+      @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage($event)"
       @exportToWord="exportToWord"
