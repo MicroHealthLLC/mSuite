@@ -33,7 +33,7 @@
           <span class="ml-1" v-show="!decreaseIcon">Decrease</span>
           <span class="ml-1" v-show="decreaseIcon">{{line}}</span>
         </div>
-        <div @click="colorSelected=!colorSelected" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
+        <div @click="showColorPicker" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             colorize
           </span>
@@ -297,7 +297,8 @@
       },
       beforeUpdateColor(){
         this.toggleResetDraw();
-        this.activeObject.set("stroke", this.colorPicker.hex8);
+        if(this.activeObject.type == 'i-text') this.activeObject.set("fill", this.colorPicker.hex8);
+        else this.activeObject.set("stroke", this.colorPicker.hex8);
         this.saveData = false
         this.canvas.renderAll();
       },
@@ -380,6 +381,10 @@
           this.eraser = false;
           this.canvas.renderAll();
         }
+      },
+      showColorPicker() {
+        if(this.activeObject.type == 'i-text') this.colorPicker = this.activeObject.fill
+        this.colorSelected = !this.colorSelected
       },
       mouseEvents() {
         let _this = this
