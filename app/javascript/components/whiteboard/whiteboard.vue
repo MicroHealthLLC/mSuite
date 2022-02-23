@@ -452,4 +452,8 @@
   .sidebar {
     height: 80vh;
   }
+  .whiteboard-btns:hover{
+    background-color: #091e4214;
+    color: #172b4d;
+  }
 </style>
