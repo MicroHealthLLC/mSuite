@@ -2,11 +2,11 @@ class FileInActiveWorker
   include Sidekiq::Worker
 
   def perform
-    mSuites = Mindmap.where(will_delete_at: DateTime.now.to_date)
+    mSuites = Mindmap.where("will_delete_at <= ?", Date.today)
     if mSuites.length > 0
-    	mSuites.each do |mSuite|
-    		mSuite.destroy
-    	end
+      mSuites.each do |mSuite|
+        mSuite.destroy
+      end
     end
   end
 end
