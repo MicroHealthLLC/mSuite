@@ -255,6 +255,7 @@
           opacity: .8
         });
         this.canvas.add(this.rect);
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addCircleToCanvas() {
         this.toggleResetDraw();
@@ -270,6 +271,7 @@
           opacity: .8
         });
         this.canvas.add(this.circle);
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addTextToCanvas() {
         this.toggleResetDraw();
@@ -280,6 +282,7 @@
           fill: this.color
         })
         this.canvas.add(this.text);
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addTriangleToCanvas() {
         this.toggleResetDraw();
@@ -294,6 +297,7 @@
           opacity: .8,
         })
         this.canvas.add(this.triangle);
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       beforeUpdateColor(){
         this.toggleResetDraw();
@@ -346,19 +350,27 @@
         this.$refs['resetModal'].close()
       },
       increaseStroke() {
+        clearTimeout(this.keyUpTimeOut)
         this.line < 25 ? ++this.line : ''
         this.canvas.freeDrawingBrush.width = this.line;
         if(this.activeObject){
           this.activeObject.set("strokeWidth", this.line)
           this.canvas.renderAll()
+          this.keyUpTimeOut = setTimeout(() => {
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          }, 2000)
         }
       },
       decreaseStroke() {
+        clearTimeout(this.keyUpTimeOut)
         this.line > 1 ? --this.line : ''
         this.canvas.freeDrawingBrush.width = this.line;
         if(this.activeObject){
           this.activeObject.set("strokeWidth", this.line)
           this.canvas.renderAll()
+          this.keyUpTimeOut = setTimeout(() => {
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          }, 2000)
         }
       },
       toggleResetDraw() {
@@ -410,14 +422,10 @@
           this.canvas.renderAll();
         })
         this.canvas.on('selection:cleared', (event) => {
-          if(this.saveData){
-            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
-          }
+          if(this.saveData) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
         this.canvas.on('selection:updated', (event) => {
-          if(this.saveData){
-            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
-          }
+          if(this.saveData) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
       },
       updateWhiteBoard(obj) {
