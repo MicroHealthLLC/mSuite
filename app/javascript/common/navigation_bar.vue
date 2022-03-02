@@ -110,18 +110,16 @@
           <i class="material-icons export_icon icons d-flex center_flex"></i>
             <!-- <font-awesome-icon icon="fa-solid fa-file-export d-flex center_flex" /> -->
         </a>
-        <span class="scaling_area">
-          <a
-            role="button"
-            href="javascript:;"
-            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent.stop="saveMSuite"
-          >
-            <span class="material-icons">
-              save
-            </span>
-          </a>
-        </span>
+        <a
+          role="button"
+          href="javascript:;"
+          class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          @click.prevent.stop="saveMSuite"
+        >
+          <span class="material-icons">
+            save
+          </span>
+        </a>
         <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart'">
           <a
             v-if="scaleFactor != 1"
