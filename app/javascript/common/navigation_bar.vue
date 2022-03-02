@@ -110,6 +110,18 @@
           <i class="material-icons export_icon icons d-flex center_flex"></i>
             <!-- <font-awesome-icon icon="fa-solid fa-file-export d-flex center_flex" /> -->
         </a>
+        <span class="scaling_area">
+          <a
+            role="button"
+            href="javascript:;"
+            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent.stop="saveMSuite"
+          >
+            <span class="material-icons">
+              save
+            </span>
+          </a>
+        </span>
         <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart'">
           <a
             v-if="scaleFactor != 1"
@@ -140,7 +152,7 @@
         </span>
       </span>
     </div>
-    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter"></confirm-save-key-modal>
+    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter"></confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
@@ -163,7 +175,8 @@
       return{
         mSuiteName: this.currentMindMap.title,
         deleteableMSuite: ['simple', 'kanban', 'whiteboard'],
-        editable: false
+        editable: false,
+        isSaveMSuite: false
       }
     },
     components:{
@@ -197,7 +210,12 @@
           _this.deleteAfter = res.data.deleteAfter
         })
       },
+      saveMSuite () {
+        this.isSaveMSuite = true
+        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
+      },
       goHome () {
+        this.isSaveMSuite = false
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       openPrivacy () {
