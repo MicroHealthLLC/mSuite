@@ -25,7 +25,7 @@ class MindmapsController < AuthenticatedController
 
   def update
     @mindmap.update(mindmap_params)
-    message = params[:mindmap][:password].present? ? "Password Updated" : "Mindmap Updated"
+    message = password_present?
     ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
     respond_to do |format|
       format.json { render json: {mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i}}
@@ -118,6 +118,15 @@ class MindmapsController < AuthenticatedController
 
   def set_access_user
     Mindmap.access_user = current_user
+  end
+
+  def password_present?
+    message =  "Mindmap Updated"
+    if params[:mindmap][:password].present?
+      message = "Password Updated"
+      session[:mindmap_id] = @mindmap.unique_key + @mindmap.password
+    end
+    return message
   end
 
   def set_mindmap
