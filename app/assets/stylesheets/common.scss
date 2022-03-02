@@ -392,11 +392,23 @@ a:hover, .btn1:hover, .btn2:hover {
 .material-icons.zoom_in_icon::before{
   content:"zoom_in";
 }
+.material-icons.save_btn::before{
+  content:"save";
+}
 .material-icons.zoom_out_icon::before{
   content:"zoom_out";
 }
 .edit_delete_btn:hover .zoom_in_icon::before{
   content:"Zoom+";
+  text-transform: capitalize;
+  font-family: sans-serif;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: auto;
+}
+.edit_delete_btn:hover .save_btn::before{
+  content:"Save";
   text-transform: capitalize;
   font-family: sans-serif;
   font-size: 12px;
