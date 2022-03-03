@@ -66,7 +66,7 @@
     <!-- import modals here -->
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
 
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
+    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
 
     <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
       Do you want to delete this node?
@@ -149,7 +149,8 @@
         treeConfig: { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
         nodeChildTreeMaps: [],
         nodes: [],
-        addNodeTree: false
+        addNodeTree: false,
+        isSaveMSuite: false
       }
     },
     props:['currentMindMap','defaultDeleteDays'],
@@ -380,14 +381,15 @@
       async updatedTreeChart(obj){
         await http.put(`/msuite/${obj.unique_key}`, obj);
       },
-      openPrivacy() {
+      openPrivacy(val) {
+        this.isSaveMSuite = val
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
       passwordAgain(){
         this.$refs['passwordMismatched'].close()
         this.openPrivacy()
       },
-      passwordProtect(new_password, old_password){
+      passwordProtect(new_password, old_password, is_mSuite){
         http
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
@@ -396,6 +398,8 @@
             this.deleteAfter= response.data.deleteAfter
             this.currentMindMap.password = res.data.mindmap.password
             this.$refs['successModal'].open()
+            if(!is_mSuite) window.open("/", "_self")
+            else location.reload()
           }
           else {
             if (res.data.error) this.$refs['errorModal'].open()
@@ -446,6 +450,7 @@
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}`)
         .then(res => {
+          window.open("/", "_self")
         })
         .catch(error => {
           console.log(error)

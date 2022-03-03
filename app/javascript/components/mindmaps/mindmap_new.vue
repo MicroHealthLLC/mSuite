@@ -111,6 +111,7 @@
       @password-apply="passwordProtect"
       @password_mismatched="$refs['passwordMismatched'].open()"
       :password="currentMindMap.password"
+      :isSaveMSuite="isSaveMSuite"
     ></make-private-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
@@ -178,17 +179,17 @@
       DeletePasswordModal,
     },
 
+    props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays'],
+
     data() {
       return {
+        isSaveMSuite      : false,
         selectedNode      : null,
         isMounted         : false,
         currentNodes      : [],
         nodeParent        : null,
         nodeColor         : null,
         centralIdea       : '',
-        currentMindMap    : {},
-        defaultDeleteDays : '',
-        deleteAfter       : '',
         loading           : true,
         dragging          : false,
         draggingNode      : false,
@@ -322,6 +323,14 @@
     },
 
     methods: {
+      mountMap() {
+        this.stopWatch      = true
+        this.isMounted      = true
+        this.centralIdea = this.currentMindMap.name
+        this.currentNodes   = this.currentMindMap.nodes
+        setTimeout(() => { this.drawLines() }, 1000)
+        this.loading = false
+      },
       // =============== GETTING MAP =====================
       getMindmap(id) {
         http
@@ -646,7 +655,6 @@
       },
       // =============== STYLING OPERATIONS =====================
 
-
       // =============== Node CRUD OPERATIONS =====================
       cutSelectedNode() {
         if (!this.selectedNode) { return; }
@@ -821,19 +829,22 @@
             consoel.log(err)
           })
       },
-      openPrivacy() {
+      openPrivacy(val) {
+        this.isSaveMSuite = val
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
       passwordAgain(){
         this.$refs['passwordMismatched'].close()
         this.openPrivacy()
       },
-      passwordProtect(new_password, old_password){
+      passwordProtect(new_password, old_password, is_mSuite){
         http
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
+            if(!is_mSuite) window.open("/", "_self")
+            else location.reload()
             this.$refs['successModal'].open()
           }
           else {
@@ -864,6 +875,7 @@
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}`)
         .then(res=>{
+          window.open("/", "_self")
         })
         .catch(error=>{
           console.log(error)
@@ -1154,9 +1166,8 @@
 
     mounted() {
       if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-      } else {
-        this.getNewMindmap()
+        this.mountMap()
+        // this.getMindmap(this.$route.params.key)
       }
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)

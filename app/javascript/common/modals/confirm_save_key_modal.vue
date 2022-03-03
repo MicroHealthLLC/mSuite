@@ -76,10 +76,13 @@
         return window.location.href
       },
       expDeleteDays () {
-        this.expDays = JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
-        this.findTotalDaysBetweenDates()
-        if(this.expDays == '5') this.expDays = this.deleteAfter        
-        return this.expDays
+        if(this.currentMindMap)
+        {
+          this.expDays = JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
+          this.findTotalDaysBetweenDates()
+          if(this.expDays == '5') this.expDays = this.deleteAfter
+          return this.expDays
+        }
       }
     },
     methods: {
@@ -104,12 +107,12 @@
         })
       },
       goHome () {
-        if(this.expDays == '180') this.expireDate(this.expDays)
+        if(this.currentMindMap && this.expDays == '180') this.expireDate(this.expDays)
         if(this.isSaveMSuite) this.closeModal()
         else window.open("/", "_self")
       },
       openPrivacy () {
-        if(this.expDays == '180') this.expireDate(this.expDays)
+        if(this.currentMindMap && this.expDays == '180') this.expireDate(this.expDays)
         this.$emit("openPrivacy")
       },
       closeModal() {
