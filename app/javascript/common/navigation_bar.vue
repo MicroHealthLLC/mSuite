@@ -215,7 +215,7 @@
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       openPrivacy () {
-        this.$emit("openPrivacy")
+        this.$emit("openPrivacy", this.isSaveMSuite)
       },
       deleteMindmap () {
         this.$emit("deleteMindmap")

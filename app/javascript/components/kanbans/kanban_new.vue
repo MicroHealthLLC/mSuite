@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
+    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-block-modal ref="delete-block-modal" @delete_task="deleteBlock(block)"></delete-block-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
@@ -141,10 +141,9 @@
         previousColor: null,
         selectedStage: null,
         selectedElement: null,
-        defaultDeleteDays: '',
-        deleteAfter: '',
         hover_addtask: '',
         selected: '',
+        isSaveMSuite: false,
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -152,6 +151,7 @@
         }
       }
     },
+    props: ['currentMindMap', 'defaultDeleteDays', 'deleteAfter'],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -181,7 +181,7 @@
     },
     mounted() {
       if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
+        this.getMindmap()
       }
       this.$nextTick(function () {
         setTimeout(()=>{
@@ -236,21 +236,11 @@
     },
     methods: {
       //=====================GETTING MINDMAP==============================//
-      getMindmap(id){
-        http
-        .get(`/msuite/${id}.json`)
-        .then((res) => {
-          this.currentMindMap = res.data.mindmap
-          this.defaultDeleteDays = res.data.defaultDeleteDays
-          this.deleteAfter = res.data.deleteAfter
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
-          this.getAllStages()
-          this.getAllNodes()
-        })
-
+      getMindmap(){
+        this.getAllStages()
+        this.getAllNodes()
       },
       //=====================GETTING MINDMAP==============================//
-
 
       //=====================MINDMAP DELETE ==============================//
       deleteMindmapProtected(password){
@@ -268,6 +258,7 @@
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}.json`)
         .then(res=>{
+          window.open("/", "_self")
         })
         .catch(error=>{
           console.log(error)
@@ -623,19 +614,22 @@
       //=====================NODE CRUD OPERATIONS==============================//
 
       //=====================PASSWORD PROTECT==============================//
-      openPrivacy() {
+      openPrivacy(val) {
+        this.isSaveMSuite = val
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
       passwordAgain(){
         this.$refs['passwordMismatched'].close()
         this.openPrivacy()
       },
-      passwordProtect(new_password, old_password){
+      passwordProtect(new_password, old_password, is_mSuite){
         http
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
+            if(!is_mSuite) window.open("/", "_self")
+            else location.reload()
             this.$refs['successModal'].open()
           }
           else {

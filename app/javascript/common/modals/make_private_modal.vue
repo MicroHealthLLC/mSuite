@@ -35,7 +35,7 @@
 
   export default{
     name: "makePrivateModal",
-    props: ['password'],
+    props: ['password', 'isSaveMSuite'],
     data(){
       return{
         old_password: "",
@@ -57,7 +57,7 @@
           this.$refs['blankPassword'].open();
         }
         else if (this.new_password.trim() && this.new_password === this.confirm_password){
-          this.$emit("password-apply", this.new_password, this.old_password)
+          this.$emit("password-apply", this.new_password, this.old_password, this.isSaveMSuite)
           this.new_password = ""
           this.old_password = ""
           this.confirm_password = ""

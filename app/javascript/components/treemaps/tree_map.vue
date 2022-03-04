@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
+    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
 
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
@@ -98,6 +98,7 @@
         hiddenNode: false,
         treemap_data: [],
         submitChild: false,
+        isSaveMSuite: false,
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -136,7 +137,7 @@
         channel: "WebNotificationsChannel",
         room: this.currentMindMap.id,
       });
-      this.getTreeMap()
+      this.mountMap()
     },
     channels: {
       WebNotificationsChannel: {
@@ -278,10 +279,18 @@
           // error modal display
         })
       },
+      mountMap: async function() {
+        let response = this.currentMindMap
+        this.parent_nodes.label = this.currentMindMap.name
+        this.currentMindMap.id = this.currentMindMap.id
+        this.currentMindMap.name = this.currentMindMap.name
+        this.currentMindMap.line_color = this.currentMindMap.line_color
+        this.parent_nodes.color = this.currentMindMap.line_color
+        this.nodes = this.currentMindMap.nodes
+        this.buildMap()
+      },
       getTreeMap: async function(){
         this.currentMindMap.unique_key = this.$route.fullPath.replace('/','');
-        let _this = this
-        let array_nodes = null
         let response = await http.get(`/msuite/${this.currentMindMap.unique_key}.json`);
         this.parent_nodes.label = response.data.mindmap.name
         this.currentMindMap.id = response.data.mindmap.id
@@ -291,6 +300,10 @@
         this.currentMindMap.line_color = response.data.mindmap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes
+        this.buildMap()
+      },
+      buildMap() {
+        let array_nodes = null
         array_nodes = this.nodes.map((node, index) => {
           return {
             label: node.title,
@@ -304,19 +317,22 @@
         this.treemap_data = array_nodes
         this.$refs.myTreeMap.source = this.treemap_data
       },
-      openPrivacy() {
+      openPrivacy(val) {
+        this.isSaveMSuite = val
         this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
       },
       passwordAgain(){
         this.$refs['passwordMismatched'].close()
         this.openPrivacy()
       },
-      passwordProtect(new_password, old_password){
+      passwordProtect(new_password, old_password, is_mSuite){
         http
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
+            if(!is_mSuite) window.open("/", "_self")
+            else location.reload()
             this.$refs['successModal'].open()
           }
           else {
@@ -347,6 +363,7 @@
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}`)
         .then(res => {
+          window.open("/", "_self")
         })
         .catch(error => {
           console.log(error)
