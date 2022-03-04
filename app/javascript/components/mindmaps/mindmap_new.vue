@@ -134,16 +134,6 @@
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
       </div>
     </section>
-    <a
-      href="javascript:;"
-      role="button"
-      class="privacyBtn fa-icon d-flex pointer edit_delete_btn mr-3 center_flex"
-      @click.stop="openPrivacy"
-    >
-    <i class="fas fa-eye mh-text-orange icons d-flex center_flex"></i>
-    <!-- <i class="fas fa-eye-slash icons d-flex center_flex"></i> -->   
-      <span class="fa-icon-text">Make Private</span>
-    </a>
   </div>
 </template>
 
