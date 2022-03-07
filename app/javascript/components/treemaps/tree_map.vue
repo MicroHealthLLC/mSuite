@@ -148,14 +148,11 @@
           {
             window.open('/','_self')
           }
-          else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
-          {
-            setTimeout(()=>{
+          else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
+            setTimeout(() => {
               location.reload()
-            }, 500)
-          }
-          else
-          {
+            }, 1000)
+          } else {
             this.getTreeMap()
           }
 
@@ -280,7 +277,6 @@
         })
       },
       mountMap: async function() {
-        let response = this.currentMindMap
         this.parent_nodes.label = this.currentMindMap.name
         this.currentMindMap.id = this.currentMindMap.id
         this.currentMindMap.name = this.currentMindMap.name

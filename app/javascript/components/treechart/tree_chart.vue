@@ -153,13 +153,14 @@
         isSaveMSuite: false
       }
     },
-    props:['currentMindMap','defaultDeleteDays'],
+    props:['currentMindMap','defaultDeleteDays', 'deleteAfter'],
     mounted: async function(){
       this.$cable.subscribe({
         channel: "WebNotificationsChannel",
         room: this.currentMindMap.id,
       });
-      this.fetchTreeChart()
+      this.mountMap()
+      // this.fetchTreeChart()
     },
     components: {
       DeleteMapModal,
@@ -308,6 +309,13 @@
         this.renderTreeChart()
         this.addNodeTree = true
       },
+      mountMap(){
+        this.selectedNode = {id: ''}
+        this.treeChartObj.name = this.currentMindMap.name
+        this.nodes = this.currentMindMap.nodes
+        this.addNodeTree = false
+        this.renderTreeChart()
+      },
       async fetchTreeChart(){
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/msuite/${mindmap_key}.json`)
@@ -394,8 +402,8 @@
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
-            this.defaultDeleteDays = response.data.defaultDeleteDays
-            this.deleteAfter= response.data.deleteAfter
+            this.defaultDeleteDays = res.data.defaultDeleteDays
+            this.deleteAfter= res.data.deleteAfter
             this.currentMindMap.password = res.data.mindmap.password
             this.$refs['successModal'].open()
             if(!is_mSuite) window.open("/", "_self")
@@ -470,7 +478,7 @@
           {
             setTimeout(()=>{
               location.reload()
-            }, 500)
+            }, 1000)
           }
           else
           {
