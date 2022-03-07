@@ -247,6 +247,7 @@
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
+          if(res.data.success) window.open("/", "_self")
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
         })
