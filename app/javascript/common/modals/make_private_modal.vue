@@ -10,7 +10,7 @@
       <h4 class="float-left">PASSWORD PROTECT</h4>
 
       <div v-if="password">
-        <input type="password" v-model="old_password" class="form-control" placeholder="Insert Old password"  />
+        <input type="password" v-model="old_password" class="form-control" placeholder="Insert old password"  />
         <br/>
       </div>
 
