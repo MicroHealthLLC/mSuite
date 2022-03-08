@@ -262,7 +262,8 @@
           opacity: .8
         });
         this.canvas.add(this.rect);
-        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+        this.canvas.setActiveObject(this.rect)
+        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addCircleToCanvas() {
         this.toggleResetDraw();
@@ -278,7 +279,8 @@
           opacity: .8
         });
         this.canvas.add(this.circle);
-        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+        this.canvas.setActiveObject(this.circle)
+        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addTextToCanvas() {
         this.toggleResetDraw();
@@ -289,7 +291,8 @@
           fill: this.color
         })
         this.canvas.add(this.text);
-        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+        this.canvas.setActiveObject(this.text)
+        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addTriangleToCanvas() {
         this.toggleResetDraw();
@@ -304,7 +307,8 @@
           opacity: .8,
         })
         this.canvas.add(this.triangle);
-        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+        this.canvas.setActiveObject(this.triangle)
+        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       beforeUpdateColor(){
         this.toggleResetDraw();
@@ -420,6 +424,7 @@
           }
         })
         this.canvas.on('mouse:up', (event) => {
+          this.canvas.setActiveObject(event.currentTarget)
           _this.mousePressed = false
         })
         this.canvas.on('selection:created', (event) => {
