@@ -28,7 +28,7 @@
                 <i class="fas fa-times float-right icon-opacity text-danger" title=""></i>
               </span>
               <span @click="addNode(node)" v-if="node.name != 'Enter title here'">
-                <i class="fas fa-plus float-right icon-opacity add-icon" title="Add Node"></i>
+                <i class="fas fa-plus float-right icon-opacity add-icon" title="Add child Node"></i>
               </span>
               <span @click="showColorPicker(node)">
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
