@@ -164,7 +164,7 @@
       onBindingComplete: function (event) {
         let nodestreeMaps = []
         var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Mindmap')
-        var nodeElementSecond = this.insertNodeElement('fas fa-plus text-white cancel-btn mt-1 icon-opacity', 'Add Child Node')
+        var nodeElementSecond = this.insertNodeElement('fas fa-plus add-icon cancel-btn mt-1 icon-opacity', 'Add Child Node')
         var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
         event.target.children[0].addEventListener('drop', this.dropNode)
         event.target.children[0].addEventListener('dragover', this.allowdrop)
@@ -175,7 +175,7 @@
         let jqxParentArray = new Array()
         objArray.forEach((e)=>{
           var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Node')
-          var nodeElementSecond = this.insertNodeElement('fas fa-plus text-white cancel-btn mt-1 icon-opacity', 'Add Child Node')
+          var nodeElementSecond = this.insertNodeElement('fas fa-plus add-icon cancel-btn mt-1 icon-opacity', 'Add Child Node')
           var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
           {
