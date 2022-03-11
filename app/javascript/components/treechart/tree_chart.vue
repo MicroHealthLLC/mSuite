@@ -25,7 +25,7 @@
           <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
             <div>
               <span @click="deleteMap(node)">
-                <i class="fas fa-times float-right icon-opacity text-danger" title=""></i>
+                <i class="fas fa-times float-right icon-opacity text-danger" :title="currentMindMap.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
               </span>
               <span @click="addNode(node)" v-if="node.name != 'Enter title here'">
                 <i class="fas fa-plus float-right icon-opacity add-icon" title="Add child Node"></i>
