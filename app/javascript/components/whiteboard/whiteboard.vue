@@ -157,6 +157,7 @@
         keyUpTimeOut: null,
         deleteAfter: '',
         saveData: true,
+        isRest: false,
         isSaveMSuite: false
       }
     },
@@ -263,7 +264,6 @@
         });
         this.canvas.add(this.rect);
         this.canvas.setActiveObject(this.rect)
-        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addCircleToCanvas() {
         this.toggleResetDraw();
@@ -280,7 +280,6 @@
         });
         this.canvas.add(this.circle);
         this.canvas.setActiveObject(this.circle)
-        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addTextToCanvas() {
         this.toggleResetDraw();
@@ -292,7 +291,6 @@
         })
         this.canvas.add(this.text);
         this.canvas.setActiveObject(this.text)
-        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       addTriangleToCanvas() {
         this.toggleResetDraw();
@@ -308,7 +306,6 @@
         })
         this.canvas.add(this.triangle);
         this.canvas.setActiveObject(this.triangle)
-        // this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       beforeUpdateColor(){
         this.toggleResetDraw();
@@ -357,7 +354,10 @@
         this.$refs['resetModal'].open();
       },
       resetMap() {
-        this.updateWhiteBoard('{"version":"4.6.0","objects":[]}')
+        this.isRest = true
+        let mindmap = { mindmap: { image: '{"version":"4.6.0","objects":[]}' } }
+        let id = this.currentMindMap.unique_key
+        http.patch(`/msuite/${id}.json`,mindmap)
         this.$refs['resetModal'].close()
       },
       increaseStroke() {
@@ -443,7 +443,8 @@
       updateWhiteBoard(obj) {
         let mindmap = { mindmap: { image: obj } }
         let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,mindmap)
+        if(!this.isRest) http.patch(`/msuite/${id}.json`,mindmap)
+        else this.isRest = false
       }
     },
     mounted() {
