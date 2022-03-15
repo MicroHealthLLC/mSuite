@@ -133,7 +133,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
-  import { fabric } from 'fabric';
+  import { fabric } from './fabric.js'
   import 'fabric-history';
 
   export default {
@@ -158,7 +158,8 @@
         deleteAfter: '',
         saveData: true,
         isRest: false,
-        isSaveMSuite: false
+        isSaveMSuite: false,
+        isPencil: false
       }
     },
     components: {
@@ -178,7 +179,8 @@
               location.reload()
             }, 500)
           } else {
-            this.initialImage = JSON.parse(data.mindmap.image)
+            // this.initialImage = JSON.parse(data.mindmap.image)
+            this.initialImage = data.mindmap.canvas
             this.canvas.loadFromJSON(this.initialImage);
             this.canvas.renderAll();
           }
@@ -262,6 +264,7 @@
           strokeWidth: this.line,
           opacity: .8
         });
+        this.rect.set('erasable',true)
         this.canvas.add(this.rect);
         this.canvas.setActiveObject(this.rect)
       },
@@ -325,7 +328,7 @@
         http
         .get(`/msuite/${this.$route.params.key}.json`)
         .then((res) => {
-          this.initialImage = JSON.parse(res.data.mindmap.image)
+          this.initialImage = res.data.mindmap.canvas
           this.canvas.loadFromJSON(this.initialImage);
           this.canvas.renderAll();
         })
@@ -339,14 +342,15 @@
         this.canvas.redo();
       },
       deleteModal() {
-        if (this.eraser) {
+        this.eraser = true;
+        let activeObject = this.canvas.getActiveObject();
+        if (activeObject) {
+          this.canvas.remove(activeObject);
           this.eraser = false;
           this.isDrawing = false;
           this.canvas.isDrawingMode = false;
         } else {
-          this.eraser = true;
-          this.isDrawing= false;
-          this.canvas.isDrawingMode = false;
+          this.toggleDrawing()
           this.canvas.hoverCursor = 'grab';
         }
       },
@@ -394,14 +398,20 @@
         if (this.isDrawing) {
           this.isDrawing = false;
           this.canvas.isDrawingMode = false;
-          this.eraser = false;
           this.canvas.renderAll();
         } else {
           this.isDrawing = true;
-          this.canvas.freeDrawingBrush.color = this.color;
+          if(this.eraser) {
+            this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
+            this.canvas.isDrawingMode = true;
+          } else {
+            this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+            this.canvas.freeDrawingBrush.color = this.color;
+            this.isPencil = true
+          }
           this.canvas.freeDrawingBrush.width = this.line;
           this.canvas.isDrawingMode = true;
-          this.eraser = false;
+          // this.eraser = false;
           this.canvas.renderAll();
         }
       },
@@ -419,7 +429,7 @@
           if (_this.eraser) {
             var activeObject = this.canvas.getActiveObject();
             if (activeObject) {
-              _this.canvas.remove(activeObject);
+              this.canvas.setActiveObject(activeObject)
             }
           }
         })
@@ -428,6 +438,9 @@
             this.canvas.setActiveObject(event.currentTarget)
           }
           _this.mousePressed = false
+          if(this.eraser){
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+          }
         })
         this.canvas.on('selection:created', (event) => {
           this.activeObject = this.canvas.getActiveObject();
@@ -443,7 +456,7 @@
         })
       },
       updateWhiteBoard(obj) {
-        let mindmap = { mindmap: { image: obj } }
+        let mindmap = { mindmap: { canvas: obj } }
         let id = this.currentMindMap.unique_key
         if(!this.isRest) http.patch(`/msuite/${id}.json`,mindmap)
         else this.isRest = false
@@ -461,7 +474,7 @@
       });
       this.mouseEvents();
       this.canvas.renderAll();
-      this.initialImage = JSON.parse(this.whiteboardImage)
+      this.initialImage = this.whiteboardImage
       if (this.initialImage) {
         this.canvas.loadFromJSON(this.initialImage);
         this.canvas.renderAll();
@@ -469,7 +482,6 @@
     }
   }
 </script>
-
 <style>
   #canvas {
     background-color: white;

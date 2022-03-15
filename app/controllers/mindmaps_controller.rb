@@ -180,6 +180,7 @@ class MindmapsController < AuthenticatedController
       :password,
       :line_color,
       :image,
+      :canvas,
       :title,
       :will_delete_at,
       node_files: []
