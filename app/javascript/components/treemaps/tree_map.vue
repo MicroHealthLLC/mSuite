@@ -112,10 +112,6 @@
                 this.setNodeSelected(value)
                 this.textEdit(event, value)
               }
-              else if (event.target.tagName === 'DIV')
-              {
-                this.blurEventMethod(value, elementObject)
-              }
               else if (event.target.tagName === 'I')
               {
                 if(event.target.classList.contains('fa-plus')){
@@ -469,28 +465,6 @@
       closeModelPicker(){
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
         this.colorSelected = false
-      },
-      blurEventMethod(value, elementObject){
-        if(value.label == 'Enter Node Title Here') return;
-        if(this.hiddenNode){
-          let _this = this
-          if(this.newNodeValue) return this.postDataNode();
-          let oldTitle = _this.node.label
-          if (_this.oldEventElement.target.innerText) {
-            _this.node_title = _this.oldEventElement.target.innerText
-            _this.putData()
-          }
-          else {
-            _this.$refs['errorNodeModal'].open()
-            _this.oldEventElement.target.innerText = oldTitle
-            _this.hiddenNode = false
-          }
-          return;
-        }
-        else if(this.colorSelected){
-          this.currentElementObj[0].style.backgroundColor = this.oldElementColor
-          return this.colorSelected = false
-        }
       },
       colorChange(value, elementObject){
         if(this.addChildTreeMap) return
