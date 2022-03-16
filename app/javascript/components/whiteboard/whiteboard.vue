@@ -342,7 +342,8 @@
         this.canvas.redo();
       },
       deleteModal() {
-        this.eraser = true;
+        if(this.eraser) this.eraser = false;
+        else this.eraser = true;
         let activeObject = this.canvas.getActiveObject();
         if (activeObject) {
           this.canvas.remove(activeObject);
