@@ -424,7 +424,9 @@
           }
         })
         this.canvas.on('mouse:up', (event) => {
-          this.canvas.setActiveObject(event.currentTarget)
+          if(this.isDrawing){
+            this.canvas.setActiveObject(event.currentTarget)
+          }
           _this.mousePressed = false
         })
         this.canvas.on('selection:created', (event) => {
