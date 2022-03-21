@@ -9,7 +9,7 @@
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
-      :whiteboard-image="currentMindMap.image"
+      :whiteboard-image="currentMindMap.canvas"
     />
   </div>
 </template>
