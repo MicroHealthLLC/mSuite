@@ -251,6 +251,7 @@
           }else if(this.currentMindMap.name.replace(/\s/g, '') == '') {
             this.selectedNode.name = this.selectedNodeTitle
             this.$refs['errorNodeModal'].open()
+            this.updatedTreeChart(this.currentMindMap)
           }
         }
         else if(this.addNodeTree) {
@@ -264,13 +265,16 @@
             this.$refs['errorNodeModal'].open()
           }
         } else {
-          objNode.id = this.selectedNode.id
-          if(objNode.title) {
+          if(this.selectedNode && this.selectedNode.id === undefined){
+            this.updatedTreeChart(this.currentMindMap)
+          } else {
+            objNode.id = this.selectedNode.id
+            if(objNode.title) {
               this.updateTreeChartNode(objNode)
-          }else if(objNode.title.replace(/\s/g, '') == '') {
-            this.selectedNode.name = this.selectedNodeTitle
-            this.$refs['errorNodeModal'].open()
-          }
+            }else if(objNode.title.replace(/\s/g, '') == '') {
+              this.selectedNode.name = this.selectedNodeTitle
+              this.$refs['errorNodeModal'].open()
+          }}
         }
       },
       showInputField(node){
