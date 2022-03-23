@@ -360,7 +360,7 @@
       },
       resetMap() {
         this.isRest = true
-        let mindmap = { mindmap: { image: '{"version":"4.6.0","objects":[]}' } }
+        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
         this.$refs['resetModal'].close()
