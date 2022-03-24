@@ -810,6 +810,7 @@
         http
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
+            this.currentNodes = null
             this.selectedNode = null
             this.stopWatch    = true
             this.removeLines()
