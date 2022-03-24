@@ -444,9 +444,9 @@
           ctx.stroke();
         } else if (this.draggingNode) {
           this.nodeUpdatedFlag = true
-          let node = this.currentMindMap.nodes.findIndex((nod) => nod.id == this.selectedNode.id)
-          this.currentMindMap.nodes[node].position_x = event.clientX - this.nodeOffsetX
-          this.currentMindMap.nodes[node].position_y = event.clientY - this.nodeOffsetY
+          // let node = this.currentMindMap.nodes.findIndex((nod) => nod.id == this.selectedNode.id)
+          // this.currentMindMap.nodes[node].position_x = event.clientX - this.nodeOffsetX
+          // this.currentMindMap.nodes[node].position_y = event.clientY - this.nodeOffsetY
         }
       },
       stopDrag(event) {
@@ -813,6 +813,7 @@
             this.currentNodes = null
             this.selectedNode = null
             this.stopWatch    = true
+            this.currentMindMap.nodes = []
             this.removeLines()
             this.scrollToCenter()
           })
