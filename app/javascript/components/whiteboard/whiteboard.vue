@@ -159,7 +159,8 @@
         saveData: true,
         isRest: false,
         isSaveMSuite: false,
-        isPencil: false
+        isPencil: false,
+        addObj: false,
       }
     },
     components: {
@@ -254,6 +255,7 @@
       },
       addRectToCanvas() {
         this.toggleResetDraw();
+        this.addObj = true;
         this.rect = new fabric.Rect({
           left: 70,
           top: 70,
@@ -270,6 +272,7 @@
       },
       addCircleToCanvas() {
         this.toggleResetDraw();
+        this.addObj = true;
         this.circle = new fabric.Circle({
           left: 70,
           top: 70,
@@ -297,6 +300,7 @@
       },
       addTriangleToCanvas() {
         this.toggleResetDraw();
+        this.addObj = true;
         this.triangle = new fabric.Triangle({
           left: 90,
           top: 70,
@@ -342,7 +346,10 @@
         this.canvas.redo();
       },
       deleteModal() {
-        if(this.eraser) this.eraser = false;
+        if(this.eraser) {
+          this.eraser = false;
+          this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+        }
         else this.eraser = true;
         let activeObject = this.canvas.getActiveObject();
         if (activeObject) {
@@ -424,6 +431,7 @@
         let _this = this
         this.canvas.on('mouse:down:before', (event) => {
           _this.mousePressed = true;
+          _this.addObj = false;
         })
         this.canvas.on('mouse:down', (event) => {
           if(_this.colorSelected) this.cancelUpdateColor()
@@ -435,9 +443,7 @@
           }
         })
         this.canvas.on('mouse:up', (event) => {
-          if(this.isDrawing){
-            this.canvas.setActiveObject(event.currentTarget)
-          }
+          if(this.isDrawing) this.canvas.setActiveObject(event.currentTarget)
           _this.mousePressed = false
           if(this.eraser){
             this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
@@ -450,10 +456,10 @@
           this.canvas.renderAll();
         })
         this.canvas.on('selection:cleared', (event) => {
-          if(this.saveData) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
         this.canvas.on('selection:updated', (event) => {
-          if(this.saveData) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
       },
       updateWhiteBoard(obj) {
@@ -480,7 +486,7 @@
         this.canvas.loadFromJSON(this.initialImage);
         this.canvas.renderAll();
       }
-    }
+    },
   }
 </script>
 <style>
