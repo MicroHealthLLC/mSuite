@@ -4,5 +4,8 @@
 .mw_10
   #map_dashboard
 
+= javascript_tag nonce: true do
+  |Vue.prototype.$google_recaptcha_site_key = "#{Setting.first.google_recaptcha_site_key}"
+
 = javascript_pack_tag "map_dashboard", async: true
 = stylesheet_pack_tag "map_dashboard"

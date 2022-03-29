@@ -11,6 +11,7 @@ import VueTree from '@ssthouse/vue-tree-chart'
 import store from '../store/TreeMap'
 import vueDebounce from 'vue-debounce'
 import VueTextareaAutosize from 'vue-textarea-autosize'
+import VueCookies from 'vue-cookies';
 
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
@@ -22,6 +23,7 @@ Vue.use(ActionCableVue, {
 })
 Vue.use(Vuex);
 Vue.use(VueTextareaAutosize)
+Vue.use(VueCookies);
 Vue.component('vue-tree', VueTree)
 Vue.component('navigation-bar', NavigationBar)
 Vue.component('sync-loader', SyncLoader)

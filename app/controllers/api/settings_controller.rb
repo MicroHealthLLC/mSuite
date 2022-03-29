@@ -26,6 +26,8 @@ class Api::SettingsController < AuthenticatedController
       :google_map_key,
       :google_oauth_key,
       :google_oauth_secret,
+      :google_recaptcha_site_key,
+      :host_url,
       :passwords_key
     )
   end
