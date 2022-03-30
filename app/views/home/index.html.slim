@@ -4,5 +4,8 @@
 .mw_10
   #home_page
 
+= javascript_tag nonce: true do
+  |Vue.prototype.$google_recaptcha_site_key = "#{Setting.first.google_recaptcha_site_key}"
+
 = javascript_pack_tag "home_page", async: true
 = stylesheet_pack_tag "home_page"

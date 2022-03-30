@@ -1,6 +1,7 @@
 <template>
   <div class="filter">
-    <div class="main_div">
+    <Recaptcha v-if="!fromCaptcha"></Recaptcha>
+    <div class="main_div" v-if="fromCaptcha">
       <div class="container-fluid pl-0">
         <!-- //SEARCHBAR ROW -->
          <div class="row pl-0 searchbar-row">
@@ -47,7 +48,8 @@
   </div>
 </template>
 <script>
-  import CookieLaw from 'vue-cookie-law'
+  import Recaptcha from './recaptcha';
+  import CookieLaw from 'vue-cookie-law';
   import http from '../common/http'
   export default {
     data() {
@@ -65,10 +67,12 @@
           { key: 'kanban', value: 'Kanban', imgsrc: "/assets/kanban_main_menu.png"  },
           { key: 'whiteboard', value: 'WhiteBoard', imgsrc: "/assets/whiteboard_main_menu.png"  },
           { key: 'tree_map', value: 'TreeMap', imgsrc: "/assets/tree_map_main_menu.png" },
-          { key: 'tree_chart', value: 'TreeChart', imgsrc: "/assets/tree_diagram.png" },
-        ]
+          { key: 'tree_chart', value: 'TreeChart', imgsrc: "/assets/tree_diagram.png" }
+        ],
+        fromCaptcha: false,
       }
     },
+    components: { CookieLaw, Recaptcha },
     methods: {
       createNewMap() {
         let _this = this
@@ -100,9 +104,11 @@
       mindMapCreate(key) {
         this.selectedType = key
         this.createNewMap()
-      }
+      },
     },
-    components: { CookieLaw }
+    mounted(){
+      this.fromCaptcha = this.$cookies.get('verifiedCaptcha')
+    },
   }
 </script>
 
