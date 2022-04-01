@@ -26,6 +26,7 @@
         placeholder="Enter mSuite Map Title"
       >
       </textarea>
+
       <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'">
         <a
           href="javascript:;"
@@ -70,6 +71,7 @@
           <i class="material-icons copy_icon icons d-flex center_flex"></i>
         </a>
       </span>
+
       <span>
         <a
           v-if="isDeleteMindMap"
@@ -146,6 +148,28 @@
             <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
           </a>
         </span>
+        <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'flowmap'" class="center_flex mr-3">
+          <a
+            href="javascript:;"
+            role="button"
+            class="edit_delete_btn mr-2"
+            @click="selectGraphOrientationVertical"
+          >
+            <span class="material-icons rotate-90">
+              double_arrow
+            </span>
+          </a>
+          <a
+            href="javascript:;"
+            role="button"
+            class="edit_delete_btn mr-2"
+            @click="selectGraphOrientationHorizontal"
+          >
+            <span class="material-icons">
+              double_arrow
+            </span>
+          </a>
+        </span>
       </span>
     </div>
     <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter"></confirm-save-key-modal>
@@ -170,7 +194,7 @@
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
-        deleteableMSuite: ['simple', 'kanban', 'whiteboard'],
+        deleteableMSuite: ['simple', 'kanban', 'whiteboard', 'flowmap'],
         editable: false,
         isSaveMSuite: false
       }
@@ -247,6 +271,12 @@
       cutSelectedNode () {
         this.$emit("cutSelectedNode")
       },
+      selectGraphOrientationVertical(){
+        this.$emit("graphOrientationVertical")
+      },
+      selectGraphOrientationHorizontal(){
+        this.$emit("graphOrientationHorizontal")
+      },
       makeEditable () {
         this.editable = true
         setTimeout(() => {
@@ -260,9 +290,9 @@
         else this.mSuiteName = this.currentMindMap.title
       },
       blurEvent (val, e) {
-       if (e.target) {
-        e.target.blur()
-       };
+        if (e.target) {
+          e.target.blur()
+        };
       },
       exportImage(option) {
         if (this.currentMindMap.mm_type === 'simple')
@@ -315,5 +345,7 @@
 
 <style>
   @import "../components/mindmaps/styles/mindmap_new.scss";
-  @import "./styles/navigation_style.scss";
+  .rotate-90 {
+    transform: rotate(90deg);
+  }
 </style>
