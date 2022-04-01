@@ -4,7 +4,7 @@
     <div class="main_div" v-if="fromCaptcha">
       <div class="container-fluid pl-0">
         <!-- //SEARCHBAR ROW -->
-         <div class="row pl-0 searchbar-row">
+          <div class="row pl-0 searchbar-row mb-0">
             <div class="col text-center">
               <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite</h1></span>
             <div class="w-50 mx-auto my-4">
@@ -14,8 +14,8 @@
             </div>
           </div>
           <!-- Row for wrapper containing grid-layout mindmap items -->
-        <div class="row mx-auto mm-icon-row">
-          <div v-for="type, i in mindmapTypes" class="mx-auto py-auto col-lg-2 col-sm-6 col-md-2 icon-col" :key="i">
+        <div class="row mm-icon-row">
+          <div v-for="type, i in mindmapTypes" class="mx-3 my-2 py-auto col-lg-2 col-sm-6 col-md-2 icon-col" :key="i">
             <!-- <div class="item p-0 my-2 px-4" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered === type.key ? 'hovering' : ''"> -->
               <div class="item icon-item" @click.prevent="mindMapCreate(type.key)">
               <!-- <img :src="type.imgsrc" class="mindmap-img-size" />  -->
@@ -24,6 +24,7 @@
               <i class="far fa-chalkboard mm-icon" v-if="type.key == 'whiteboard'"></i>
               <i class="fad fa-th-large mm-icon" v-if="type.key == 'tree_map'"></i>
               <i class="fal fa-sitemap mm-icon" v-if="type.key == 'tree_chart'"></i>
+              <i class="fas fa-project-diagram mm-icon" v-if="type.key == 'flowmap'"></i>
               <span class="text-center">{{type.value}}</span>
             </div>
           </div>
@@ -62,14 +63,15 @@
         uniqueKey: '',
         hovered: false,
         selectedType: 'simple',
-        mindmapTypes: [
-          { key: 'simple', value: 'Mindmap', imgsrc: "/assets/mindmap_main_menu.png" },
-          { key: 'kanban', value: 'Kanban', imgsrc: "/assets/kanban_main_menu.png"  },
-          { key: 'whiteboard', value: 'WhiteBoard', imgsrc: "/assets/whiteboard_main_menu.png"  },
-          { key: 'tree_map', value: 'TreeMap', imgsrc: "/assets/tree_map_main_menu.png" },
-          { key: 'tree_chart', value: 'TreeChart', imgsrc: "/assets/tree_diagram.png" }
-        ],
         fromCaptcha: false,
+        mindmapTypes: [
+          { key: 'simple', value: 'Mindmap', imgsrc: "" },
+          { key: 'kanban', value: 'Kanban', imgsrc: ""  },
+          { key: 'whiteboard', value: 'WhiteBoard', imgsrc: ""  },
+          { key: 'tree_map', value: 'TreeMap', imgsrc: "" },
+          { key: 'tree_chart', value: 'TreeChart', imgsrc: "" },
+          { key: 'flowmap', value: 'FlowMap', imgsrc: "" }
+        ]
       }
     },
     components: { CookieLaw, Recaptcha },
@@ -115,7 +117,7 @@
 <style scoped lang="css">
   .main_div {
     position: absolute;
-    height: 80%;
+    height: 100%;
     width: 100%;
     background:  linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../assets/images/landing_bg.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
@@ -293,8 +295,6 @@
     font-weight: 300;
   }
   .mm-icon-row{
-    width: 100%;
-    position: fixed;
-    bottom: 8%;
+    margin-left: 5%;
   }
 </style>
