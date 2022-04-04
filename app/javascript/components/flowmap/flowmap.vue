@@ -114,7 +114,6 @@
         duplicate: '',
         duplicateCounter: 0,
         elementLength: 0,
-        counter: 0,
       }
     },
     components: {
@@ -324,8 +323,9 @@
       },
       textEdit(eventElement){
         let _this = this
-        _this.counter = _this.counter + 1
         var keyUpTimeOut
+        eventElement.target.childNodes[1].style.display = "none"
+        eventElement.target.childNodes[2].style.display = "none"
         this.oldTitle = eventElement.target.innerText
         if(eventElement.target.innerText == "Title_Here"){
           eventElement.target.innerText = ""
@@ -333,11 +333,9 @@
         eventElement.target.contentEditable = true
         eventElement.target.focus();
         eventElement.target.addEventListener('blur',function(){
-          if(_this.oldTitle == "Title_Here" && _this.counter < 1){
-            alert("Please Change Text First")
-            _this.counter = _this.counter - 1
-            _this.textEdit(eventElement)
-          } else if(eventElement.target.innerText = ""){
+          if(eventElement.target.innerText == "" || _this.newTitle == ''){
+            _this.node_title = ""
+            _this.submitChild = false
             _this.createNode()
           }
         })
@@ -415,7 +413,7 @@
           foreignObject.style.height = "50px"
           foreignObject.children[0].style.marginTop = "20px"
           if (this.isDeleteAble) { element.children[1].style.cursor = "not-allowed"; } 
-          else {  element.children[1].children[0].style.cursor = "text"; }
+          else { element.children[1].children[0].style.cursor = "text"; }
         });
       }, 500)
     },
