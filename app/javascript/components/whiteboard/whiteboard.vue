@@ -161,6 +161,7 @@
         isSaveMSuite: false,
         isPencil: false,
         addObj: false,
+        newObj: false
       }
     },
     components: {
@@ -266,6 +267,7 @@
           strokeWidth: this.line,
           opacity: .8
         });
+        this.newObj = true
         this.rect.set('erasable',true)
         this.canvas.add(this.rect);
         this.canvas.setActiveObject(this.rect)
@@ -273,6 +275,7 @@
       addCircleToCanvas() {
         this.toggleResetDraw();
         this.addObj = true;
+        this.newObj = true
         this.circle = new fabric.Circle({
           left: 70,
           top: 70,
@@ -295,10 +298,12 @@
           fontFamily: 'sans-serif',
           fill: this.color
         })
+        this.newObj = true
         this.canvas.add(this.text);
         this.canvas.setActiveObject(this.text)
       },
       addTriangleToCanvas() {
+        this.newObj = true
         this.toggleResetDraw();
         this.addObj = true;
         this.triangle = new fabric.Triangle({
@@ -328,14 +333,21 @@
         this.colorSelected = false
       },
       cancelUpdateColor(){
-        this.colorSelected = false
-        http
-        .get(`/msuite/${this.$route.params.key}.json`)
-        .then((res) => {
-          this.initialImage = res.data.mindmap.canvas
-          this.canvas.loadFromJSON(this.initialImage);
-          this.canvas.renderAll();
-        })
+        if(this.newObj){
+          let activeObject = this.canvas.getActiveObject();
+          this.activeObject.set("stroke", this.color)
+          this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+          this.colorSelected = false
+        }else{
+          this.colorSelected = false
+          http
+          .get(`/msuite/${this.$route.params.key}.json`)
+          .then((res) => {
+            this.initialImage = res.data.mindmap.canvas
+            this.canvas.loadFromJSON(this.initialImage);
+            this.canvas.renderAll();
+          })
+        }
       },
       undoCanvas() {
         this.toggleResetDraw();
@@ -465,7 +477,10 @@
       updateWhiteBoard(obj) {
         let mindmap = { mindmap: { canvas: obj } }
         let id = this.currentMindMap.unique_key
-        if(!this.isRest) http.patch(`/msuite/${id}.json`,mindmap)
+        if(!this.isRest){
+          http.patch(`/msuite/${id}.json`,mindmap)
+          this.newObj = false
+        }
         else this.isRest = false
       }
     },
