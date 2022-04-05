@@ -16,28 +16,28 @@
     <div class="row">
       <div class="col-1 px-0 sidebar">
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-->'" :class="linkType === '-->' ? 'active':''">
-          <span class="material-icons">
+          <span class="material-icons iconSize">
             arrow_right_alt
           </span>
-          <span class="ml-1">Links To</span>
+          <span class="mt-1 mr-1">Links To</span>
         </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '---'" :class="linkType === '---' ? 'active':''">
-          <span class="material-icons">
+          <span class="material-icons iconSize">
             horizontal_rule
           </span>
-          <span class="ml-1">Sub Child</span>
+          <span class="mt-1 mr-1">Sub Child</span>
         </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-.-'" :class="linkType === '-.-' ? 'active':''">
-          <span class="material-icons">
+          <span class="material-icons iconSize">
             more_horiz
           </span>
-          <span class="ml-1">Dotted</span>
+          <span class="mt-1">Dotted</span>
         </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-.->'" :class="linkType === '-.->' ? 'active':''">
-          <span class="dottedArrow">
+          <span class="dottedArrow ml-2">
             &#8674;
           </span>
-          <span class="ml-3 mt-1">Dotted Link</span>
+          <span class="ml-2">Dotted Link</span>
         </div>
         <div class="rounded-0 pl-1 btn btn-danger border pointer d-flex px-0" @click="isDeleteAble = !isDeleteAble" :class = "isDeleteAble ? 'active':''">
           <span class="material-icons">
@@ -469,6 +469,9 @@
     cursor: pointer;
   }
   .dottedArrow{
-    transform: scale(1.8) translate(10%, 10%);
+    transform: scale(1.8) translate(3%, 4%);
+  }
+  .iconSize{
+    font-size: 33px;
   }
 </style>
