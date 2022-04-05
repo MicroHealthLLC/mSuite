@@ -17,7 +17,7 @@
       <div class="col-1 px-0 sidebar">
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-->'" :class="linkType === '-->' ? 'active':''">
           <span class="material-icons">
-            east
+            arrow_right_alt
           </span>
           <span class="ml-1">Links To</span>
         </div>
@@ -34,10 +34,10 @@
           <span class="ml-1">Dotted</span>
         </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-.->'" :class="linkType === '-.->' ? 'active':''">
-          <span class="material-icons">
-            multiple_stop
+          <span class="dottedArrow">
+            &#8674;
           </span>
-          <span class="ml-1">Dotted Link</span>
+          <span class="ml-3 mt-1">Dotted Link</span>
         </div>
         <div class="rounded-0 pl-1 btn btn-danger border pointer d-flex px-0" @click="isDeleteAble = !isDeleteAble" :class = "isDeleteAble ? 'active':''">
           <span class="material-icons">
@@ -82,6 +82,7 @@
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   import mermaid from 'mermaid'
+
   export default {
     props: ['currentMindMap'],
     data() {
@@ -466,5 +467,8 @@
   .fa-times{
     color: #D1727F;
     cursor: pointer;
+  }
+  .dottedArrow{
+    transform: scale(1.8) translate(10%, 10%);
   }
 </style>
