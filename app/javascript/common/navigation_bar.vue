@@ -194,7 +194,7 @@
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
-        deleteableMSuite: ['simple', 'kanban', 'whiteboard', 'flowmap'],
+        deleteableMSuite: ['simple', 'kanban', 'whiteboard'],
         editable: false,
         isSaveMSuite: false
       }
