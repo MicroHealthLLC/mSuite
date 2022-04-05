@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_21_105020) do
+ActiveRecord::Schema.define(version: 2022_04_05_072629) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(version: 2022_03_21_105020) do
     t.binary "image"
     t.string "title", default: "Title"
     t.date "will_delete_at"
-    t.json "canvas"
+    t.text "canvas", limit: 4294967295
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 
