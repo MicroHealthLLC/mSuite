@@ -1,7 +1,7 @@
 <template>
   <div>
     <vue-recaptcha
-      :class="verifiedCaptcha ? 'd-none':''"
+      :class="verifiedCaptcha ? 'd-none' : 'content-center'"
       :sitekey="sitekey"
       @verify="verifyMethod"
       @error="errorMethod"
@@ -39,4 +39,8 @@
   }
 </script>
 <style>
+  .content-center {
+    margin-left: 40%;
+    margin-top: 10%;
+  }
 </style>
