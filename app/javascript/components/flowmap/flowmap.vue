@@ -68,6 +68,9 @@
     <sweet-modal ref="errorNodeModal" class="of_v" icon="error" title="Node Title Error">
       Nodes Title Cannot Be Empty
     </sweet-modal>
+    <sweet-modal ref="errorCharacterModal" class="of_v" icon="error" title="Node Title Error">
+      Some special characters  @ ( ) { } [ ] ; | ` ~  are not supported
+    </sweet-modal>
     <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
       Do you want to delete this node? All of the child Nodes will also be Deleted
       <button slot="button" @click="this.deleteNode" class="btn btn-warning mr-2">Delete</button>
@@ -104,13 +107,14 @@
         parent_node: false,
         submitChild: false,
         child_node: { id: '', title: '', parent_node: '',parent: '', mindmap_id: '', link_type: ''},
-        previous_node: {},
+        previous_node: {id: '', name: ''},
         node_title:'',
         nodes: [],
         node:{},
+        conditions: [],
         newTitle: '',
         linkType: '-->',
-        graphOrientation: 'graph LR;',
+        graphOrientation: 'graph TD;',
         isDeleteAble: false,
         duplicate: '',
         duplicateCounter: 0,
@@ -137,6 +141,7 @@
             http
             .get(`/msuite/${this.$route.params.key}.json`)
             .then((res) => {
+              this.currentMindMap = res.data.mindmap
               this.nodes = res.data.mindmap.nodes
               this.createNode()
             })
@@ -214,6 +219,8 @@
         }
         http.post(`/nodes.json`, data).then((res) => {
           this.submitChild = false
+          this.node_title = ''
+          this.child_node.id = ''
           this.createNode()
         }).catch(err => {
         })
@@ -224,12 +231,15 @@
           mm_type: 'flowmap',
           line_color: obj.line_color
         }
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, data);
-        this.parent_node = false
-        mermaid.render(undefined, $("#mermaid"));
+        await http.put(`/msuite/${this.currentMindMap.unique_key}`, data).then((res) => {
+          this.currentMindMap.name = data.name
+          this.parent_node = false
+          this.createNode()
+        });
       },
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj).then((res) => {
+          this.submitChild = false
           this.createNode()
         });
         mermaid.render(undefined, $("#mermaid"));
@@ -238,13 +248,17 @@
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           this.child_node.id = ''
           this.node = null
+          this.node_title = ''
+          this.submitChild = false
           this.createNode();
         });
         this.$refs['deleteNodeConfirm'].close()
       },
       setNodeSelected(event){
-        let nodeTitle = event.currentTarget.children[0].children[0].children[0].innerText.replace(/\s/g, '_')
-        nodeTitle = nodeTitle.split('_').join(' ')
+        let nodeTitle = event.currentTarget.children[0].children[0].children[0].innerText
+        if(nodeTitle == "Central_Idea"){
+          nodeTitle = nodeTitle.split('_').join(' ')
+        }
         this.node = this.nodes.find(n => n.title === nodeTitle)
         if(this.node) this.node.title = this.node.title.split('_').join(' ')
         if(this.node && this.node.title != "Title_Here"){
@@ -261,11 +275,12 @@
       },
       createNode(){
         this.diagramData = this.graphOrientation
-        this.startnode = this.currentMindMap.name.replace(/\s/g, '_')
-        this.diagramData = this.diagramData.concat(this.startnode + ';\n')
+        this.startnode = this.currentMindMap.name
+        if(this.nodes.length < 1) this.diagramData = this.diagramData.concat(`${this.currentMindMap.id}` + `[${this.startnode}]` + ';\n')
         this.startnode = this.endnode;
+        this.submitChild = false;
         this.nodes.forEach((node, index) => {
-          this.diagramData = this.diagramData.concat(node.parent.replace(/[\s]/g, '_') + node.line_color + node.title.replace(/[\s]/g, '_') + ';\n')
+          this.diagramData = this.diagramData.concat( node.parent_node + `[${node.parent}]` + node.line_color + node.id + `[${node.title}]` + ';\n')
         });
         $('#mermaid').html(this.diagramData).removeAttr('data-processed');
         mermaid.init(undefined, $("#mermaid"));
@@ -274,13 +289,15 @@
         this.duplicateCounter = 0
         this.child_node.link_type = this.linkType
         if (this.parent_node) {
-          this.previous_node = this.currentMindMap.name.replace(/\s/g, '_')
+          this.previous_node.name = this.currentMindMap.name
+          this.previous_node.id = this.currentMindMap.id
           this.child_node.parent_node = null
         } else {
           this.child_node.parent_node = this.node.id
-          this.previous_node = this.node.title.replace(/\s/g, '_')
+          this.previous_node.name = this.node.title
+          this.previous_node.id = this.node.id
         }
-        this.diagramData = this.diagramData.concat(' ' + this.previous_node + this.linkType + this.endnode + ';\n') 
+        this.diagramData = this.diagramData.concat(' ' + `${this.previous_node.id}` + `[${this.previous_node.name}]` + this.linkType + this.endnode + ';\n') 
         this.node_title = this.endnode
         this.startnode = this.endnode
         $('#mermaid').html(this.diagramData).removeAttr('data-processed');
@@ -288,7 +305,8 @@
       },
       putData(){
         if (!this.submitChild && this.parent_node) {
-          this.currentMindMap.name = this.node_title.replace(/\s/g, '_')
+          this.currentMindMap.name = this.node_title
+          this.submitChild = false
           this.updateFlowMap(this.currentMindMap)
         } else if (this.oldTitle == "Title_Here"){
           if(this.child_node.id != ''){
@@ -298,7 +316,7 @@
             this.submitChild = false
             this.createNode();
           } else {
-            this.child_node.title = this.node_title.replace(/[@^\[\];|&\/\\#,+()$~%.'":*?<>{}]/g,'_')
+            this.child_node.title = this.node_title
             this.duplicate = this.child_node.title
             if (this.duplicate == this.child_node.title) {
               this.duplicateCounter = this.duplicateCounter + 1
@@ -311,14 +329,14 @@
           }
         } else {
           this.nodes.forEach((node, index) => {
-            if(this.node && this.node.title.replace(/\s/g, '_') === node.title.replace(/\s/g, '_')){
+            if(this.node && this.node.title === node.title){
               this.child_node.id = node.id
               this.child_node.mindmap_id = this.currentMindMap.id
               this.child_node.parent_node = node.parent_node
               this.child_node.parent = node.parent
             }
           });
-          this.child_node.title = this.node_title.replace(/[@^\[\];|&\/\\#,+()$~%.'":*?<>{}]/g,'_')
+          this.child_node.title = this.node_title
           this.updateSelectedNode(this.child_node)
         }
       },
@@ -343,6 +361,13 @@
         eventElement.target.addEventListener('keyup', function(){
           clearTimeout(keyUpTimeOut)
           _this.newTitle = event.target.innerText.split('\n').join('')
+          _this.conditions = ["@", "(", ")","{","}","[","]",";","|","`","~"]
+          if(_this.conditions.some(el => _this.newTitle.includes(el))){
+            _this.$refs['errorCharacterModal'].open()
+            _this.node_title = ""
+            _this.submitChild = false
+            _this.createNode()
+          } else {
           if (event.keyCode === 13 && this.oldTitle != "Title_Here") {
             if (_this.newTitle && _this.newTitle != '') {
               _this.node_title = _this.newTitle
@@ -358,18 +383,20 @@
               _this.node_title = _this.newTitle
               _this.putData()
             }, 2000)
-          }
+          } else {
+            _this.createNode()
+          }}
         })
       },
       toggleNode(eventElement){
         this.setNodeSelected(eventElement)
         if(this.isDeleteAble){
-          if(this.currentMindMap.name.replace(/\s/g, '_') == this.node.label) this.deleteMap()
+          if(this.currentMindMap.name == this.node.label) this.deleteMap()
           else this.$refs['deleteNodeConfirm'].open()
         }else {
           if(eventElement.target.classList[1] == 'fa-plus'){
-            if(!this.submitChild && this.node_title !== "Title_Here") this.addNode(eventElement)
-          } else if (eventElement.target.classList[1] == 'fa-times' && !this.submitChild && this.node_title !== "Title_Here") {
+            if(!this.submitChild && this.node_title != "Title_Here") this.addNode(eventElement)
+          } else if (eventElement.target.classList[1] == 'fa-times' && !this.submitChild && this.node_title != "Title_Here") {
             if(!this.submitChild && this.parent_node) this.deleteMap()
             else this.$refs['deleteNodeConfirm'].open()
           }else if(eventElement.target.classList[0] == 'obj-holder') this.textEdit(eventElement)
