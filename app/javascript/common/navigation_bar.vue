@@ -120,7 +120,7 @@
         >
           <i class="material-icons save_btn icons d-flex center_flex"></i>
         </a>
-        <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart'">
+        <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart' || currentMindMap.mm_type === 'flowmap'">
           <a
             v-if="scaleFactor != 1"
             href="javascript:;"
@@ -146,28 +146,6 @@
             @click.prevent="zoomOutScale"
           >
             <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
-          </a>
-        </span>
-        <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'flowmap'" class="center_flex mr-3">
-          <a
-            href="javascript:;"
-            role="button"
-            class="edit_delete_btn mr-2"
-            @click="selectGraphOrientationVertical"
-          >
-            <span class="material-icons rotate-90">
-              double_arrow
-            </span>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            class="edit_delete_btn mr-2"
-            @click="selectGraphOrientationHorizontal"
-          >
-            <span class="material-icons">
-              double_arrow
-            </span>
           </a>
         </span>
       </span>
@@ -271,12 +249,6 @@
       cutSelectedNode () {
         this.$emit("cutSelectedNode")
       },
-      selectGraphOrientationVertical(){
-        this.$emit("graphOrientationVertical")
-      },
-      selectGraphOrientationHorizontal(){
-        this.$emit("graphOrientationHorizontal")
-      },
       makeEditable () {
         this.editable = true
         setTimeout(() => {
@@ -345,7 +317,4 @@
 
 <style>
   @import "../components/mindmaps/styles/mindmap_new.scss";
-  .rotate-90 {
-    transform: rotate(90deg);
-  }
 </style>

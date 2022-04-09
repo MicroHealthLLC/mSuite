@@ -1,504 +1,500 @@
 <template>
   <div>
     <navigation-bar
-      v-if="isMounted"
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @openPrivacy="openPrivacy"
-      @graphOrientationVertical="graphOrientationVertical"
-      @graphOrientationHorizontal="graphOrientationHorizontal"
-      @deleteMindmap="deleteMap"
       :current-mind-map="currentMindMap"
+      @resetZoomScale="resetZoomScale"
+      @deleteMindmap="deleteMSuite"
+      @zoomInScale="zoomInScale"
+      :scaleFactor="scaleFactor"
+      :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
-      :exportId="'mermaid'"
-      ref="flowmapNavigation">
+      @zoomOutScale="zoomOutScale">
     </navigation-bar>
-    <div class="row">
-      <div class="col-1 px-0 sidebar">
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-->'" :class="linkType === '-->' ? 'active':''">
-          <span class="material-icons iconSize">
-            arrow_right_alt
-          </span>
-          <span class="mt-1 mr-1">Links To</span>
-        </div>
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '---'" :class="linkType === '---' ? 'active':''">
-          <span class="material-icons iconSize">
-            horizontal_rule
-          </span>
-          <span class="mt-1 mr-1">Sub Child</span>
-        </div>
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-.-'" :class="linkType === '-.-' ? 'active':''">
-          <span class="material-icons iconSize">
-            more_horiz
-          </span>
-          <span class="mt-1">Dotted</span>
-        </div>
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex px-0" @click="linkType = '-.->'" :class="linkType === '-.->' ? 'active':''">
-          <span class="dottedArrow ml-2">
-            &#8674;
-          </span>
-          <span class="ml-2">Dotted Link</span>
-        </div>
-        <div class="rounded-0 pl-1 btn btn-danger border pointer d-flex px-0" @click="isDeleteAble = !isDeleteAble" :class = "isDeleteAble ? 'active':''">
-          <span class="material-icons">
-            delete_forever
-          </span>
-          <span class="ml-1">DELETE</span>
+    <!-- tree chart -->
+    <section id="treeChartObj" class="main_body font-serif">
+      <vue-tree
+        style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
+        :dataset="treeChartObj"
+        :config="treeConfig"
+        direction="horizontal"
+        linkStyle="straight"
+        ref="refTree"
+      >
+        <template v-slot:node="{ node }">
+          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
+            <div>
+              <span @click="deleteMap(node)">
+                <i class="fas fa-times float-right icon-opacity text-danger" :title="currentMindMap.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
+              </span>
+              <span @click="node.name != 'Enter title here' ? addNode(node) : ''">
+                <i class="fas fa-plus float-right icon-opacity add-icon" title="Add Child Node"></i>
+              </span>
+              <span @click="node.name != 'Enter title here' ? showColorPicker(node) : ''">
+                <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
+              </span>
+              <div  v-if="node.id !== undefined">
+                <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node"></i>
+              </div>
+            </div>
+            <span class="text-dark my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
+              {{ node.name }}
+            </span>
+            <span v-else-if="selectedNode.id == node.id">
+              <textarea-autosize type="text" v-model="selectedNode.name"  v-debounce:3000ms="blurEvent" @blur.native="saveNodeTreeChart" :rows="1" class="w-100 rounded my-2" placeholder="Enter title here" :id="'textArea' + node.id"/>
+            </span>
+            <span class="w-100 position-arrow text-center" @click="collapseNode(node)" :id="'collapsed'+node.id">
+              <i class="fas fa-caret-square-down"></i>
+            </span>
+          </div>
+        </template>
+      </vue-tree>
+      <div v-if="colorSelected">
+        <div class="card col-3 card-position p-0 border-none z-index">
+          <div class="card-body p-0">
+            <chrome-picker v-model="treeNode.line_color" @input="updateColorNode()"/>
+          </div>
+          <div class="card-button d-flex">
+            <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
+            <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
+          </div>
         </div>
       </div>
-        <div id="mermaid" class="mermaid flowmap border mx-0 mt-0 d-flex justify-content-center">
-            {{computedDiagramData}}
-        </div>
-    </div>
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password"></make-private-modal>
+    </section>
+    <!-- tree chart end -->
+
+    <!-- import modals here -->
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
-    <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
+
+    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
+
+    <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
+      Do you want to delete this node?
+      <button slot="button" @click="deleteSelectedNode(deleteNodeObj)" class="btn btn-warning mr-2">Delete</button>
+      <button slot="button" @click="$refs['deleteNodeConfirm'].close()" class="btn btn-secondary">Cancel</button>
+    </sweet-modal>
+
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
       <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
-    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
-      Incorrect Password, Please Try Again!
-    </sweet-modal>
-    <sweet-modal ref="successModal" class="of_v" icon="success">
-      Password updated successfully!
-    </sweet-modal>
+
     <sweet-modal ref="errorNodeModal" class="of_v" icon="error" title="Node Title Error">
       Nodes Title Cannot Be Empty
     </sweet-modal>
-    <sweet-modal ref="errorCharacterModal" class="of_v" icon="error" title="Node Title Error">
-      Some special characters  @ ( ) { } [ ] ; | ` ~  are not supported
+
+    <sweet-modal ref="successModal" class="of_v" icon="success">
+      Password updated successfully!
     </sweet-modal>
-    <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
-      Do you want to delete this node? All of the child Nodes will also be Deleted
-      <button slot="button" @click="this.deleteNode" class="btn btn-warning mr-2">Delete</button>
-      <button slot="button" @click="$refs['deleteNodeConfirm'].close()" class="btn btn-secondary">Cancel</button>
+
+    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
+      Incorrect Password, Please Try Again!
     </sweet-modal>
+
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
+    </delete-password-modal>
+
+    <section v-if="exportLoading" class="export-loading-tab">
+      <div class="loader-wrap">
+        <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
+      </div>
+    </section>
   </div>
 </template>
-<script>
-  import http from "../../common/http"
-  import domtoimage from "dom-to-image-more"
-  import DeleteMapModal from '../../common/modals/delete_modal';
+<script type="text/javascript">
+  // Import the components that will be used
+  import Jimp from 'jimp'
+  import { jsPDF } from "jspdf";
+  import html2canvas from "html2canvas"
+  import http from '../../common/http'
+  import DeleteMapModal from '../../common/modals/delete_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
-  import DeletePasswordModal from '../../common/modals/delete_password_modal';
-  import mermaid from 'mermaid'
-
+  import DeletePasswordModal from '../../common/modals/delete_password_modal'
+  import domtoimage from "dom-to-image-more"
+  Vue.config.warnHandler = function(msg, vm, info) {}
   export default {
-    props: ['currentMindMap'],
-    data() {
-      return {
-        isMounted: false,
-        image: "",
-        defaultDeleteDays: '',
-        colorPicker: "#000000",
-        currentMindMap: {},
-        initialImage: [],
-        keyUpTimeOut: null,
-        deleteAfter: '',
-        oldTitle: '',
-        nodeId: null,
-        startnode: '',
-        endnode: 'Title_Here',
-        diagramData: '',
-        graphNodes: [],
-        parent_node: false,
-        submitChild: false,
-        child_node: { id: '', title: '', parent_node: '',parent: '', mindmap_id: '', link_type: ''},
-        previous_node: {id: '', name: ''},
-        node_title:'',
+    name: 'TreeChart',
+    data(){
+      return{
+        dragElement: null,
+        colorSelected: false,
+        exportLoading: false,
+        scaleFactor: 1,
+        deleteNodeObj: null,
+        collapsed: false,
+        prevNode: null,
+        selectedNode: {id: null},
+        selectedNodeTitle: '',
+        nodeColor: { hex: '' },
+        treeChartObj: {
+          name: '',
+          children: []
+        },
+        node: {
+          title: 'Enter title here',
+          parent_node: '',
+          mindmap_id: '',
+          line_color: '#EBECF0'
+        },
+        nodeTemp: {
+          id: 0,
+          line_color: "##EBECF0",
+          mindmap_id: this.currentMindMap.id,
+          parent: null,
+          parent_node: null,
+          title: "Enter title here"
+        },
+        treeNode: null,
+        treeConfig: { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
+        nodeChildTreeMaps: [],
         nodes: [],
-        node:{},
-        conditions: [],
-        newTitle: '',
-        linkType: '-->',
-        graphOrientation: 'graph TD;',
-        isDeleteAble: false,
-        duplicate: '',
-        duplicateCounter: 0,
-        elementLength: 0,
+        addNodeTree: false,
+        isSaveMSuite: false
       }
+    },
+    props:['currentMindMap','defaultDeleteDays', 'deleteAfter'],
+    mounted: async function(){
+      this.$cable.subscribe({
+        channel: "WebNotificationsChannel",
+        room: this.currentMindMap.id,
+      });
+      this.mountMap()
+      // this.fetchTreeChart()
     },
     components: {
       DeleteMapModal,
-      DeletePasswordModal,
       MakePrivateModal,
-      mermaid
-    },
-    channels: {
-      WebNotificationsChannel: {
-        received(data) {
-          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
-          {
-            window.open('/','_self')
-          } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
-            setTimeout(() => {
-              location.reload()
-            }, 500)
-          } else {
-            http
-            .get(`/msuite/${this.$route.params.key}.json`)
-            .then((res) => {
-              this.currentMindMap = res.data.mindmap
-              this.nodes = res.data.mindmap.nodes
-              this.createNode()
-            })
-          }
-        }
-      }
-    },
-    computed: {
-      computedDiagramData() {
-        return this.diagramData
-      }
+      DeletePasswordModal
     },
     methods: {
-      getMindmap(id) {
-        http
-        .get(`/msuite/${id}.json`)
-        .then((res) => {
-          this.defaultDeleteDays = res.data.defaultDeleteDays
-          this.deleteAfter = res.data.deleteAfter
-          this.currentMindMap = res.data.mindmap
-          this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
-        })
+      dragStart(nodeId){
+        this.dragElement = this.nodes.find((node) => node.id == nodeId)
       },
-      openPrivacy() {
-        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
-      },
-      deleteMap() {
-        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
-      },
-      confirmDeleteMindmap() {
-        if (this.currentMindMap.password){
-          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        } else {
-          this.deleteMindmap()
+      dragDrop(nodeId){
+        let dropElement = this.nodes.find((node) => node.id == nodeId)
+        if(nodeId && nodeId != this.dragElement.id && this.dragElement.id != dropElement.parent_node)
+        {
+          this.dragElement.parent_node = nodeId
+          this.updateTreeChartNode(this.dragElement)
+        }
+        else if(nodeId === undefined)
+        {
+          this.dragElement.parent_node = null
+          this.updateTreeChartNode(this.dragElement)
         }
       },
-      deleteMindmapProtected(password) {
+      zoomInScale(){
+        if (this.scaleFactor < 1.50) {
+          this.scaleFactor = this.scaleFactor + 0.05
+        }
+        this.$refs.refTree.zoomIn()
+      },
+      zoomOutScale(){
+        if (this.scaleFactor > 0.50) {
+          this.scaleFactor = this.scaleFactor - 0.05
+        }
+        this.$refs.refTree.zoomOut()
+      },
+      resetZoomScale(){
+        this.scaleFactor = 1
+        this.$refs.refTree.restoreScale()
+      },
+      showColorPicker(nodeObj){
+        this.addNodeTree = false
+        this.selectedNodeTitle = JSON.parse(JSON.stringify(nodeObj.name))
+        this.treeNode = Object.assign({}, nodeObj)
+        this.$refs.refTree.collapseEnabled = false
+        this.nodeColor.hex = nodeObj.color
+        this.treeNode.line_color = this.nodeColor
+        this.colorSelected = true
+      },
+      updateColorNode(){
+        let element = document.getElementById('treeChart'+this.treeNode.id)
+        element.style.backgroundColor = this.treeNode.line_color.hex
+        this.treeNode.line_color = this.treeNode.line_color.hex
+      },
+      closeModelPicker(){
+        let element = document.getElementById('treeChart'+this.treeNode.id)
+        element.style.backgroundColor = this.nodeColor.hex
+        this.colorSelected = false
+      },
+      saveNodeColor(){
+        this.node.mindmap_id = this.currentMindMap.id
+        if(this.selectedNodeTitle == this.currentMindMap.name)
+        {
+          this.currentMindMap.line_color = this.treeNode.line_color
+          this.updatedTreeChart(this.currentMindMap)
+        }
+        else
+        {
+          var objNode = {id: '', line_color: ''}
+          objNode.id = this.treeNode.id
+          objNode.line_color = this.treeNode.line_color
+          this.updateTreeChartNode(objNode)
+        }
+        this.colorSelected = false
+      },
+      blurEvent(val, e){
+        if (e.target) e.target.blur()
+      },
+      saveNodeTreeChart(){
+        this.$refs.refTree.collapseEnabled = false
+        this.node.mindmap_id = this.currentMindMap.id
+        var objNode = {title: ''}
+        objNode.title = this.selectedNode.name.split('\n').join('')
+        if(this.currentMindMap.name == this.selectedNodeTitle)
+        {
+          this.currentMindMap.name = this.selectedNode.name.split('\n').join('')
+          if(this.currentMindMap.name) {
+            this.updatedTreeChart(this.currentMindMap)
+          }else if(this.currentMindMap.name.replace(/\s/g, '') == '') {
+            this.selectedNode.name = this.selectedNodeTitle
+            this.$refs['errorNodeModal'].open()
+            this.updatedTreeChart(this.currentMindMap)
+          }
+        }
+        else if(this.addNodeTree) {
+          if(objNode.title) {
+            objNode.parent_node = this.nodeTemp.parent_node
+            objNode.mindmap_id = this.currentMindMap.id
+            objNode.line_color = '#EBECF0'
+            this.submitChildNode(objNode)
+          }else if(objNode.title.replace(/\s/g, '') == '') {
+            this.selectedNode.name = this.selectedNodeTitle
+            this.$refs['errorNodeModal'].open()
+          }
+        } else {
+          if(this.selectedNode && this.selectedNode.id === undefined){
+            this.updatedTreeChart(this.currentMindMap)
+          } else {
+            objNode.id = this.selectedNode.id
+            if(objNode.title) {
+              this.updateTreeChartNode(objNode)
+            }else if(objNode.title.replace(/\s/g, '') == '') {
+              this.selectedNode.name = this.selectedNodeTitle
+              this.$refs['errorNodeModal'].open()
+          }}
+        }
+      },
+      showInputField(node){
+        let _this = this
+        this.addNodeTree = false
+        this.$refs.refTree.collapseEnabled = false
+        this.selectedNode = node
+        this.selectedNodeTitle = JSON.parse(JSON.stringify(node.name))
+        setTimeout(() => {
+          document.getElementById('textArea'+ _this.selectedNode.id).focus()
+        }, 300)
+      },
+      collapseNode(node){
+        this.collapsed = !this.collapsed
+        if(this.collapsed) this.insertNodeElement('fas fa-caret-square-up', node.id)
+        else this.insertNodeElement('fas fa-caret-square-down', node.id)
+        this.$refs.refTree.collapseEnabled = true
+      },
+      insertNodeElement(class_list, nodeId) {
+        var nodeElement = document.createElement("i");
+        var textnodeElement = document.createTextNode("")
+        nodeElement.appendChild(textnodeElement);
+        nodeElement.setAttribute('class', class_list)
+        var element = document.getElementById('collapsed'+nodeId)
+        element.replaceChild(nodeElement, element.childNodes[0]);
+      },
+      addNode(nodeElement){
+        this.$refs.refTree.collapseEnabled = false
+        if(!this.addNodeTree) this.reRenderTree(nodeElement)
+      },
+      reRenderTree(nodeElement){
+        this.nodeTemp.parent = nodeElement.name
+        if(nodeElement.name == this.currentMindMap.name) this.nodeTemp.parent_node = null
+        else this.nodeTemp.parent_node = nodeElement.id
+        this.nodes.push(this.nodeTemp)
+        this.renderTreeChart()
+        this.addNodeTree = true
+      },
+      mountMap(){
+        this.selectedNode = {id: ''}
+        this.treeChartObj.name = this.currentMindMap.name
+        this.nodes = this.currentMindMap.nodes
+        this.addNodeTree = false
+        this.renderTreeChart()
+      },
+      async fetchTreeChart(){
+        let mindmap_key = window.location.pathname.split('/')[2]
+        let response = await http.get(`/msuite/${mindmap_key}.json`)
+        this.selectedNode = {id: ''}
+        this.defaultDeleteDays = response.data.defaultDeleteDays
+        this.deleteAfter= response.data.deleteAfter
+        this.currentMindMap = response.data.mindmap
+        this.treeChartObj.name = response.data.mindmap.name
+        this.nodes = response.data.mindmap.nodes
+        this.addNodeTree = false
+        this.renderTreeChart()
+      },
+      renderTreeChart(){
+        let array_nodes = this.nodes.map((node, index) => {
+          return {
+            name: node.title,
+            id: node.id,
+            color: node.line_color
+          };
+        })
+        let parent_nodes = []
+        this.nodes.forEach((node) => {
+          if(node.parent_node == null){
+            parent_nodes.push(node)
+          }
+        })
+
+        parent_nodes = parent_nodes.map((node, index) => {
+          return {
+            name: node.title,
+            id: node.id,
+            color: node.line_color,
+            children: []
+          }
+        })
+        this.getChildNode(parent_nodes)
+        this.selectedNode = { id: ''}
+      },
+      getChildNode(parent_nodes){
+        let childNodes = []
+        this.nodes.forEach((node) => {
+          parent_nodes.forEach((p, index)=> {
+            if(p.id == node.parent_node){
+              let obj = { name: node.title, id: node.id , color: node.line_color, children: []}
+              parent_nodes[index].children.push(obj)
+              childNodes = childNodes.concat(parent_nodes[index].children)
+            }
+          })
+        })
+        if(childNodes.length > 0){
+          this.getChildNode(_.uniq(childNodes))
+        }
+        this.treeChartObj.children = parent_nodes
+      },
+      async submitChildNode(node){
+        let _this = this
+        let data = { node }
+        http.post(`/nodes.json`, data).then((res) => {
+          _this.addNodeTree = false
+        }).catch(err => {
+          alert(err.message)
+        })
+      },
+      async updateTreeChartNode(obj){
+        await http.put(`/nodes/${obj.id}`, obj);
+      },
+      async deleteSelectedNode(obj){
+        await http.delete(`/nodes/${obj.id}.json`);
+        this.$refs['deleteNodeConfirm'].close()
+      },
+      async updatedTreeChart(obj){
+        await http.put(`/msuite/${obj.unique_key}`, obj);
+      },
+      openPrivacy(val) {
+        this.isSaveMSuite = val
+        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordAgain(){
+        this.$refs['passwordMismatched'].close()
+        this.openPrivacy()
+      },
+      passwordProtect(new_password, old_password, is_mSuite){
+        http
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
+        .then(res=>{
+          if (res.data.mindmap) {
+            this.defaultDeleteDays = res.data.defaultDeleteDays
+            this.deleteAfter= res.data.deleteAfter
+            this.currentMindMap.password = res.data.mindmap.password
+            this.$refs['successModal'].open()
+            if(!is_mSuite) window.open("/", "_self")
+            else location.reload()
+          }
+          else {
+            if (res.data.error) this.$refs['errorModal'].open()
+          }
+        })
+      },
+      confirmDeleteMindmap(){
+        if (this.currentMindMap.password){
+          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
+        }
+        else{
+          this.deleteTreeChart()
+        }
+      },
+      deleteMindmapProtected(password){
         http
         .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res=>{
           if (!res.data.success && this.currentMindMap.password)
             this.$refs['errorModal'].open()
         })
-        .catch(error => {
+        .catch(error=>{
           console.log(error)
         })
       },
-      deleteMindmap() {
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}.json`)
-        .catch(error => {
-          console.log(error)
-        })
+      deleteMSuite(){
+        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
-      passwordProtect(new_password, old_password) {
-        http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
-        .then(res => {
-          if (res.data.mindmap) {
-            this.currentMindMap.password = res.data.mindmap.password
-            this.$refs['successModal'].open()
-          } else {
-            if (res.data.error) this.$refs['errorModal'].open()
-          }
-        })
-      },
-      passwordAgain() {
-        this.$refs['passwordMismatched'].close()
-        this.openPrivacy()
-      },
-      postNode: async function (obj) {
-        let data = {
-          node: {title: obj.title, parent_node: obj.parent_node, mindmap_id: obj.mindmap_id, line_color: obj.link_type}
-        }
-        http.post(`/nodes.json`, data).then((res) => {
-          this.submitChild = false
-          this.node_title = ''
-          this.child_node.id = ''
-          this.createNode()
-        }).catch(err => {
-        })
-      },
-      updateFlowMap: async function (obj) {
-        let data = {
-          name: obj.name,
-          mm_type: 'flowmap',
-          line_color: obj.line_color
-        }
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, data).then((res) => {
-          this.currentMindMap.name = data.name
-          this.parent_node = false
-          this.createNode()
-        });
-      },
-      updateSelectedNode: async function(obj){
-        await http.put(`/nodes/${obj.id}`, obj).then((res) => {
-          this.submitChild = false
-          this.createNode()
-        });
-        mermaid.render(undefined, $("#mermaid"));
-      },
-      deleteSelectedNode: async function(obj){
-        await http.delete(`/nodes/${obj.id}.json`).then((res) => {
-          this.child_node.id = ''
-          this.node = null
-          this.node_title = ''
-          this.submitChild = false
-          this.createNode();
-        });
-        this.$refs['deleteNodeConfirm'].close()
-      },
-      setNodeSelected(event){
-        let nodeTitle = event.currentTarget.children[0].children[0].children[0].innerText
-        if(nodeTitle == "Central_Idea"){
-          nodeTitle = nodeTitle.split('_').join(' ')
-        }
-        this.node = this.nodes.find(n => n.title === nodeTitle)
-        if(this.node) this.node.title = this.node.title.split('_').join(' ')
-        if(this.node && this.node.title != "Title_Here"){
-          this.parent_node = (this.node.title == this.currentMindMap.name) ? true : null
-          this.child_node.title = (this.node.title != this.currentMindMap.name) ? this.node.label : null
-        }else if(nodeTitle == this.currentMindMap.name) {
-          this.parent_node = true
-          this.submitChild = false
-          this.child_node.title = null
-        }else if(this.endnode == "Title_Here") {
-          this.parent_node = this.currentMindMap.name ? true : null
-          this.submitChild = true
-        }
-      },
-      createNode(){
-        this.diagramData = this.graphOrientation
-        this.startnode = this.currentMindMap.name
-        if(this.nodes.length < 1) this.diagramData = this.diagramData.concat(`${this.currentMindMap.id}` + `[${this.startnode}]` + ';\n')
-        this.startnode = this.endnode;
-        this.submitChild = false;
-        this.nodes.forEach((node, index) => {
-          this.diagramData = this.diagramData.concat( node.parent_node + `[${node.parent}]` + node.line_color + node.id + `[${node.title}]` + ';\n')
-        });
-        $('#mermaid').html(this.diagramData).removeAttr('data-processed');
-        mermaid.init(undefined, $("#mermaid"));
-      },
-      addNode(eventElement){
-        this.duplicateCounter = 0
-        this.child_node.link_type = this.linkType
-        if (this.parent_node) {
-          this.previous_node.name = this.currentMindMap.name
-          this.previous_node.id = this.currentMindMap.id
-          this.child_node.parent_node = null
-        } else {
-          this.child_node.parent_node = this.node.id
-          this.previous_node.name = this.node.title
-          this.previous_node.id = this.node.id
-        }
-        this.diagramData = this.diagramData.concat(' ' + `${this.previous_node.id}` + `[${this.previous_node.name}]` + this.linkType + this.endnode + ';\n') 
-        this.node_title = this.endnode
-        this.startnode = this.endnode
-        $('#mermaid').html(this.diagramData).removeAttr('data-processed');
-        mermaid.init(undefined, $("#mermaid"));
-      },
-      putData(){
-        if (!this.submitChild && this.parent_node) {
-          this.currentMindMap.name = this.node_title
-          this.submitChild = false
-          this.updateFlowMap(this.currentMindMap)
-        } else if (this.oldTitle == "Title_Here"){
-          if(this.child_node.id != ''){
-            alert("Some thing went Wrong, We are really Sorry.")
-            this.node_title = ''
-            this.child_node.id = ''
-            this.submitChild = false
-            this.createNode();
-          } else {
-            this.child_node.title = this.node_title
-            this.duplicate = this.child_node.title
-            if (this.duplicate == this.child_node.title) {
-              this.duplicateCounter = this.duplicateCounter + 1
-            }
-            if (this.duplicateCounter == 1) {
-              this.child_node.mindmap_id = this.currentMindMap.id
-              this.child_node.link_type = this.linkType
-              this.postNode(this.child_node)
-            }
-          }
-        } else {
-          this.nodes.forEach((node, index) => {
-            if(this.node && this.node.title === node.title){
-              this.child_node.id = node.id
-              this.child_node.mindmap_id = this.currentMindMap.id
-              this.child_node.parent_node = node.parent_node
-              this.child_node.parent = node.parent
-            }
-          });
-          this.child_node.title = this.node_title
-          this.updateSelectedNode(this.child_node)
-        }
-      },
-      textEdit(eventElement){
-        let _this = this
-        var keyUpTimeOut
-        eventElement.target.childNodes[1].style.display = "none"
-        eventElement.target.childNodes[2].style.display = "none"
-        this.oldTitle = eventElement.target.innerText
-        if(eventElement.target.innerText == "Title_Here"){
-          eventElement.target.innerText = ""
-        }
-        eventElement.target.contentEditable = true
-        eventElement.target.focus();
-        eventElement.target.addEventListener('blur',function(){
-          if(eventElement.target.innerText == "" || _this.newTitle == ''){
-            _this.node_title = ""
-            _this.submitChild = false
-            _this.createNode()
-          }
-        })
-        eventElement.target.addEventListener('keyup', function(){
-          clearTimeout(keyUpTimeOut)
-          _this.newTitle = event.target.innerText.split('\n').join('')
-          _this.conditions = ["@", "(", ")","{","}","[","]",";","|","`","~"]
-          if(_this.conditions.some(el => _this.newTitle.includes(el))){
-            _this.$refs['errorCharacterModal'].open()
-            _this.node_title = ""
-            _this.submitChild = false
-            _this.createNode()
-          } else {
-          if (event.keyCode === 13 && this.oldTitle != "Title_Here") {
-            if (_this.newTitle && _this.newTitle != '') {
-              _this.node_title = _this.newTitle
-              _this.putData()
-            }
-            else {
-              _this.$refs['errorNodeModal'].open()
-              eventElement.target.innerText = _this.oldTitle
-            }
-          }
-          else if (_this.newTitle && _this.newTitle !== _this.oldTitle) {
-            keyUpTimeOut = setTimeout(() => {
-              _this.node_title = _this.newTitle
-              _this.putData()
-            }, 2000)
-          } else {
-            _this.createNode()
-          }}
-        })
-      },
-      toggleNode(eventElement){
-        this.setNodeSelected(eventElement)
-        if(this.isDeleteAble){
-          if(this.currentMindMap.name == this.node.label) this.deleteMap()
-          else this.$refs['deleteNodeConfirm'].open()
-        }else {
-          if(eventElement.target.classList[1] == 'fa-plus'){
-            if(!this.submitChild && this.node_title != "Title_Here") this.addNode(eventElement)
-          } else if (eventElement.target.classList[1] == 'fa-times' && !this.submitChild && this.node_title != "Title_Here") {
-            if(!this.submitChild && this.parent_node) this.deleteMap()
-            else this.$refs['deleteNodeConfirm'].open()
-          }else if(eventElement.target.classList[0] == 'obj-holder') this.textEdit(eventElement)
-        }
-      },
-      deleteNode(eventElement){
-        this.deleteSelectedNode(this.node)
-      },
-      graphOrientationVertical(){
-        this.graphOrientation = 'graph TD;'
-        this.createNode();
-      },
-      graphOrientationHorizontal(){
-        this.graphOrientation = 'graph LR;'
-        this.createNode();
-      },
-    },
-    updated() {
-      setTimeout(() => {
-        let nodes = document.getElementsByClassName("node default")
-        nodes.forEach((element, index) => {
-          let foreignObject = element.children[1].children[0].children[0];
-          if (foreignObject.clientWidth < 50)
+      deleteMap(node){
+        if(this.addNodeTree){
+          this.nodes.pop()
+          this.renderTreeChart()
+          this.addNodeTree = false
+        }else{
+          if(this.currentMindMap.name == node.name)
           {
-            foreignObject.setAttribute("width", "50px");
-            element.children[0].setAttribute("width", "70px");
+            this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
           }
-          element.children[0].setAttribute("height", "52px")
-          foreignObject.children[0].style.whiteSpace = 'pre-line'
-          foreignObject.children[0].style.display = 'flex'
-          foreignObject.children[0].style.wordBreak = 'break-all';
-          foreignObject.innerHTML = foreignObject.innerHTML = foreignObject.innerHTML.replace(/(<div)/igm, '<div class="obj-holder"')
-          let deleteEl =  document.createElement("span");
-          deleteEl.innerHTML =  "<i class='fa fa-times' aria-hidden='true'></i>"
-          deleteEl.setAttribute("class", "delete-el");
-          let plusEl =  document.createElement("span");
-          plusEl.innerHTML = "<i class='fa fa-plus' aria-hidden='true'></i>"
-          plusEl.setAttribute("class", "plus-el");
-          foreignObject.querySelector(".obj-holder .delete-el") ? null : foreignObject.querySelector(".obj-holder").appendChild(deleteEl);
-          foreignObject.querySelector(".obj-holder .plus-el") ? null : foreignObject.querySelector(".obj-holder").appendChild(plusEl);
-          element.children[1].addEventListener('click', this.toggleNode)
-          foreignObject.style.height = "50px"
-          foreignObject.children[0].style.marginTop = "20px"
-          if (this.isDeleteAble) { element.children[1].style.cursor = "not-allowed"; } 
-          else { element.children[1].children[0].style.cursor = "text"; }
-        });
-      }, 500)
+          else
+          {
+            this.deleteNodeObj = node
+            this.$refs['deleteNodeConfirm'].open()
+          }
+        }
+        this.$refs.refTree.collapseEnabled = false
+      },
+      deleteTreeChart(){
+        http
+        .delete(`/msuite/${this.currentMindMap.unique_key}`)
+        .then(res => {
+          window.open("/", "_self")
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      },
     },
-    mounted() {
-      mermaid.initialize({startOnLoad:true});
-      if(mermaid){
-      this.nodes = this.currentMindMap.nodes
-      this.createNode()
+    channels: {
+      WebNotificationsChannel: {
+        connected() {},
+        rejected() {},
+        received(data) {
+          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
+          {
+            window.open('/','_self')
+          }
+          else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
+          {
+            setTimeout(()=>{
+              location.reload()
+            }, 1000)
+          }
+          else
+          {
+            this.fetchTreeChart()
+          }
+        },
+        disconnected() {}
       }
-      if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-        this.isMounted = true
-      }
-    }
+    },
   }
 </script>
-<style>
-  .flowmap{
-    width: calc(100vw - 150px);
-    height: calc(100vh - 70px);
-    margin: 10px auto;
-    margin-bottom: 100px;
-    overflow: scroll;
-  }
-  .active{
-    background: #eee;
-  }
-  .node .default {
-    width: 110px !important;
-  }
-  .obj-holder{
-    position: relative;
-  }
-  .delete-el,
-  .plus-el{
-    position: absolute;
-    top: -25px;
-  }
-  .delete-el{
-    right: 0px;
-  }
-  .plus-el{
-    right: 15px;
-    color: red;
-  }
-  .fa-plus{
-    color: #3CA556;
-    cursor: pointer;
-  }
-  .fa-times{
-    color: #D1727F;
-    cursor: pointer;
-  }
-  .dottedArrow{
-    transform: scale(1.8) translate(3%, 4%);
-  }
-  .iconSize{
-    font-size: 33px;
-  }
+<style type="text/css">
+  @import "../treechart/style/tree_chart.scss";
 </style>
