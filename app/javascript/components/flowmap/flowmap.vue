@@ -252,7 +252,7 @@
           }else if(this.currentMindMap.name.replace(/\s/g, '') == '') {
             this.selectedNode.name = this.selectedNodeTitle
             this.$refs['errorNodeModal'].open()
-            this.updatedTreeChart(this.currentMindMap)
+            // this.updatedTreeChart(this.currentMindMap)
           }
         }
         else if(this.addNodeTree) {
@@ -304,6 +304,7 @@
       },
       addNode(nodeElement){
         this.$refs.refTree.collapseEnabled = false
+        this.selectedNodeTitle = ''
         if(!this.addNodeTree) this.reRenderTree(nodeElement)
       },
       reRenderTree(nodeElement){
