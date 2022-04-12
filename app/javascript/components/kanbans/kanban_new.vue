@@ -5,6 +5,7 @@
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage"
+      @resetMindmap="resetMindmap"
       :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
       :defaultDeleteDays="defaultDeleteDays"
@@ -26,7 +27,7 @@
                     <i class="fas fa-eye-dropper color-picker mt-1 icon-opacity" title="Color Picker"></i>
                   </div>
                   <div class="pointer text-center" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
-                     <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
+                      <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
                   </div>
                   <div class="pointer" @click="deleteStageConfirm(stage)">
                     <i class="fas fa-times text-danger mt-1 icon-delete-stage" title="Delete Stage"></i>
@@ -113,7 +114,6 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import Sortable from 'sortablejs';
-
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
@@ -348,6 +348,19 @@
         this.selectedElement = null
         this.selectedStage = null
         this.colorSelected = false
+      },
+      reset_stages() {
+        let data = {
+          mindmap_id: this.currentMindMap.id
+        }
+        http
+        .post('/stages/reset_stages', data)
+        .then((res) => {
+          this.getAllStages()
+          })
+        .catch((err) => {
+          console.log(err)
+        })
       },
       getAllStages() {
         http
@@ -658,6 +671,18 @@
         return is_val
       },
       //=====================OTHER FUNCTIONS ==============================//
+      resetMindmap() {
+        http
+          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+          .then((res) => {
+            this.currentMindMap.nodes = []
+            this.reset_stages()
+            this.getMindmap()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
     }
   }
 </script>

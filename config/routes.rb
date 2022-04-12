@@ -27,7 +27,11 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :stages, except: [:new]
+  resources :stages, except: [:new] do
+    collection do 
+      post :reset_stages
+    end
+  end
 
   resources :nodes, except: [:new, :edit, :show] do
     member do

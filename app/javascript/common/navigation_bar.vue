@@ -84,7 +84,6 @@
           <span class="fa-icon-text">Delete Map</span>
         </a>
         <a
-          v-if="currentMindMap.editable && currentMindMap.mm_type==='simple'"
           href="javascript:;"
           role="button"
           class="d-flex text-info edit_delete_btn mr-3 center_flex"
@@ -157,6 +156,10 @@
       <button slot="button" @click="exportImage(2)" class="btn btn-info float-left">Export to Pdf</button>
       <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
+    <reset-map-modal
+      ref="reset-map-modal"
+      @reset-mindmap="resetMindmap"
+    ></reset-map-modal>
   </div>
 </template>
 
@@ -166,6 +169,8 @@
   import html2canvas from "html2canvas"
   import domtoimage from "dom-to-image-more"
   import http from "./http"
+  import ResetMapModal from '../components/mindmaps/modals/reset_map_modal'
+
   export default{
     name:"NavigationBar",
     props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter"],
@@ -178,7 +183,8 @@
       }
     },
     components:{
-      ConfirmSaveKeyModal
+      ConfirmSaveKeyModal,
+      ResetMapModal
     },
     computed: {
       isDeleteMindMap () {
@@ -222,8 +228,8 @@
       deleteMindmap () {
         this.$emit("deleteMindmap")
       },
-      resetMap () {
-        this.$emit("resetMap")
+      resetMindmap () {
+        this.$emit("resetMindmap")
       },
       exportToWord () {
         this.$emit("exportToWord")
@@ -248,6 +254,9 @@
       },
       cutSelectedNode () {
         this.$emit("cutSelectedNode")
+      },
+      resetMap(){
+        this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
       },
       makeEditable () {
         this.editable = true

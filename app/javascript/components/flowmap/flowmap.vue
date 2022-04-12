@@ -6,6 +6,7 @@
       @resetZoomScale="resetZoomScale"
       @deleteMindmap="deleteMSuite"
       @zoomInScale="zoomInScale"
+      @resetMindmap="resetMindmap"
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
@@ -468,6 +469,17 @@
         .catch(error => {
           console.log(error)
         })
+      },
+      resetMindmap() {
+        http
+          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+          .then((res) => {
+            this.selectedNode = null
+            this.currentMindMap.nodes = []
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       },
     },
     channels: {

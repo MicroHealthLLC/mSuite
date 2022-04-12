@@ -1,12 +1,13 @@
 <template>
   <div>
     <navigation-bar
-     @openPrivacy="openPrivacy"
-     :current-mind-map="currentMindMap"
-     :defaultDeleteDays="defaultDeleteDays"
-     :deleteAfter="deleteAfter"
-     @deleteMindmap="deleteMap"
-     :exportId="'treeMapGraph'">
+      @openPrivacy="openPrivacy"
+      :current-mind-map="currentMindMap"
+      :defaultDeleteDays="defaultDeleteDays"
+      :deleteAfter="deleteAfter"
+      @deleteMindmap="deleteMap"
+      @resetMindmap="resetMindmap"
+      :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-1 main_body">
       <div class="col-12 mt-4 font-serif" id="treeMapGraph">
@@ -420,7 +421,7 @@
           if (event.keyCode === 13) {
             if(_this.newNodeValue && _this.newNodeValue != oldTitle) _this.postDataNode(_this.newNodeValue)
             else {
-             _this.$refs['errorNodeModal'].open(); eventElement.target.innerText = oldTitle
+              _this.$refs['errorNodeModal'].open(); eventElement.target.innerText = oldTitle
             }
           }else if (_this.newNodeValue && _this.newNodeValue !== oldTitle)
           {
@@ -428,7 +429,7 @@
               _this.postDataNode(_this.newNodeValue)
             }, 2000)
           }
-         }), false)
+          }), false)
       },
       postDataNode(){
         let node = {
@@ -516,7 +517,17 @@
         if(this.parent_node) node.parent = JSON.parse(JSON.stringify(this.currentMindMap.name))
         this.treemap_data.push(node)
         this.$refs.myTreeMap.source = this.treemap_data
-      }
+      },
+      resetMindmap() {
+        http
+          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+          .then((res) => {
+            this.currentMindMap.nodes = []
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
     }
   }
 </script>
