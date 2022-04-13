@@ -8,6 +8,7 @@
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
+      @resetMindmap="resetMindmap"
       :exportId="'vue_canvas'"
       ref="whiteBoardNavigation">
     </navigation-bar>
@@ -81,12 +82,6 @@
           </span>
           <span class="ml-1">Undo</span>
         </div>
-        <div @click="resetModal" class="rounded-0 pl-1 btn btn-danger border pointer d-flex">
-          <span class="material-icons">
-            restart_alt
-          </span>
-          <span class="ml-1">Reset</span>
-        </div>
       </div>
       <div id="vue_canvas" class="col-11 p-0 m-0 font-serif">
         <canvas id="canvas" class="border"></canvas>
@@ -118,11 +113,6 @@
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
     </sweet-modal>
-    <sweet-modal ref="resetModal" class="of_v" icon="warning">
-      Are you sure, You want to reset your whiteboard?
-        <button slot="button" @click="resetMap" class="btn btn-warning mr-2">Yes</button>
-        <button slot="button" @click="$refs['resetModal'].close()" class="btn btn-secondary">Cancel</button>
-    </sweet-modal>
   </div>
 </template>
 <script>
@@ -133,6 +123,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
+
   import { fabric } from './fabric.js'
   import 'fabric-history';
 
@@ -377,13 +368,6 @@
       resetModal() {
         this.$refs['resetModal'].open();
       },
-      resetMap() {
-        this.isRest = true
-        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}' } }
-        let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,mindmap)
-        this.$refs['resetModal'].close()
-      },
       increaseStroke() {
         clearTimeout(this.keyUpTimeOut)
         this.line < 25 ? ++this.line : ''
@@ -482,7 +466,13 @@
           this.newObj = false
         }
         else this.isRest = false
-      }
+      },
+      resetMindmap() {
+        this.isRest = true
+        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}' } }
+        let id = this.currentMindMap.unique_key
+        http.patch(`/msuite/${id}.json`,mindmap)
+      },
     },
     mounted() {
       if (this.$route.params.key) {

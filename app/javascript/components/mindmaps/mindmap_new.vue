@@ -10,7 +10,7 @@
       @resetZoomScale="resetZoomScale"
       @zoomInScale="zoomInScale"
       @zoomOutScale="zoomOutScale"
-      @resetMap="resetMap"
+      @resetMindmap="resetMindmap"
       @copySelectedNode="copySelectedNode"
       @deleteSelectedNode="deleteSelectedNode"
       @pasteCopiedNode="pasteCopiedNode"
@@ -74,11 +74,6 @@
     <open-map-modal
       @open-previous-map="openPreviousMap"
     ></open-map-modal>
-
-    <reset-map-modal
-      ref="reset-map-modal"
-      @reset-mindmap="resetMindmap"
-    ></reset-map-modal>
 
     <attachment-modal
       ref="attachment-modal"
@@ -146,7 +141,6 @@
   import InputField from "./idea_input_field"
   import NewMapModal from "./modals/new_map_modal"
   import OpenMapModal from "./modals/open_map_modal"
-  import ResetMapModal from "./modals/reset_map_modal"
   import AttachmentModal from "./modals/attachment_modal"
   import CentralAttachmentModal from "./modals/central_attachment_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
@@ -160,7 +154,6 @@
       InputField,
       NewMapModal,
       OpenMapModal,
-      ResetMapModal,
       AttachmentModal,
       CentralAttachmentModal,
       ExportToWordModal,
@@ -799,9 +792,6 @@
             console.log(error)
           })
         }
-      },
-      resetMap(){
-        this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
       },
       deleteMap(){
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()

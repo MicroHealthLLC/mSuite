@@ -10,6 +10,7 @@
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
+      @resetMindmap="resetMindmap"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
     <!-- tree chart -->
@@ -112,6 +113,7 @@
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import domtoimage from "dom-to-image-more"
+
   Vue.config.warnHandler = function(msg, vm, info) {}
   export default {
     name: 'TreeChart',
@@ -468,6 +470,17 @@
         .catch(error => {
           console.log(error)
         })
+      },
+      resetMindmap() {
+        http
+          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+          .then((res) => {
+            this.selectedNode = null
+            this.currentMindMap.nodes = []
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       },
     },
     channels: {
