@@ -1,7 +1,7 @@
 <template>
   <div class="filter">
-    <Recaptcha v-if="!fromCaptcha"></Recaptcha>
-    <div class="main_div" v-if="fromCaptcha">
+    <Recaptcha v-if="is_config && !fromCaptcha"></Recaptcha>
+    <div class="main_div" v-if="is_config && fromCaptcha">
       <div class="container-fluid pl-0">
         <!-- //SEARCHBAR ROW -->
           <div class="row pl-0 searchbar-row mb-0">
@@ -64,6 +64,7 @@
         hovered: false,
         selectedType: 'simple',
         fromCaptcha: false,
+        is_config: true,
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "" },
           { key: 'kanban', value: 'Kanban', imgsrc: ""  },
@@ -109,7 +110,8 @@
       },
     },
     mounted(){
-      this.fromCaptcha = this.$cookies.get('verifiedCaptcha')
+      if(this.$cookies.get('verifiedCaptcha') == 'true') this.fromCaptcha = true
+      if(Vue.prototype.$google_recaptcha_site_key == "") this.is_config = false
     },
   }
 </script>
