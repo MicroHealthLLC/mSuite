@@ -392,8 +392,8 @@
             this.parent_y = p_node.position_y + 25;
           }
         } else {
-          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft - 15;
-          this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 15;
+          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft - 1;
+          this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 70;
         }
 
         let canvas_id = this.parent_x + ""
