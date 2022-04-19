@@ -422,7 +422,7 @@
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
           this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft - (1 - this.scaleFactor) * (this.windowWidth / 2 - event.clientX - this.$refs.slideSection.scrollLeft) - (1 - this.scaleFactor) * 100 ;
-          this.currentPositionY = (event.clientY/0.8 + this.$refs.slideSection.scrollTop - (1 - this.scaleFactor)) / 1.1
+          this.currentPositionY = (event.clientY/0.9 + this.$refs.slideSection.scrollTop - (1 - this.scaleFactor)) / 1.1
           let c = document.getElementById(this.parent_x + "")
           let ctx = c.getContext("2d");
 
