@@ -475,8 +475,9 @@
         http
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
+            this.currentMindMap = res.data.mindmap
             this.selectedNode = null
-            this.currentMindMap.nodes = []
+            this.currentMindMap.nodes = []     
           })
           .catch((err) => {
             console.log(err)
@@ -497,6 +498,11 @@
             setTimeout(()=>{
               location.reload()
             }, 1000)
+          }
+          else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+            this.currentMindMap = data.mindmap
+            this.currentMindMap.nodes = []
+            this.fetchTreeChart()
           }
           else
           {

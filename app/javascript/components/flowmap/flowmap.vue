@@ -491,6 +491,10 @@
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
+          } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+            this.currentMindMap = data.mindmap
+            this.currentMindMap.nodes = []
+            this.fetchTreeChart()
           }
           else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
           {

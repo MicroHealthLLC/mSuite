@@ -73,6 +73,7 @@ class Mindmap < ApplicationRecord
     self.node_files.map(&:purge)
     self.update_columns(
       name: "Central Idea",
+      title: "Title",
       description: ""
     )
   end

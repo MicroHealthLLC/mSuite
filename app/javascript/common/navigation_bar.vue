@@ -196,6 +196,7 @@
     },
     filters: {
       truncate: function(data,num){
+        if(data === undefined) return
         let reqdString = data.split("").slice(0, num).join("");
         if (reqdString.length < data.length) {
           reqdString = reqdString.concat('.....')
@@ -317,10 +318,14 @@
           })
         }
       },
-      mSuiteTitle () {
-        return this.currentMindMap.title
-      }
     },
+    watch: {
+      currentMindMap: {
+        handler(value) {
+          this.mSuiteName = value.title
+        }, deep: true
+      }
+    }
   }
 </script>
 
