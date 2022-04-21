@@ -172,7 +172,7 @@
               location.reload()
             }, 500)
           } else {
-            // this.initialImage = JSON.parse(data.mindmap.image)
+            this.currentMindMap = data.mindmap
             this.initialImage = data.mindmap.canvas
             this.canvas.loadFromJSON(this.initialImage);
             this.canvas.renderAll();
@@ -469,7 +469,7 @@
       },
       resetMindmap() {
         this.isRest = true
-        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}' } }
+        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}', title: 'Title' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },

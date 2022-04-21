@@ -85,9 +85,9 @@ class MindmapsController < AuthenticatedController
 
   def reset_mindmap
     @mindmap.reset_mindmap
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", {message: "Reset mindmap"}
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Reset mindmap", mindmap: @mindmap
     respond_to do |format|
-      format.json {render json: {success: true}}
+      format.json {render json: {success: true, mindmap: @mindmap}}
       format.html {}
     end
   end

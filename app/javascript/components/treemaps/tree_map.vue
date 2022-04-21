@@ -149,7 +149,12 @@
             setTimeout(() => {
               location.reload()
             }, 1000)
-          } else {
+          } 
+          else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+            this.currentMindMap = data.mindmap
+            this.getTreeMap()
+          } 
+          else {
             this.getTreeMap()
           }
 
@@ -288,6 +293,7 @@
         this.parent_nodes.label = response.data.mindmap.name
         this.currentMindMap.id = response.data.mindmap.id
         this.currentMindMap.name = response.data.mindmap.name
+        this.currentMindMap.title = response.data.mindmap.title
         this.defaultDeleteDays = response.data.defaultDeleteDays
         this.defaultDeleteDays = response.data.deleteAfter
         this.currentMindMap.line_color = response.data.mindmap.line_color
