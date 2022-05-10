@@ -25,6 +25,7 @@
               <i class="fad fa-th-large mm-icon" v-if="type.key == 'tree_map'"></i>
               <i class="fal fa-sitemap mm-icon" v-if="type.key == 'tree_chart'"></i>
               <i class="fas fa-project-diagram mm-icon" v-if="type.key == 'flowmap'"></i>
+              <i class="fas fa-tasks mm-icon" v-if="type.key == 'todo'"></i>
               <span class="text-center">{{type.value}}</span>
             </div>
           </div>
@@ -71,7 +72,8 @@
           { key: 'whiteboard', value: 'WhiteBoard', imgsrc: ""  },
           { key: 'tree_map', value: 'TreeMap', imgsrc: "" },
           { key: 'tree_chart', value: 'TreeChart', imgsrc: "" },
-          { key: 'flowmap', value: 'FlowMap', imgsrc: "" }
+          { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
+          { key: 'todo', value: 'ToDo', imgsrc: "" }
         ]
       }
     },

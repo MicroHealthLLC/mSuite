@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+  #todo{
+    overflow: scroll !important;
+  }
+  .line-through{
+    text-decoration: line-through;
+  }
+  .addTodo{
+    color: #3CA556;
+    cursor: pointer;
+    position: absolute;
+    left: 91%;
+  }
+  .deleteTodo{
+    color: #D1727F;
+    cursor: pointer;
+    position: absolute;
+    left: 97%;
+  }
+  .deleteChild{
+    color: #D1727F;
+    cursor: pointer;
+    position: absolute;
+    left: 86%;
+  }
+  .toggleButton{
+    margin-left: 45.8%;
+  }
+  .dueDate{
+    position: absolute;
+    left: 77%;
+    color: #BFCBD9;
+  }
+  .dueDatePicker{
+    position: relative;
+    left: 150%;
+  }
+  .parentGroup{
+    max-height:65vh;
+    overflow:scroll;
+    margin-right:7%;
+  }
+  .list-group-item{
+    animation: list 0.5s ease;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.5s ease;
+    margin-bottom: 0.22rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: 0px !important;
+    border-bottom: 1px solid #dee2e6 !important;
+  }
+  .list-group-item:hover{
+      background-image: linear-gradient(to bottom right, #dc8f3530, #a3c8562b);
+      cursor: pointer;
+  }
+  @keyframes list {
+    from {top: 200px;}
+    to {top: 0px;}
+  }

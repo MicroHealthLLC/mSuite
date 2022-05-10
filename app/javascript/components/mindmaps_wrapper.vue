@@ -23,6 +23,7 @@
   import PasswordView from "./password_view"
   import TreeChart from "./treechart/tree_chart"
   import Flowmap from "./flowmap/flowmap"
+  import ToDo from "./todo/todo"
 
   export default {
     components: {
@@ -32,7 +33,8 @@
       PasswordView,
       Whiteboard,
       TreeChart,
-      Flowmap
+      Flowmap,
+      ToDo
     },
     data() {
       return {
@@ -62,6 +64,8 @@
               return "TreeChart"
             case "flowmap":
               return "Flowmap"
+            case "todo":
+              return "ToDo"
             default:
               return "MindmapView"
           }

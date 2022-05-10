@@ -1,7 +1,7 @@
 class NodesController < AuthenticatedController
   before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
   before_action :set_nodes, only:[:index]
-
+  include NodeConcern
   def create
     # get nested children
     @node = Node.create(node_params)
@@ -20,7 +20,9 @@ class NodesController < AuthenticatedController
 
 
   def update
-    @node.update(node_params)
+    previous_title = @node.title
+    @node.update(update_node_params)
+    update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
@@ -112,9 +114,30 @@ class NodesController < AuthenticatedController
   def set_node
     @node = Node.find_by_id(params[:id])
   end
+
   def set_nodes
     @nodes = Node.where(mindmap_id: params[:mindmap_id])
   end
+
+  def update_node_params
+    params.require(:node).permit(
+      :id,
+      :title,
+      :position_x,
+      :position_y,
+      :parent_node,
+      :stage_id,
+      :mindmap_id,
+      :is_disabled,
+      :line_color,
+      :description,
+      :position,
+      :node_width,
+      :duedate,
+      node_files: []
+    )
+  end
+
   def node_params
     params.require(:node).permit(
       :title,
@@ -128,6 +151,7 @@ class NodesController < AuthenticatedController
       :description,
       :position,
       :node_width,
+      :duedate,
       node_files: []
     )
   end
