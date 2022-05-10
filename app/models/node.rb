@@ -54,7 +54,9 @@ class Node < ApplicationRecord
   end
 
   def disablity_changed
-    update_disability(Node.where(parent_node: self.id), self.is_disabled)
+    unless self.mindmap.mm_type == 'todo'
+      update_disability(Node.where(parent_node: self.id), self.is_disabled)
+    end
   end
 
   def self.duplicate_child_nodes(nodes, parent)
