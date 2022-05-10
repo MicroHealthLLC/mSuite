@@ -352,11 +352,11 @@
       },
       nullifySlider() {
         this.isSlideDown  = false
-        this.selectedNode = null
+        this.selectedNode = { id: ''}
       },
       editNode(event, node) {
         this.editingNode  = node
-        this.selectedNode = null
+        this.selectedNode = { id: ''}
         this.dragging     = false
         this.draggingNode = false
       },
@@ -472,7 +472,7 @@
             line_color : this.nodeColor,
             parent_node: this.nodeParent ? this.nodeParent.id : 0
           }
-          this.selectedNode = null
+          this.selectedNode = { id: ''}
           this.createNode(node)
 
           // this.currentMindMap.nodes.push(node);
@@ -630,7 +630,7 @@
         ctx.closePath()
       },
       nullifyFlags() {
-        this.selectedNode = null
+        this.selectedNode = { id: ''}
         this.dragging     = false
         this.draggingNode = false
         this.copiedNode   = null
@@ -646,7 +646,7 @@
         this.cutFlag                = true
 
         http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
-          this.selectedNode = null
+          this.selectedNode = { id: ''}
         }).catch((error) => {
           console.log(error)
         })
@@ -654,7 +654,7 @@
       copySelectedNode() {
         if (!this.selectedNode) { return; }
         this.copiedNode   = this.selectedNode
-        this.selectedNode = null
+        this.selectedNode = { id: ''}
       },
       pasteCopiedNode() {
         if (!this.copiedNode) { return; }
@@ -699,7 +699,7 @@
             .post('/nodes.json', {node: dupNode, duplicate_child_nodes: dupNode.id})
             .then((res) => {
               this.getMindmap(this.currentMindMap.unique_key)
-              this.selectedNode = null
+              this.selectedNode = { id: ''}
             }).catch((error) => {
               console.log(error)
             })
@@ -748,7 +748,7 @@
 
         http.delete(`/nodes/${this.selectedNode.id}.json`).then((res) => {
           if (res.data.success) {
-            this.selectedNode = null
+            this.selectedNode = { id: ''}
             this.getMindmap(this.currentMindMap.unique_key)
           } else {
             console.log("Unable to delete node")
@@ -801,7 +801,7 @@
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.currentNodes = null
-            this.selectedNode = null
+            this.selectedNode = { id: ''}
             this.stopWatch    = true
             this.currentMindMap.nodes = []
             this.removeLines()

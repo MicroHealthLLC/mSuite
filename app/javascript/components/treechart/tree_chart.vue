@@ -476,7 +476,7 @@
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.currentMindMap = res.data.mindmap
-            this.selectedNode = null
+            this.selectedNode = { id: ''}
             this.currentMindMap.nodes = []     
           })
           .catch((err) => {
