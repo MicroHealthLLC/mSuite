@@ -514,4 +514,7 @@
 </script>
 <style type="text/css">
   @import "../treechart/style/tree_chart.scss";
+  .tree-container {
+    margin-top: -15% !important;
+  }
 </style>
