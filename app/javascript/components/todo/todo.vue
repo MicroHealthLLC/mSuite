@@ -185,10 +185,8 @@
         parentIndex: null,
         index: null,
         completedTasks: null,
-        selectedTodoDelete: null,
+        selectedTodoDelete: {id: ''},
         disabledBefore: new Date(),
-        start: null,
-        end: null,
       }
     },
     components: {

@@ -134,12 +134,12 @@
         allStages: [],
         blocks: [],
         colorSelected: false,
-        stage: null,
+        stage: {id: ''},
         block: {},
         new_index: -1,
         new_color:'',
         previousColor: null,
-        selectedStage: null,
+        selectedStage: {id: ''},
         selectedElement: null,
         hover_addtask: '',
         selected: '',
@@ -310,7 +310,7 @@
         this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
       },
       selectedStageBg(stage, e){
-        if(this.selectedStage !== null && this.selectedElement !== null){
+        if(this.selectedStage.id !== '' && this.selectedElement !== null){
           let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
           Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
           this.selectedElement.style.backgroundColor = this.previousColor
@@ -326,7 +326,7 @@
         response.then((res) => {
           let index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
           Vue.set(this.allStages[index], 'stage_color', res.data.stage.stage_color)
-          this.selectedStage = null
+          this.selectedStage = {id: ''}
           this.selectedElement = null
           this.colorSelected = false
         })
@@ -337,7 +337,7 @@
       saveTempColor(){
         let index = this.allStages.findIndex( stg => stg.title === this.selectedStage.title)
         this.allStages[index].stage_color = this.selectedStage.stage_color.hex
-        this.selectedStage = null
+        this.selectedStage = {id: ''}
         this.selectedElement = null
         this.colorSelected = false
       },
@@ -346,7 +346,7 @@
         Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
         this.selectedElement.style.backgroundColor = this.previousColor
         this.selectedElement = null
-        this.selectedStage = null
+        this.selectedStage = {id: ''}
         this.colorSelected = false
       },
       reset_stages() {
@@ -390,9 +390,9 @@
         if(this.checkDuplicate(val))
         {
           this.$refs['duplicateStageModal'].open()
-          this.stage = null
+          this.stage = {id: ''}
           this.selectedElement = null
-          this.selectedStage = null
+          this.selectedStage = {id: ''}
           this.colorSelected = false
           return;
         }
@@ -409,15 +409,15 @@
         .then((res) => {
           this.allStages.splice(index, 1, res.data.stage)
           this.new_stage = false
-          this.stage = null
+          this.stage = {id: ''}
           this.selectedElement = null
-          this.selectedStage = null
+          this.selectedStage = {id: ''}
           this.colorSelected = false
         })
         .catch((error) => {
-          this.stage = null
+          this.stage = {id: ''}
           this.selectedElement = null
-          this.selectedStage = null
+          this.selectedStage = {id: ''}
           this.colorSelected = false
           console.log(error)
         })
@@ -446,7 +446,7 @@
         if(this.stage === '')
         {
           this.allStages.splice(this.new_index,1)
-          this.stage = null
+          this.stage = {id: ''}
           this.new_stage = false
           return;
         }
@@ -463,7 +463,7 @@
           if (response.data.success === true){
             this.allStages = this.allStages.filter(stg => stg.title !== this.stage)
             this.blocks = this.blocks.filter(block => block.status !== this.stage)
-            this.stage = null
+            this.stage = {id: ''}
           }
           else {
             alert("Stage unable to be deleted")
@@ -472,7 +472,7 @@
         .catch(error => {console.log(error)})
       },
       updateStage(stage) {
-        if (stage === null) {
+        if (stage.id === '') {
           this.stage = {}
         }
         else if (this.currentMindMap.editable) {
@@ -508,7 +508,7 @@
             let stage_style = document.getElementsByClassName('drag-column-' + result.data.stage.title)[0]
             stage_style.style.backgroundColor = result.data.stage.stage_color
             this.updateStageTasks(this.stage.id)
-            this.stage = null
+            this.stage = {id: ''}
           }
         })
       },
@@ -519,7 +519,7 @@
         })
       },
       newStageTitle(e) {
-        if (this.stage !== null && this.stage.title) {
+        if (this.stage.id !== '' && this.stage.title) {
           this.editStageTitle(e.target.value.trim())
         }
         else if (this.new_stage && e.target.value !== '') {

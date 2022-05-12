@@ -119,13 +119,12 @@
     name: 'TreeChart',
     data(){
       return{
-        dragElement: null,
+        dragElement: {id: ''},
         colorSelected: false,
         exportLoading: false,
         scaleFactor: 1,
-        deleteNodeObj: null,
+        deleteNodeObj: {id: ''},
         collapsed: false,
-        prevNode: null,
         selectedNode: {id: null},
         selectedNodeTitle: '',
         nodeColor: { hex: '' },
@@ -147,7 +146,7 @@
           parent_node: null,
           title: "Enter title here"
         },
-        treeNode: null,
+        treeNode: {id: ''},
         treeConfig: { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
         nodeChildTreeMaps: [],
         nodes: [],
