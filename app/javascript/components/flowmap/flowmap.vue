@@ -22,6 +22,7 @@
         direction="horizontal"
         linkStyle="straight"
         ref="refTree"
+        class="flowmap-center-vertical"
       >
         <template v-slot:node="{ node }">
           <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
@@ -514,7 +515,7 @@
 </script>
 <style type="text/css">
   @import "../treechart/style/tree_chart.scss";
-  .tree-container {
+  .flowmap-center-vertical {
     margin-top: -15% !important;
   }
 </style>
