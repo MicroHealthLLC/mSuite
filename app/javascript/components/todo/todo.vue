@@ -32,63 +32,100 @@
               v-model="completedTasks" 
               width = "90"
               height = "28"/>
-            <b-list-group class="parentGroup mr-0" v-if="sortedTodos.length > 0" >
-              <div v-for="(todo, index) in sortedTodos" :key="todo.id">
-                <todo-map 
-                  :node="todo" 
-                  :selectedTodo="selectedTodo" 
-                  @updateTodo="updateTodo" 
-                  @toggleChildModal="toggleChildModal" 
-                  @toggleDeleteTodo="toggleDeleteTodo"
-                  @showInputField="showInputField"
-                  @blurEvent="blurEvent"
-                  v-if="completedTasks && !todo.is_disabled"></todo-map>
-                <todo-map 
-                  :node="todo" 
-                  :selectedTodo="selectedTodo" 
-                  @updateTodo="updateTodo" 
-                  @toggleChildModal="toggleChildModal"
-                  @toggleDeleteTodo="toggleDeleteTodo"
-                  @showInputField="showInputField"
-                  @blurEvent="blurEvent"
-                  v-if="!completedTasks"></todo-map>
-                  <div v-if="showChildModalTodo && todo_parent === todo.id" class="mt-2 ml-3 pb-2">
-                    <div class="relative flex h-full">
-                      <div class="container relative z-20 max-w-xl mt-20 h-min">
-                        <b-form @submit.prevent="addChildTodo()">
-                          <b-row>
-                            <b-col sm="5">
-                              <b-form-input 
-                                v-model="todoData.title"
-                                ref="title"
-                                type="text"
-                                :placeholder="'Add Child ToDo for ' + todo.name"
-                              >
-                              </b-form-input>
-                            </b-col>
-                            <b-col sm="5">
-                                <date-picker
-                                  id="input" 
-                                  v-model='todoData.date'
-                                  placeholder="Due Date"
-                                  :min-date='new Date()'
-                                  :disabled-date="disabledStartDate"
-                                  :max-date='todo.duedate' 
-                                  ref="date"
-                                  ></date-picker>
-                            </b-col>
-                            <b-col sm="2">
-                              <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
-                              <b-button variant="danger" @click="cancelChildObj"><i class="fa fa-times"></i></b-button>
-                            </b-col>
-                          </b-row>
-                        </b-form>
+            <div class="parentGroup">
+              <b-list-group class="mr-0" v-if="sortedTodos.length > 0" >
+                <div v-for="(todo, index) in sortedTodos" :key="todo.id">
+                  <todo-map 
+                    :node="todo" 
+                    :selectedTodo="selectedTodo" 
+                    @updateTodo="updateTodo" 
+                    @toggleChildModal="toggleChildModal" 
+                    @toggleDeleteTodo="toggleDeleteTodo"
+                    @showInputField="showInputField"
+                    @blurEvent="blurEvent"
+                    v-if="completedTasks && !todo.is_disabled"></todo-map>
+                  <todo-map 
+                    :node="todo" 
+                    :selectedTodo="selectedTodo" 
+                    @updateTodo="updateTodo" 
+                    @toggleChildModal="toggleChildModal"
+                    @toggleDeleteTodo="toggleDeleteTodo"
+                    @showInputField="showInputField"
+                    @blurEvent="blurEvent"
+                    v-if="!completedTasks"></todo-map>
+                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
+                    <div class="ml-3">
+                      <div class="relative flex h-full">
+                        <div class="container relative z-20 max-w-xl mt-20 h-min">
+                          <b-form @submit.prevent="addChildTodo()">
+                            <b-row>
+                              <b-col sm="5">
+                                <b-form-input 
+                                  v-model="todoChildData.title"
+                                  ref="title"
+                                  type="text"
+                                  :placeholder="'Add Child ToDo for ' + todo.name"
+                                >
+                                </b-form-input>
+                              </b-col>
+                              <b-col sm="5">
+                                  <date-picker
+                                    id="input" 
+                                    v-model='todoChildData.date'
+                                    placeholder="Due Date"
+                                    :min-date='new Date()'
+                                    :disabled-date="disabledStartDate"
+                                    :max-date='todo.duedate' 
+                                    ref="date"
+                                    ></date-picker>
+                              </b-col>
+                              <b-col sm="2">
+                                <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
+                                <b-button variant="danger" @click="cancelChildObj"><i class="fa fa-times"></i></b-button>
+                              </b-col>
+                            </b-row>
+                          </b-form>
+                        </div>
+                        <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
                       </div>
-                      <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
                     </div>
+                  </b-list-group-item>
                 </div>
-              </div>
-            </b-list-group>
+              </b-list-group>
+              <b-list-group-item v-if="!showChildModalTodo">
+                <div class="relative flex h-full " >
+                  <div class="container relative z-20 max-w-xl mt-20 h-min">
+                    <b-form @submit.prevent="addTodo()">
+                      <b-row>
+                        <b-col sm="5" class="todo-field">
+                          <b-form-input 
+                            v-model="todoData.title"
+                            ref="title"
+                            type="text"
+                            placeholder="Your Todo"
+                          >
+                          </b-form-input>
+                        </b-col>
+                        <b-col sm="5">
+                            <date-picker
+                              id="input" 
+                              v-model='todoData.date'
+                              placeholder="Due Date"
+                              :min-date='new Date()'
+                              :disabled-date="disabledStartDate"
+                              ref="date"
+                              ></date-picker>
+                        </b-col>
+                        <b-col sm="2">
+                          <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
+                        </b-col>
+                      </b-row>
+                    </b-form>
+                  </div>
+                  <div @click="toggleModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
+                </div>
+              </b-list-group-item>
+            </div>
           </div>
         </div>
       </div>
@@ -113,38 +150,6 @@
       <button slot="button" @click="deleteTodo" class="btn btn-warning mr-2">Delete</button>
       <button slot="button" @click="$refs['deleteTodoConfirm'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
-    <sweet-modal ref="addTodo" class="of_v" title="Add to Do" @close="clearTodoObj">
-      <div class="relative">
-        <div class="container relative z-20 max-w-xl mt-20 h-min">
-          <b-row>
-              <b-col cols="6">
-                <b-form-input
-                  id="input"
-                  v-model="todoData.title"
-                  ref="title"
-                  type="text"
-                  placeholder="Enter ToDo Here..."
-                >
-                </b-form-input>
-              </b-col>
-              <b-col cols="4">
-                <date-picker 
-                  id="datepicker" 
-                  class="pb-3"
-                  v-model='todoData.date'
-                  :disabled-date="disabledStartDate"
-                  ref="date"
-                  placeholder="Due Date" ></date-picker>
-              </b-col>
-          </b-row>
-        </div>
-        <div @click="toggleModal()" class="absolute top-0 z-10 w-full h-full"></div>
-      </div>
-      <button slot="button" @click="$refs['addTodo'].close()" class="btn btn-secondary">Cancel</button>
-      <button slot="button" @click="addTodo()" class="btn btn-success ml-2">Add ToDo</button>
-    </sweet-modal>
-
-
   </div>
 </template>
 <script>
@@ -174,6 +179,7 @@
         showModalTodo: false,
         showChildModalTodo: false,
         todoData: { title: null, date: null },
+        todoChildData: { title: null, date: null },
         uniqueChild: new Set(),
         childCompleted: false,
         parentIndex: null,
@@ -215,7 +221,9 @@
     },
     methods: {
       clearTodoObj() {
+        this.todo = {}
         this.todoData = { title: null, date: null }
+        this.todoChildData = { title: null, date: null }
       },
       cancelChildObj() {
         this.showChildModalTodo = false
@@ -359,7 +367,7 @@
         this.myTodos = parent_nodes
       },
       async addTodo() {     
-        this.todoData.date.setDate(this.todoData.date.getDate() + 1);
+        if(this.todoData.date) this.todoData.date.setDate(this.todoData.date.getDate() + 1);
         let data = {
           node: {title: this.todoData.title, mindmap_id: this.currentMindMap.id, duedate: this.todoData.date, is_disabled: false}
         }
@@ -373,9 +381,9 @@
         this.$refs['addTodo'].close()
       },
       async addChildTodo() {
-        this.todoData.date.setDate(this.todoData.date.getDate() + 1);
+        if(this.todoChildData.date) this.todoChildData.date.setDate(this.todoChildData.date.getDate() + 1);
         let data = {
-          node: {title: this.todoData.title, duedate: this.todoData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
+          node: {title: this.todoChildData.title, duedate: this.todoChildData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
         }
         http.post(`/nodes.json`, data).then((result) => {
           this.showChildModalTodo = false

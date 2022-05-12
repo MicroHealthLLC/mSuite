@@ -4,6 +4,7 @@
   }
   .line-through{
     text-decoration: line-through;
+    color: #BFCBD9;
   }
   .addTodo{
     color: #3CA556;
@@ -52,6 +53,12 @@
   .list-group-item:hover{
       background-image: linear-gradient(to bottom right, #dc8f3530, #a3c8562b);
       cursor: pointer;
+  }
+  .todo-field{
+    margin-left: -3%;
+  }
+  .child-field{
+    margin-bottom: 0%;
   }
   @keyframes list {
     from {top: 200px;}
