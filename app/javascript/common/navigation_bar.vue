@@ -119,17 +119,6 @@
         >
           <i class="material-icons save_btn icons d-flex center_flex"></i>
         </a>
-        <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'todo'">
-          <a
-            href="javascript:;"
-            role="button"
-            class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.stop="addTodo"
-          >
-            <i class="fa fa-plus icons d-flex center_flex"></i>
-            <span class="fa-icon-text">Add ToDo</span>
-          </a>
-        </span>
         <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart' || currentMindMap.mm_type === 'flowmap'">
           <a
             v-if="scaleFactor != 1"
@@ -269,9 +258,6 @@
       },
       resetMap () {
         this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
-      },
-      addTodo () {
-        this.$emit("addTodo")
       },
       makeEditable () {
         this.editable = true
