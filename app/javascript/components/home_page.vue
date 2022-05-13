@@ -1,7 +1,7 @@
 <template>
   <div class="filter">
     <Recaptcha v-if="is_config && !fromCaptcha"></Recaptcha>
-    <div class="main_div" v-if="is_config && fromCaptcha">
+    <div class="main_div" v-if="!is_config && fromCaptcha">
       <div class="container-fluid pl-0">
         <!-- //SEARCHBAR ROW -->
           <div class="row pl-0 searchbar-row mb-0">
