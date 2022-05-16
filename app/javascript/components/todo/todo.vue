@@ -43,6 +43,7 @@
                     @toggleDeleteTodo="toggleDeleteTodo"
                     @showInputField="showInputField"
                     @blurEvent="blurEvent"
+                    @clearTodoEditObj="clearTodoEditObj"
                     v-if="completedTasks && !todo.is_disabled"></todo-map>
                   <todo-map 
                     :node="todo" 
@@ -52,6 +53,7 @@
                     @toggleDeleteTodo="toggleDeleteTodo"
                     @showInputField="showInputField"
                     @blurEvent="blurEvent"
+                    @clearTodoEditObj="clearTodoEditObj"
                     v-if="!completedTasks"></todo-map>
                   <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
                     <div class="ml-3">
@@ -73,9 +75,7 @@
                                     id="input" 
                                     v-model='todoChildData.date'
                                     placeholder="Due Date"
-                                    :min-date='new Date()'
                                     :disabled-date="disabledStartDate"
-                                    :max-date='todo.duedate' 
                                     ref="date"
                                     ></date-picker>
                               </b-col>
@@ -306,6 +306,10 @@
         this.showChildModalTodo = true
         this.$nextTick(() => this.$refs.title.focus())
       },
+      clearTodoEditObj() {
+        this.selectedTodo = {id: ''}
+        this.fetchToDos()
+      },
       async fetchToDos(){
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/msuite/${mindmap_key}.json`)
@@ -393,14 +397,20 @@
         });
       },
       updateTodo(todo, title, completed) {
+        if(this.selectedTodo.duedate) {
+          this.selectedTodo.duedate = new Date(this.selectedTodo.duedate)
+          this.selectedTodo.duedate.setDate(this.selectedTodo.duedate.getDate() + 1);
+        }  
         let obj = {
           node: {
             id: todo.id,
             title: title,
-            is_disabled: completed
+            is_disabled: completed,
+            duedate: this.selectedTodo.duedate
           }
         }
         http.put(`/nodes/${todo.id}`, obj)
+        this.selectedTodo = {id: ''}
       },
       async deleteTodo() {
         let todo = this.selectedTodoDelete

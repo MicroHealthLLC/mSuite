@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-list-group-item class="mb-0">
-      <div class="flex">
+      <div class="flex" v-if="selectedTodo.id != node.id">
         <div class="flex-auto">
           <input
               type="checkbox"
@@ -14,17 +14,7 @@
           :for="'todo-' + node.id"
             :class="{ 'line-through': node.is_disabled }"
         >{{ node.name }}</label>
-        <span v-else-if="selectedTodo.id == node.id">
-          <textarea-autosize 
-            type="text" 
-            v-model="selectedTodo.name"  
-            v-debounce:3000ms="blurEvent" 
-            @blur.native="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)" :rows="1"
-            class="w-100 rounded my-2" 
-            placeholder="Enter title here" 
-            :id="'textArea' + node.id"/>
-        </span>
-        <span
+        <span v-if="selectedTodo.id != node.id" @click="showInputField(node)"
           class="ml-4 dueDate"
           :class="{ 'line-through': node.is_disabled }"> 
             {{node.duedate}}
@@ -32,10 +22,43 @@
         <i class='ml-4 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
         <i class="ml-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
       </div>
+      <div class="ml-3" v-else-if="selectedTodo.id == node.id">
+        <div class="relative flex h-full">
+          <div class="container relative z-20 max-w-xl mt-20 h-min">
+            <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
+              <b-row>
+                <b-col sm="5">
+                  <b-form-input 
+                    v-model="selectedTodo.name"
+                    ref="title"
+                    type="text"
+                    placeholder="Your Todo"
+                  >
+                  </b-form-input>
+                </b-col>
+                <b-col sm="5">
+                  <date-picker
+                    id="input" 
+                    v-model='selectedTodo.duedate'
+                    :placeholder="selectedTodo.duedate"
+                    :disabled-date="disabledStartDate"
+                    ref="date"
+                    ></date-picker>
+                </b-col>
+                <b-col sm="2">
+                  <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
+                  <b-button variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
+                </b-col>
+              </b-row>
+            </b-form>
+          </div>
+          <div @click="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)" class="absolute top-0 z-10 w-full h-full"></div>
+        </div>
+      </div>
     </b-list-group-item>
     <div  v-if="node.children && node.children.length">
       <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
-        <div class="flex" >
+        <div class="flex" v-if="selectedTodo.id != child.id">
           <div class="flex-auto">
             <input
                 type="checkbox"
@@ -44,26 +67,49 @@
                 @click="updateTodo(child, child.name, !child.is_disabled)"
             />
           </div>
-          <label v-if="selectedTodo.id != child.id" @click="showInputField(child)" class="mb-0"
+          <label @click="showInputField(child)" class="mb-0"
             :for="'child-' + child.id"
               :class="{ 'line-through': child.is_disabled }"
           >{{ child.name }}</label>
-          <span v-else-if="selectedTodo.id == child.id">
-          <textarea-autosize 
-            type="text" 
-            v-model="selectedTodo.name"  
-            v-debounce:3000ms="blurEvent" 
-            @blur.native="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)" :rows="1"
-            class="w-100 rounded my-2" 
-            placeholder="Enter title here" 
-            :id="'textArea' + child.id"/>
-        </span>
-          <span
+          <span @click="showInputField(child)"
             class="ml-4 dueDate"
             :class="{ 'line-through': child.is_disabled }"> 
               {{child.duedate}}
           </span>
           <i class="ml-1 mt-1 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
+        </div>
+        <div class="ml-3" v-else-if="selectedTodo.id == child.id">
+          <div class="relative flex h-full">
+            <div class="container relative z-20 max-w-xl mt-20 h-min">
+              <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
+                <b-row>
+                  <b-col sm="5">
+                    <b-form-input 
+                      v-model="selectedTodo.name"
+                      ref="title"
+                      type="text"
+                      placeholder="Your Todo"
+                    >
+                    </b-form-input>
+                  </b-col>
+                  <b-col sm="5">
+                    <date-picker
+                      id="input" 
+                      v-model='selectedTodo.duedate'
+                      :placeholder="selectedTodo.duedate"
+                      :disabled-date="disabledStartDate"
+                      ref="date"
+                      ></date-picker>
+                  </b-col>
+                  <b-col sm="2">
+                    <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
+                    <b-button variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
+                  </b-col>
+                </b-row>
+              </b-form>
+            </div>
+            <div @click="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)" class="absolute top-0 z-10 w-full h-full"></div>
+          </div>
         </div>
       </b-list-group-item>
     </div>
@@ -100,7 +146,14 @@
       },
       blurEvent(val, e) {
         this.$emit("blurEvent", val, e)
-      }
+      },
+      clearTodoEditObj(){
+        this.$emit("clearTodoEditObj")
+      },
+      disabledStartDate(date) {
+        if(this.selectedTodo.id != this.node.id) return date < new Date() || date > new Date(this.node.duedate)
+        else return date < new Date()
+      },
     },
     computed: {
       sortedChildTodos() {
