@@ -1,7 +1,7 @@
 <template>
   <div class="filter">
     <Recaptcha v-if="is_config && !fromCaptcha"></Recaptcha>
-    <div class="main_div" v-if="!is_config && fromCaptcha">
+    <div class="main_div" v-else>
       <div class="container-fluid pl-0">
         <!-- //SEARCHBAR ROW -->
           <div class="row pl-0 searchbar-row mb-0">
@@ -64,7 +64,7 @@
         uniqueKey: '',
         hovered: false,
         selectedType: 'simple',
-        fromCaptcha: false,
+        fromCaptcha: true,
         is_config: true,
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "" },
@@ -112,7 +112,7 @@
       },
     },
     mounted(){
-      if(this.$cookies.get('verifiedCaptcha') == 'true') this.fromCaptcha = true
+      if(this.$cookies.get('verifiedCaptcha') == null) this.fromCaptcha = false
       if(Vue.prototype.$google_recaptcha_site_key == "") this.is_config = false
     },
   }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Recaptcha v-if="is_config && !fromCaptcha"></Recaptcha>
-    <router-view v-if="fromCaptcha"></router-view>
+    <router-view v-else></router-view>
     <cookie-law theme="dark-lime"></cookie-law>
 
   </div>
@@ -12,13 +12,13 @@
   export default {
     data(){
       return{
-        fromCaptcha: false,
+        fromCaptcha: true,
         is_config: true
       }
     },
     components: { CookieLaw, Recaptcha },
     mounted(){
-      if(this.$cookies.get('verifiedCaptcha') == 'true') this.fromCaptcha = true
+      if(this.$cookies.get('verifiedCaptcha') == null) this.fromCaptcha = false
       if(Vue.prototype.$google_recaptcha_site_key == "") this.is_config = false
     },
   }
