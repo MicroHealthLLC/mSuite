@@ -126,6 +126,7 @@
     props: {
       node: Object,
       selectedTodo: Object,
+      completedTasks: Boolean
     },
     data() {
       return {
@@ -159,12 +160,22 @@
     },
     computed: {
       sortedChildTodos() {
-        return this.node.children
-          .sort((a,b) => {
-            if (a.duedate > b.duedate) { return  1 }
-            if (b.duedate > a.duedate) { return -1 }
-            return 0
-          })
+        if(this.completedTasks){
+          return this.node.children
+            .sort((a,b) => {
+              if (a.duedate > b.duedate) { return  1 }
+              if (b.duedate > a.duedate) { return -1 }
+              return 0
+            })
+            .filter(task => (!task.is_disabled) ? task : '')
+        } else {
+          return this.node.children
+            .sort((a,b) => {
+              if (a.duedate > b.duedate) { return  1 }
+              if (b.duedate > a.duedate) { return -1 }
+              return 0
+            })
+        }
       }
     },
   };
