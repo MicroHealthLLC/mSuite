@@ -44,6 +44,7 @@
                     :disabled-date="disabledStartDate"
                     ref="date"
                     ></date-picker>
+                    <b-button @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                 </b-col>
                 <b-col sm="2">
                   <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
@@ -100,6 +101,7 @@
                       :disabled-date="disabledStartDate"
                       ref="date"
                       ></date-picker>
+                      <b-button @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                   </b-col>
                   <b-col sm="2">
                     <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
