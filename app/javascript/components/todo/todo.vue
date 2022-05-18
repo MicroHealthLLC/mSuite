@@ -53,6 +53,7 @@
                             <b-row>
                               <b-col sm="5">
                                 <b-form-input 
+                                  :class="fieldDisabled ? 'shake': ''"
                                   v-model="todoChildData.title"
                                   ref="title"
                                   type="text"
@@ -89,10 +90,11 @@
                       <b-row>
                         <b-col sm="5" class="todo-field">
                           <b-form-input 
+                            :class="fieldDisabled ? 'shake': ''"
                             v-model="todoData.title"
                             ref="title"
                             type="text"
-                            placeholder="Your Todo"
+                            :placeholder="placeHolderText"
                           >
                           </b-form-input>
                         </b-col>
@@ -140,6 +142,9 @@
       <button slot="button" @click="deleteTodo" class="btn btn-warning mr-2">Delete</button>
       <button slot="button" @click="$refs['deleteTodoConfirm'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
+    <sweet-modal ref="errTitle" class="of_v" icon="error">
+      Node Title Can't be empty!
+    </sweet-modal>
   </div>
 </template>
 <script>
@@ -177,8 +182,8 @@
         completedTasks: null,
         selectedTodoDelete: null,
         disabledBefore: new Date(),
-        start: null,
-        end: null,
+        placeHolderText: 'Your Todo',
+        fieldDisabled: false
       }
     },
     components: {
@@ -361,6 +366,14 @@
         this.myTodos = parent_nodes
       },
       async addTodo() {     
+        if(this.todoData.title == null){
+          this.$refs['errTitle'].open()
+          this.fieldDisabled = true
+          setTimeout(() => {
+            this.fieldDisabled = false
+          }, 1500)
+          return
+        }
         if(this.todoData.date) this.todoData.date.setDate(this.todoData.date.getDate() + 1);
         let data = {
           node: {title: this.todoData.title, mindmap_id: this.currentMindMap.id, duedate: this.todoData.date, is_disabled: false}
@@ -375,6 +388,14 @@
         this.$refs['addTodo'].close()
       },
       async addChildTodo() {
+        if(this.todoChildData.title == null){
+          this.$refs['errTitle'].open()
+          this.fieldDisabled = true
+          setTimeout(() => {
+            this.fieldDisabled = false
+          }, 1500)
+          return
+        }
         if(this.todoChildData.date) this.todoChildData.date.setDate(this.todoChildData.date.getDate() + 1);
         let data = {
           node: {title: this.todoChildData.title, duedate: this.todoChildData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
