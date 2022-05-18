@@ -38,23 +38,13 @@
                   <todo-map 
                     :node="todo" 
                     :selectedTodo="selectedTodo" 
+                    :completedTasks="completedTasks"
                     @updateTodo="updateTodo" 
                     @toggleChildModal="toggleChildModal" 
                     @toggleDeleteTodo="toggleDeleteTodo"
                     @showInputField="showInputField"
                     @blurEvent="blurEvent"
-                    @clearTodoEditObj="clearTodoEditObj"
-                    v-if="completedTasks && !todo.is_disabled"></todo-map>
-                  <todo-map 
-                    :node="todo" 
-                    :selectedTodo="selectedTodo" 
-                    @updateTodo="updateTodo" 
-                    @toggleChildModal="toggleChildModal"
-                    @toggleDeleteTodo="toggleDeleteTodo"
-                    @showInputField="showInputField"
-                    @blurEvent="blurEvent"
-                    @clearTodoEditObj="clearTodoEditObj"
-                    v-if="!completedTasks"></todo-map>
+                    @clearTodoEditObj="clearTodoEditObj"></todo-map>
                   <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
                     <div class="ml-3">
                       <div class="relative flex h-full">
@@ -455,12 +445,22 @@
     },
     computed: {
       sortedTodos() {
-        return this.myTodos
-          .sort((a,b) => {
-            if (a.duedate > b.duedate) { return  1 }
-            if (b.duedate > a.duedate) { return -1 }
-            return 0
-          })
+        if(this.completedTasks){
+          return this.myTodos
+            .sort((a,b) => {
+              if (a.duedate > b.duedate) { return  1 }
+              if (b.duedate > a.duedate) { return -1 }
+              return 0
+            })
+            .filter(task => (!task.is_disabled) ? task : '')
+        } else {
+          return this.myTodos
+            .sort((a,b) => {
+              if (a.duedate > b.duedate) { return  1 }
+              if (b.duedate > a.duedate) { return -1 }
+              return 0
+            })
+        }
       }
     },
     mounted() {
