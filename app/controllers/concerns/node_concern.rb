@@ -21,8 +21,6 @@ module NodeConcern
               is_disabled << true
               n.update(is_disabled: true)
             elsif node.is_disabled == false
-              is_disabled << false
-              n.update(is_disabled: false)
             end
           end
         end
