@@ -40,6 +40,7 @@ class NodesController < AuthenticatedController
   def destroy
     if @node.destroy
       delete_child_nodes Node.where(parent_node: @node.id)
+      update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
       respond_to do |format|
         format.json { render json: {success: true}}
