@@ -34,7 +34,7 @@
               height = "28"/>
             <div class="parentGroup">
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0" >
-                <div v-for="(todo, index) in sortedTodos" :key="todo.id">
+                <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 
                     :node="todo" 
                     :selectedTodo="selectedTodo" 
@@ -366,7 +366,7 @@
         this.myTodos = parent_nodes
       },
       async addTodo() {     
-        if(this.todoData.title == null){
+        if(this.todoData.title == null || this.todoData.title.trim().length === 0){
           this.$refs['errTitle'].open()
           this.fieldDisabled = true
           setTimeout(() => {
@@ -385,10 +385,9 @@
         }).catch((err) => {
           console.error(err);
         });
-        this.$refs['addTodo'].close()
       },
       async addChildTodo() {
-        if(this.todoChildData.title == null){
+        if(this.todoChildData.title == null || this.todoChildData.title.trim().length === 0){
           this.$refs['errTitle'].open()
           this.fieldDisabled = true
           setTimeout(() => {
