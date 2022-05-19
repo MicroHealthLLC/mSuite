@@ -72,7 +72,7 @@
                               </b-col>
                               <b-col sm="2">
                                 <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
-                                <b-button variant="danger" @click="cancelChildObj"><i class="fa fa-times"></i></b-button>
+                                <b-button variant="danger" @click="cancelChildObj"><i class="fas fa-trash"></i></b-button>
                               </b-col>
                             </b-row>
                           </b-form>
