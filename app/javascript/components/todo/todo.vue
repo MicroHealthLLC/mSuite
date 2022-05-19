@@ -374,7 +374,7 @@
           }, 1500)
           return
         }
-        if(this.todoData.date) this.todoData.date.setDate(this.todoData.date.getDate() + 1);
+        if(this.todoData.date) this.todoData.date = new Date(this.todoData.date.getTime() - this.todoData.date.getTimezoneOffset() * 60 * 1000)
         let data = {
           node: {title: this.todoData.title, mindmap_id: this.currentMindMap.id, duedate: this.todoData.date, is_disabled: false}
         }
@@ -395,7 +395,7 @@
           }, 1500)
           return
         }
-        if(this.todoChildData.date) this.todoChildData.date.setDate(this.todoChildData.date.getDate() + 1);
+        if(this.todoChildData.date) this.todoChildData.date = new Date(this.todoChildData.date.getTime() - this.todoChildData.date.getTimezoneOffset() * 60 * 1000)
         let data = {
           node: {title: this.todoChildData.title, duedate: this.todoChildData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
         }
@@ -407,9 +407,8 @@
         });
       },
       updateTodo(todo, title, completed) {
-        if(this.selectedTodo.duedate) {
-          this.selectedTodo.duedate = new Date(this.selectedTodo.duedate)
-          this.selectedTodo.duedate.setDate(this.selectedTodo.duedate.getDate() + 1);
+        if(typeof this.selectedTodo.duedate !== 'string') {
+          this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - this.selectedTodo.duedate.getTimezoneOffset() * 60 * 1000)
         }  
         let obj = {
           node: {
