@@ -19,8 +19,8 @@
           :class="{ 'line-through': node.is_disabled }"> 
             {{node.duedate}}
         </span>
-        <i class='ml-4 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
-        <i class="ml-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
+        <i v-b-tooltip.hover title="Add Todo" class='ml-4 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
+        <i v-b-tooltip.hover title="Delete Todo" class="ml-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
       </div>
       <div class="ml-3" v-else-if="selectedTodo.id == node.id">
         <div class="relative flex h-full">
@@ -47,8 +47,8 @@
                     <b-button @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                 </b-col>
                 <b-col sm="2">
-                  <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
-                  <b-button variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
+                  <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
+                  <b-button v-b-tooltip.hover title="Cancel" variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
                 </b-col>
               </b-row>
             </b-form>
@@ -77,7 +77,7 @@
             :class="{ 'line-through': child.is_disabled }"> 
               {{child.duedate}}
           </span>
-          <i class="ml-1 mt-1 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
+          <i v-b-tooltip.hover title="Delete Todo" class="ml-1 mt-1 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
         </div>
         <div class="ml-3" v-else-if="selectedTodo.id == child.id">
           <div class="relative flex h-full">
@@ -104,8 +104,8 @@
                       <b-button @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                   </b-col>
                   <b-col sm="2">
-                    <b-button type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
-                    <b-button variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
+                    <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-check"></i> </b-button>
+                    <b-button v-b-tooltip.hover title="Cancel" variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
                   </b-col>
                 </b-row>
               </b-form>
