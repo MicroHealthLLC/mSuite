@@ -15,7 +15,7 @@
     </navigation-bar>
     <div id="todo">
       <div>
-        <div class=" h-75 overflow-auto">
+        <div class=" h-75">
           <div class="">
             <div class="container max-w-lg mx-auto">
                 <h1 class=" font-bold text-center text-blue-600">ToDo App</h1>
@@ -300,7 +300,6 @@
         this.todo = todo
         this.todo_parent = todo.id
         this.showChildModalTodo = true
-        this.$nextTick(() => this.$refs.title.focus())
       },
       clearTodoEditObj() {
         this.selectedTodo = {id: ''}
@@ -408,7 +407,7 @@
         });
       },
       updateTodo(todo, title, completed) {
-        if(typeof this.selectedTodo.duedate !== 'string') {
+        if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
           this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - this.selectedTodo.duedate.getTimezoneOffset() * 60 * 1000)
         }  
         let obj = {
