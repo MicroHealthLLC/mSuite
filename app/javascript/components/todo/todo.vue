@@ -407,6 +407,14 @@
         });
       },
       updateTodo(todo, title, completed) {
+        if(title == null || title.trim().length === 0){
+          this.$refs['errTitle'].open()
+          this.fieldDisabled = true
+          setTimeout(() => {
+            this.fieldDisabled = false
+          }, 1500)
+          return
+        }
         if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
           this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - this.selectedTodo.duedate.getTimezoneOffset() * 60 * 1000)
         }  
