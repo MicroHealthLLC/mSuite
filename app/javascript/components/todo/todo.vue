@@ -459,7 +459,7 @@
           })
       },
       disabledStartDate(date) {
-        if(this.todo.duedate) return date < new Date() || date > new Date(this.todo.duedate)
+        if(this.todo.duedate !== null) return date < new Date() || date > new Date(this.todo.duedate)
         else return date < new Date()
       },
     },
