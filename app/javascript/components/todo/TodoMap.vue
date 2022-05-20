@@ -154,7 +154,7 @@
         this.$emit("clearTodoEditObj")
       },
       disabledStartDate(date) {
-        if(this.selectedTodo.id != this.node.id) return date < new Date() || date > new Date(this.node.duedate)
+        if(this.selectedTodo.id != this.node.id && this.node.duedate !== null) return date < new Date() || date > new Date(this.node.duedate)
         else return date < new Date()
       },
     },
