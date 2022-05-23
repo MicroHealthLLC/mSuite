@@ -72,7 +72,7 @@
                               </b-col>
                               <b-col sm="2">
                                 <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                                <b-button v-b-tooltip.hover title="Cancel" variant="danger" @click="cancelChildObj"><i class="fa fa-trash"></i></b-button>
+                                <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-eject"></i></b-button>
                               </b-col>
                             </b-row>
                           </b-form>
