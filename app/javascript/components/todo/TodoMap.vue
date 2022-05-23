@@ -1,6 +1,12 @@
 <template>
-  <div>
-    <b-list-group-item class="mb-0">
+  <div
+    :id="'todo' + node.id"
+    >
+    <b-list-group-item
+      @drop="dragDrop(node)"
+      @dragstart="dragStart(node)"
+      ondragover="event.preventDefault();"
+      draggable="true" class="mb-0">
       <div class="flex" v-if="selectedTodo.id != node.id">
         <div class="col-8 d-flex flex-row">
           <div class="flex-auto">
@@ -66,7 +72,10 @@
     </b-list-group-item>
     <div  v-if="node.children && node.children.length">
       <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
-        <div class="flex" v-if="selectedTodo.id != child.id">
+        <div class="flex" v-if="selectedTodo.id != child.id" @drop="dragDrop(child)"
+          @dragstart="dragStart(child)"
+          ondragover="event.preventDefault();"
+          draggable="true">
           <div class="col-8 d-flex flex-row">
             <div class="flex-auto">
               <input
@@ -151,6 +160,9 @@
         format: 'YYYY-MM-DD',
         fieldDisabled: false,
         editStatus: false
+        dragElement: null,
+        dropElement: {id: null}
+
       }
     },
     methods:{
@@ -190,24 +202,29 @@
         if(this.selectedTodo.id != this.node.id && this.node.duedate !== null) return date < new Date() || date > new Date(this.node.duedate)
         else return date < new Date()
       },
+      dragStart(node){
+        this.dragElement = node
+      },
+      dragDrop(node){
+        this.dropElement = node
+        if(node.id && node.id != this.dragElement.id) {
+          this.dragElement.parent_node = node.id
+          this.$emit("updateTodo",this.dragElement,this.dragElement.title,this.dragElement.completed)
+        }
+        // else if(node.id === undefined) {
+        //   this.dragElement.parent_node = null
+        //   this.$emit("updateTodo",this.dragElement,this.dragElement.title,this.dragElement.completed)
+        // } else {
+        // }
+      },
     },
     computed: {
       sortedChildTodos() {
         if(this.completedTasks){
           return this.node.children
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
             .filter(task => (!task.is_disabled) ? task : '')
         } else {
           return this.node.children
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
         }
       }
     },
