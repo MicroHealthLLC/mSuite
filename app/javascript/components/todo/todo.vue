@@ -71,7 +71,7 @@
                                     ></date-picker>
                               </b-col>
                               <b-col sm="2">
-                                <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-folder-plus"></i> </b-button>
+                                <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
                                 <b-button v-b-tooltip.hover title="Cancel" variant="danger" @click="cancelChildObj"><i class="fa fa-trash"></i></b-button>
                               </b-col>
                             </b-row>
@@ -109,7 +109,7 @@
                               ></date-picker>
                         </b-col>
                         <b-col sm="2">
-                          <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-folder-plus"></i> </b-button>
+                          <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
                           <b-button v-b-tooltip.hover variant="warning" @click="clearTodoObj" title="Reset"> <i class="fas fa-undo-alt"></i> </b-button>
                         </b-col>
                       </b-row>
