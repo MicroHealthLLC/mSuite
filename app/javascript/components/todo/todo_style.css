@@ -14,14 +14,10 @@
   .addTodo{
     color: #3CA556;
     cursor: pointer;
-    position: absolute;
-    left: 91%;
   }
   .deleteTodo{
     color: #D1727F;
     cursor: pointer;
-    position: absolute;
-    left: 97%;
   }
   .deleteChild{
     color: #D1727F;
@@ -33,8 +29,6 @@
     margin-left: 45.8%;
   }
   .dueDate{
-    position: absolute;
-    left: 77%;
     color: #BFCBD9;
   }
   .dueDatePicker{

@@ -15,7 +15,7 @@
     </navigation-bar>
     <div id="todo">
       <div>
-        <div class=" h-75">
+        <div class="h-75">
           <div class="">
             <div class="container max-w-lg mx-auto">
                 <h1 class=" font-bold text-center text-blue-600">ToDo App</h1>
@@ -24,7 +24,7 @@
           <div class="container relative max-w-lg pt-6 mx-auto">
             <p class="text-slate-600 text-center">Your Todos</p>
             <toggle-button 
-              class="toggleButton"
+              class="toggleButton mb-3"
               :value="true" 
               color="#82C7EB" 
               :sync="true" 
@@ -33,7 +33,7 @@
               width = "90"
               height = "28"/>
             <div class="parentGroup">
-              <b-list-group class="mr-0" v-if="sortedTodos.length > 0" >
+              <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 
                     :node="todo" 
@@ -46,12 +46,12 @@
                     @blurEvent="blurEvent"
                     @clearTodoEditObj="clearTodoEditObj"></todo-map>
                   <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
-                    <div class="ml-3">
+                    <div class="ml-1">
                       <div class="relative flex h-full">
                         <div class="container relative z-20 max-w-xl mt-20 h-min">
                           <b-form @submit.prevent="addChildTodo()">
                             <b-row>
-                              <b-col sm="5">
+                              <b-col cols="5" sm="5">
                                 <b-form-input 
                                   :class="fieldDisabled ? 'shake': ''"
                                   v-model="todoChildData.title"
@@ -61,16 +61,17 @@
                                 >
                                 </b-form-input>
                               </b-col>
-                              <b-col sm="5">
+                              <b-col cols="5" sm="5">
                                   <date-picker
                                     id="input" 
+                                    class="w-75"
                                     v-model='todoChildData.date'
                                     placeholder="Due Date"
                                     :disabled-date="disabledStartDate"
                                     ref="date"
                                     ></date-picker>
                               </b-col>
-                              <b-col sm="2">
+                              <b-col cols="2" sm="2" class="d-flex flex-row">
                                 <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
                                 <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-eject"></i></b-button>
                               </b-col>
@@ -83,12 +84,12 @@
                   </b-list-group-item>
                 </div>
               </b-list-group>
-              <b-list-group-item v-if="!showChildModalTodo">
-                <div class="relative flex h-full " >
-                  <div class="container relative z-20 max-w-xl mt-20 h-min">
+              <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
+                <div class="relative flex h-full">
+                  <div class="container relative max-w-xl mt-20 h-min">
                     <b-form @submit.prevent="addTodo()">
                       <b-row>
-                        <b-col sm="5" class="todo-field">
+                        <b-col cols="5" class="todo-field">
                           <b-form-input 
                             :class="fieldDisabled ? 'shake': ''"
                             v-model="todoData.title"
@@ -98,9 +99,10 @@
                           >
                           </b-form-input>
                         </b-col>
-                        <b-col sm="5">
+                        <b-col cols="5">
                             <date-picker
                               id="input" 
+                              class="w-75"
                               v-model='todoData.date'
                               placeholder="Due Date"
                               :min-date='new Date()'
@@ -108,7 +110,7 @@
                               ref="date"
                               ></date-picker>
                         </b-col>
-                        <b-col sm="2">
+                        <b-col sm="2" cols="2" class="d-flex flex-row">
                           <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
                           <b-button v-b-tooltip.hover variant="warning" @click="clearTodoObj" title="Reset"> <i class="fas fa-undo-alt"></i> </b-button>
                         </b-col>
