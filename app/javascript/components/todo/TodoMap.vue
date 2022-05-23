@@ -20,7 +20,7 @@
             {{node.duedate}}
         </span>
         <i v-b-tooltip.hover title="Add Todo" class='ml-4 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
-        <i v-b-tooltip.hover title="Delete Todo" class="ml-1 mt-1 fa fa-trash deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
+        <i v-b-tooltip.hover title="Delete Todo" class="ml-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
       </div>
       <div class="ml-3" v-else-if="selectedTodo.id == node.id">
         <div class="relative flex h-full">
@@ -48,7 +48,7 @@
                 </b-col>
                 <b-col sm="2">
                   <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                  <b-button v-b-tooltip.hover title="Cancel" variant="danger" @click="clearTodoEditObj"><i class="fa fa-times"></i></b-button>
+                  <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
                 </b-col>
               </b-row>
             </b-form>
@@ -105,7 +105,7 @@
                   </b-col>
                   <b-col sm="2">
                     <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                    <b-button v-b-tooltip.hover title="Cancel" variant="danger" @click="clearTodoEditObj"><i class="fa fa-trash"></i></b-button>
+                    <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
                   </b-col>
                 </b-row>
               </b-form>
