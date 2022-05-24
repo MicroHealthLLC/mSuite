@@ -23,8 +23,8 @@
             {{node.duedate}}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
-          <i v-b-tooltip.hover title="Add Todo" class='ml-4 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
-          <i v-b-tooltip.hover title="Delete Todo" class="ml-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
+          <i v-b-tooltip.hover title="Add Todo" class='ml-lg-3 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
+          <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-1 ml-xs-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
         </div>
       </div>
       <div class="ml-3" v-else-if="selectedTodo.id == node.id">
@@ -49,11 +49,11 @@
                     :disabled-date="disabledStartDate"
                     ref="date"
                     ></date-picker>
-                    <b-button @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
+                    <b-button class="ml-1" @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                 </b-col>
                 <b-col sm="2" cols="2" class="d-flex flex-row">
                   <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                  <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
+                  <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
                 </b-col>
               </b-row>
             </b-form>
@@ -80,11 +80,14 @@
             >{{ child.name }}</label>
           </div>
           <span @click="showInputField(child)"
-            class="col-3 dueDate"
+            class="col-3 dueDate pl-1"
             :class="{ 'line-through': child.is_disabled }"> 
               {{child.duedate}}
           </span>
-          <i v-b-tooltip.hover placement="top" title="Delete Todo" class="col-1 mt-1 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
+          <div class="col-1 ml-xl-5 ml-lg-5 ml-md-4 ml-sm-4 ml-4 pl-xl-1 pl-lg-0 pl-md-1 pl-sm-1 pl-1">
+            <i class="d-none fa fa-times"></i>
+            <i v-b-tooltip.hover placement="top" title="Delete Todo" class="mt-1 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
+          </div>
         </div>
         <div v-else-if="selectedTodo.id == child.id">
           <div class="relative flex h-full">
@@ -109,11 +112,11 @@
                       :disabled-date="disabledStartDate"
                       ref="date"
                       ></date-picker>
-                      <b-button @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
+                      <b-button class="ml-1" @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                   </b-col>
                   <b-col sm="2" cols="2" class="d-flex flex-row">
                     <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                    <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
+                    <b-button v-b-tooltip.hover title="Cancel" class="ml-1" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
                   </b-col>
                 </b-row>
               </b-form>

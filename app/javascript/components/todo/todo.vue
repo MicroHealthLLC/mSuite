@@ -73,7 +73,7 @@
                               </b-col>
                               <b-col cols="2" sm="2" class="d-flex flex-row">
                                 <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                                <b-button v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-eject"></i></b-button>
+                                <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-eject"></i></b-button>
                               </b-col>
                             </b-row>
                           </b-form>
@@ -105,14 +105,13 @@
                               class="w-75"
                               v-model='todoData.date'
                               placeholder="Due Date"
-                              :min-date='new Date()'
                               :disabled-date="disabledStartDate"
                               ref="date"
                               ></date-picker>
                         </b-col>
                         <b-col sm="2" cols="2" class="d-flex flex-row">
                           <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                          <b-button v-b-tooltip.hover variant="warning" @click="clearTodoObj" title="Reset"> <i class="fas fa-undo-alt"></i> </b-button>
+                          <b-button class="ml-1" v-b-tooltip.hover variant="warning" @click="clearTodoObj" title="Reset"> <i class="fas fa-undo-alt"></i> </b-button>
                         </b-col>
                       </b-row>
                     </b-form>
@@ -448,10 +447,12 @@
       },
       showInputField(todo){
         let _this = this
-        this.selectedTodo = todo
-        setTimeout(() => {
-          document.getElementById('textArea'+ _this.selectedTodo.id).focus()
-        }, 300)
+        _this.selectedTodo = todo
+        if(document.getElementById('textArea'+ _this.selectedTodo.id) != null){
+          setTimeout(() => {
+            document.getElementById('textArea'+ _this.selectedTodo.id).focus()
+          }, 300)
+        }
       },
       blurEvent(val, e){
         this.selectedTodo = {id: null}
