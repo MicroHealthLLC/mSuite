@@ -47,7 +47,8 @@
                     v-model='selectedTodo.duedate'
                     :placeholder="selectedTodo.duedate"
                     :disabled-date="disabledStartDate"
-                    ref="date"
+                    :format="format"
+                    ref="datePicker"
                     ></date-picker>
                     <b-button class="ml-1" @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
                 </b-col>
@@ -110,6 +111,7 @@
                       v-model='selectedTodo.duedate'
                       :placeholder="selectedTodo.duedate"
                       :disabled-date="disabledStartDate"
+                      :format="format"
                       ref="date"
                       ></date-picker>
                       <b-button class="ml-1" @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
@@ -143,10 +145,12 @@
       return {
         parentIndex: null,
         index: null,
+        format: 'YYYY-MM-DD'
       }
     },
     methods:{
       updateTodo(todo, title, completed) {
+        this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
         this.$emit("updateTodo",todo,title,completed)
       },
       toggleChildModal(todo) {

@@ -68,7 +68,8 @@
                                     v-model='todoChildData.date'
                                     placeholder="Due Date"
                                     :disabled-date="disabledStartDate"
-                                    ref="date"
+                                    :format="format"
+                                    ref="datePicker"
                                     ></date-picker>
                               </b-col>
                               <b-col cols="2" sm="2" class="d-flex flex-row">
@@ -106,7 +107,8 @@
                               v-model='todoData.date'
                               placeholder="Due Date"
                               :disabled-date="disabledStartDate"
-                              ref="date"
+                              :format="format"
+                              ref="datePicker"
                               ></date-picker>
                         </b-col>
                         <b-col sm="2" cols="2" class="d-flex flex-row">
@@ -175,8 +177,8 @@
         todo_parent: null,
         showModalTodo: false,
         showChildModalTodo: false,
-        todoData: { title: null, date: null },
-        todoChildData: { title: null, date: null },
+        todoData: { title: null, date: '' },
+        todoChildData: { title: null, date: '' },
         uniqueChild: new Set(),
         childCompleted: false,
         parentIndex: null,
@@ -185,7 +187,8 @@
         selectedTodoDelete: null,
         disabledBefore: new Date(),
         placeHolderText: 'Your Todo',
-        fieldDisabled: false
+        fieldDisabled: false,
+        format: 'YYYY-MM-DD'
       }
     },
     components: {
