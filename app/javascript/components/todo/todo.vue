@@ -466,6 +466,8 @@
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.currentMindMap.nodes = []
+            this.cancelChildObj()
+            this.completedTasks = false
           })
           .catch((err) => {
             console.log(err)
