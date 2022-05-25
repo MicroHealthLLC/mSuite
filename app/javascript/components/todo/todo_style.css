@@ -9,7 +9,7 @@
   }
   .line-through{
     text-decoration: line-through;
-    color: #BFCBD9;
+    color: #6E778F;
   }
   .addTodo{
     color: #3CA556;
@@ -33,9 +33,6 @@
   }
   .v-switch-core {
     background-color: red !important;
-  }
-  .dueDate{
-    color: #BFCBD9;
   }
   .dueDatePicker{
     position: relative;
