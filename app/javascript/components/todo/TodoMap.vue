@@ -14,7 +14,7 @@
           </div>
           <label v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)" class="mb-0 text-wrap"
             :for="'todo-' + node.id"
-              :class="{ 'line-through': node.is_disabled }"
+            :class="{ 'line-through': node.is_disabled }"
           >{{ node.name }}</label>
         </div>
         <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)"
