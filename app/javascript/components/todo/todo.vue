@@ -39,6 +39,7 @@
                     :node="todo" 
                     :selectedTodo="selectedTodo" 
                     :completedTasks="completedTasks"
+                    :editInProgress="editInProgress"
                     @updateTodo="updateTodo" 
                     @toggleChildModal="toggleChildModal" 
                     @toggleDeleteTodo="toggleDeleteTodo"
@@ -188,7 +189,8 @@
         disabledBefore: new Date(),
         placeHolderText: 'Your Todo',
         fieldDisabled: false,
-        format: 'YYYY-MM-DD'
+        format: 'YYYY-MM-DD',
+        editInProgress: false,
       }
     },
     components: {
@@ -307,6 +309,7 @@
       },
       clearTodoEditObj() {
         this.selectedTodo = {id: ''}
+        this.editInProgress = false
         this.fetchToDos()
       },
       async fetchToDos(){
@@ -432,6 +435,7 @@
         }
         http.put(`/nodes/${todo.id}`, obj)
         this.selectedTodo = {id: ''}
+        this.editInProgress = false
       },
       async deleteTodo() {
         let todo = this.selectedTodoDelete
@@ -450,6 +454,7 @@
       },
       showInputField(todo){
         let _this = this
+        _this.editInProgress = true
         _this.selectedTodo = todo
         if(document.getElementById('textArea'+ _this.selectedTodo.id) != null){
           setTimeout(() => {

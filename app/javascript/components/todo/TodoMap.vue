@@ -12,19 +12,19 @@
                 @click="updateTodo(node, node.name, !node.is_disabled)"
             />
           </div>
-          <label v-if="selectedTodo.id != node.id" @click="showInputField(node)" class="mb-0 text-wrap"
+          <label v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)" class="mb-0 text-wrap"
             :for="'todo-' + node.id"
               :class="{ 'line-through': node.is_disabled }"
           >{{ node.name }}</label>
         </div>
-        <span v-if="selectedTodo.id != node.id" @click="showInputField(node)"
+        <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)"
           class="dueDate col-3"
           :class="{ 'line-through': node.is_disabled }"> 
             {{node.duedate}}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
-          <i v-b-tooltip.hover title="Add Todo" class='ml-lg-3 mt-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
-          <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-1 ml-xs-1 mt-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
+          <i v-b-tooltip.hover title="Add Todo" class='ml-lg-3 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
+          <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-1 ml-xs-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
         </div>
       </div>
       <div class="ml-3" v-else-if="selectedTodo.id == node.id">
@@ -35,6 +35,7 @@
                 <b-col cols="5" sm="5">
                   <b-form-input 
                     v-model="selectedTodo.name"
+                    :class="fieldDisabled ? 'shake': ''"
                     ref="title"
                     type="text"
                     placeholder="Your Todo"
@@ -75,12 +76,12 @@
                   @click="updateTodo(child, child.name, !child.is_disabled)"
               />
             </div>
-            <label @click="showInputField(child)" class="mb-0 text-wrap"
+            <label @click="showInputFieldToggle(child)" class="mb-0 text-wrap"
               :for="'child-' + child.id"
                 :class="{ 'line-through': child.is_disabled }"
             >{{ child.name }}</label>
           </div>
-          <span @click="showInputField(child)"
+          <span @click="showInputFieldToggle(child)"
             class="col-3 dueDate pl-1"
             :class="{ 'line-through': child.is_disabled }"> 
               {{child.duedate}}
@@ -98,6 +99,7 @@
                   <b-col sm="5" cols="5">
                     <b-form-input 
                       v-model="selectedTodo.name"
+                      :class="fieldDisabled ? 'shake': ''"
                       ref="title"
                       type="text"
                       placeholder="Your Todo"
@@ -139,18 +141,21 @@
     props: {
       node: Object,
       selectedTodo: Object,
-      completedTasks: Boolean
+      completedTasks: Boolean,
+      editInProgress: Boolean
     },
     data() {
       return {
         parentIndex: null,
         index: null,
-        format: 'YYYY-MM-DD'
+        format: 'YYYY-MM-DD',
+        fieldDisabled: false,
+        editStatus: false
       }
     },
     methods:{
       updateTodo(todo, title, completed) {
-        this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
+        if(this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
         this.$emit("updateTodo",todo,title,completed)
       },
       toggleChildModal(todo) {
@@ -159,7 +164,20 @@
       toggleDeleteTodo(todo) {
         this.$emit("toggleDeleteTodo",todo)
       },
+      showInputFieldToggle(todo){
+        if(this.editStatus){
+          this.fieldDisabled = true
+          setTimeout(() => {
+            this.fieldDisabled = false
+          }, 1500)
+          return
+        } else {
+          this.showInputField(todo)
+        }
+      },
       showInputField(todo) {
+        if(this.selectedTodo && this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
+
         this.$emit("showInputField",todo)
       },
       blurEvent(val, e) {
@@ -193,6 +211,13 @@
         }
       }
     },
+    watch: {
+      editInProgress: {
+        handler(value) {
+          this.editStatus = value
+        }, deep: true
+      }
+    }
   };
 </script>
 <style scoped>

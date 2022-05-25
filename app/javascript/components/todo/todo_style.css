@@ -75,6 +75,9 @@
   .fa-undo-alt{
     color: white;
   }
+  .svg-inline--fa, .fa-plus{
+    height: 0.93rem !important;
+  }
   @keyframes list {
     from {top: 200px;}
     to {top: 0px;}
