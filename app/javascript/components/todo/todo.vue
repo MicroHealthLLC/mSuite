@@ -28,9 +28,9 @@
               :value="true" 
               color="#82C7EB" 
               :sync="true" 
-              :labels="{checked: 'Actionable', unchecked: 'All tasks'}" 
+              :labels="{checked: 'Actionable', unchecked: 'All Tasks' }" 
               v-model="completedTasks" 
-              width = "90"
+              width = "115"
               height = "28"/>
             <div class="parentGroup">
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
@@ -509,6 +509,9 @@
         this.todos = this.currentMindMap.nodes
         this.renderTodos()
       }
+      $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
+
+      $(".v-switch-label, .v-right").css({"color": "#212529"})
     },
   }
 </script>
