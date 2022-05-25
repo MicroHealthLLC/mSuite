@@ -15,18 +15,16 @@
           </div>
           <!-- Row for wrapper containing grid-layout mindmap items -->
         <div class="row mm-icon-row">
-          <div v-for="type, i in mindmapTypes" class="mx-3 my-2 py-auto col-lg-2 col-sm-6 col-md-2 icon-col" :key="i">
-            <!-- <div class="item p-0 my-2 px-4" @mouseover.self="hovered = type.key" @mouseleave.self="hovered = false" :class="hovered === type.key ? 'hovering' : ''"> -->
-              <div class="item icon-item" @click.prevent="mindMapCreate(type.key)">
-              <!-- <img :src="type.imgsrc" class="mindmap-img-size" />  -->
-              <i class="fal fa-mind-share mm-icon" v-if="type.key == 'simple'"></i>
-              <i class="far fa-columns mm-icon" v-if="type.key == 'kanban'"></i>
-              <i class="far fa-chalkboard mm-icon" v-if="type.key == 'whiteboard'"></i>
-              <i class="fad fa-th-large mm-icon" v-if="type.key == 'tree_map'"></i>
-              <i class="fal fa-sitemap mm-icon" v-if="type.key == 'tree_chart'"></i>
-              <i class="fas fa-project-diagram mm-icon" v-if="type.key == 'flowmap'"></i>
-              <i class="fas fa-tasks mm-icon" v-if="type.key == 'todo'"></i>
-              <span class="text-center">{{type.value}}</span>
+          <div v-for="type, i in mindmapTypes" :key="i" class="col col-xl-2">
+            <div class="item icon-item mx-3 mx-xl-0 my-2 py-4 icon-col" @click.prevent="mindMapCreate(type.key)">
+              <i class="fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
+              <i class="far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
+              <i class="far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
+              <i class="fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
+              <i class="fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
+              <i class="fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
+              <i class="fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
+              <span class="text-center icon-text">{{type.value}}</span>
             </div>
           </div>
         </div>
@@ -121,24 +119,16 @@
 <style scoped lang="css">
   .main_div {
     position: absolute;
-    height: 100%;
     width: 100%;
+    height: 94vh;
     background:  linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../assets/images/landing_bg.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
   }
-  .main_box {
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
-    height: max-content;
-    background-image: linear-gradient(white, grey);
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.8);
-  }
   .searchbar-row{
-    margin: 7rem auto 12rem auto;
+    margin: 2rem auto 12rem auto;
   }
   .new_button_container {
     display: flex;
@@ -160,13 +150,6 @@
   .input_label {
     text-align: center;
     margin-top: 5%;
-  }
-  .icon-item {
-  position: absolute;
-  top: 50%;
-  left: 32%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
   }
   .msuite-title {
     font-family: sans-serif;
@@ -196,10 +179,10 @@
   }
   .icon-col{
     /* Each mindmap icon wrapper */
-    /* background-color: rgba(255, 255, 255, 0.8); */
     background-color: #fff;
     padding: 8px;
-    min-height: 200px;
+    min-height: 9rem;
+    min-width: 5rem;
     border-radius: 4px;
     transition: all .2s ease-in-out;
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
@@ -207,6 +190,11 @@
   .icon-col:hover{
     /* Each mindmap icon wrapper */
     transform: scale(1.15);
+  }
+  @media only screen and (min-width: 2200px) {
+    .icon-col {
+      min-height: 14rem;
+    }
   }
   .mind-map-list-header {
     text-align: center;
@@ -219,55 +207,11 @@
     font-variant-caps: petite-caps;
     font-style: italic;
   }
-  .mind-map-list {
-    max-height: 35vh;
-    overflow: auto;
-  }
-  .map-item {
-    border-bottom: 1px solid grey;
-    word-break: break-word;
-  }
-  .map-link {
-    color: #212529;
-    cursor: pointer;
-  }
-  .map-link:hover {
-    color: #e9ecef;
-    font-weight: 500;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  .empty-list {
-    justify-content: center;
-    color: #e9ecef;
-    font-style: italic;
-    letter-spacing: 6px;
-  }
-  .selectPicker {
-    justify-content: center;
-    border-radius: 50px;
-    width: 50%;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
-    height: 30px;
-  }
-  .mindmap-img-size {
-    width: 80px;
-    height: 80px;
-  }
   .item {
     vertical-align: top;
     display: inline-block;
     text-align: center;
     cursor: pointer;
-  }
-  .each-icon-wrapper{
-    transition: all .2s ease-in-out;
-  }
-  .each-icon-wrapper:hover{
-   transform: scale(1.3);
   }
   .mindmap-name {
     background-color: white;
@@ -287,18 +231,23 @@
   ::-ms-input-placeholder { /* Microsoft Edge */
     color: black;
   }
-  .hovering {
-    -ms-transform: scale(1.2); /* IE 9 */
-    -webkit-transform: scale(1.2); /* Safari 3-8 */
-    transform: scale(1.2);
-  }
-
   .mm-icon {
     font-size: 5rem;
     color: #DD9036;
     font-weight: 300;
   }
+   @media only screen and (min-width: 2200px) {
+    .mm-icon {
+      font-size: 10rem;
+    }
+  }
+  @media only screen and (min-width: 2200px) {
+    .icon-text {
+      font-size: 1.5rem;
+    }
+  }
   .mm-icon-row{
     margin-left: 5%;
+    margin-right: 5%;
   }
 </style>
