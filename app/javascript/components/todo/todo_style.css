@@ -27,6 +27,12 @@
   }
   .toggleButton{
     margin-left: 45.8%;
+    font-size: 15px;
+    letter-spacing: 1px;
+    color: grey !important;
+  }
+  .v-switch-core {
+    background-color: red !important;
   }
   .dueDate{
     color: #BFCBD9;
@@ -101,3 +107,9 @@
       transform: translate3d(4px, 0, 0);
     }
   }
+
+  .vue-js-switch .v-switch-label.v-right {
+    right: 10px;
+    color: #000 !important;
+    font-weight: 900 !important;
+}
