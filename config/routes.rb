@@ -31,7 +31,7 @@ Rails.application.routes.draw do
   resources :stages, except: [:new] do
     collection do 
       post :reset_stages
-    end
+    end 
   end
 
   resources :nodes, except: [:new, :edit, :show] do
@@ -39,6 +39,9 @@ Rails.application.routes.draw do
       put :update_export_order
       put :destroy_file
     end
+  end
+
+  resources :comments do
   end
 
   namespace :api, defaults: { format: :json } do
