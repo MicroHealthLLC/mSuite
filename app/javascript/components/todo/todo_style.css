@@ -78,6 +78,9 @@
   .svg-inline--fa, .fa-plus{
     height: 0.93rem !important;
   }
+  .over {
+    border: 3px ;
+  }
   @keyframes list {
     from {top: 200px;}
     to {top: 0px;}

@@ -3,9 +3,12 @@
     :id="'todo' + node.id"
     >
     <b-list-group-item
-      @drop="dragDrop(node)"
-      @dragstart="dragStart(node)"
-      ondragover="event.preventDefault();"
+      @dragstart="handleDragStart"
+      @dragover="handleDragOver"
+      @dragenter="handleDragEnter"
+      @dragleave="handleDragLeave"
+      @dragend="handleDragEnd"
+      @drop="handleDragDrop"
       draggable="true" class="mb-0">
       <div class="flex" v-if="selectedTodo.id != node.id">
         <div class="col-8 d-flex flex-row">
@@ -72,9 +75,13 @@
     </b-list-group-item>
     <div  v-if="node.children && node.children.length">
       <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
-        <div class="flex" v-if="selectedTodo.id != child.id" @drop="dragDrop(child)"
-          @dragstart="dragStart(child)"
-          ondragover="event.preventDefault();"
+        <div class="flex" v-if="selectedTodo.id != child.id"
+          @dragstart="handleDragStart"
+          @dragover="handleDragOver"
+          @dragenter="handleDragEnter"
+          @dragleave="handleDragLeave"
+          @dragend="handleDragEnd"
+          @drop="handleDragDrop"
           draggable="true">
           <div class="col-8 d-flex flex-row">
             <div class="flex-auto">
@@ -159,10 +166,11 @@
         index: null,
         format: 'YYYY-MM-DD',
         fieldDisabled: false,
-        editStatus: false
-        dragElement: null,
-        dropElement: {id: null}
-
+        editStatus: false,
+        dragElement: {id: null},
+        dropElement: {id: null},
+        dragSrcEl: null,
+        nodeText: '',
       }
     },
     methods:{
@@ -202,15 +210,41 @@
         if(this.selectedTodo.id != this.node.id && this.node.duedate !== null) return date < new Date() || date > new Date(this.node.duedate)
         else return date < new Date()
       },
-      dragStart(node){
-        this.dragElement = node
+      handleDragStart(event){
+        event.target.parentElement.parentElement.style.opacity = '0.4'
+        // this.dragElement = node
+        this.dragSrcEl = this
+        event.dataTransfer.effectAllowed = 'move';
+        this.nodeText = event.currentTarget.children[0].children[0].innerText
+        // event.dataTransfer.setData('text/html', this.nodeText);
       },
-      dragDrop(node){
-        this.dropElement = node
-        if(node.id && node.id != this.dragElement.id) {
-          this.dragElement.parent_node = node.id
-          this.$emit("updateTodo",this.dragElement,this.dragElement.title,this.dragElement.completed)
+      handleDragEnd(event){
+        event.target.parentElement.parentElement.style.opacity = '1'
+      },
+      handleDragOver(event) {
+        event.preventDefault();
+        return false;
+      },
+      handleDragEnter(event) {
+        event.target.parentElement.parentElement.parentElement.classList.add('over')
+      },
+      handleDragLeave(event) {
+        event.target.parentElement.parentElement.parentElement.classList.remove('over')
+      },
+      handleDragDrop(event) {
+        event.stopPropagation();
+        if (this.dragSrcEl !== this) {
+          this.dragSrcEl.innerHTML = this.innerHTML;
+          // this.innerHTML = event.dataTransfer.getData('text/html');
         }
+        return false;
+      },
+      dragDrop(event){
+        // this.dropElement = node
+        // if(node.id && node.id != this.dragElement.id) {
+        //   this.dragElement.parent_node = node.id
+        //   this.$emit("updateTodo",this.dragElement,this.dragElement.title,this.dragElement.completed)
+        // }
         // else if(node.id === undefined) {
         //   this.dragElement.parent_node = null
         //   this.$emit("updateTodo",this.dragElement,this.dragElement.title,this.dragElement.completed)
