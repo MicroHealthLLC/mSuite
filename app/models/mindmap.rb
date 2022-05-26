@@ -9,6 +9,7 @@ class Mindmap < ApplicationRecord
 
   has_many :nodes, dependent: :destroy
   has_many :stages, dependent: :destroy
+  has_many :comments, dependent: :destroy
 
   has_many_attached :node_files, dependent: :destroy
 

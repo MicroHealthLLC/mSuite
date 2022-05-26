@@ -86,6 +86,15 @@
         <a
           href="javascript:;"
           role="button"
+          class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          v-b-tooltip.hover title="Comments"
+          @click.prevent="openCommentModal"
+        >
+          <i class="fa fa-comment d-flex center_flex"></i>
+        </a>
+        <a
+          href="javascript:;"
+          role="button"
           class="d-flex text-info edit_delete_btn mr-3 center_flex"
           @click.stop="resetMap"
         >
@@ -160,6 +169,7 @@
         </span>
       </span>
     </div>
+    <comment-map-modal :mind-map='currentMindMap' ref="comment-box-modal"></comment-map-modal>
     <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter"></confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
@@ -181,7 +191,7 @@
   import domtoimage from "dom-to-image-more"
   import http from "./http"
   import ResetMapModal from '../components/mindmaps/modals/reset_map_modal'
-
+  import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
     props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter"],
@@ -195,7 +205,8 @@
     },
     components:{
       ConfirmSaveKeyModal,
-      ResetMapModal
+      ResetMapModal,
+      CommentMapModal
     },
     computed: {
       isDeleteMindMap () {
@@ -225,6 +236,9 @@
           _this.defaultDeleteDays = res.data.defaultDeleteDays
           _this.deleteAfter = res.data.deleteAfter
         })
+      },
+      openCommentModal () {
+        this.$refs['comment-box-modal'].$refs['commentBoxModal'].open()
       },
       saveMSuite () {
         this.isSaveMSuite = true
