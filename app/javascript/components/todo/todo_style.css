@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
-  body{
+  body {
     scrollbar-width: none;
     -ms-overflow-style: none;  /* IE and Edge */
   }
@@ -40,17 +40,16 @@
   }
   .parentGroup{
     max-height:65vh;
-    overflow:scroll;
+    overflow: auto;
     margin-right:7%;
   }
   /* Hide scrollbar for Chrome, Safari and Opera */
-  .parentGroup::-webkit-scrollbar {
+  .parentGroup::-webkit-scrollbar-x {
     display: none;
   }
   /* Hide scrollbar for IE, Edge and Firefox */
   .parentGroup {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    overflow-x: hidden;
   }
   .list-group-item{
     animation: list 0.5s ease;
