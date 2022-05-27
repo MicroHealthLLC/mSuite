@@ -15,15 +15,15 @@
           </div>
           <!-- Row for wrapper containing grid-layout mindmap items -->
         <div class="row mm-icon-row">
-          <div v-for="type, i in mindmapTypes" :key="i" class="col col-xl-2">
-            <div class="item icon-item mx-3 mx-xl-0 my-2 py-4 icon-col" @click.prevent="mindMapCreate(type.key)">
-              <i class="fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
-              <i class="far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
-              <i class="far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
-              <i class="fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
-              <i class="fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
-              <i class="fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
-              <i class="fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
+          <div v-for="type, i in mindmapTypes" :key="i" class="card-width mx-3 my-2 mb-5">
+            <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
+              <i class="mx-auto fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
+              <i class="mx-auto far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
+              <i class="mx-auto far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
+              <i class="mx-auto fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
+              <i class="mx-auto fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
+              <i class="mx-auto fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
+              <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
               <span class="text-center icon-text">{{type.value}}</span>
             </div>
           </div>
@@ -189,12 +189,7 @@
   }
   .icon-col:hover{
     /* Each mindmap icon wrapper */
-    transform: scale(1.15);
-  }
-  @media only screen and (min-width: 2200px) {
-    .icon-col {
-      min-height: 14rem;
-    }
+    transform: scale(1.1);
   }
   .mind-map-list-header {
     text-align: center;
@@ -232,22 +227,16 @@
     color: black;
   }
   .mm-icon {
-    font-size: 5rem;
+    font-size: 9rem;
     color: #DD9036;
     font-weight: 300;
   }
-   @media only screen and (min-width: 2200px) {
-    .mm-icon {
-      font-size: 10rem;
-    }
+  .mm-icon-row {
+    margin-left: 6%;
+    margin-right: 6%;
   }
-  @media only screen and (min-width: 2200px) {
-    .icon-text {
-      font-size: 1.5rem;
-    }
-  }
-  .mm-icon-row{
-    margin-left: 5%;
-    margin-right: 5%;
+  .card-width {
+    width: 18rem;
+    height: 12rem;
   }
 </style>
