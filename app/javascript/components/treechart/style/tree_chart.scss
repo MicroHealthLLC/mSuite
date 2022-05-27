@@ -1,6 +1,9 @@
-.container {
+.parentComponent {
+  overflow: scroll !important;
 }
-
+.parentTree {
+  overflow: auto !important;
+}
 .rich-media-node {
   padding: 2px;
   display: flex;
