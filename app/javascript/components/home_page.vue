@@ -15,7 +15,7 @@
           </div>
           <!-- Row for wrapper containing grid-layout mindmap items -->
         <div class="row mm-icon-row">
-          <div v-for="type, i in mindmapTypes" :key="i" class="card-width mx-3 my-2 mb-5">
+          <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
             <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
               <i class="mx-auto fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
               <i class="mx-auto far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
@@ -227,7 +227,7 @@
     color: black;
   }
   .mm-icon {
-    font-size: 9rem;
+    font-size: 6rem;
     color: #DD9036;
     font-weight: 300;
   }
@@ -236,7 +236,7 @@
     margin-right: 6%;
   }
   .card-width {
-    width: 18rem;
-    height: 12rem;
+    width: 14rem;
+    height: 8rem;
   }
 </style>
