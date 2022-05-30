@@ -18,7 +18,10 @@
         <h1 class="mb-2 font-bold text-center text-blue-600">Notepad</h1>
       </div>
       <div class="h-75 overflow-auto">
-        <quill-editor v-model="content" class="h-75 overflow-auto"></quill-editor>
+        <quill-editor
+          v-model="content"
+          class="h-75 overflow-auto"
+          v-debounce:1000ms="blurEvent"></quill-editor>
       </div>
       <b-button id="updateDocument" @click="updateDocument" class="mt-2 mb-2 btn text-light bg-dark mx-auto d-block border-0">Save Content</b-button>
     </div>
@@ -193,6 +196,9 @@
         }
         document.body.removeChild(downloadLink);
         this.$refs['navigationBar'].$refs['exportOption'].close()
+      },
+      blurEvent(val, e){
+        this.updateDocument()
       }
     },
     updated() {
@@ -202,7 +208,7 @@
         updatedButton.classList.remove('bg-dark')
         updatedButton.classList.add('bg-success')
       } else {
-        updatedButton.innerText = 'Save Content'
+        updatedButton.innerText = 'Editing...'
         updatedButton.classList.add('bg-dark')
         updatedButton.classList.remove('bg-success')
       }
