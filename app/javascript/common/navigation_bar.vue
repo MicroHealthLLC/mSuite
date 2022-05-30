@@ -162,8 +162,11 @@
     <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter"></confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
-      <button slot="button" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
-      <button slot="button" @click="exportImage(2)" class="btn btn-info float-left">Export to Pdf</button>
+      <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
+      <button slot="button" v-else @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
+
+      <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(2)" class="btn btn-info float-left">Export to rtf</button>
+      <button slot="button" v-else @click="exportImage(2)" class="btn btn-info float-left">Export to Pdf</button>
       <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
     <reset-map-modal
@@ -294,8 +297,9 @@
         if (this.currentMindMap.mm_type === 'simple')
         {
           this.$emit('exportToImage',option)
-        }
-        else {
+        } else if (this.currentMindMap.mm_type === 'Notepad') {
+          this.$emit('exportToDocument',option)
+        } else {
           const _this = this
           let elm = document.getElementById(this.exportId)
           if (this.currentMindMap.mm_type === 'kanban')
