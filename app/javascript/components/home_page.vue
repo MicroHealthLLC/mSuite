@@ -24,6 +24,7 @@
               <i class="mx-auto fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
               <i class="mx-auto fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
               <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
+              <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
               <span class="text-center icon-text">{{type.value}}</span>
             </div>
           </div>
@@ -71,7 +72,8 @@
           { key: 'tree_map', value: 'TreeMap', imgsrc: "" },
           { key: 'tree_chart', value: 'TreeChart', imgsrc: "" },
           { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
-          { key: 'todo', value: 'ToDo', imgsrc: "" }
+          { key: 'todo', value: 'ToDo', imgsrc: "" },
+          { key: 'Notepad', value: 'Notepad', imgsrc: "" }
         ]
       }
     },
