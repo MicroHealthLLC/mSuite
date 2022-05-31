@@ -35,17 +35,23 @@
             <div class="parentGroup">
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
-                  <todo-map 
-                    :node="todo" 
-                    :selectedTodo="selectedTodo" 
-                    :completedTasks="completedTasks"
-                    :editInProgress="editInProgress"
-                    @updateTodo="updateTodo" 
-                    @toggleChildModal="toggleChildModal" 
-                    @toggleDeleteTodo="toggleDeleteTodo"
-                    @showInputField="showInputField"
-                    @blurEvent="blurEvent"
-                    @clearTodoEditObj="clearTodoEditObj"></todo-map>
+                  <draggable>
+                    <todo-map 
+                      :node="todo" 
+                      :selectedTodo="selectedTodo" 
+                      :completedTasks="completedTasks"
+                      :editInProgress="editInProgress"
+                      @updateTodo="updateTodo" 
+                      @toggleChildModal="toggleChildModal" 
+                      @toggleDeleteTodo="toggleDeleteTodo"
+                      @showInputField="showInputField"
+                      @blurEvent="blurEvent"
+                      @clearTodoEditObj="clearTodoEditObj"
+                      @start="dragging = true"
+                      @end="dragging = false"
+                      >
+                    </todo-map>
+                  </draggable>
                   <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
                     <div class="ml-1">
                       <div class="relative flex h-full">
@@ -162,6 +168,7 @@
   import DatePicker from 'vue2-datepicker';
   import './datepicker.css';
   import TodoMap from "./TodoMap";
+  import draggable from "vuedraggable";
 
   export default {
     props: ['currentMindMap'],
@@ -191,6 +198,7 @@
         fieldDisabled: false,
         format: 'YYYY-MM-DD',
         editInProgress: false,
+        dragging: false
       }
     },
     components: {
@@ -199,7 +207,8 @@
       MakePrivateModal,
       TodoMap,
       ToggleButton,
-      DatePicker
+      DatePicker,
+      draggable
     },
     channels: {
       WebNotificationsChannel: {
@@ -222,6 +231,9 @@
       }
     },
     methods: {
+      checkMove: function(e) {
+        console.log(123);
+      },
       clearTodoObj() {
         this.todo = {}
         this.todoData = { title: null, date: null }
@@ -484,6 +496,9 @@
       },
     },
     computed: {
+      draggingInfo() {
+        return this.dragging ? "under drag" : "";
+      },
       sortedTodos() {
         if(this.completedTasks){
           return this.myTodos
