@@ -43,18 +43,21 @@
                   </b-form-input>
                 </b-col>
                 <b-col cols="5" sm="5" class="w-50 d-flex flex-row">
-                  <date-picker
-                    id="input" 
-                    v-model='selectedTodo.duedate'
-                    :placeholder="selectedTodo.duedate"
-                    :disabled-date="disabledStartDate"
-                    :format="format"
-                    ref="datePicker"
-                    ></date-picker>
-                    <b-button class="ml-1" @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
+                  <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')" @mouseleave="showCalendar('task-date')" class="dateInput">
+                    <date-picker
+                      id="task-date" 
+                      v-model='selectedTodo.duedate'
+                      :placeholder="selectedTodo.duedate"
+                      :disabled-date="disabledStartDate"
+                      :format="format"
+                      ref="datePicker"
+                      @close="closeDatePicker('task-date')"
+                      ></date-picker>
+                      <i  @click="selectedTodo.duedate=''" class="fa fa-remove iconClear"></i>
+                  </div>
                 </b-col>
                 <b-col sm="2" cols="2" class="d-flex flex-row">
-                  <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
+                  <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i></b-button>
                   <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="clearTodoEditObj"><i class="fa fa-ban"></i></b-button>
                 </b-col>
               </b-row>
@@ -106,17 +109,19 @@
                     >
                     </b-form-input>
                   </b-col>
-                  <b-col sm="5" cols="5" class="d-flex flex-row">
-                    <date-picker
-                      id="input" 
-                      class="w-50"
-                      v-model='selectedTodo.duedate'
-                      :placeholder="selectedTodo.duedate"
-                      :disabled-date="disabledStartDate"
-                      :format="format"
-                      ref="date"
+                  <b-col cols="5" sm="5" class="w-50 d-flex flex-row">
+                    <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')" @mouseleave="showCalendar('task-date-2')" class="dateInput">
+                      <date-picker
+                        id="task-date-2"
+                        v-model='selectedTodo.duedate'
+                        :placeholder="selectedTodo.duedate"
+                        :disabled-date="disabledStartDate"
+                        :format="format"
+                        @close="closeDatePicker('task-date-2')"
+                        ref="date"
                       ></date-picker>
-                      <b-button class="ml-1" @click="selectedTodo.duedate=''" variant="warning"> <i class="fas fa-backspace"></i> </b-button>
+                      <i  @click="selectedTodo.duedate=''" class="fa fa-remove iconClear"></i>
+                    </div>
                   </b-col>
                   <b-col sm="2" cols="2" class="d-flex flex-row">
                     <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
@@ -150,10 +155,28 @@
         index: null,
         format: 'YYYY-MM-DD',
         fieldDisabled: false,
-        editStatus: false
+        editStatus: false,
       }
     },
     methods:{
+      closeDatePicker(objId) {
+        this.hideCalendar(objId)
+      },
+      hideCalendar(objId) {
+        const elem = document.getElementById(objId);
+        const calendarIcon = elem.getElementsByClassName('mx-icon-calendar')[0];
+        calendarIcon.style.display = 'none';
+      },
+      showCalendar(objId) {
+        const elem = document.getElementById(objId);
+        const calendarIcon = elem.getElementsByClassName('mx-icon-calendar')[0];
+        calendarIcon.style.display = 'block';
+      },
+      hideClear(objId) {
+        const eleme = document.getElementById(objId);
+        const calendarClear = eleme.getElementsByClassName('mx-icon-calendar')[0];
+        calendarClear.style.display = 'none';
+      },
       updateTodo(todo, title, completed) {
         if(this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
         this.$emit("updateTodo",todo,title,completed)
@@ -222,4 +245,16 @@
 </script>
 <style scoped>
   @import "./todo_style.css";
+
+  .iconClear {
+    position: absolute;
+    left: 204px;
+    top: 12px;
+    display: none;
+    color: #bfbfbf;
+    font-weight: 100;
+  }
+  .dateInput:hover .iconClear {
+    display: inline-block;
+  }
 </style>
