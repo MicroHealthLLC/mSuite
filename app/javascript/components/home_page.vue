@@ -3,39 +3,41 @@
     <Recaptcha v-if="is_config && !fromCaptcha"></Recaptcha>
     <div class="main_div" v-else>
       <div class="container-fluid pl-0">
-        <!-- //SEARCHBAR ROW -->
-          <div class="row pl-0 searchbar-row mb-0">
-            <div class="col text-center">
-              <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite</h1></span>
-            <div class="w-50 mx-auto my-4">
-              <span class="text-light searchbar-cta"> <h3><i>QUICK COLLABORATIONS MADE SIMPLE</i></h3></span>
-              <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="ENTER YOUR CONCEPT TITLE, THEN SELECT MAP TYPE BELOW">
-            </div>
-            </div>
+      <!-- //SEARCHBAR ROW -->
+        <div class="row pl-0 searchbar-row mb-0">
+          <div class="col text-center">
+            <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite</h1></span>
+          <div class="w-50 mx-auto my-4">
+            <span class="text-light searchbar-cta"> <h3><i>QUICK COLLABORATIONS MADE SIMPLE</i></h3></span>
+            <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="ENTER YOUR CONCEPT TITLE, THEN SELECT MAP TYPE BELOW">
           </div>
-          <!-- Row for wrapper containing grid-layout mindmap items -->
-        <div class="row mm-icon-row">
-          <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
-            <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
-              <i class="mx-auto fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
-              <i class="mx-auto far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
-              <i class="mx-auto far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
-              <i class="mx-auto fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
-              <i class="mx-auto fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
-              <i class="mx-auto fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
-              <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
-              <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
-              <span class="text-center icon-text">{{type.value}}</span>
-            </div>
           </div>
         </div>
-        <sweet-modal ref="errorModal" class="of_v" icon="error">
-          {{ errorMsg }}
-          <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Open</button>
-          <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
-          <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
-        </sweet-modal>
-        <footer>
+        <!-- Row for wrapper containing grid-layout mindmap items -->
+        <div class="mx-center">
+          <div class="row">
+            <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
+              <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
+                <i class="fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
+                <i class="far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
+                <i class="far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
+                <i class="fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
+                <i class="fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
+                <i class="fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
+                <i class="fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
+                <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
+                <span class="text-center icon-text">{{type.value}}</span>
+              </div>
+          </div>
+        </div>
+      </div>
+      <sweet-modal ref="errorModal" class="of_v" icon="error">
+        {{ errorMsg }}
+        <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Open</button>
+        <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
+        <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
+      </sweet-modal>
+      <footer>
         <cookie-law theme="dark-lime"></cookie-law>
       </footer>
       </div>
@@ -233,12 +235,12 @@
     color: #DD9036;
     font-weight: 300;
   }
-  .mm-icon-row {
-    margin-left: 6%;
-    margin-right: 6%;
-  }
   .card-width {
     width: 14rem;
     height: 8rem;
+  }
+  .mx-center{
+    margin-left:  2.5rem !important;
+    margin-right: 2.5rem !important;
   }
 </style>
