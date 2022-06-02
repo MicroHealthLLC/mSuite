@@ -80,6 +80,13 @@
   .svg-inline--fa, .fa-plus{
     height: 0.93rem !important;
   }
+  .ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
+  }
+  .not-draggable {
+    cursor: no-drop;
+  }
   @keyframes list {
     from {top: 200px;}
     to {top: 0px;}

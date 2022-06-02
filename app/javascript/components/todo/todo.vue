@@ -33,26 +33,29 @@
               width = "115"
               height = "28"/>
             <div class="parentGroup">
-              <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
+            <b-list-group class="mr-0" v-if="myTodos.length > 0">
+               <draggable
+                  :list="sortedTodos"
+                  item-key="name"
+                  class="list-group"
+                  ghost-class="ghost"
+                  @change="dragTodo"
+                >
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
-                  <draggable>
-                    <todo-map 
-                      :node="todo" 
-                      :selectedTodo="selectedTodo" 
-                      :completedTasks="completedTasks"
-                      :editInProgress="editInProgress"
-                      @updateTodo="updateTodo" 
-                      @toggleChildModal="toggleChildModal" 
-                      @toggleDeleteTodo="toggleDeleteTodo"
-                      @showInputField="showInputField"
-                      @blurEvent="blurEvent"
-                      @clearTodoEditObj="clearTodoEditObj"
-                      @start="dragging = true"
-                      @end="dragging = false"
-                      >
-                    </todo-map>
-                  </draggable>
-                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
+                  <todo-map 
+                    :node="todo[1]" 
+                    :selectedTodo="selectedTodo" 
+                    :completedTasks="completedTasks"
+                    :editInProgress="editInProgress"
+                    @updateTodo="updateTodo" 
+                    @toggleChildModal="toggleChildModal" 
+                    @toggleDeleteTodo="toggleDeleteTodo"
+                    @showInputField="showInputField"
+                    @blurEvent="blurEvent"
+                    @clearTodoEditObj="clearTodoEditObj"
+                    >
+                  </todo-map>
+                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo[1].id" class="child-field">
                     <div class="ml-1">
                       <div class="relative flex h-full">
                         <div class="container relative z-20 max-w-xl mt-20 h-min">
@@ -64,7 +67,7 @@
                                   v-model="todoChildData.title"
                                   ref="title"
                                   type="text"
-                                  :placeholder="'Add Child ToDo for ' + todo.name"
+                                  :placeholder="'Add Child ToDo for ' + todo[1].name"
                                 >
                                 </b-form-input>
                               </b-col>
@@ -86,12 +89,13 @@
                             </b-row>
                           </b-form>
                         </div>
-                        <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
+                        <div @click="toggleChildModal(todo[1])" class="absolute top-0 z-10 w-full h-full"></div>
                       </div>
                     </div>
                   </b-list-group-item>
                 </div>
-              </b-list-group>
+              </draggable>
+            </b-list-group>
               <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
                 <div class="relative flex h-full">
                   <div class="container relative max-w-xl mt-20 h-min">
@@ -175,6 +179,8 @@
     data() {
       return {
         isMounted: false,
+        enabled: false,
+        dragging: false,
         todos: [],
         todo: {},
         selectedTodo: { id: null },
@@ -182,6 +188,7 @@
           name: '',
           counter: 0,
         }],
+        todosArray: [],
         todo_parent: null,
         showModalTodo: false,
         showChildModalTodo: false,
@@ -197,8 +204,7 @@
         placeHolderText: 'Your Todo',
         fieldDisabled: false,
         format: 'YYYY-MM-DD',
-        editInProgress: false,
-        dragging: false
+        editInProgress: false
       }
     },
     components: {
@@ -231,9 +237,6 @@
       }
     },
     methods: {
-      checkMove: function(e) {
-        console.log(123);
-      },
       clearTodoObj() {
         this.todo = {}
         this.todoData = { title: null, date: null }
@@ -385,7 +388,9 @@
         this.myTodos = parent_nodes
       },
       async addTodo() {     
+
         if(this.todoData.title == null || this.todoData.title.trim().length === 0){
+          debugger
           this.$refs['errTitle'].open()
           this.fieldDisabled = true
           setTimeout(() => {
@@ -494,29 +499,27 @@
         if(this.todo.duedate !== null) return date < new Date() || date > new Date(this.todo.duedate)
         else return date < new Date()
       },
+      dragTodo(){
+        // debugger
+        this.TodosArray = Object.keys(this.x).map((key) => [Number(key), this.myTodos[key]]);
+      },
     },
     computed: {
       draggingInfo() {
         return this.dragging ? "under drag" : "";
       },
       sortedTodos() {
-        if(this.completedTasks){
-          return this.myTodos
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
-            .filter(task => (!task.is_disabled) ? task : '')
-        } else {
-          return this.myTodos
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
+        if(this.myTodos[0].name != ''){
+          debugger
+            this.todosArray = Object.keys(this.x).map((key) => [Number(key), this.myTodos[key]]);
+          if(this.completedTasks){
+            this.todosArray[1] = this.TodosArray[1].filter(task => (!task.is_disabled) ? task : '')
+            return this.todosArray
+          } else {
+            return this.todosArray
+          }
         }
-      }
+      },
     },
     mounted() {
       if (this.$route.params.key) {
