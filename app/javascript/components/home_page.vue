@@ -9,8 +9,10 @@
             <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite</h1></span>
           <div class="w-50 mx-auto my-4">
             <span class="text-light searchbar-cta"> <h3><i>REAL-TIME COLLABORATIONS MADE SIMPLE</i></h3></span>
+             <!--
             <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="ENTER UNIQUE URL NAME, THEN CLICK BUTTON OR JUST CLICK BUTTON FOR RANDOM URL">
-          </div>
+             -->
+         </div>
           </div>
         </div>
         <!-- Row for wrapper containing grid-layout mindmap items -->
