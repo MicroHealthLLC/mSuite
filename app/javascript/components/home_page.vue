@@ -6,7 +6,7 @@
       <!-- //SEARCHBAR ROW -->
         <div class="row pl-0 searchbar-row mb-0">
           <div class="col text-center">
-            <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite.app</h1></span>
+            <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">msuite.app</h1></span>
           <div class="w-50 mx-auto my-4">
             <span class="text-light searchbar-cta"> <h3><i>REAL-TIME COLLABORATION MADE SIMPLE</i></h3></span>
              <!--
