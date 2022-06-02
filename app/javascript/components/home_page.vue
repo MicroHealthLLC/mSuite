@@ -8,8 +8,8 @@
           <div class="col text-center">
             <span class="mx-auto text-light"><h1 class="mb-3 msuite-title d-inline px-3">mSuite</h1></span>
           <div class="w-50 mx-auto my-4">
-            <span class="text-light searchbar-cta"> <h3><i>QUICK COLLABORATIONS MADE SIMPLE</i></h3></span>
-            <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="ENTER YOUR CONCEPT TITLE, THEN SELECT MAP TYPE BELOW">
+            <span class="text-light searchbar-cta"> <h3><i>REAL-TIME COLLABORATIONS MADE SIMPLE</i></h3></span>
+            <input type="text" v-model="mindmapName" class="w-100 mindmap-name rounded" placeholder="ENTER YOUR UNIQUE NAME, THEN SELECT BUTTON OR JUST CLICK BUTTON BELOW">
           </div>
           </div>
         </div>
