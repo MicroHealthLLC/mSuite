@@ -92,7 +92,7 @@ Below "server {" section add these
         rails_env production;
 
 # Start Puma
-        cd /var/www/mindmap
+        cd /var/www/mSuite
         bundle exec puma -C config/puma.rb -e production
 
 # restart nginx
@@ -150,14 +150,14 @@ you will have to create an nginx service now
         
         cd /var/www/
 
-        git clone https://github.com/MicroHealthLLC/mindmaps
+        git clone https://github.com/MicroHealthLLC/mSuite
 
-        nano /var/www/mindmap/config/database.yml
+        nano /var/www/mSuite/config/database.yml
 
 --enter the password for mysql where it says password then save and exit
 
 # go to the cloned directory 
-        cd /var/www/mindmap     
+        cd /var/www/mSuite     
 
         gem install rails
 
@@ -179,8 +179,22 @@ you will have to create an nginx service now
 
         rake assets:precompile RAILS_ENV=production
         
-        go into your nginx.conf and configure server_name to your server and configure root to serve /var/www/mindmap/public or where ever you installed the website
+        go into your nginx.conf and configure server_name to your server and configure root to serve /var/www/mSuite/public or where ever you installed the website
 
         chown -R nginx:nginx *
         
         Service nginx restart
+  
+  # change the default password
+  
+go to https://your-url/admin
+
+login with temp account admin@example.com with password password
+
+Change, configure and customize your instance. callback uri for socialmedia setup below.
+
+https://YourliveSiteDomain/users/auth/google_oauth2/callback
+
+https://YourliveSiteDomain/users/auth/office365/callback
+
+After you have it configured in google or office 365 and you have the proper values entered in the system, restart nginx
