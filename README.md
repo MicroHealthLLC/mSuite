@@ -191,7 +191,7 @@ go to https://your-url/admin
 
 login with temp account admin@example.com with password password
 
-Change, configure and customize your instance. callback uri for socialmedia setup below.
+Change, configure and customize your instance. callback uri for socialmedia setup below to administer the site preferences
 
 https://YourliveSiteDomain/users/auth/google_oauth2/callback
 
