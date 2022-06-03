@@ -6,7 +6,7 @@
           <i class="material-icons">notification_important</i>
         </div>
       </div>
-      <h3 class="f_smooth_auto">Did you save the map key?</h3>
+      <h3 class="f_smooth_auto">Did you save the document key?</h3>
       <div class="row">
         <div class="col-12">
           <p class="mb-0 text-left text-center"> This will automatically delete if inactive for
@@ -24,7 +24,7 @@
           </p>
         </div>
         <div class="col-12">
-          <span class="text-muted fs_18">You will need this key <code> {{ currentMindMap.unique_key }} </code> to view the map again!</span>
+          <span class="text-muted fs_18">You will need this key <code> {{ currentMindMap.unique_key }} </code> to view the document again!</span>
         </div>
       </div>
       <div class="center_flex mt_2">
