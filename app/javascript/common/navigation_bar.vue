@@ -74,7 +74,6 @@
 
       <span>
         <a
-          v-if="isDeleteMindMap"
           href="javascript:;"
           role="button"
           class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -190,7 +189,6 @@
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
-        deleteableMSuite: ['simple', 'kanban', 'whiteboard', 'todo', 'Notepad'],
         editable: false,
         isSaveMSuite: false
       }
@@ -201,9 +199,6 @@
       CommentMapModal
     },
     computed: {
-      isDeleteMindMap () {
-        return (this.deleteableMSuite.includes(this.currentMindMap.mm_type))
-      },
       mSuiteTitle () {
         return this.mSuiteName
       }
