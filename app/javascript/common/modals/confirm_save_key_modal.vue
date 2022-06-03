@@ -9,7 +9,7 @@
       <h3 class="f_smooth_auto">Did you save the map key?</h3>
       <div class="row">
         <div class="col-12">
-          <p class="mb-0 text-left text-center"> If not oppend, this MSuite will automatically delete after
+          <p class="mb-0 text-left text-center"> This will automatically delete if inactive for
             <code class="pointer">
               <input
                 :value="expDeleteDays"
