@@ -50,10 +50,12 @@
         <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
       </sweet-modal>
     </div>
+    <Beta v-if="beta_status" />
   </div>
 </template>
 <script>
   import Recaptcha from './recaptcha';
+  import Beta from './beta';
   import CookieLaw from 'vue-cookie-law';
   import http from '../common/http'
   export default {
@@ -69,6 +71,7 @@
         selectedType: 'simple',
         fromCaptcha: true,
         is_config: true,
+        beta_status: Vue.prototype.$beta_status,
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "" },
           { key: 'kanban', value: 'Kanban', imgsrc: ""  },
@@ -81,7 +84,7 @@
         ]
       }
     },
-    components: { CookieLaw, Recaptcha },
+    components: { CookieLaw, Recaptcha, Beta },
     methods: {
       createNewMap() {
         let _this = this
@@ -118,6 +121,14 @@
     mounted(){
       if(this.$cookies.get('verifiedCaptcha') == null) this.fromCaptcha = false
       if(Vue.prototype.$google_recaptcha_site_key == "") this.is_config = false
+
+      if(this.beta_status === 'true'){
+        this.beta_status = true
+        $(".navbar-brand").css("margin-left", "5%");
+      } else {
+        this.beta_status = false
+        $(".navbar-brand").css("margin-left", "0%");
+      }
     },
   }
 </script>

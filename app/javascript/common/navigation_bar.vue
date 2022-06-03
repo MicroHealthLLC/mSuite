@@ -1,7 +1,7 @@
 <template>
   <div class="buttons_area">
     <div class="buttons_container p-2">
-      <span class="flex">
+      <span class="flex ml-5">
         <a
           href="javascript:;"
           role="button"
@@ -331,6 +331,13 @@
           })
         }
       },
+    },
+    mounted(){
+      if(Vue.prototype.$beta_status == 'true'){
+          $(".navbar-brand").css("margin-left", "25%");
+      } else {
+          $(".navbar-brand").css("margin-left", "0%");
+      }
     },
     watch: {
       currentMindMap: {
