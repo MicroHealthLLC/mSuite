@@ -9,7 +9,7 @@
     <div class="form-horizontal">
       <div class="row form-group mt-2">
         <label class="control-label col-4" for="mindmap_name">Mindmap Name:</label>
-        <input type="text" placeholder="Enter map key" v-model="openMindMapKey" class="form-control col-6 ">
+        <input type="text" placeholder="Enter document key" v-model="openMindMapKey" class="form-control col-6 ">
       </div>
     </div>
     <div class="center_flex mt_2">
