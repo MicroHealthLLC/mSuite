@@ -21,7 +21,8 @@ jQuery(function($) {
             google_oauth_key: '',
             google_oauth_secret: '',
             google_recaptcha_site_key: '',
-            host_url: ''
+            host_url: '',
+            beta_status: true
           }
         }
       },
@@ -56,6 +57,7 @@ jQuery(function($) {
               <li role="tab" tabindex="0" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="office365" aria-labelledby="ui-id-1" :class="{'ui-tabs-active ui-state-active': currentTab == 1}"><a @click.stop.prevent="currentTab = 1" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Office 365</a></li>
               <li role="tab" tabindex="-1" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="google_oauth" aria-labelledby="ui-id-2" :class="{'ui-tabs-active ui-state-active': currentTab == 2}"><a @click.stop.prevent="currentTab = 2" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-2">Google OAuth</a></li>
               <li role="tab" tabindex="-2" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="google_recaptcha" aria-labelledby="ui-id-3" :class="{'ui-tabs-active ui-state-active': currentTab == 3}"><a @click.stop.prevent="currentTab = 3" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Google Recaptcha</a></li>
+              <li role="tab" tabindex="-3" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="beta" aria-labelledby="ui-id-4" :class="{'ui-tabs-active ui-state-active': currentTab == 4}"><a @click.stop.prevent="currentTab = 4" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Beta</a></li>
             </ul>
             <div class="tab-content">
               <div id="office365" aria-labelledby="ui-id-1" role="tabpanel" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="false" v-show="currentTab === 1">
@@ -79,6 +81,18 @@ jQuery(function($) {
                   <ol>
                     <li class="string input required stringish" id=""><label class="label">Host URL<abbr title="required">*</abbr></label><input :readOnly="!isEditing" id="" v-model="settings.host_url" type="text"></li>
                     <li class="string input required stringish" id=""><label class="label">Google recaptcha key<abbr title="required">*</abbr></label><input :readOnly="!isEditing" id="" v-model="settings.google_recaptcha_site_key" :type="textType"></li>
+                  </ol>
+                </fieldset>
+              </div>
+              <div id="beta" aria-labelledby="ui-id-4" role="tabpanel" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="true" v-show="currentTab === 4">
+                <fieldset class="inputs"><legend><span>Beta Status</span></legend>
+                  <ol>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Beta Status <abbr title="required">*</abbr>
+                      </label>
+                      <input :disabled="!isEditing" id="" v-model="settings.beta_status" type="checkbox">
+                    </li>
                   </ol>
                 </fieldset>
               </div>
