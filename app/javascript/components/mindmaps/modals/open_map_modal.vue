@@ -5,7 +5,7 @@
         <i class="material-icons text-white">folder_open</i>
       </div>
     </div>
-    <p class="text-muted fs_18">Enter the map key you want to open here!</p>
+    <p class="text-muted fs_18">Enter the document key you want to open here!</p>
     <div class="form-horizontal">
       <div class="row form-group mt-2">
         <label class="control-label col-4" for="mindmap_name">Mindmap Name:</label>
