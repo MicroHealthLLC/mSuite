@@ -114,7 +114,7 @@ jQuery(function($) {
                   <ol>
                     <li class="string input required stringish" id="">
                       <label class="label">
-                        Public URL <abbr title="required">*</abbr>
+                        Help URL <abbr title="required">*</abbr>
                       </label>
                       <input :readOnly="!isEditing" id="" v-model="settings.public_url" type="text">
                     </li>
