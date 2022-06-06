@@ -1,6 +1,10 @@
 <template>
 	<div v-if="beta_status" class="badge-overlay">
-		<span class="top-left badge red">Beta</span>
+		<span class="top-left badge red">
+      <a target="_blank" :href="beta_url" class="text-white">
+        Beta
+      </a>
+    </span>
 	</div>
 </template>
 
@@ -8,9 +12,10 @@
 	export default {
 		data() {
 			return {
-				beta_status: Vue.prototype.$beta_status
+				beta_status: Vue.prototype.$beta_status,
+        beta_url: Vue.prototype.$beta_url
 			}
-		}
+    }
 	}
 </script>
 
@@ -20,11 +25,9 @@
       position: absolute;
       left: 0%;
       top: 0px;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: 100000000;
-      pointer-events: none;
+      /*width: 100%;*/
+      /*height: 100%;*/
+
       -webkit-transition: width 1s ease, height 1s ease;
       -moz-transition: width 1s ease, height 1s ease;
       -o-transition: width 1s ease, height 1s ease;
@@ -32,7 +35,7 @@
   }
 
   .badge-overlay:hover {
-  	z-index: -9999999;
+  	cursor: pointer;
   }
   /* ================== Badge CSS ========================*/
   .badge {
@@ -42,6 +45,7 @@
       padding: 12px 18px;
       font-size: 18px;
       font-weight: 900;
+      z-index: 10000;
       font-family: Arial, Helvetica, sans-serif;
       text-align: center;
       line-height: normal;
@@ -86,7 +90,7 @@
 
   /* ================== Badge color CSS ========================*/
   .badge.red {
-  		background: rgb(22,87,93);
+  		/*background: rgb(22,87,93);*/
   		background: linear-gradient(0deg, rgba(22,87,93,1) 0%, rgba(121,173,197,0.9962359943977591) 100%);
       opacity: 0.9;
   }

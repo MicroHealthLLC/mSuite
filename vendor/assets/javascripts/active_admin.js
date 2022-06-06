@@ -22,7 +22,8 @@ jQuery(function($) {
             google_oauth_secret: '',
             google_recaptcha_site_key: '',
             host_url: '',
-            beta_status: true
+            beta_status: true,
+            beta_url: ''
           }
         }
       },
@@ -92,6 +93,12 @@ jQuery(function($) {
                         Beta Status <abbr title="required">*</abbr>
                       </label>
                       <input :disabled="!isEditing" id="" v-model="settings.beta_status" type="checkbox">
+                    </li>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Beta Disclaimer url <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.beta_url" type="text">
                     </li>
                   </ol>
                 </fieldset>

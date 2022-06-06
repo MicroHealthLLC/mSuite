@@ -7,6 +7,7 @@
 = javascript_tag nonce: true do
   |Vue.prototype.$google_recaptcha_site_key = "#{Setting.first.google_recaptcha_site_key}"
     Vue.prototype.$beta_status = "#{Setting.first.beta_status}"
+    Vue.prototype.$beta_url = "#{Setting.first.beta_url}"
 
 = javascript_pack_tag "home_page", async: true
 = stylesheet_pack_tag "home_page"

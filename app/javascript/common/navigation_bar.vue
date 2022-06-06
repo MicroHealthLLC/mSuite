@@ -334,7 +334,7 @@
     },
     mounted(){
       if(Vue.prototype.$beta_status == 'true'){
-          $(".navbar-brand").css("margin-left", "25%");
+          $(".navbar-brand").css("margin-left", "27%");
       } else {
           $(".navbar-brand").css("margin-left", "0%");
       }
