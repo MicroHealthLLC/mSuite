@@ -23,7 +23,12 @@ jQuery(function($) {
             google_recaptcha_site_key: '',
             host_url: '',
             beta_status: true,
-            beta_url: ''
+            beta_url: '',
+            public_url: '',
+            privacy_url: '',
+            about_url: '',
+            terms_url: '',
+
           }
         }
       },
@@ -59,6 +64,7 @@ jQuery(function($) {
               <li role="tab" tabindex="-1" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="google_oauth" aria-labelledby="ui-id-2" :class="{'ui-tabs-active ui-state-active': currentTab == 2}"><a @click.stop.prevent="currentTab = 2" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-2">Google OAuth</a></li>
               <li role="tab" tabindex="-2" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="google_recaptcha" aria-labelledby="ui-id-3" :class="{'ui-tabs-active ui-state-active': currentTab == 3}"><a @click.stop.prevent="currentTab = 3" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Google Recaptcha</a></li>
               <li role="tab" tabindex="-3" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="beta" aria-labelledby="ui-id-4" :class="{'ui-tabs-active ui-state-active': currentTab == 4}"><a @click.stop.prevent="currentTab = 4" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Beta</a></li>
+              <li role="tab" tabindex="-4" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="headerLink" aria-labelledby="ui-id-5" :class="{'ui-tabs-active ui-state-active': currentTab == 5}"><a @click.stop.prevent="currentTab = 5" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-5">Header</a></li>
             </ul>
             <div class="tab-content">
               <div id="office365" aria-labelledby="ui-id-1" role="tabpanel" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="false" v-show="currentTab === 1">
@@ -99,6 +105,36 @@ jQuery(function($) {
                         Beta Disclaimer url <abbr title="required">*</abbr>
                       </label>
                       <input :readOnly="!isEditing" id="" v-model="settings.beta_url" type="text">
+                    </li>
+                  </ol>
+                </fieldset>
+              </div>
+              <div id="headerLink" aria-labelledby="ui-id-5" role="tabpanel" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="true" v-show="currentTab === 5">
+                <fieldset class="inputs"><legend><span>Header</span></legend>
+                  <ol>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Public URL <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.public_url" type="text">
+                    </li>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Privacy URL <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.privacy_url" type="text">
+                    </li>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        About URL <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.about_url" type="text">
+                    </li>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Terms URL <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.terms_url" type="text">
                     </li>
                   </ol>
                 </fieldset>

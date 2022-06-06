@@ -30,7 +30,11 @@ class Api::SettingsController < AuthenticatedController
       :host_url,
       :passwords_key,
       :beta_status,
-      :beta_url
+      :beta_url,
+      :public_url,
+      :terms_url,
+      :privacy_url,
+      :about_url,
     )
   end
 end
