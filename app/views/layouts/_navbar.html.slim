@@ -11,10 +11,22 @@ nav#nav-wrap.navbar.navbar-expand-lg.navbar-light.bg-light
 
 
     ul.navbar-nav.my-2.my-lg-0
-       -if user_signed_in?
-         -if current_user.admin?
-            li.nav-item
-             =link_to destroy_user_session_path, method: :delete, class: "nav-link" do
+      li.nav-item
+        a.nav-link href = Setting.first.about_url
+          | About
+      li.nav-item
+        a.nav-link href = Setting.first.public_url
+          | Public
+      li.nav-item
+        a.nav-link href= Setting.first.terms_url
+          | Terms
+      li.nav-item
+        a.nav-link href= Setting.first.privacy_url
+          | Privacy
+      -if user_signed_in?
+        -if current_user.admin?
+          li.nav-item
+            =link_to destroy_user_session_path, method: :delete, class: "nav-link" do
               | Log out
     /       li.nav-item
     /         =link_to admin_root_path, class: "nav-link", data: { turbolinks: false } do
