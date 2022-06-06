@@ -387,6 +387,7 @@
         var oldTitle = _this.node.label
         eventElement.target.contentEditable = true
         eventElement.target.focus();
+        eventElement.target.style.backgroundColor = "white"
         _this.colorSelected = false
         _this.oldEventElement = eventElement
         eventElement.target.addEventListener('keyup', function(){
@@ -399,6 +400,7 @@
             }
             else {
               _this.$refs['errorNodeModal'].open()
+              eventElement.target.style.backgroundColor = ""
               eventElement.target.innerText = oldTitle
             }
           }
