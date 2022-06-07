@@ -282,7 +282,6 @@
     overflow: scroll;
   }
   .active{
-    background-color: #866EFB !important;
     opacity: 0.7;
     border-radius: 50%;
   }
