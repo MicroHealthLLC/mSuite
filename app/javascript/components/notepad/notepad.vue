@@ -13,17 +13,14 @@
       :deleteAfter="deleteAfter"
       :exportId="'ofice'">
     </navigation-bar>
-    <div id="office" class="mt-3 container">
-      <div class="container max-w-lg mx-auto">
-        <h1 class="mb-2 font-bold text-center text-blue-600">Notepad</h1>
-      </div>
-      <div class="h-75 overflow-auto">
+    <div id="office">
+      <div>
         <quill-editor
-          v-model="content"
-          class="h-75 overflow-auto"
+          ref="notepad"
+          v-model:content="content"
+          :options="editorOption"
           v-debounce:1000ms="blurEvent"></quill-editor>
       </div>
-      <b-button id="updateDocument" @click="updateDocument" class="mt-2 mb-2 btn text-light bg-dark mx-auto d-block border-0">Save Content</b-button>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
@@ -58,6 +55,12 @@
         content: '',
         editor: null,
         isReset: false,
+        savingStatus: null,
+        saveText: null,
+        toolbar: null,
+        editorOption: {
+          placeholder: ''
+        }
       }
     },
     components: {
@@ -202,15 +205,13 @@
       }
     },
     updated() {
-      let updatedButton = $("#updateDocument")[0]
+      this.savingStatus.style.fontWeight = '450';
       if(this.content === this.currentMindMap.canvas){
-        updatedButton.innerText = 'Saved'
-        updatedButton.classList.remove('bg-dark')
-        updatedButton.classList.add('bg-success')
+        this.savingStatus.innerHTML = 'Saved';
+        this.savingStatus.style.color = 'green';
       } else {
-        updatedButton.innerText = 'Editing...'
-        updatedButton.classList.add('bg-dark')
-        updatedButton.classList.remove('bg-success')
+        this.savingStatus.innerHTML = 'Editing...';
+        this.savingStatus.style.color = 'blue';
       }
     },
     mounted() {
@@ -218,9 +219,18 @@
         this.getMindmap(this.$route.params.key)
       }
       this.content = this.currentMindMap.canvas
-      this.editor = document.querySelectorAll('.ql-editor')
-      this.editor[0].style.minHeight = '25vh'
-      this.editor[0].style.maxHeight = '60vh'
+      this.editorStyle = document.querySelectorAll('.ql-editor')[0].style
+      this.editorStyle.height = '82.5vh'
+      this.editorStyle.border = '20px'
+      this.editorStyle.padding = "3% 8% 0% 8%"
+      this.editorStyle.border = "20px solid #ccc"
+
+      document.querySelectorAll('.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button').forEach(function (editorToolbar) {
+        editorToolbar.classList.add('ml-2');
+      });
+      this.toolbar = $(".ql-toolbar")[0]
+      this.savingStatus = document.createElement("span");
+      this.toolbar.appendChild(this.savingStatus);
     },
   }
 </script>
