@@ -5,7 +5,7 @@
         <i class="material-icons text-white">delete</i>
       </div>
     </div>
-    <h3 class="f_smooth_auto">Are you Sure you want to delete this Map?</h3>
+    <h3 class="f_smooth_auto">Delete this document?</h3>
     <p class="text-muted fs_18">Your current changes will be discarded, you won't be able to revert this!</p>
     <div class="center_flex mt_2">
       <a
