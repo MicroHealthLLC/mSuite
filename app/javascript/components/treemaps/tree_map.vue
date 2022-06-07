@@ -50,7 +50,9 @@
     <sweet-modal ref="errorNodeModal" class="of_v" icon="error" title="Node Title Error">
       Nodes Title Cannot Be Empty
     </sweet-modal>
-
+    <sweet-modal ref="errorAddNode" class="of_v" icon="error" title="Node Title Error">
+      {{ err }}
+    </sweet-modal>
     <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
       Do you want to delete this node?
       <button slot="button" @click="deleteSelectedNode(child_node)" class="btn btn-warning mr-2">Delete</button>
@@ -100,11 +102,13 @@
         treemap_data: [],
         submitChild: false,
         isSaveMSuite: false,
+        nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
         parent_nodes: {
           label: 'centralized',
           value: 100,
           color: '#eeeeee'
         },
+        err: '',
         renderCallbacks: {
           '*': (elementObject, value) => {
             elementObject.click(() => {
@@ -247,7 +251,11 @@
         this.addChildTreeMap = false
       },
       updateSelectedNode: async function(obj){
-        await http.put(`/nodes/${obj.id}`, obj);
+        await http.put(`/nodes/${obj.id}`, obj).then((res) => {
+        }).catch(err => {
+          this.err = err.message
+          this.$refs['errorAddNode'].open()
+        });
         this.child_node = null
         this.parent_node = null
         this.hiddenNode = false
@@ -272,9 +280,16 @@
           _this.submitChild = false
           _this.addChildTreeMap = false
           _this.hiddenNode = false
+          _this.child_node = null
+          _this.nodeSample.parent_label = ''
+          if( res.data.node.id == null ){
+            _this.err = 'Please Change Your Previous Node Title'
+            _this.$refs['errorAddNode'].open()
+          }
           // success modal display
         }).catch(err => {
-          alert(err.message)
+          _this.err = err.message
+          _this.$refs['errorAddNode'].open()
           // error modal display
         })
       },
@@ -514,17 +529,10 @@
       addNodeToTreeMap(value, event){
         if(this.addChildTreeMap) return
         this.setNodeSelected(value)
-        let node = {
-          label: 'Enter Node Title Here',
-          parent: '',
-          value: '50',
-          color: '#CCBBBB'
-        }
+        if(this.child_node) this.nodeSample.parent_label = this.child_node.id
+        this.submitChildNode(this.nodeSample)
         this.addChildTreeMap = true
-        if(this.child_node) node.parent = JSON.parse(JSON.stringify(this.child_node.title))
-        if(this.parent_node) node.parent = JSON.parse(JSON.stringify(this.currentMindMap.name))
-        this.treemap_data.push(node)
-        this.$refs.myTreeMap.source = this.treemap_data
+
       },
       resetMindmap() {
         http
