@@ -12,16 +12,16 @@ nav#nav-wrap.navbar.navbar-expand-lg.navbar-light.bg-light
 
     ul.navbar-nav.my-2.my-lg-0
       li.nav-item
-        a.nav-link href = Setting.first.about_url
+        a.nav-link href = Setting.first.about_url target='_blank'
           | About
       li.nav-item
-        a.nav-link href = Setting.first.public_url
+        a.nav-link href = Setting.first.public_url target='_blank'
           | Help
       li.nav-item
-        a.nav-link href= Setting.first.terms_url
+        a.nav-link href= Setting.first.terms_url target='_blank'
           | Terms
       li.nav-item
-        a.nav-link href= Setting.first.privacy_url
+        a.nav-link href= Setting.first.privacy_url target='_blank'
           | Privacy
       -if user_signed_in?
         -if current_user.admin?
