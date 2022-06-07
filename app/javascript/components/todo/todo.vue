@@ -18,7 +18,7 @@
         <div class="h-75">
           <div class="">
             <div class="container max-w-lg mx-auto">
-                <h1 class=" font-bold text-center text-blue-600">To-Do</h1>
+                <h1 class=" font-bold text-center text-blue-600">ToDo</h1>
             </div>
           </div>
           <div class="container relative max-w-lg pt-6 mx-auto">
