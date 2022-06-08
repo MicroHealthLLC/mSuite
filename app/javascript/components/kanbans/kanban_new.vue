@@ -676,6 +676,7 @@
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.currentMindMap.nodes = []
+            this.allStages = []
             this.reset_stages()
             this.getMindmap()
           })
