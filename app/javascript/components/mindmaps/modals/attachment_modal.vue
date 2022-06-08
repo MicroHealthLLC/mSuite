@@ -16,6 +16,7 @@
             ref="contentEditor"
             :options="editorOption"
             :disabled="!descEditMode || !editable"
+            v-debounce:1000ms="blurEvent"
           >
           </quill-editor>
 
@@ -26,7 +27,7 @@
               @click.prevent.stop="updateNodeDescription"
             >
               <i class="material-icons mr-1">done</i>
-              Save
+              {{statusBtn}}
             </a>
           </div>
         </section>
@@ -88,6 +89,7 @@ export default {
       descEditMode: false,
       nodeNotes: "",
       attachFiles: [],
+      statusBtn: "Saved",
       editedNode: this.selectedNode
     }
   },
@@ -99,6 +101,9 @@ export default {
     }
   },
   methods: {
+    blurEvent(val, e){
+      this.updateNodeDescription()
+    },
     nullifyAttachmentModal() {
       this.$emit('nullify-attachment-modals')
       this.descEditMode = false
@@ -116,6 +121,10 @@ export default {
       _.remove(this.editedNode.attach_files, f => f.id === file.id)
       this.$forceUpdate()
     }
+  },
+  updated(){
+    if(this.nodeNotes === this.editedNode.description) this.statusBtn = 'Saved';
+    else this.statusBtn = 'Editing...';
   },
   watch: {
     selectedNode: {

@@ -16,6 +16,7 @@
             ref="contentEditor"
             :options="editorOption"
             :disabled="!descEditMode || !currentMindMap.editable"
+            v-debounce:1000ms="blurEvent"
           >
           </quill-editor>
 
@@ -23,10 +24,9 @@
             <a
               href="javascript:;"
               class="btn_1 btn-sm bg-danger text-white mr_1"
-              @click.stop="updateMapNotes"
             >
               <i class="material-icons mr-1">done</i>
-              Save
+              {{ statusBtn }}
             </a>
           </div>
         </section>
@@ -79,13 +79,14 @@
     components: {
       quillEditor,
       AttachmentInput,
-      FileBox
+      FileBox,
     },
     data() {
       return {
         fileLoading: false,
         descEditMode: false,
         attachFiles: [],
+        statusBtn: "Saved",
         centralNotes: ""
       }
     },
@@ -96,6 +97,9 @@
       }
     },
     methods: {
+      blurEvent(val, e){
+        this.updateMapNotes()
+      },
       nullifyAttachmentModal() {
         this.$emit('nullify-attachment-modals')
         this.descEditMode = false
@@ -109,6 +113,10 @@
         await this.$emit('add-file-to-central-node', files)
         this.fileLoading = false
       }
+    },
+    updated(){
+      if(this.centralNotes === this.currentMindMap.description) this.statusBtn = 'Saved';
+      else this.statusBtn = 'Editing...';
     },
     watch: {
       currentMindMap: {
