@@ -8,19 +8,16 @@
     <sweet-modal-tab title="Description" id="central-description-tab">
       <div>
         <section>
-          <span v-if="!descEditMode && currentMindMap.editable" class="edit-icon shadow" @click.stop="descEditMode = true">
-            <i class="material-icons">edit</i>
-          </span>
           <quill-editor
             v-model="centralNotes"
             ref="contentEditor"
             :options="editorOption"
-            :disabled="!descEditMode || !currentMindMap.editable"
+            :disabled="!currentMindMap.editable"
             v-debounce:1000ms="blurEvent"
           >
           </quill-editor>
 
-          <div v-if="descEditMode && currentMindMap.editable" class="right_flex mt_2">
+          <div v-if="currentMindMap.editable" class="right_flex mt_2">
             <a
               href="javascript:;"
               class="btn_1 btn-sm bg-danger text-white mr_1"
@@ -84,7 +81,6 @@
     data() {
       return {
         fileLoading: false,
-        descEditMode: false,
         attachFiles: [],
         statusBtn: "Saved",
         centralNotes: ""
@@ -102,11 +98,9 @@
       },
       nullifyAttachmentModal() {
         this.$emit('nullify-attachment-modals')
-        this.descEditMode = false
       },
       updateMapNotes() {
         this.$emit('update-map-notes', this.centralNotes)
-        this.descEditMode = false
       },
       async addFileToCentralNode(files) {
         this.fileLoading = true

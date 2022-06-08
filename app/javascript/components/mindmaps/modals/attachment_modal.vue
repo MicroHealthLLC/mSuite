@@ -8,19 +8,15 @@
     <sweet-modal-tab title="Description" id="description-tab">
       <template v-if="editedNode">
         <section>
-          <span v-if="!descEditMode && editable" class="edit-icon shadow" @click.stop="descEditMode = true">
-            <i class="material-icons">edit</i>
-          </span>
           <quill-editor
             v-model="nodeNotes"
             ref="contentEditor"
             :options="editorOption"
-            :disabled="!descEditMode || !editable"
             v-debounce:1000ms="blurEvent"
           >
           </quill-editor>
 
-          <div v-if="descEditMode && editable" class="right_flex mt_2">
+          <div v-if="editable" class="right_flex mt_2">
             <a
               href="javascript:;"
               class="btn_1 btn-sm bg-danger text-white mr_1"
@@ -86,7 +82,6 @@ export default {
   data() {
     return {
       fileLoading: false,
-      descEditMode: false,
       nodeNotes: "",
       attachFiles: [],
       statusBtn: "Saved",
@@ -106,11 +101,9 @@ export default {
     },
     nullifyAttachmentModal() {
       this.$emit('nullify-attachment-modals')
-      this.descEditMode = false
     },
     updateNodeDescription() {
       this.$emit('update-node-description', this.nodeNotes)
-      this.descEditMode = false
     },
     async addFileToNode(files) {
       this.fileLoading = true
