@@ -1,6 +1,6 @@
 <template>
 	<div v-if="beta_status" class="badge-overlay">
-		<span class="top-left badge red">
+		<span class="top-left badge red p-0">
       <a target="_blank" :href="beta_url" class="text-white">
         Beta
       </a>
