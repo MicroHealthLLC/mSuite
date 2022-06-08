@@ -80,7 +80,7 @@
           @click.prevent="deleteMindmap"
         >
           <i class="fas fa-trash-alt icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Delete Map</span>
+          <span class="fa-icon-text">Delete</span>
         </a>
         <a
           href="javascript:;"
