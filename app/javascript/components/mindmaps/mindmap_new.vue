@@ -1148,6 +1148,10 @@
     },
 
     mounted() {
+      this.$cable.subscribe({
+        channel: "WebNotificationsChannel",
+        room: this.currentMindMap.id,
+      });
       if (this.$route.params.key) {
         this.mountMap()
         // this.getMindmap(this.$route.params.key)
