@@ -20,6 +20,12 @@
           </span>
           <span class="ml-1">Pencil</span>
         </div>
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="drawLine ? 'active':''" @click="toggleDrawLine">
+          <span class="material-icons">
+            edit
+          </span>
+          <span class="ml-1">Line</span>
+        </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="increaseStroke">
           <span class="material-icons">
             line_weight
@@ -138,6 +144,7 @@
         defaultDeleteDays: '',
         colorPicker: "#000000",
         colorSelected: false,
+        points: [],
         increaseIcon: false,
         decreaseIcon: false,
         mousePressed: false,
@@ -152,7 +159,9 @@
         isSaveMSuite: false,
         isPencil: false,
         addObj: false,
-        newObj: false
+        newObj: false,
+        isStraightLine: false,
+        drawLine: false
       }
     },
     components: {
@@ -310,6 +319,17 @@
         this.canvas.add(this.triangle);
         this.canvas.setActiveObject(this.triangle)
       },
+      straightLine(){
+        const myPoints = Object.values(this.points);
+        this.stLine = new fabric.Line(myPoints, {
+            strokeWidth: this.line,
+            fill: 'this.color',
+            stroke: 'this.color',
+            originX: 'center',
+            originY: 'center'
+        });
+        this.canvas.add(this.stLine);
+      },
       beforeUpdateColor(){
         this.toggleResetDraw();
         if(this.activeObject.type == 'i-text') this.activeObject.set("fill", this.colorPicker.hex8);
@@ -396,9 +416,18 @@
         this.canvas.isDrawingMode = false;
         this.isDrawing = false;
         this.eraser = false;
+        this.drawLine = false;
         this.canvas.hoverCursor = 'auto';
       },
+      toggleDrawLine() {
+        this.isDrawing = false;
+        this.eraser = false;
+        this.canvas.isDrawingMode = false;
+        if(this.drawLine) this.drawLine = false
+        else this.drawLine = true
+      },
       toggleDrawing() {
+        this.drawLine = false
         if (this.isDrawing) {
           this.isDrawing = false;
           this.canvas.isDrawingMode = false;
@@ -408,7 +437,7 @@
           if(this.eraser) {
             this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
             this.canvas.isDrawingMode = true;
-          } else {
+          } else if(this.isDrawing && !this.drawLine) {
             this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
             this.canvas.freeDrawingBrush.color = this.color;
             this.isPencil = true
@@ -429,6 +458,14 @@
           _this.mousePressed = true;
           _this.addObj = false;
         })
+        this.canvas.on('mouse:move', (event) => {
+
+          if(!this.isStraightLine) return
+
+          this.pointer = this.canvas.getPointer(event.e);
+          this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
+          this.canvas.renderAll();
+        })
         this.canvas.on('mouse:down', (event) => {
           if(_this.colorSelected) this.cancelUpdateColor()
           if (_this.eraser) {
@@ -437,18 +474,29 @@
               this.canvas.setActiveObject(activeObject)
             }
           }
+          if (this.drawLine) {
+            const mousePos = canvas.getBoundingClientRect();
+            const x1 = (event.e.clientX - mousePos.left) / (mousePos.right - mousePos.left) * canvas.width/2
+            const y1 = (event.e.clientY - mousePos.top) / (mousePos.bottom - mousePos.top) * canvas.height/2
+            this.isStraightLine = true;
+            this.points = [ x1, y1, x1, y1 ]
+            this.straightLine()
+          }
         })
         this.canvas.on('mouse:up', (event) => {
           if(this.isDrawing) this.canvas.setActiveObject(event.currentTarget)
-          _this.mousePressed = false
+          this.isStraightLine = false;
+          this.mousePressed = false
           if(this.eraser){
             this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           }
         })
         this.canvas.on('selection:created', (event) => {
+          this.drawLine = false
           this.activeObject = this.canvas.getActiveObject();
-          this.line = this.activeObject.strokeWidth
-          this.colorPicker = this.activeObject.stroke
+          if(this.activeObject) {
+            this.line = this.activeObject.strokeWidth
+            this.colorPicker = this.activeObject.stroke}
           this.canvas.renderAll();
         })
         this.canvas.on('selection:cleared', (event) => {
@@ -503,6 +551,9 @@
   }
   .sidebar {
     height: 80vh;
+  }
+  .sidebar > .active{
+    background-color: #866EFB;
   }
   .whiteboard-btns:hover{
     background-color: #091e4214;
