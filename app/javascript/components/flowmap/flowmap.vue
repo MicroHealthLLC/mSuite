@@ -513,9 +513,6 @@
     },
   }
 </script>
-<style type="text/css">
+<style type="text/css" lang="scss">
   @import "../treechart/style/tree_chart.scss";
-  .flowmap-center-vertical {
-    margin-top: -15% !important;
-  }
 </style>

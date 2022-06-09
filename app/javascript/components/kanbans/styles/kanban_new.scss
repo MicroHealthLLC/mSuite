@@ -147,8 +147,8 @@ ul.drag-inner-list {
   resize: none;
 }
 .kanban_board {
-  overflow-x: scroll;
-  overflow-y: hidden;
+  overflow-x: auto;
+  overflow-y: auto;
   height: 100vh;
   background-color: #FFF;
 }
