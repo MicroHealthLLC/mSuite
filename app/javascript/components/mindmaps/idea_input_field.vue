@@ -85,13 +85,10 @@
       startDrag(event) {
         this.$emit('start-drag', event)
       },
-      updateIdea: debounce(
-        function(input) {
-          this.localValue     = this.$refs.new_idea.value
-          this.tempLocalValue = this.$refs.new_idea.value
-        },
-        500
-      ),
+      updateIdea: function(input) {
+        this.localValue     = this.$refs.new_idea.value
+        this.tempLocalValue = this.$refs.new_idea.value
+      },
       startDragIdea(event) {
         this.$emit('mousedown-event', event)
         if (event.target.classList.contains("clickable")) {
