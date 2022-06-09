@@ -182,6 +182,7 @@
         nodeOffsetY       : 0,
         parent_x          : 0,
         parent_y          : 0,
+        mousePos          : null,
 
         // hardcoded fixed window size
         window_innerWidth : 1900,
@@ -392,8 +393,9 @@
             this.parent_y = p_node.position_y + 25;
           }
         } else {
-          this.parent_x = event.clientX + this.$refs.slideSection.scrollLeft - 1;
-          this.parent_y = event.clientY + this.$refs.slideSection.scrollTop - 70;
+          this.mousePos = $("#map-canvas")[0].getBoundingClientRect();
+          this.parent_x = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width,
+          this.parent_y = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
         }
 
         let canvas_id = this.parent_x + ""
@@ -421,8 +423,8 @@
       doDrag(event) {
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
-          this.currentPositionX = event.clientX + this.$refs.slideSection.scrollLeft - (1 - this.scaleFactor) * (this.windowWidth / 2 - event.clientX - this.$refs.slideSection.scrollLeft) - (1 - this.scaleFactor) * 100 ;
-          this.currentPositionY = (event.clientY/0.9 + this.$refs.slideSection.scrollTop - (1 - this.scaleFactor)) / 1.1
+          this.currentPositionX = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
+          this.currentPositionY = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
           let c = document.getElementById(this.parent_x + "")
           let ctx = c.getContext("2d");
 
