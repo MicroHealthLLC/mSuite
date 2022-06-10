@@ -68,7 +68,6 @@
                                     class="w-75"
                                     v-model='todoChildData.date'
                                     placeholder="Due Date"
-                                    :disabled-date="disabledStartDate"
                                     :format="format"
                                     ref="datePicker"
                                     ></date-picker>
@@ -107,7 +106,6 @@
                               class="w-75"
                               v-model='todoData.date'
                               placeholder="Due Date"
-                              :disabled-date="disabledStartDate"
                               :format="format"
                               ref="datePicker"
                               ></date-picker>
@@ -478,10 +476,6 @@
             console.log(err)
           })
       },
-      disabledStartDate(date) {
-        if(this.todo.duedate !== null) return date < new Date() || date > new Date(this.todo.duedate)
-        else return date < new Date()
-      }
     },
     computed: {
       sortedTodos() {

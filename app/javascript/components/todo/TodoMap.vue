@@ -48,7 +48,6 @@
                       id="task-date" 
                       v-model='selectedTodo.duedate'
                       :placeholder="selectedTodo.duedate"
-                      :disabled-date="disabledStartDate"
                       :format="format"
                       ref="datePicker"
                       @close="closeDatePicker('task-date')"
@@ -115,7 +114,6 @@
                         id="task-date-2"
                         v-model='selectedTodo.duedate'
                         :placeholder="selectedTodo.duedate"
-                        :disabled-date="disabledStartDate"
                         :format="format"
                         @close="closeDatePicker('task-date-2')"
                         ref="date"
@@ -208,20 +206,6 @@
       },
       clearTodoEditObj() {
         this.$emit("clearTodoEditObj")
-      },
-      disabledStartDate(date) {
-        if(this.selectedTodo.id != this.node.id && this.node.duedate !== null) return date < new Date() || date > new Date(this.node.duedate)
-        else if (this.selectedTodo.parent == null && this.selectedTodo.children.length
- != 0){
-          let dueChild = new Date(this.selectedTodo.children[0].duedate)
-          this.selectedTodo.children.forEach(child => {
-            if(dueChild < new Date(child.duedate)){
-              dueChild = child.duedate
-            }
-          })
-          return date < new Date(dueChild)
-        }
-        else return date < new Date()
       },
     },
     computed: {
