@@ -2,7 +2,7 @@
   <div class="">
     <sweet-modal ref="commentBoxModal" class="of_v bg-color" title="Comments">
       <div class="comments-container comment_model">
-        <ul id="comments-list" class="comments-list" v-for="comment in reverseComments" v-if="myComments">
+        <ul id="comments-list" class="comments-list" v-for="comment in myComments" v-if="myComments">
           <li>
             <div class="comment-main-level"> 
               <div class="comment-box"> 
@@ -85,8 +85,42 @@
             <ul class="comments-list reply-list" v-if="comment.children">
               <li v-for="child in comment.children"> 
                 <div class="comment-box"> 
-                  <div class="comment-content">
-                    {{ child.message }}
+                  <div class="row comment-content">
+                    <div class="col-10">
+                      <input
+                      type="input"
+                      v-model="child.message"
+                      class="form__field"
+                      placeholder="Type Your Comment Here..."
+                      @keydown.enter="updateComment(child, child)"
+                      v-if="editCommentField && child.id == selectedComment.id"
+                      required />
+                      <span v-else>
+                        {{ child.message }}
+                      </span>
+                    </div>
+                    <div class="col-1"></div>
+                    <div class="col-1 marginLeft">
+                      <b-dropdown
+                        variant="link"
+                        id="dropdown-left"
+                        toggle-class="text-decoration-none text-muted" no-caret
+                        class="feedback feedback-button">
+                        <template #button-content>
+                          <i class="fas fa-ellipsis-h-alt"></i> <span class="sr-only">...</span>
+                        </template>
+                        <b-dropdown-item
+                          class="pl-3"
+                          @click="toggleDelete(child)">
+                          Remove
+                        </b-dropdown-item>
+                        <b-dropdown-item
+                          class="pl-3"
+                          @click="EditComment(child)">
+                          Edit
+                        </b-dropdown-item>
+                      </b-dropdown>
+                    </div>
                   </div>
                 </div>
               </li> 
@@ -144,7 +178,8 @@
         commentObj: {},
         selectedComment: {id: null},
         replyField: false,
-        editCommentField: false
+        editCommentField: false,
+        commentContainer: null
       }
     },
     components: {},
@@ -168,11 +203,6 @@
       });
       this.getComments()
     },
-    computed: {
-      reverseComments() {
-        return this.myComments.slice().reverse();
-      }     
-    },
     methods:{
       getComments () {
         http.get(`/comments.json?mindmap_id=${this.MindMap.id}`).then((res) => {
@@ -187,6 +217,10 @@
         http.post(`/comments.json`, data).then((res) => {
           this.nodeNotes = ''
           this.renderComments()
+          setTimeout(()=>{
+            this.commentContainer = document.querySelector('.comments-container')
+            this.commentContainer.scrollTop = this.commentContainer.scrollHeight
+          }, 100)
         }).catch(err => {
           console.log(err)
         })
@@ -274,12 +308,16 @@
   }
 </script>
 <style lang="scss">
+  .marginLeft {
+    margin-left: -1.5%;
+  }
   .bg-color{
     background: #efefef;
   }
   .comment_model{
     max-height: 70vh;
-    overflow: scroll;
+    min-height: 28vh;
+    overflow: auto;
   }
   .active{
     background-color: #866EFB !important;
