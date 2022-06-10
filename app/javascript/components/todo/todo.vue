@@ -28,7 +28,7 @@
               :value="true" 
               color="#82C7EB" 
               :sync="true" 
-              :labels="{checked: 'Actionable', unchecked: 'All Tasks' }" 
+              :labels="{checked: 'Actionable', unchecked: 'All Tasks'}" 
               v-model="completedTasks" 
               width = "115"
               height = "28"/>
@@ -481,7 +481,7 @@
       disabledStartDate(date) {
         if(this.todo.duedate !== null) return date < new Date() || date > new Date(this.todo.duedate)
         else return date < new Date()
-      },
+      }
     },
     computed: {
       sortedTodos() {

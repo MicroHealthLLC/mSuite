@@ -187,7 +187,7 @@
       toggleDeleteTodo(todo) {
         this.$emit("toggleDeleteTodo",todo)
       },
-      showInputFieldToggle(todo){
+      showInputFieldToggle(todo) {
         if(this.editStatus){
           this.fieldDisabled = true
           setTimeout(() => {
@@ -206,11 +206,21 @@
       blurEvent(val, e) {
         this.$emit("blurEvent", val, e)
       },
-      clearTodoEditObj(){
+      clearTodoEditObj() {
         this.$emit("clearTodoEditObj")
       },
       disabledStartDate(date) {
         if(this.selectedTodo.id != this.node.id && this.node.duedate !== null) return date < new Date() || date > new Date(this.node.duedate)
+        else if (this.selectedTodo.parent == null && this.selectedTodo.children.length
+ != 0){
+          let dueChild = new Date(this.selectedTodo.children[0].duedate)
+          this.selectedTodo.children.forEach(child => {
+            if(dueChild < new Date(child.duedate)){
+              dueChild = child.duedate
+            }
+          })
+          return date < new Date(dueChild)
+        }
         else return date < new Date()
       },
     },
