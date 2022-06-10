@@ -23,7 +23,7 @@
             {{node.duedate}}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
-          <i v-b-tooltip.hover title="Add Todo" class='ml-lg-3 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
+          <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-3 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
           <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-1 ml-xs-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
         </div>
       </div>
