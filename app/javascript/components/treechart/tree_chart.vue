@@ -14,13 +14,14 @@
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
     <!-- tree chart -->
-    <section id="treeChartObj" class="main_body mt-5 font-serif">
+    <section id="treeChartObj" class="main_body font-serif">
       <vue-tree
         style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
         :dataset="treeChartObj"
         :config="treeConfig"
         linkStyle="straight"
         ref="refTree"
+        class="parentTree"
       >
         <template v-slot:node="{ node }">
           <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
@@ -514,6 +515,6 @@
     },
   }
 </script>
-<style type="text/css">
+<style type="text/css" lang="scss">
   @import "./style/tree_chart.scss";
 </style>

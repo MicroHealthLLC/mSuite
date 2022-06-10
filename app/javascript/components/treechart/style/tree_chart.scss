@@ -1,8 +1,12 @@
-.parentComponent {
-  overflow: scroll !important;
-}
 .parentTree {
-  overflow: auto !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  height: calc(100vh - 86px) !important;
+}
+.parentComponent {
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  height: calc(100vh - 86px) !important;
 }
 .rich-media-node {
   padding: 2px;
@@ -26,3 +30,4 @@
 .mt-7{
   margin-top: 8rem !important;
 }
+  
