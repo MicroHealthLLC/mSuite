@@ -58,7 +58,7 @@
                                   v-model="todoChildData.title"
                                   ref="title"
                                   type="text"
-                                  :placeholder="'Add Child ToDo for ' + todo.name"
+                                  :placeholder="'Add subtask for ' + todo.name"
                                 >
                                 </b-form-input>
                               </b-col>
