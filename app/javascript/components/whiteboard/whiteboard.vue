@@ -21,9 +21,7 @@
           <span class="ml-1">Pencil</span>
         </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="drawLine ? 'active':''" @click="toggleDrawLine">
-          <span class="material-icons">
-            edit
-          </span>
+          <span class="material-icons">horizontal_rule</span>
           <span class="ml-1">Line</span>
         </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="increaseStroke">
