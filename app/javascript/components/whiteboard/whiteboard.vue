@@ -323,8 +323,8 @@
         const myPoints = Object.values(this.points);
         this.stLine = new fabric.Line(myPoints, {
             strokeWidth: this.line,
-            fill: 'this.color',
-            stroke: 'this.color',
+            fill: this.color,
+            stroke: this.color,
             originX: 'center',
             originY: 'center'
         });
