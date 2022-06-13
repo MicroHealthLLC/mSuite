@@ -488,6 +488,9 @@
           if(this.eraser){
             this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           }
+          if(this.drawLine) {
+            this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+          }
         })
         this.canvas.on('selection:created', (event) => {
           this.drawLine = false
