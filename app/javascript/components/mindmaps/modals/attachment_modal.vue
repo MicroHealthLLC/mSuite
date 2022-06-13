@@ -96,7 +96,8 @@ export default {
     }
   },
   methods: {
-    blurEvent(val, e){
+    blurEvent(val, event){
+      if(event.keyCode == 13) return false;
       this.updateNodeDescription()
     },
     nullifyAttachmentModal() {
