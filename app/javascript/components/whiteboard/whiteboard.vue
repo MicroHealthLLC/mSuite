@@ -24,6 +24,10 @@
           <span class="material-icons">horizontal_rule</span>
           <span class="ml-1">Line</span>
         </div>
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="createSelection ? 'active':''" @click="createSelection = !createSelection">
+          <span class="material-icons">pan_tool</span>
+          <span class="ml-1">Select</span>
+        </div>
         <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" @mouseover="increaseIcon = true" @mouseleave="increaseIcon = false" @click="increaseStroke">
           <span class="material-icons">
             line_weight
@@ -159,7 +163,8 @@
         addObj: false,
         newObj: false,
         isStraightLine: false,
-        drawLine: false
+        drawLine: false,
+        createSelection: false
       }
     },
     components: {
@@ -457,7 +462,14 @@
           _this.addObj = false;
         })
         this.canvas.on('mouse:move', (event) => {
-
+          let objectx = _this.canvas.getObjects();
+          if(!_this.createSelection){
+            this.canvas.hoverCursor = 'default';
+            objectx.forEach((x, i) => objectx[i].selectable = false )
+          } else {
+            objectx.forEach((x, i) => objectx[i].selectable = true )
+          }
+          if(!_this.createSelection && _this.canvas.getActiveObject()) _this.canvas.discardActiveObject()
           if(!this.isStraightLine) return
 
           this.pointer = this.canvas.getPointer(event.e);
