@@ -5,7 +5,7 @@ import router from 'routers/mindmaps'
 import ActionCableVue from 'actioncable-vue'
 import SyncLoader from 'vue-spinner/src/SyncLoader.vue'
 import { SweetModal, SweetModalTab } from "sweet-modal-vue"
-import { Chrome } from 'vue-color'
+import { Chrome, Sketch } from 'vue-color'
 import Vuex from 'vuex'
 import VueTree from '@ssthouse/vue-tree-chart'
 import store from '../store/TreeMap'
@@ -29,6 +29,7 @@ Vue.component('navigation-bar', NavigationBar)
 Vue.component('sync-loader', SyncLoader)
 Vue.component('sweet-modal', SweetModal)
 Vue.component('chrome-picker', Chrome)
+Vue.component('sketch-picker', Sketch)
 Vue.component('sweet-modal-tab', SweetModalTab)
 Vue.use(vueDebounce,{
   listenTo: 'keyup',

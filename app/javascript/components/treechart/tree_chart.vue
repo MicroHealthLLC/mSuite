@@ -52,9 +52,9 @@
         </template>
       </vue-tree>
       <div v-if="colorSelected">
-        <div class="card col-3 card-position p-0 border-none z-index">
+        <div class="card card-position p-0 border-none z-index mt-5">
           <div class="card-body p-0">
-            <chrome-picker v-model="treeNode.line_color" @input="updateColorNode()"/>
+            <sketch-picker v-model="treeNode.line_color" :preset-colors="mapColors" @input="updateColorNode()"/>
           </div>
           <div class="card-button d-flex">
             <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
@@ -121,6 +121,7 @@
     data(){
       return{
         dragElement: null,
+        mapColors: [],
         colorSelected: false,
         exportLoading: false,
         scaleFactor: 1,
@@ -219,7 +220,8 @@
       },
       closeModelPicker(){
         let element = document.getElementById('treeChart'+this.treeNode.id)
-        element.style.backgroundColor = this.nodeColor.hex
+        if(this.nodeColor.hex) element.style.backgroundColor = this.nodeColor.hex
+        else element.style.backgroundColor = this.currentMindMap.line_color
         this.colorSelected = false
       },
       saveNodeColor(){
@@ -322,6 +324,11 @@
         this.treeChartObj.name = this.currentMindMap.name
         this.nodes = this.currentMindMap.nodes
         this.addNodeTree = false
+        this.mapColors = []
+        this.mapColors.push(this.currentMindMap.line_color);
+        Object.values(this.nodes).forEach(node => {
+          this.mapColors.push(node.line_color);
+        });
         this.renderTreeChart()
       },
       async fetchTreeChart(){
@@ -334,6 +341,11 @@
         this.treeChartObj.name = response.data.mindmap.name
         this.nodes = response.data.mindmap.nodes
         this.addNodeTree = false
+        this.mapColors = []
+        this.mapColors.push(this.currentMindMap.line_color);
+        Object.values(this.nodes).forEach(node => {
+          this.mapColors.push(node.line_color);
+        });
         this.renderTreeChart()
       },
       renderTreeChart(){
