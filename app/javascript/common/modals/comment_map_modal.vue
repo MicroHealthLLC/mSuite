@@ -53,7 +53,8 @@
                         </div>
                       </div>
                     </b-dropdown>
-                    </div><div class="col-1">
+                    </div>
+                    <div class="col-1">
                     <b-dropdown 
                       variant="link"
                       id="dropdown-left" 
@@ -62,21 +63,30 @@
                       <template #button-content>
                         <i class="fas fa-ellipsis-h-alt"></i> <span class="sr-only">...</span>
                       </template>
-                      <b-dropdown-item
-                        class="pl-3"
-                        @click="toggleReply(comment)">
-                        Reply
-                      </b-dropdown-item>
-                      <b-dropdown-item
-                        class="pl-3"
-                        @click="toggleDelete(comment)">
-                        Remove
-                      </b-dropdown-item>
-                      <b-dropdown-item
-                        class="pl-3"
-                        @click="EditComment(comment)">
-                        Edit
-                      </b-dropdown-item>
+
+                      <div class="d-flex justify-content-center">
+                        <div class="px-1">
+                          <b-dropdown-item
+                            class="p-1"
+                            @click="toggleReply(comment)">
+                            <i class="fas fa-reply"></i>
+                          </b-dropdown-item>
+                        </div>
+                        <div class="px-1">
+                          <b-dropdown-item
+                            class="p-1"
+                            @click="toggleDelete(comment)">
+                            <i class="fas fa-trash"></i>
+                          </b-dropdown-item>
+                        </div>
+                        <div class="px-1">
+                          <b-dropdown-item
+                            class="p-1"
+                            @click="EditComment(comment)">
+                            <i class="fas fa-edit"></i>
+                          </b-dropdown-item>
+                        </div>
+                      </div>
                     </b-dropdown>
                   </div>
                 </div>
@@ -109,16 +119,22 @@
                         <template #button-content>
                           <i class="fas fa-ellipsis-h-alt"></i> <span class="sr-only">...</span>
                         </template>
-                        <b-dropdown-item
-                          class="pl-3"
-                          @click="toggleDelete(child)">
-                          Remove
-                        </b-dropdown-item>
-                        <b-dropdown-item
-                          class="pl-3"
-                          @click="EditComment(child)">
-                          Edit
-                        </b-dropdown-item>
+                        <div class="d-flex justify-content-center">
+                          <div class="px-1">
+                            <b-dropdown-item
+                              class="p-1"
+                              @click="toggleDelete(child)">
+                              <i class="fas fa-trash"></i>
+                            </b-dropdown-item>
+                          </div>
+                          <div class="px-1">
+                            <b-dropdown-item
+                              class="p-1"
+                              @click="EditComment(child)">
+                              <i class="fas fa-edit"></i>
+                            </b-dropdown-item>
+                          </div>
+                        </div>
                       </b-dropdown>
                     </div>
                   </div>
@@ -315,6 +331,9 @@
   }
 </script>
 <style lang="scss">
+  #dropdown-left__BV_toggle_ {
+    margin-left: 15px !important;
+  }
   .activeComment {
     color: green;
     animation: blinker 2.5s linear infinite;
