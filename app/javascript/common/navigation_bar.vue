@@ -89,7 +89,7 @@
           v-b-tooltip.hover title="Comments"
           @click.prevent="openCommentModal"
         >
-          <i class="fa fa-comment d-flex center_flex"></i>
+          <i id="comment" class="fa fa-comment d-flex center_flex"></i>
         </a>
         <a
           href="javascript:;"

@@ -179,7 +179,8 @@
         selectedComment: {id: null},
         replyField: false,
         editCommentField: false,
-        commentContainer: null
+        commentContainer: null,
+        commentObject: null
       }
     },
     components: {},
@@ -207,6 +208,12 @@
       getComments () {
         http.get(`/comments.json?mindmap_id=${this.MindMap.id}`).then((res) => {
           this.comments = res.data.comments
+          this.commentObject = $("#comment")
+          if (this.comments.length != 0) {
+            this.commentObject.addClass("activeComment")
+          } else { 
+            this.commentObject.removeClass("activeComment")
+          }
           this.renderComments()
         }).catch(err => {
           console.log(err)
@@ -308,6 +315,15 @@
   }
 </script>
 <style lang="scss">
+  .activeComment {
+    color: green;
+    animation: blinker 2.5s linear infinite;
+  }
+  @keyframes blinker {
+  50% {
+    opacity: 0.4;
+  }
+}
   .marginLeft {
     margin-left: -1.5%;
   }
