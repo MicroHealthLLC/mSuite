@@ -15,9 +15,9 @@
         :renderCallbacks="renderCallbacks"/>
       </div>
       <div v-if="colorSelected">
-        <div class="card col-3 card-position p-0 border-none">
+        <div class="card card-position p-0 border-none mt-5">
           <div class="card-body p-0">
-            <chrome-picker v-model="selectedNodeColor.line_color" @input="updateColorNode"/>
+            <sketch-picker v-model="selectedNodeColor.line_color" :preset-colors="mapColors" @input="updateColorNode"/>
           </div>
           <div class="card-button d-flex">
             <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
@@ -85,6 +85,7 @@
       // Define properties which will use in the widget
       return {
         nodeColor: { hex: '#194d33' },
+        mapColors: [],
         colorSelected: false,
         selectedNodeColor: null,
         nodes: [],
@@ -300,6 +301,11 @@
         this.currentMindMap.line_color = this.currentMindMap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
+        this.mapColors = []
+        this.mapColors.push(this.currentMindMap.line_color);
+        Object.values(this.nodes).forEach(node => {
+          this.mapColors.push(node.line_color);
+        });
         this.buildMap()
       },
       getTreeMap: async function(){
@@ -314,6 +320,11 @@
         this.currentMindMap.line_color = response.data.mindmap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes
+        this.mapColors = []
+        this.mapColors.push(this.currentMindMap.line_color);
+        Object.values(this.nodes).forEach(node => {
+          this.mapColors.push(node.line_color);
+        });
         this.buildMap()
       },
       buildMap() {

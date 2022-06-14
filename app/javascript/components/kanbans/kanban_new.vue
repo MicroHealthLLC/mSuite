@@ -60,9 +60,9 @@
         </div>
       </kanban-board>
         <div v-if="colorSelected">
-          <div class="card col-3 p-0 border-none color-picker-placement">
+          <div class="card p-0 border-none color-picker-placement">
             <div class="card-body p-0">
-              <chrome-picker v-model="selectedStage.stage_color" @input="updateColor"/>
+              <sketch-picker v-model="selectedStage.stage_color" :preset-colors="mapColors" @input="updateColor"/>
             </div>
             <div class="card-button d-flex">
               <button v-if="selectedStage.title.length > 0" class="btn btn-success w-50 border-none" @click="saveNodeColor"> Update </button>
@@ -133,6 +133,7 @@
         color: {hex: ''},
         allStages: [],
         blocks: [],
+        mapColors: [],
         colorSelected: false,
         stage: null,
         block: {},
@@ -371,6 +372,10 @@
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
         .then((res) => {
           this.allStages = res.data.stages
+          this.mapColors = []
+          Object.values(this.allStages).forEach(stage => {
+            this.mapColors.push(stage.stage_color);
+          });
           this.new_stage = false
           })
         .catch((err) => {
