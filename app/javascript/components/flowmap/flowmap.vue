@@ -55,7 +55,7 @@
       <div v-if="colorSelected">
         <div class="card card-position p-0 border-none z-index mt-5">
           <div class="card-body p-0">
-            <sketch-picker v-model="treeNode.line_color" :preset-colors="mapColors" @input="updateColorNode()"/>
+            <sketch-picker v-model="treeNode.line_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
           </div>
           <div class="card-button d-flex">
             <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
@@ -122,6 +122,7 @@
       return{
         dragElement: null,
         mapColors: [],
+        uniqueColors: [],
         colorSelected: false,
         exportLoading: false,
         scaleFactor: 1,
@@ -325,10 +326,22 @@
         this.nodes = this.currentMindMap.nodes
         this.addNodeTree = false
         this.mapColors = []
+         this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
+        let object = {};
+        this.mapColors.forEach(item => {
+          if(!object[item])
+              object[item] = 0;
+            object[item] += 1;
+        })
+        for (let prop in object) {
+          if(object[prop] != undefined) {
+            this.uniqueColors.push(prop);
+          }
+        }
         this.renderTreeChart()
       },
       async fetchTreeChart(){
@@ -342,10 +355,22 @@
         this.nodes = response.data.mindmap.nodes
         this.addNodeTree = false
         this.mapColors = []
+        this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
+        let object = {};
+        this.mapColors.forEach(item => {
+          if(!object[item])
+              object[item] = 0;
+            object[item] += 1;
+        })
+        for (let prop in object) {
+           if(object[prop] != undefined) {
+               this.uniqueColors.push(prop);
+           }
+        }
         this.renderTreeChart()
       },
       renderTreeChart(){

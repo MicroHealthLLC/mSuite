@@ -17,7 +17,7 @@
       <div v-if="colorSelected">
         <div class="card card-position p-0 border-none mt-5">
           <div class="card-body p-0">
-            <sketch-picker v-model="selectedNodeColor.line_color" :preset-colors="mapColors" @input="updateColorNode"/>
+            <sketch-picker v-model="selectedNodeColor.line_color" :preset-colors="uniqueColors" @input="updateColorNode"/>
           </div>
           <div class="card-button d-flex">
             <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
@@ -86,6 +86,7 @@
       return {
         nodeColor: { hex: '#194d33' },
         mapColors: [],
+        uniqueColors: [],
         colorSelected: false,
         selectedNodeColor: null,
         nodes: [],
@@ -302,10 +303,22 @@
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
         this.mapColors = []
+        this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
+        let object = {};
+        this.mapColors.forEach(item => {
+          if(!object[item])
+              object[item] = 0;
+            object[item] += 1;
+        })
+        for (let prop in object) {
+          if(object[prop] != undefined) {
+            this.uniqueColors.push(prop);
+          }
+        }
         this.buildMap()
       },
       getTreeMap: async function(){
@@ -321,10 +334,22 @@
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes
         this.mapColors = []
+        this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
+        let object = {};
+        this.mapColors.forEach(item => {
+          if(!object[item])
+              object[item] = 0;
+            object[item] += 1;
+        })
+        for (let prop in object) {
+           if(object[prop] != undefined) {
+               this.uniqueColors.push(prop);
+           }
+        }
         this.buildMap()
       },
       buildMap() {
