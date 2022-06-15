@@ -114,6 +114,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import Sortable from 'sortablejs';
+  import Common from "../../mixins/common.js"
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
@@ -125,6 +126,7 @@
       DeleteMapModal,
       DeletePasswordModal
     },
+    mixins: [Common],
     data() {
       return {
         loading: true,
@@ -378,17 +380,7 @@
           Object.values(this.allStages).forEach(stage => {
             this.mapColors.push(stage.stage_color);
           });
-          let object = {};
-          this.mapColors.forEach(item => {
-            if(!object[item])
-                object[item] = 0;
-              object[item] += 1;
-          })
-          for (let prop in object) {
-            if(object[prop] != undefined) {
-              this.uniqueColors.push(prop);
-            }
-          }
+          this.uniqueColors = this.getUniqueColors(this.mapColors);
           this.new_stage = false
           })
         .catch((err) => {

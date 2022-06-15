@@ -71,6 +71,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
+  import Common from "../../mixins/common.js"
 
   export default {
     components: {
@@ -80,6 +81,7 @@
       DeleteMapModal,
       DeletePasswordModal
     },
+    mixins: [Common],
     props:['currentMindMap','defaultDeleteDays','deleteAfter'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
@@ -308,17 +310,7 @@
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
-        let object = {};
-        this.mapColors.forEach(item => {
-          if(!object[item])
-              object[item] = 0;
-            object[item] += 1;
-        })
-        for (let prop in object) {
-          if(object[prop] != undefined) {
-            this.uniqueColors.push(prop);
-          }
-        }
+        this.uniqueColors = this.getUniqueColors(this.mapColors);
         this.buildMap()
       },
       getTreeMap: async function(){
@@ -339,17 +331,7 @@
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
-        let object = {};
-        this.mapColors.forEach(item => {
-          if(!object[item])
-              object[item] = 0;
-            object[item] += 1;
-        })
-        for (let prop in object) {
-           if(object[prop] != undefined) {
-               this.uniqueColors.push(prop);
-           }
-        }
+        this.uniqueColors = this.getUniqueColors(this.mapColors);
         this.buildMap()
       },
       buildMap() {
