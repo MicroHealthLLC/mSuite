@@ -62,7 +62,7 @@
         <div v-if="colorSelected">
           <div class="card p-0 border-none color-picker-placement">
             <div class="card-body p-0">
-              <sketch-picker v-model="selectedStage.stage_color" :preset-colors="mapColors" @input="updateColor"/>
+              <sketch-picker v-model="selectedStage.stage_color" :preset-colors="uniqueColors" @input="updateColor"/>
             </div>
             <div class="card-button d-flex">
               <button v-if="selectedStage.title.length > 0" class="btn btn-success w-50 border-none" @click="saveNodeColor"> Update </button>
@@ -114,6 +114,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import Sortable from 'sortablejs';
+  import Common from "../../mixins/common.js"
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
@@ -125,6 +126,7 @@
       DeleteMapModal,
       DeletePasswordModal
     },
+    mixins: [Common],
     data() {
       return {
         loading: true,
@@ -134,6 +136,7 @@
         allStages: [],
         blocks: [],
         mapColors: [],
+        uniqueColors: [],
         colorSelected: false,
         stage: null,
         block: {},
@@ -373,9 +376,11 @@
         .then((res) => {
           this.allStages = res.data.stages
           this.mapColors = []
+          this.uniqueColors = []
           Object.values(this.allStages).forEach(stage => {
             this.mapColors.push(stage.stage_color);
           });
+          this.uniqueColors = this.getUniqueColors(this.mapColors);
           this.new_stage = false
           })
         .catch((err) => {

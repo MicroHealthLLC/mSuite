@@ -17,7 +17,7 @@
       <div v-if="colorSelected">
         <div class="card card-position p-0 border-none mt-5">
           <div class="card-body p-0">
-            <sketch-picker v-model="selectedNodeColor.line_color" :preset-colors="mapColors" @input="updateColorNode"/>
+            <sketch-picker v-model="selectedNodeColor.line_color" :preset-colors="uniqueColors" @input="updateColorNode"/>
           </div>
           <div class="card-button d-flex">
             <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
@@ -71,6 +71,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
+  import Common from "../../mixins/common.js"
 
   export default {
     components: {
@@ -80,12 +81,14 @@
       DeleteMapModal,
       DeletePasswordModal
     },
+    mixins: [Common],
     props:['currentMindMap','defaultDeleteDays','deleteAfter'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
         nodeColor: { hex: '#194d33' },
         mapColors: [],
+        uniqueColors: [],
         colorSelected: false,
         selectedNodeColor: null,
         nodes: [],
@@ -302,10 +305,12 @@
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
         this.mapColors = []
+        this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
+        this.uniqueColors = this.getUniqueColors(this.mapColors);
         this.buildMap()
       },
       getTreeMap: async function(){
@@ -321,10 +326,12 @@
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes
         this.mapColors = []
+        this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
         });
+        this.uniqueColors = this.getUniqueColors(this.mapColors);
         this.buildMap()
       },
       buildMap() {
