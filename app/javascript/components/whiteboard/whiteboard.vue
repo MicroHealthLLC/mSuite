@@ -24,7 +24,7 @@
           <span class="material-icons">horizontal_rule</span>
           <span class="ml-1">Line</span>
         </div>
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="createSelection ? 'active':''" @click="createSelection = !createSelection">
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="createSelection ? 'active':''" @click="toggleCreateSelection">
           <span class="material-icons">pan_tool</span>
           <span class="ml-1">Select</span>
         </div>
@@ -95,9 +95,9 @@
         <canvas id="canvas" class="border"></canvas>
       </div>
       <div v-if="colorSelected">
-          <div class="card col-3 p-0 border-none color-picker-placement">
+          <div class="card p-0 border-none color-picker-placement">
             <div class="card-body p-0">
-              <chrome-picker @input="beforeUpdateColor" v-model="colorPicker"/>
+              <sketch-picker @input="beforeUpdateColor" :preset-colors="uniqueColors" v-model="colorPicker"/>
             </div>
             <div class="card-button d-flex">
               <button class="btn btn-success w-50 border-none" @click="updateColor">Update</button>
@@ -131,17 +131,20 @@
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
+  import Common from "../../mixins/common.js"
 
   import { fabric } from './fabric.js'
   import 'fabric-history';
 
   export default {
     props: ['whiteboardImage'],
+    mixins: [Common],
     data() {
       return {
         isMounted: false,
         line: 5,
         color: "#AADDCC",
+        mapColors: [],
         image: "",
         defaultDeleteDays: '',
         colorPicker: "#000000",
@@ -186,10 +189,19 @@
           } else {
             this.currentMindMap = data.mindmap
             this.initialImage = data.mindmap.canvas
+            this.mapColors = []
+            JSON.parse(this.initialImage).objects.forEach((x, i) => {
+              this.mapColors.push(x.stroke)
+            })
             this.canvas.loadFromJSON(this.initialImage);
             this.canvas.renderAll();
           }
         }
+      }
+    },
+    computed: {
+      uniqueColors(){
+        return this.getUniqueColors(this.mapColors);
       }
     },
     methods: {
@@ -259,6 +271,7 @@
       },
       addRectToCanvas() {
         this.toggleResetDraw();
+        this.createSelection = true;
         this.addObj = true;
         this.rect = new fabric.Rect({
           left: 70,
@@ -277,6 +290,7 @@
       },
       addCircleToCanvas() {
         this.toggleResetDraw();
+        this.createSelection = true;
         this.addObj = true;
         this.newObj = true
         this.circle = new fabric.Circle({
@@ -308,6 +322,7 @@
       addTriangleToCanvas() {
         this.newObj = true
         this.toggleResetDraw();
+        this.createSelection = true;
         this.addObj = true;
         this.triangle = new fabric.Triangle({
           left: 90,
@@ -341,7 +356,6 @@
         this.canvas.renderAll();
       },
       updateColor() {
-        this.toggleResetDraw();
         this.color = this.colorPicker.hex8
         this.saveData = true
         this.colorSelected = false
@@ -423,6 +437,7 @@
         this.canvas.hoverCursor = 'auto';
       },
       toggleDrawLine() {
+        this.createSelection = true;
         this.isDrawing = false;
         this.eraser = false;
         this.canvas.isDrawingMode = false;
@@ -430,6 +445,7 @@
         else this.drawLine = true
       },
       toggleDrawing() {
+        this.createSelection = true;
         this.drawLine = false
         if (this.isDrawing) {
           this.isDrawing = false;
@@ -449,6 +465,14 @@
           this.canvas.isDrawingMode = true;
           // this.eraser = false;
           this.canvas.renderAll();
+        }
+      },
+      toggleCreateSelection(){
+        if(this.createSelection){
+          this.createSelection = false
+          this.canvas.discardActiveObject()
+        } else {
+          this.createSelection = true
         }
       },
       showColorPicker() {
@@ -530,6 +554,11 @@
       },
       resetMindmap() {
         this.isRest = true
+        this.createSelection = false
+        this.isDrawing = false
+        this.eraser = false
+        this.canvas.isDrawingMode = false
+        this.drawLine = false
         let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}', title: 'Title' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
@@ -548,6 +577,9 @@
       this.mouseEvents();
       this.canvas.renderAll();
       this.initialImage = this.whiteboardImage
+      JSON.parse(this.initialImage).objects.forEach((x, i) => {
+        this.mapColors.push(x.stroke)
+      })
       if (this.initialImage) {
         this.canvas.loadFromJSON(this.initialImage);
         this.canvas.renderAll();
