@@ -16,23 +16,23 @@
                       @keydown.enter="updateComment(comment, comment)"
                       v-if="editCommentField && comment.id == selectedComment.id"
                       required />
-                    <span v-else>
+                    <span v-else style="min-width=60vh">
                       {{ comment.message }}
                     </span>
                   </div>
                   <div class="col-1">
                     <b-dropdown 
                       variant="link"
-                      toggle-class="text-decoration-none text-muted" no-caret >
+                      toggle-class="pt-0 text-decoration-none text-muted comment-smiley" no-caret >
                       <template #button-content>
                         <div v-if="comment.feedback || comment.status">
                           <span v-if="comment.feedback === 'thumbsUp' && !comment.status" class="feedback feedback-thumbup"> 👍 </span>
                           <span v-if="comment.feedback === 'thumbsDown'" class="mt-1 feedback feedback-thumbdown"> 👎 </span>
                           <span v-if="comment.status" class="feedback feedback-check"> ✅ </span>
                         </div>
-                        <i class="fas fa-smile-plus" v-else></i> <span class="sr-only">Add feedback</span>
+                        <i class="fas pointer fa-smile-plus" v-else></i> <span class="sr-only">Add feedback</span>
                       </template>
-                      <div class="d-flex justify-content-center feedback-emoji">
+                      <div class="d-flex justify-content-center feedback-emoji pt-0">
                         <div class="px-1">
                           <b-dropdown-item
                             @click="updateComment(comment, '', comment.status = !comment.status)" :class="comment.status ? 'feedback-active':''">
@@ -53,41 +53,31 @@
                         </div>
                       </div>
                     </b-dropdown>
-                    </div>
-                    <div class="col-1">
-                    <b-dropdown 
-                      variant="link"
-                      id="dropdown-left" 
-                      toggle-class="text-decoration-none text-muted" no-caret
-                      class="feedback feedback-button">
-                      <template #button-content>
-                        <i class="fas fa-ellipsis-h-alt"></i> <span class="sr-only">...</span>
-                      </template>
-
-                      <div class="d-flex justify-content-center">
-                        <div class="px-1">
-                          <b-dropdown-item
-                            class="p-1"
-                            @click="toggleReply(comment)">
-                            <i class="fas fa-reply"></i>
-                          </b-dropdown-item>
-                        </div>
-                        <div class="px-1">
-                          <b-dropdown-item
-                            class="p-1"
-                            @click="toggleDelete(comment)">
-                            <i class="fas fa-trash"></i>
-                          </b-dropdown-item>
-                        </div>
-                        <div class="px-1">
-                          <b-dropdown-item
-                            class="p-1"
-                            @click="EditComment(comment)">
-                            <i class="fas fa-edit"></i>
-                          </b-dropdown-item>
-                        </div>
+                  </div>
+                  <div class="col-1">
+                    <div class="d-flex justify-content-center comment-icons">
+                      <div class="px-1">
+                        <a
+                          class="p-1"
+                          @click="toggleReply(comment)">
+                          <i class="fas pointer fa-reply color-icon"></i>
+                        </a>
                       </div>
-                    </b-dropdown>
+                      <div class="px-1">
+                        <a
+                          class="p-1"
+                          @click="toggleDelete(comment)">
+                          <i class="fas pointer fa-trash color-icon"></i>
+                        </a>
+                      </div>
+                      <div class="px-1">
+                        <a
+                          class="p-1"
+                          @click="EditComment(comment)">
+                          <i class="fas pointer fa-edit color-icon"></i>
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -111,31 +101,22 @@
                     </div>
                     <div class="col-1"></div>
                     <div class="col-1 marginLeft">
-                      <b-dropdown
-                        variant="link"
-                        id="dropdown-left"
-                        toggle-class="text-decoration-none text-muted" no-caret
-                        class="feedback feedback-button">
-                        <template #button-content>
-                          <i class="fas fa-ellipsis-h-alt"></i> <span class="sr-only">...</span>
-                        </template>
-                        <div class="d-flex justify-content-center">
-                          <div class="px-1">
-                            <b-dropdown-item
-                              class="p-1"
-                              @click="toggleDelete(child)">
-                              <i class="fas fa-trash"></i>
-                            </b-dropdown-item>
-                          </div>
-                          <div class="px-1">
-                            <b-dropdown-item
-                              class="p-1"
-                              @click="EditComment(child)">
-                              <i class="fas fa-edit"></i>
-                            </b-dropdown-item>
-                          </div>
+                      <div class="d-flex justify-content-center">
+                        <div class="px-1">
+                          <a
+                            class="p-1"
+                            @click="toggleDelete(child)">
+                            <i class="fas pointer fa-trash color-icon"></i>
+                          </a>
                         </div>
-                      </b-dropdown>
+                        <div class="px-1">
+                          <a
+                            class="p-1"
+                            @click="EditComment(child)">
+                            <i class="fas pointer fa-edit color-icon"></i>
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -152,7 +133,7 @@
                         required />
                       <label for="name" class="form__label">Your Reply</label>
                     </div>
-                    <i class="fas fa-times feedback feedback-cancel mt-4" @click="replyField = false"></i>
+                    <i class="fas pointer fa-times feedback feedback-cancel mt-4" @click="replyField = false"></i>
                   </div>
                 </div>
             </ul>
@@ -331,6 +312,16 @@
   }
 </script>
 <style lang="scss">
+  .b-dropdown {
+    margin-left: -60px;
+    margin-top: -2px;
+  }
+  .comment-icons {
+    margin-left: -52px;
+  }
+  .color-icon {
+    color: #6C757D !important;
+  }
   #dropdown-left__BV_toggle_ {
     margin-left: 15px !important;
   }
