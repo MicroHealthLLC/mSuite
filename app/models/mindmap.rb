@@ -75,7 +75,8 @@ class Mindmap < ApplicationRecord
     self.update_columns(
       name: "Central Idea",
       title: "Title",
-      description: ""
+      description: "",
+      line_color: "#B3FAFF"
     )
   end
 
