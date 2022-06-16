@@ -309,6 +309,7 @@
       },
       addTextToCanvas() {
         this.toggleResetDraw();
+        this.createSelection = true;
         this.text = new fabric.IText('Tap and Type', {
           left: 70,
           top: 70,
