@@ -29,7 +29,7 @@
         </section>
       </div>
     </sweet-modal-tab>
-    <sweet-modal-tab title="Files" id="files-tab">
+    <!-- <sweet-modal-tab title="Files" id="files-tab">
       <section v-if="fileLoading" class="loading-tab">
         <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
       </section>
@@ -58,7 +58,7 @@
           </div>
         </div>
       </section>
-    </sweet-modal-tab>
+    </sweet-modal-tab> -->
   </sweet-modal>
 </template>
 
