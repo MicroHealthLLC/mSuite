@@ -21,7 +21,7 @@
           v-model:content="content"
           :options="editorOption"
           @focus="contentUpdate"
-          v-debounce:1000ms="blurEvent"></quill-editor>
+          v-debounce:750ms="blurEvent"></quill-editor>
       </div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
