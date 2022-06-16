@@ -511,8 +511,10 @@
           }
           if (this.drawLine) {
             const mousePos = canvas.getBoundingClientRect();
-            const x1 = (event.e.clientX - mousePos.left) / (mousePos.right - mousePos.left) * canvas.width/2
-            const y1 = (event.e.clientY - mousePos.top) / (mousePos.bottom - mousePos.top) * canvas.height/2
+
+            const x1 = Math.round(event.e.clientX - mousePos.left);
+            const y1 = Math.round(event.e.clientY - mousePos.top);
+
             this.isStraightLine = true;
             this.points = [ x1, y1, x1, y1 ]
             this.straightLine()
