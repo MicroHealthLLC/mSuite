@@ -20,7 +20,8 @@
           ref="notepad"
           v-model:content="content"
           :options="editorOption"
-          v-debounce:1000ms="blurEvent"></quill-editor>
+          @focus="contentUpdate"
+          v-debounce:10ms="blurEvent"></quill-editor>
       </div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
@@ -215,6 +216,11 @@
         }
         document.body.removeChild(downloadLink);
         this.$refs['navigationBar'].$refs['exportOption'].close()
+      },
+      contentUpdate(){
+        setTimeout(()=>{
+          this.updateDocument()
+        },500)
       },
       blurEvent(val, e){
         this.updateDocument()
