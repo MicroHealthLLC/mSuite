@@ -71,7 +71,26 @@
           <i class="material-icons copy_icon icons d-flex center_flex"></i>
         </a>
       </span>
-
+      <span v-if = "currentMindMap.mm_type === 'spreadsheet'" class="mt-3">
+        <a
+          href="javascript:;"
+          role="button"
+          class="d-flex text-info pointer mr-3 center_flex"
+          v-b-tooltip.hover title="Status"
+        >
+          <div v-if="isEditing">
+            <span>Editing</span>
+            <span class="dots-cont" v-if="isEditing">
+              <span class="dot dot-1"></span>
+              <span class="dot dot-2"></span>
+              <span class="dot dot-3"></span>
+            </span>
+          </div>
+          <div v-else v-show="saveElement">
+            <span class="save">Saved</span>
+          </div>
+        </a>
+      </span>
       <span>
         <a
           href="javascript:;"
@@ -185,7 +204,7 @@
   import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
@@ -337,11 +356,47 @@
         handler(value) {
           this.mSuiteName = value.title
         }, deep: true
-      }
+      },
     }
   }
 </script>
 
 <style>
   @import "../components/mindmaps/styles/mindmap_new.scss";
+
+  .dot {
+   width: 3px;
+   height: 3px;
+   background: #0F6674;
+   display: inline-block;
+   border-radius: 50%;
+   right: 0px;
+   bottom: 0px;
+   margin: 0px 0.2px;
+   position: relative;
+   animation: jump 1s infinite;
+  }
+  .dots-cont:hover > .dot {
+   animation: none;
+  }
+  .dots-cont .dot-1 {
+   -webkit-animation-delay: 100ms;
+   animation-delay: 100ms;
+  }
+  .dots-cont .dot-2 {
+   -webkit-animation-delay: 200ms;
+   animation-delay: 200ms;
+  }
+  .dots-cont .dot-3 {
+   -webkit-animation-delay: 300ms;
+   animation-delay: 300ms;
+  }
+  @keyframes jump {
+   0%   {bottom: 0px;}
+   20%  {bottom: 5px;}
+   40%  {bottom: 0px;}
+  }
+
+
+
 </style>

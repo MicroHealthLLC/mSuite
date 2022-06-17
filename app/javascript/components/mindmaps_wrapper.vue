@@ -25,7 +25,7 @@
   import Flowmap from "./flowmap/flowmap"
   import ToDo from "./todo/todo"
   import Notepad from "./notepad/notepad"
-
+  import SpreadSheet from "./spreadsheet/spreadsheet"
   export default {
     components: {
       MindmapView,
@@ -36,7 +36,8 @@
       TreeChart,
       Flowmap,
       ToDo,
-      Notepad
+      Notepad,
+      SpreadSheet
     },
     data() {
       return {
@@ -70,6 +71,8 @@
               return "ToDo"
             case "Notepad":
               return "Notepad"
+            case "spreadsheet":
+              return "SpreadSheet"
             default:
               return "MindmapView"
           }

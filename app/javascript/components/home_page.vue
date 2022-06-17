@@ -14,22 +14,21 @@
              -->
          </div>
           </div>
-        </div>
-        <!-- Row for wrapper containing grid-layout mindmap items -->
-        <div class="mx-center">
-          <div class="row">
-            <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
-              <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
-                <i class="fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
-                <i class="far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
-                <i class="far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
-                <i class="fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
-                <i class="fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
-                <i class="fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
-                <i class="fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
-                <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
-                <span class="text-center icon-text">{{type.value}}</span>
-              </div>
+          <!-- Row for wrapper containing grid-layout mindmap items -->
+        <div class="row mm-icon-row pl-5">
+          <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
+            <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
+              <i class="mx-auto fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
+              <i class="mx-auto far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
+              <i class="mx-auto far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
+              <i class="mx-auto fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
+              <i class="mx-auto fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
+              <i class="mx-auto fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
+              <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
+              <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
+              <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
+              <span class="text-center icon-text">{{type.value}}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -80,7 +79,8 @@
           { key: 'tree_chart', value: 'TreeChart', imgsrc: "" },
           { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
           { key: 'todo', value: 'ToDo', imgsrc: "" },
-          { key: 'Notepad', value: 'Notepad', imgsrc: "" }
+          { key: 'Notepad', value: 'Notepad', imgsrc: "" },
+          { key: 'spreadsheet', value: 'Spread Sheet', imgsrc: "" }
         ]
       }
     },
