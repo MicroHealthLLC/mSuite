@@ -80,7 +80,7 @@
           { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
           { key: 'todo', value: 'ToDo', imgsrc: "" },
           { key: 'Notepad', value: 'Notepad', imgsrc: "" },
-          { key: 'spreadsheet', value: 'Spread Sheet', imgsrc: "" }
+          { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" }
         ]
       }
     },
