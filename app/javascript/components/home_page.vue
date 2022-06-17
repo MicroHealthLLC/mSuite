@@ -137,7 +137,7 @@
   .main_div {
     position: absolute;
     width: 100%;
-    height: 93.7vh;
+    height: 91.2vh;
     background:  linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../assets/images/landing_bg.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
