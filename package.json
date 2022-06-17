@@ -17,6 +17,7 @@
     "jimp": "^0.9.3",
     "jqwidgets-scripts": "^12.2.1",
     "jspdf": "^2.5.0",
+    "jspreadsheet-ce": "^4.11.1",
     "lodash": "^4.17.15",
     "sortablejs": "^1.14.0",
     "sweet-modal-vue": "^2.0.0",
