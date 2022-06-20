@@ -14,7 +14,7 @@
     </navigation-bar>
     <div class="row">
       <div class="col-1 px-0 sidebar">
-        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="isDrawing ? 'active':''" @click="toggleDrawing">
+        <div class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex" :class="isDrawing && !eraser ? 'active':''" @click="toggleDrawing">
           <span class="material-icons">
             edit
           </span>
@@ -369,6 +369,7 @@
       deleteModal() {
         if(this.eraser) {
           this.eraser = false;
+          $('.upper-canvas').removeClass('eraserCursor')
           this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         }
         else this.eraser = true;
@@ -416,6 +417,8 @@
         this.eraser = false;
         this.drawLine = false;
         this.canvas.hoverCursor = 'auto';
+        $('.upper-canvas').removeClass('eraserCursor')
+
       },
       toggleDrawLine() {
         this.isDrawing = false;
@@ -423,6 +426,7 @@
         this.canvas.isDrawingMode = false;
         if(this.drawLine) this.drawLine = false
         else this.drawLine = true
+        $('.upper-canvas').removeClass('eraserCursor')
       },
       toggleDrawing() {
         this.drawLine = false
@@ -435,6 +439,7 @@
           if(this.eraser) {
             this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
             this.canvas.isDrawingMode = true;
+            $('.upper-canvas').addClass('eraserCursor')
           } else if(this.isDrawing && !this.drawLine) {
             this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
             this.canvas.freeDrawingBrush.color = this.color;
@@ -559,5 +564,8 @@
   .whiteboard-btns:hover{
     background-color: #091e4214;
     color: #172b4d;
+  }
+  .eraserCursor{
+    cursor: url('eraser.png') 5 5, auto !important;
   }
 </style>
