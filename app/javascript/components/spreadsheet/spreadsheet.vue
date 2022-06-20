@@ -15,7 +15,7 @@
       ref="spreadSheetNavigation">
     </navigation-bar>
     <div id="spreadSheet" class="overflow-auto">
-      <div id="mytable"></div>
+      <div id="mytable" class="w-100 h-100vh"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
@@ -289,13 +289,18 @@
         ],
       });
       this.table = table
+      $(".jexcel_content").addClass('h-100 w-100')
+      $(".jexcel").addClass('w-100 h-100')
+      $(".jexcel_content")[0].style.maxHeight = '100vh'
     },
   }
 </script>
 <style scoped>
   @import 'https://bossanova.uk/jspreadsheet/v4/jexcel.css';
   @import 'https://jsuites.net/v4/jsuites.css';
-
+  .h-100vh{
+    height: 100vh !important;
+  }
   .jexcel_toolbar i.jexcel_toolbar_item {
     margin-right: 2% !important;
   }
