@@ -18,7 +18,7 @@
         <div v-for="stage, index in computedStages" :slot="stage" :key="index" class="w-100 font-serif" >
           <div class="w-100 mb-2" :id="'stage_'+index">
             <div class="d-inline-block w-100 block">
-              <div class="text-dark pointer w-100 d-flex">
+              <div class="pointer w-100 d-flex">
                 <div @click="updateStage(stage)" class="w-75">
                   <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class="border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
                 </div>
@@ -30,7 +30,7 @@
                       <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
                   </div>
                   <div class="pointer" @click="deleteStageConfirm(stage)">
-                    <i class="fas fa-times text-danger mt-1 icon-delete-stage" title="Delete Stage"></i>
+                    <i class="fas fa-times mt-1 icon-delete-stage" title="Delete Stage"></i>
                   </div>
                 </div>
               </div>
@@ -45,7 +45,7 @@
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
           <div class="d-inline-block w-100 block">
-            <div class="text-dark pointer w-100 d-flex" @click="selectedNode(index)">
+            <div class="pointer w-100 d-flex" @click="selectedNode(index)">
               <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
@@ -316,6 +316,7 @@
       },
       updateColor(){
         this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
+        this.getColorNode('.drag-column')
       },
       selectedStageBg(stage, e){
         if(this.selectedStage !== null && this.selectedElement !== null){
@@ -356,6 +357,7 @@
         this.selectedElement = null
         this.selectedStage = null
         this.colorSelected = false
+        this.getColorNode('.drag-column')
       },
       reset_stages() {
         let data = {
@@ -377,6 +379,9 @@
           this.allStages = res.data.stages
           this.mapColors = []
           this.uniqueColors = []
+          setTimeout(()=>{
+            this.getColorNode('.drag-column')
+          },1500)
           Object.values(this.allStages).forEach(stage => {
             this.mapColors.push(stage.stage_color);
           });
@@ -427,6 +432,7 @@
           this.selectedElement = null
           this.selectedStage = null
           this.colorSelected = false
+          this.getColorNode('.drag-column')
         })
         .catch((error) => {
           this.stage = null

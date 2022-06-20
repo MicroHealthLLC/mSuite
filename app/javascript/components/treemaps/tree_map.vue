@@ -304,6 +304,7 @@
         this.currentMindMap.line_color = this.currentMindMap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
+        this.getColorNode('.jqx-treemap-rectangle')
         this.mapColors = []
         this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
@@ -325,6 +326,7 @@
         this.currentMindMap.line_color = response.data.mindmap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes
+        this.getColorNode('.jqx-treemap-rectangle')
         this.mapColors = []
         this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
@@ -421,6 +423,7 @@
         eventElement.target.contentEditable = true
         eventElement.target.focus();
         eventElement.target.style.backgroundColor = "white"
+        eventElement.target.style.color = "black"
         _this.colorSelected = false
         _this.oldEventElement = eventElement
         eventElement.target.addEventListener('keyup', function(){
@@ -493,6 +496,11 @@
       },
       updateColorNode(){
         this.currentElementObj[0].style.backgroundColor = this.selectedNodeColor.line_color.hex
+        if(this.wc_hex_is_light(this.selectedNodeColor.line_color.hex)){
+          this.currentElementObj[0].style.color = '#000'
+        } else {
+          this.currentElementObj[0].style.color = '#fff'
+        }
         this.selectedNodeColor.line_color = this.selectedNodeColor.line_color.hex
       },
       saveNodeColor(){
