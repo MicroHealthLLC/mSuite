@@ -39,7 +39,7 @@
                 <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node"></i>
               </div>
             </div>
-            <span class="text-dark my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
+            <span class="my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
               {{ node.name }}
             </span>
             <span v-else-if="selectedNode.id == node.id">
@@ -220,12 +220,14 @@
         let element = document.getElementById('treeChart'+this.treeNode.id)
         element.style.backgroundColor = this.treeNode.line_color.hex
         this.treeNode.line_color = this.treeNode.line_color.hex
+        this.getColorNode('.rich-media-node')
       },
       closeModelPicker(){
         let element = document.getElementById('treeChart'+this.treeNode.id)
         if(this.nodeColor.hex) element.style.backgroundColor = this.nodeColor.hex
         else element.style.backgroundColor = this.currentMindMap.line_color
         this.colorSelected = false
+        this.getColorNode('.rich-media-node')
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
@@ -327,6 +329,7 @@
         this.treeChartObj.name = this.currentMindMap.name
         this.nodes = this.currentMindMap.nodes
         this.addNodeTree = false
+        this.getColorNode('.rich-media-node')
         this.mapColors = []
         this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
@@ -346,6 +349,7 @@
         this.treeChartObj.name = response.data.mindmap.name
         this.nodes = response.data.mindmap.nodes
         this.addNodeTree = false
+        this.getColorNode('.rich-media-node')
         this.mapColors = []
         this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
