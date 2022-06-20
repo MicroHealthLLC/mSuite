@@ -27,7 +27,7 @@
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <div class="row central_node_attachment text-secondary">
             <div class="add-central-notes col-6">
-              <span v-if="!selectedNode" @click.stop="openCentralAttachModal" style="font-size: 14px;"><i class="fa fa-paperclip"></i></span>
+              <span @click.stop="openCentralAttachModal" style="font-size: 14px;"><i class="fa fa-paperclip"></i></span>
             </div>
             <div class="col-6">
               <span class="central_notes_bar">
