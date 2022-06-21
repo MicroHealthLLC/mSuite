@@ -33,6 +33,7 @@
     "vue-quill-editor": "^3.0.6",
     "vue-recaptcha": "^2.0.1",
     "vue-spinner": "^1.0.3",
+    "vue-table-to-excel": "^1.0.6",
     "vue-template-compiler": "^2.6.10",
     "vue-textarea-autosize": "^1.1.1",
     "vue2-datepicker": "^3.10.4",
