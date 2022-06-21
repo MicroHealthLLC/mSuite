@@ -17,16 +17,19 @@
       ><i class="fa fa-minus-square"></i></span>
     </span>
     <textarea v-if="isEdited" type="text" ref="new_idea" @input="updateIdea" v-model="tempLocalValue" class="shadow-lg new_idea_selected pt-2" :class="{'blue_border': isEdited}" :style="C_newIdeaStyle"/>
-    <div v-else class="new_idea">
-      <div class="node_attachment text-secondary px-2">
-        <span v-if="isSelected" @click.stop="addAttachModal"><i class="fa fa-paperclip"></i></span>
+    <div v-else class="new_idea row">
+      <div class="col-12 px-0">
+        <span v-if="isSelected" class="mr-2 clickable float-right" :class="hasDescription ? 'text-info':''" @click.stop="addAttachModal" data-tab="description-tab"><i class="fa fa-comment"></i></span>
+      </div>
+      <div class="node_attachment text-secondary px-2 col-12 px-0">
         <span class="notes_bar" :class="{'top_bar': !isSelected}">
-          <span v-if="hasDescription" class="mr-2 clickable" @click.stop="addAttachModal" data-tab="description-tab"><i class="fa fa-comment"></i></span>
           <span v-if="fileCount > 0" data-tab="files-tab" @click.stop="addAttachModal" class="clickable"><i data-tab="files-tab" class="far fa-file-alt"></i> <sup data-tab="files-tab" style="color: black;">{{fileCount}} </sup></span>
         </span>
       </div>
-      <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
-      <p v-else class="new_idea_pg">{{tempLocalValue}}</p>
+      <div class="col-12 px-0">
+        <p v-if="isSelected" @dblclick.prevent="editNode" class="node_selected shadow-lg py-2">{{tempLocalValue}}</p>
+        <p v-else class="new_idea_pg">{{tempLocalValue}}</p>
+      </div>
     </div>
   </div>
 </template>
