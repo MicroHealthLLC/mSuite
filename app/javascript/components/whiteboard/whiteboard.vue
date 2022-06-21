@@ -441,7 +441,7 @@
 
       },
       toggleDrawLine() {
-        this.createSelection = true;
+        this.createSelection = false;
         this.isDrawing = false;
         this.eraser = false;
         this.canvas.isDrawingMode = false;
@@ -450,7 +450,7 @@
         $('.upper-canvas').removeClass('eraserCursor')
       },
       toggleDrawing() {
-        this.createSelection = true;
+        this.createSelection = false;
         this.drawLine = false
         if (this.isDrawing) {
           this.isDrawing = false;
@@ -469,7 +469,6 @@
           }
           this.canvas.freeDrawingBrush.width = this.line;
           this.canvas.isDrawingMode = true;
-          // this.eraser = false;
           this.canvas.renderAll();
         }
       },
@@ -537,7 +536,6 @@
           }
         })
         this.canvas.on('selection:created', (event) => {
-          this.drawLine = false
           this.activeObject = this.canvas.getActiveObject();
           if(this.activeObject) {
             this.line = this.activeObject.strokeWidth
