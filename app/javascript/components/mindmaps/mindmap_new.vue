@@ -26,12 +26,9 @@
       <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <div class="row central_node_attachment text-secondary">
-            <div class="add-central-notes col-6">
-              <span @click.stop="openCentralAttachModal" style="font-size: 14px;"><i class="fa fa-paperclip"></i></span>
-            </div>
-            <div class="col-6">
-              <span class="central_notes_bar">
-                <span v-if="C_hasDescription" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="mr-2"><i class="fa fa-comment"></i></span>
+            <div class="col-12 px-0">
+              <span class="central_notes_bar float-right">
+                <span style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="mr-2" :class="C_hasDescription ? 'text-info' : ''"><i class="fa fa-comment"></i></span>
                 <span v-if="C_centralFileCount > 0" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="files-tab">
                   <i class="far fa-file-alt" data-tab="files-tab"></i>
                   <sup style="color: black;" data-tab="files-tab">{{C_centralFileCount}}</sup>
