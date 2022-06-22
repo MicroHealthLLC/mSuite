@@ -16,7 +16,7 @@
       ref="spreadSheetNavigation">
     </navigation-bar>
     <div id="spreadSheet" class="overflow-auto">
-      <div id="mytable"></div>
+      <div id="mytable" class="w-100"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
@@ -45,7 +45,6 @@
   import { jsontoexcel } from "vue-table-to-excel";
   import "./styles/bossanova.css";
   import "./styles/jsuites.css";
-
 
   export default {
     props: ['currentMindMap'],
@@ -296,8 +295,16 @@
         this.getMindmap(this.$route.params.key)
       }
       this.createSheet(this.currentMindMap.canvas)
+      $(".jexcel_content").addClass('h-100 w-100')
+      $(".jexcel").addClass('w-100 h-100')
+      $(".jexcel_content")[0].style.maxHeight = '100vh'
+      setTimeout(()=>{
+        let navbarHeight = $(".buttons_container").height()
+        let toolbarHeight= $('.jexcel_toolbar').height()
+        let totalHeight = navbarHeight + toolbarHeight
+        let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
+        $('#mytable')[0].style.height = heightVal
+      },200)
     },
   }
 </script>
-<style scoped>
-</style>
