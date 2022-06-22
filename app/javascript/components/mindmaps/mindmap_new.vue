@@ -1081,7 +1081,7 @@
         this.$forceUpdate()
         this.saveNode(this.selectedNode)
         this.descEditMode = false
-        this.$refs["attachment-modal"].$refs.attachmentModal.close()
+        // this.$refs["attachment-modal"].$refs.attachmentModal.close()
       },
       addFileToNode(files) {
         this.uploadFiles = files
@@ -1102,7 +1102,7 @@
         this.currentMindMap.description = notes
         this.saveCurrentMap()
         this.descEditMode = false
-        this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.close()
+        // this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.close()
       },
       addFileToCentralNode(files) {
         this.uploadFiles = files
