@@ -6,16 +6,17 @@
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
+      @exportXLS="exportXLS($event)"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
-      :exportId="'spreadsheet'"
+      :exportId="'spreadSheet'"
       :isEditing="isEditing"
       :saveElement="saveElement"
       ref="spreadSheetNavigation">
     </navigation-bar>
     <div id="spreadSheet" class="overflow-auto">
-      <div id="mytable" class="w-100 h-100vh"></div>
+      <div id="mytable"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
@@ -41,6 +42,10 @@
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   import jexcel from 'jspreadsheet-ce'
+  import { jsontoexcel } from "vue-table-to-excel";
+  import "./styles/bossanova.css";
+  import "./styles/jsuites.css";
+
 
   export default {
     props: ['currentMindMap'],
@@ -54,7 +59,8 @@
         },
         isReset: false,
         isEditing: false,
-        saveElement: true
+        saveElement: true,
+        changeRequest: 0
       }
     },
     components: {
@@ -72,13 +78,15 @@
             setTimeout(() => {
               location.reload()
             }, 500)
-          } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
-
-
           }
           else {
-            this.currentMindMap = data.mindmap
-            this.sheetData = JSON.parse(data.mindmap.canvas)
+            setTimeout(() => {
+              this.currentMindMap = data.mindmap
+              this.sheetData = JSON.parse(data.mindmap.canvas)
+              this.table.setData(this.sheetData.data)
+              this.changeRequest = this.changeRequest + 1
+              if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
+            }, 500)
           }
         }
       }
@@ -149,14 +157,87 @@
         this.openPrivacy()
       },
       resetMindmap() {
-        http
-          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-          .then((res) => {
-
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        this.isReset = true
+        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","data":[]}', title: 'Title' } }
+        let id = this.currentMindMap.unique_key
+        http.patch(`/msuite/${id}.json`,mindmap)
+      },
+      createSheet(sheetData){
+          if(this.currentMindMap.canvas != null) this.sheetData = JSON.parse(sheetData)
+          let table = jexcel(document.getElementById('mytable'), {
+            data:this.sheetData.data,
+            style: this.sheetData.style,
+            formula: true,
+            tableOverflow: true,
+            tableHeight: '100vh',
+            minDimensions:[32,32],
+            onchange: this.dataChange,
+            onchangestyle: this.changeStyle,
+            onselection: this.selectionCreated,
+            oneditionstart: this.editStart,
+            oneditionend: this.editEnd,
+            toolbar:[
+              {
+                type: 'i',
+                content: 'undo',
+                onclick: function() {
+                    table.undo();
+                }
+              },
+              {
+                type: 'i',
+                content: 'redo',
+                onclick: function() {
+                    table.redo();
+                }
+              },
+              {
+                type: 'select',
+                k: 'font-family',
+                v: ['Arial','Verdana']
+              },
+              {
+                type: 'select',
+                k: 'font-size',
+                v: ['9px','10px','11px','12px','13px','14px','15px','16px','17px','18px','19px','20px','40px','60px']
+              },
+              {
+                type: 'i',
+                content: 'format_align_left',
+                k: 'text-align',
+                v: 'left'
+              },
+              {
+                type:'i',
+                content:'format_align_center',
+                k:'text-align',
+                v:'center'
+              },
+              {
+                type: 'i',
+                content: 'format_align_right',
+                k: 'text-align',
+                v: 'right'
+              },
+              {
+                type: 'i',
+                content: 'format_bold',
+                k: 'font-weight',
+                v: 'bold'
+              },
+               {
+                  type: 'color',
+                  content: 'format_color_text',
+                  k: 'color'
+              },
+              {
+                  type: 'color',
+                  content: 'format_color_fill',
+                  k: 'background-color'
+              },
+            ],
+          });
+        this.table = table
       },
       dataChange(){
         this.sheetData.data = this.table.getData()
@@ -176,26 +257,33 @@
         this.sheetData.data = JSON.stringify(this.table.getData())
       },
       changeStyle(){
-        setTimeout(()=>{
-          this.sheetData.style = this.table.getStyle()
-          let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-          let id = this.currentMindMap.unique_key
-          if(!this.isReset){
-            http.patch(`/msuite/${id}.json`,mindmap)
-            this.isEditing = false
-            this.saveElement = true
-          }
-          else this.isReset = false
-        },500)
+        if(this.changeRequest < 1){
+          setTimeout(()=>{
+            this.sheetData.style = this.table.getStyle()
+            let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+            let id = this.currentMindMap.unique_key
+            if(!this.isReset){
+              http.patch(`/msuite/${id}.json`,mindmap)
+              this.isEditing = false
+              this.saveElement = true
+            }
+            else this.isReset = false
+          },500)
+        }
       },
-    },
-    beforeUpdate(){
-      let icons = document.querySelectorAll('.jexcel_toolbar i.jexcel_toolbar_item');
-      [].forEach.call(icons, function(icon){
-        icon.classList.add('mr-3')
-      })
-      let toolbar = document.querySelectorAll('.jexcel_toolbar')[0]
-      toolbar.classList.add('pb-2')
+      selectionCreated(){
+        this.changeRequest = 0
+      },
+      exportXLS(option){
+        if(option === 1){
+          let head = []
+          jsontoexcel.getXlsx(this.sheetData.data, head, 'download.xlsx');
+        }
+        if(option === 2){
+          this.table.download(true);
+        }
+        this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
+      }
     },
     created() {
       setTimeout(() => this.saveElement = false, 1200)
@@ -207,101 +295,9 @@
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
       }
-      if(this.currentMindMap.canvas != null) this.sheetData = JSON.parse(this.currentMindMap.canvas)
-      let table = jexcel(document.getElementById('mytable'), {
-        data:this.sheetData.data,
-        style: this.sheetData.style,
-        formula: true,
-        tableOverflow: true,
-        tableHeight: '78vh',
-        minDimensions:[30,30],
-        onchange: this.dataChange,
-        onchangestyle: this.changeStyle,
-        onselection: this.selectionCreated,
-        oneditionstart: this.editStart,
-        oneditionend: this.editEnd,
-        toolbar:[
-          {
-            type: 'i',
-            content: 'undo',
-            onclick: function() {
-                table.undo();
-            }
-          },
-          {
-            type: 'i',
-            content: 'redo',
-            onclick: function() {
-                table.redo();
-            }
-          },
-          {
-            type: 'i',
-            content: 'save',
-            onclick: function () {
-                table.download(true);
-            }
-          },
-          {
-            type: 'select',
-            k: 'font-family',
-            v: ['Arial','Verdana']
-          },
-          {
-            type: 'select',
-            k: 'font-size',
-            v: ['9px','10px','11px','12px','13px','14px','15px','16px','17px','18px','19px','20px','40px','60px']
-          },
-          {
-            type: 'i',
-            content: 'format_align_left',
-            k: 'text-align',
-            v: 'left'
-          },
-          {
-            type:'i',
-            content:'format_align_center',
-            k:'text-align',
-            v:'center'
-          },
-          {
-            type: 'i',
-            content: 'format_align_right',
-            k: 'text-align',
-            v: 'right'
-          },
-          {
-            type: 'i',
-            content: 'format_bold',
-            k: 'font-weight',
-            v: 'bold'
-          },
-           {
-              type: 'color',
-              content: 'format_color_text',
-              k: 'color'
-          },
-          {
-              type: 'color',
-              content: 'format_color_fill',
-              k: 'background-color'
-          },
-        ],
-      });
-      this.table = table
-      $(".jexcel_content").addClass('h-100 w-100')
-      $(".jexcel").addClass('w-100 h-100')
-      $(".jexcel_content")[0].style.maxHeight = '100vh'
+      this.createSheet(this.currentMindMap.canvas)
     },
   }
 </script>
 <style scoped>
-  @import 'https://bossanova.uk/jspreadsheet/v4/jexcel.css';
-  @import 'https://jsuites.net/v4/jsuites.css';
-  .h-100vh{
-    height: 100vh !important;
-  }
-  .jexcel_toolbar i.jexcel_toolbar_item {
-    margin-right: 2% !important;
-  }
 </style>

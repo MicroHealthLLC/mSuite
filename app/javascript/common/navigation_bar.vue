@@ -139,6 +139,17 @@
             <!-- <font-awesome-icon icon="fa-solid fa-file-export d-flex center_flex" /> -->
         </a>
         <a
+          v-if="currentMindMap.mm_type==='spreadsheet'"
+          ref="exportBtn"
+          role="button"
+          href="javascript:;"
+          class="fa-icon zoom_btn text-info edit_delete_btn center_flex mr-3"
+          @click.prevent.stop="$refs['exportOptionCsv'].open()"
+        >
+          <i class="fas fa-file-excel icons d-flex center_flex"></i>
+          <span class="fa-icon-text">Export</span>
+        </a>
+        <a
           role="button"
           href="javascript:;"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -185,6 +196,13 @@
 
       <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(2)" class="btn btn-info float-left">Export to rtf</button>
       <button slot="button" v-else @click="exportImage(2)" class="btn btn-info float-left">Export to Pdf</button>
+      <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
+    </sweet-modal>
+    <sweet-modal ref="exportOptionCsv" class="of_v" icon="info" title="Export Format">
+      Kindly Choose the Format of Export
+      <button slot="button" @click="exportXLS(1)" class="btn btn-warning float-left mr-2">Export to Excel</button>
+
+      <button slot="button" @click="exportXLS(2)" class="btn btn-info float-left">Export to csv</button>
       <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
     <reset-map-modal
@@ -266,6 +284,9 @@
       exportToWord () {
         this.$emit("exportToWord")
       },
+      exportXLS (option) {
+        this.$emit("exportXLS",option)
+      },
       resetZoomScale () {
         this.$emit("resetZoomScale")
       },
@@ -320,6 +341,9 @@
           {
             let inner_list = document.getElementsByClassName('drag-inner-list')
             inner_list.forEach(i=>i.classList.add('mh-100'))
+          }
+          if (this.currentMindMap.mm_type === 'spreadsheet'){
+            elm = document.getElementsByClassName('jexcel_content')[0]
           }
           elm.style.transform = "scale(1)"
           let map_key = _this.currentMindMap.unique_key || "image"
