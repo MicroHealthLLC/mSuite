@@ -19,10 +19,11 @@
           <div v-if="editable" class="right_flex mt_2">
             <a
               href="javascript:;"
-              class="btn_1 btn-sm bg-danger text-white mr_1"
+              class="btn_1 btn-sm text-white mr_1"
+              :class="statusBtn == 'Saved' ? 'bg-success':'bg-danger'"
               @click.prevent.stop="updateNodeDescription"
             >
-              <i class="material-icons mr-1">done</i>
+              <i v-if="statusBtn == 'Saved'" class="material-icons mr-1">done</i>
               {{statusBtn}}
             </a>
           </div>
