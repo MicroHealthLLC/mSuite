@@ -316,6 +316,7 @@
         this.$refs.refTree.collapseEnabled = false
         this.selectedNodeTitle = ''
         if(!this.addNodeTree) this.reRenderTree(nodeElement)
+        this.getColorNode('.rich-media-node')
       },
       reRenderTree(nodeElement){
         this.nodeTemp.parent = nodeElement.name
@@ -485,6 +486,7 @@
           }
         }
         this.$refs.refTree.collapseEnabled = false
+        this.getColorNode('.rich-media-node')
       },
       deleteTreeChart(){
         http
