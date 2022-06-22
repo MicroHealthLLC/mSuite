@@ -10,15 +10,15 @@
     position:fixed;
     top:0px;
     left:0px;
-    width:100vw;
-    height:100vh;
+    width:100%;
+    /*height:auto;*/
     z-index:21;
 }
 
 .jexcel_container.fullscreen .jexcel_content {
     overflow:auto;
-    width:100vw;
-    height:100vh;
+    width:100%;
+    /*height:auto;*/
     background-color:#ffffff;
 }
 
@@ -27,8 +27,6 @@
 }
 
 .jexcel_container.fullscreen.with-toolbar {
-    height: 100vh;
-    /*height: calc(100% - 46px);*/
 }
 
 .jexcel_content {
@@ -65,9 +63,7 @@
     empty-cells: show;
     border: 0px;
     background-color: #fff;
-    width: 100vw;
-    height: 100vh;
-
+    width: 0;
     border-top: 1px solid transparent;
     border-left: 1px solid transparent;
     border-right: 1px solid #ccc;
@@ -145,7 +141,6 @@
 {
     content:'\00a0';
     width:3px;
-    height:100%;
     position:absolute;
     top:0px;
     right:0px;
@@ -252,7 +247,7 @@
 
 .jexcel > tbody > tr > td > .color
 {
-    width:100%;
+    width:90%;
     height:10px;
     margin:auto;
 }
@@ -385,7 +380,6 @@
 .jexcel .editor .jupload img
 {
     width:100%;
-    height:100vh;
 }
 
 .jexcel .editor .jexcel_richtext
@@ -495,7 +489,6 @@
     border:0px !important;
     outline:none !important;
     width:100% !important;
-    height:100% !important;
     padding:0px !important;
     padding-left:8px !important;
 }
@@ -508,7 +501,6 @@
 .jexcel .jdropdown-container-header {
     padding: 0px;
     margin: 0px;
-    height: inherit;
 }
 
 .jexcel .jdropdown-picker
@@ -516,7 +508,6 @@
     border:0px !important;
     padding:0px !important;
     width:inherit;
-    height:inherit;
 }
 
 .jexcel .jexcel_comments
@@ -618,7 +609,6 @@
     border:1px solid #ccc;
     padding:4px;
     margin:0px 2px 4px 1px;
-    padding-bottom: 10px;
     position:sticky;
     top:0px;
     z-index:21;
@@ -634,9 +624,9 @@
     width:24px;
     height:24px;
     padding:4px;
+    margin-right: 3%;
     cursor:pointer;
     display:inline-block;
-    margin-right: 1%;
 }
 
 .jexcel_toolbar i.jexcel_toolbar_item:hover
