@@ -19,12 +19,13 @@ export default {
     getColorNode(myNodeClass){
         setTimeout(()=>{
           $(myNodeClass).each((index, color) => {
-            console.log(this.rgbToHex(color.style.backgroundColor))
             if(this.rgbToHex(color.style.backgroundColor)){
               if(this.currentMindMap.mm_type == 'kanban'){
                 $('.stage-title')[index].style.color = '#000'
                 let kanbanElement = color.children[0].children[0].children[0].children[0].children[0].children[1]
                 kanbanElement.children[2].children[0].style.color = "#C14E57"
+                kanbanElement.children[1].children[0].style.color = "dodgerblue"
+                kanbanElement.children[0].children[0].style.color = "#474748"
               }
             color.style.color = '#000'
             } else {
@@ -58,14 +59,16 @@ export default {
         }, 50)
       },
       rgbToHex(bgColor) {
-        let r = bgColor.substr(4,3)
-        let g = bgColor.substr(9,3)
-        let b = bgColor.substr(14,3)
-        if(this.wc_hex_is_light("#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b))){
-          return true
-        } else {
-          return false
-        }
+        if(bgColor != ''){
+          let r = bgColor.substr(4,3)
+          let g = bgColor.substr(9,3)
+          let b = bgColor.substr(14,3)
+          if(this.wc_hex_is_light("#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b))){
+            return true
+          } else {
+            return false
+          }
+        } else return true
       },
       componentToHex(c) {
         let hex = parseInt(c).toString(16);
