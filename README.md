@@ -44,7 +44,7 @@
 # Install Mysql
         yum install mariadb-server mariadb  OR follow instructions here https://linuxize.com/post/install-mariadb-on-centos-7/#install-mariadb-103-on-centos-7 for client only install for remote databse connections. You will also need to run this "yum install mariadb-shared" after you follow the instructions in the link above 
 
-        yum install mysql-devel
+        yum install mariadb-devel
         
         systemctl start mariadb
 
