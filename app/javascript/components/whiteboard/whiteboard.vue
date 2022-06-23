@@ -165,7 +165,6 @@
         isPencil: false,
         addObj: false,
         newObj: false,
-        isStraightLine: false,
         drawLine: false,
         createSelection: false
       }
@@ -459,6 +458,7 @@
         } else {
           this.isDrawing = true;
           if(this.eraser) {
+            this.createSelection = false
             this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
             this.canvas.isDrawingMode = true;
             $('.upper-canvas').addClass('eraserCursor')
@@ -478,6 +478,9 @@
           this.canvas.discardActiveObject()
         } else {
           this.createSelection = true
+          this.eraser = false
+          this.canvas.isDrawingMode = false
+          $('.upper-canvas').removeClass('eraserCursor')
         }
       },
       showColorPicker() {
@@ -491,15 +494,8 @@
           _this.addObj = false;
         })
         this.canvas.on('mouse:move', (event) => {
-          let objectx = _this.canvas.getObjects();
-          if(!_this.createSelection){
-            this.canvas.hoverCursor = 'default';
-            objectx.forEach((x, i) => objectx[i].selectable = false )
-          } else {
-            objectx.forEach((x, i) => objectx[i].selectable = true )
-          }
           if(!_this.createSelection && _this.canvas.getActiveObject()) _this.canvas.discardActiveObject()
-          if(!this.isStraightLine) return
+          if(!this.drawLine) return
 
           this.pointer = this.canvas.getPointer(event.e);
           this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
@@ -519,7 +515,6 @@
             const x1 = Math.round(event.e.clientX - mousePos.left);
             const y1 = Math.round(event.e.clientY - mousePos.top);
 
-            this.isStraightLine = true;
             this.points = [ x1, y1, x1, y1 ]
             this.straightLine()
           }
@@ -536,6 +531,10 @@
           }
         })
         this.canvas.on('selection:created', (event) => {
+          this.drawLine = false
+          if(!this.eraser) this.createSelection = true
+          if(this.isDrawing && !this.eraser) this.canvas.isDrawingMode = false
+          this.isDrawing = false;
           this.activeObject = this.canvas.getActiveObject();
           if(this.activeObject) {
             this.line = this.activeObject.strokeWidth
