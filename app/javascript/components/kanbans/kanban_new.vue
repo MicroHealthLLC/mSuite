@@ -381,7 +381,7 @@
           this.uniqueColors = []
           setTimeout(()=>{
             this.getColorNode('.drag-column')
-          },1500)
+          },1400)
           Object.values(this.allStages).forEach(stage => {
             this.mapColors.push(stage.stage_color);
           });
@@ -400,6 +400,9 @@
         this.allStages.splice(stage_index + 1, 0, {title: ''})
         this.new_stage = true
         this.new_index = stage_index + 1
+        setTimeout(()=>{
+          this.getColorNode('.drag-column')
+        },50)
       },
       deleteMap(){
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
