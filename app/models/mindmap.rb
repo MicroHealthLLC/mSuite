@@ -76,7 +76,8 @@ class Mindmap < ApplicationRecord
       name: "Central Idea",
       title: "Title",
       description: "",
-      line_color: "#B3FAFF"
+      line_color: "#B3FAFF",
+      canvas: '{"version":"4.6.0","data":[], "style":{}, "width": []}'
     )
   end
 
