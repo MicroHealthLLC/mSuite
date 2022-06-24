@@ -479,6 +479,8 @@
         } else {
           this.createSelection = true
           this.eraser = false
+          this.isDrawing = false
+          this.drawLine = false
           this.canvas.isDrawingMode = false
           $('.upper-canvas').removeClass('eraserCursor')
         }
