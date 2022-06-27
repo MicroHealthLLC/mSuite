@@ -95,28 +95,6 @@ Below "server {" section add these
         cd /var/www/mSuite
         bundle exec puma -C config/puma.rb -e production
 
-# restart nginx
-you will have to create an nginx service now
-
-        nano /lib/systemd/system/nginx.service
-        
----then this below----
-        
-        Description=The NGINX HTTP and reverse proxy server
-        After=syslog.target network-online.target remote-fs.target nss-lookup.target
-        Wants=network-online.target
-        
-        [Service]
-        Type=forking
-        PIDFile=/run/nginx.pid
-        ExecStartPre=/etc/nginx/sbin/nginx -t
-        ExecStart=/etc/nginx/sbin/nginx
-        ExecReload=/etc/nginx/sbin/nginx -s reload
-        ExecStop=/bin/kill -s QUIT $MAINPID
-        PrivateTmp=true
-        
-        [Install]
-        WantedBy=multi-user.target
 
 ----end---
 
