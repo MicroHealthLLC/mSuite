@@ -224,6 +224,13 @@
       },
       blurEvent(val, e){
         this.updateDocument()
+      },
+      strongTagStyleBold(){
+        var strong_list = document.querySelectorAll('strong');
+        var strong_array = [...strong_list];
+        strong_array.forEach(el => {
+          el.style.fontWeight = 'bold'
+        });
       }
     },
     updated() {
@@ -235,6 +242,7 @@
         this.savingStatus.innerHTML = 'Editing...';
         this.savingStatus.style.color = 'blue';
       }
+      this.strongTagStyleBold()
     },
     mounted() {
       if (this.$route.params.key) {
@@ -253,6 +261,9 @@
       this.toolbar = $(".ql-toolbar")[0]
       this.savingStatus = document.createElement("span");
       this.toolbar.appendChild(this.savingStatus);
+      setTimeout(()=>{
+        this.strongTagStyleBold()
+      },100)
     },
   }
 </script>
