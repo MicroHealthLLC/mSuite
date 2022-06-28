@@ -83,7 +83,8 @@
             this.sheetData = JSON.parse(data.mindmap.canvas)
             this.table.setData(this.sheetData.data)
             this.table.setStyle(this.sheetData.style)
-            for(let i = 0; i < 32; i++) this.table.setWidth(i,50)
+            for(let i = 0; i < 32; i++) this.table.setWidth(i,50);
+            this.table.deleteColumn(32,26)
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             setTimeout(() => {
@@ -261,7 +262,7 @@
       changeStyle(){
         if(this.changeRequest < 1){
           setTimeout(()=>{
-            this.sheetData.style = this.table.getStyle()
+            if(this.table.getStyle()) this.sheetData.style = this.table.getStyle()
             let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
             let id = this.currentMindMap.unique_key
             if(!this.isReset){
