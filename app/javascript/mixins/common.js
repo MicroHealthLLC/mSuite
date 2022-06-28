@@ -5,6 +5,7 @@ export default {
   },
   methods: {
     getUniqueColors(colors) {
+      if(colors == undefined) return;
       let objColors = {}
       let uniqueColors = []
       colors.forEach(item => {
@@ -49,10 +50,9 @@ export default {
                 }
               } else if (this.currentMindMap.mm_type == 'flowmap' || this.currentMindMap.mm_type == 'tree_chart'){
                 let nodeElement = color.children[0]
-                nodeElement.children[0].style.filter = "invert(100%)"
-                nodeElement.children[1].style.filter = "invert(100%)"
-                nodeElement.children[2].style.filter = "invert(100%)"
-                nodeElement.children[3].style.filter = "invert(100%)"
+                nodeElement.children.forEach(node => {
+                  node.style.filter = "invert(100%)"
+                })
               }
             }
           })
