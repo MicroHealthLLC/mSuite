@@ -37,7 +37,7 @@
             </div>
           </div>
           <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" class="start_dot"></span>
-          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
+          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-on:keyup.enter="saveCurrentMap" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
         </div>
         <input-field
           v-for="node in currentNodes"
@@ -711,15 +711,9 @@
         this.nodeUpdatedFlag = false
         let index = this.currentMindMap.nodes.findIndex((nod) => nod.id == node.id)
         if (index != -1) {
-          let formData = files ? new FormData() : {node: node}
-          if (files) {
-            files.forEach((file) => {
-              formData.append("node[node_files][]", file)
-            })
-          }
+          let formData = { node: node }
           http.put(`/nodes/${node.id}.json`, formData).then((res) => {
             this.currentMindMap.nodes.splice(index, 1, res.data.node)
-            // for node attachment
             this.attachFiles = res.data.node.attach_files
             this.fileLoading = false
           }).catch((error) => {
@@ -764,12 +758,7 @@
       // =============== Map CRUD OPERATIONS =====================
       saveCurrentMap(files = null) {
         if (this.currentMindMap.id) {
-          let formData = files ? new FormData() : {mindmap: this.currentMindMap}
-          if (files) {
-            files.forEach((file) => {
-              formData.append("mindmap[node_files][]", file)
-            })
-          }
+          let formData = { mindmap: this.currentMindMap }
           http.put(`/msuite/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
@@ -1178,7 +1167,7 @@
             this.stopWatch = false
             return
           }
-          this.saveCurrentMap()
+          if(this.currentMindMap.name != '') this.saveCurrentMap()
           },
         deep: true
       },
