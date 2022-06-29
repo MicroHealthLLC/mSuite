@@ -192,6 +192,7 @@
             JSON.parse(this.initialImage).objects.forEach((x, i) => {
               this.mapColors.push(x.stroke)
             })
+            this.colorSelected = false
             this.canvas.loadFromJSON(this.initialImage);
             this.canvas.renderAll();
           }
@@ -487,7 +488,7 @@
       },
       showColorPicker() {
         if(this.activeObject.type == 'i-text') this.colorPicker = this.activeObject.fill
-        this.colorSelected = !this.colorSelected
+        if(this.canvas.getActiveObject()) this.colorSelected = true
       },
       mouseEvents() {
         let _this = this
