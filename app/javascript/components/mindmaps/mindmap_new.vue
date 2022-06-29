@@ -37,7 +37,7 @@
             </div>
           </div>
           <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" class="start_dot"></span>
-          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-on:keyup.enter="saveCurrentMap" v-model="centralIdea" class="shadow-lg central_idea pt-2" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
+          <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-on:keyup.enter="saveCurrentMap" v-model="centralIdea" class="shadow-lg central_idea" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
         </div>
         <input-field
           v-for="node in currentNodes"
@@ -862,7 +862,7 @@
         function(input) {
           this.currentMindMap.name = this.$refs.central_idea.value
         },
-        500
+        2000
       ),
       hasChilNodes(node) {
         return this.currentMindMap.nodes.filter((nod) => nod.parent_node == node.id).length > 0;
