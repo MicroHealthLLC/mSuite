@@ -732,10 +732,13 @@
           console.log(error)
         })
       },
-      nodeUpdated(node) {
-        this.nodeUpdatedFlag = true
-        this.saveNode(node)
-      },
+      nodeUpdated: _.debounce(
+        function(node) {
+          this.nodeUpdatedFlag = true
+          this.saveNode(node)
+        },
+        2000
+      ),
       deleteSelectedNode(is_cut=false) {
         if (!this.selectedNode || !this.selectedNode.id) { return; }
 
