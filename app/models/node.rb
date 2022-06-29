@@ -146,7 +146,8 @@ class Node < ApplicationRecord
   def update_parent_attr(nodes, parent)
     return if nodes.length == 0
     nodes.each do |nod|
-      unless(mindmap.mm_type == 'tree_map' || mindmap.mm_type == 'flow_map' || mindmap.mm_type == 'tree_chart')
+      unless(mindmap.mm_type == 'tree_map' || mindmap.mm_type == 'flowmap' || mindmap.mm_type == 'tree_chart')
+        debugger
         nod.update_columns(line_color: parent.line_color)
       end
       update_parent_attr(Node.where(parent_node: nod.id), nod)
