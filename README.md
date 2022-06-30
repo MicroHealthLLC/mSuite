@@ -37,7 +37,7 @@
         yum install git
 
 # Install Redis
-        yum install redis
+        https://syslint.com/blog/tutorial/how-to-install-latest-redis-on-centos-7/
         systemctl start redis
         systemctl enable redis
         
