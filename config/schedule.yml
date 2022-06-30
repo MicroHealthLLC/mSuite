@@ -2,3 +2,7 @@ daily_cron_job_for_file_will_delete_at:
   cron: '0 12 * * 1-7'
   class: 'FileInActiveWorker'
   queue: default
+daily_cron_job_for_file_delete:
+  cron: '0 23 * * 1-7'
+  class: 'FileDeleteWorker'
+  queue: default

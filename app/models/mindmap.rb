@@ -24,6 +24,7 @@ class Mindmap < ApplicationRecord
   validates_uniqueness_of :name, case_sensitive: false, if: Proc.new { |mSuite| mSuite.name != 'Central Idea' }
   validates :name, presence: true
   validates :mm_type, presence: true
+  scope :in_active_maps, -> { where(will_delete_at: Date.today.next_day(5)) }
 
   enum status: { active: 0, archived: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
