@@ -195,6 +195,7 @@
             this.colorSelected = false
             this.canvas.loadFromJSON(this.initialImage);
             this.canvas.renderAll();
+            this.createSelection = false
           }
         }
       }
