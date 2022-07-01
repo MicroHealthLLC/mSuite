@@ -480,20 +480,14 @@
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       deleteMap(node){
-        if(this.addNodeTree){
-          this.nodes.pop()
-          this.renderTreeChart()
-          this.addNodeTree = false
-        }else{
-          if(this.currentMindMap.name == node.name)
-          {
-            this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
-          }
-          else
-          {
-            this.deleteNodeObj = node
-            this.$refs['deleteNodeConfirm'].open()
-          }
+        if(this.currentMindMap.name == node.name)
+        {
+          this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
+        }
+        else
+        {
+          this.deleteNodeObj = node
+          this.$refs['deleteNodeConfirm'].open()
         }
         this.getColorNode('.rich-media-node')
         this.$refs.refTree.collapseEnabled = false
