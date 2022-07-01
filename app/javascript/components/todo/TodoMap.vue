@@ -8,7 +8,6 @@
                 type="checkbox"
                 class="mr-4"
                 :checked="node.is_disabled"
-
                 @click="updateTodo(node, node.name, !node.is_disabled)"
             />
           </div>
@@ -23,7 +22,8 @@
             {{node.duedate}}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
-          <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-3 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
+          <i v-b-tooltip.hover class="ml-lg-2 fas fa-arrows-alt icon-opacity text-dark" title="Drag Todo"></i>
+          <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-1 px-1 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
           <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-1 ml-xs-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
         </div>
       </div>
@@ -80,7 +80,7 @@
             </div>
             <label @click="showInputFieldToggle(child)" class="mb-0 text-wrap"
               :for="'child-' + child.id"
-                :class="{ 'line-through': child.is_disabled }"
+              :class="{ 'line-through': child.is_disabled }"
             >{{ child.name }}</label>
           </div>
           <span @click="showInputFieldToggle(child)"
@@ -138,6 +138,7 @@
 
 <script>
   import http from "../../common/http"
+  import draggable from "vuedraggable";
 
   export default {
     name: "node",
@@ -147,6 +148,9 @@
       completedTasks: Boolean,
       editInProgress: Boolean
     },
+    components: {
+      draggable
+    },
     data() {
       return {
         parentIndex: null,
@@ -154,6 +158,7 @@
         format: 'YYYY-MM-DD',
         fieldDisabled: false,
         editStatus: false,
+        dragging: false
       }
     },
     methods:{
@@ -250,5 +255,8 @@
   }
   .dateInput:hover .iconClear {
     display: inline-block;
+  }
+  .fa-arrows-alt {
+    font-size:  14px !important;
   }
 </style>

@@ -34,26 +34,33 @@
               height = "28"/>
             <div class="parentGroup">
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <div v-for="(todo) in sortedTodos" :key="todo.id">
-                  <todo-map 
-                    :node="todo" 
-                    :selectedTodo="selectedTodo" 
+                <draggable
+                  :list="sortedTodos"
+                  :class="drag-list"
+                  :move="checkMove"
+                  @start="dragging = true"
+                  @end="dragging = false"
+                >
+                  <div v-for="(todo) in sortedTodos" :key="todo.id">
+                  <todo-map
+                    :node="todo"
+                    :selectedTodo="selectedTodo"
                     :completedTasks="completedTasks"
                     :editInProgress="editInProgress"
-                    @updateTodo="updateTodo" 
-                    @toggleChildModal="toggleChildModal" 
+                    @updateTodo="updateTodo"
+                    @toggleChildModal="toggleChildModal"
                     @toggleDeleteTodo="toggleDeleteTodo"
                     @showInputField="showInputField"
                     @blurEvent="blurEvent"
                     @clearTodoEditObj="clearTodoEditObj"></todo-map>
-                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
-                    <div class="ml-1">
+                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field" @drop="dropItem(todo)">
+                    <div class="ml-1 drag-list">
                       <div class="relative flex h-full">
                         <div class="container relative z-20 max-w-xl mt-20 h-min">
                           <b-form @submit.prevent="addChildTodo()">
                             <b-row>
                               <b-col cols="5" sm="5">
-                                <b-form-input 
+                                <b-form-input
                                   :class="fieldDisabled ? 'shake': ''"
                                   v-model="todoChildData.title"
                                   ref="title"
@@ -64,7 +71,7 @@
                               </b-col>
                               <b-col cols="5" sm="5">
                                   <date-picker
-                                    id="input" 
+                                    id="input"
                                     class="w-75"
                                     v-model='todoChildData.date'
                                     placeholder="Due Date"
@@ -84,6 +91,7 @@
                     </div>
                   </b-list-group-item>
                 </div>
+                </draggable>
               </b-list-group>
               <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
                 <div class="relative flex h-full">
@@ -160,6 +168,7 @@
   import DatePicker from 'vue2-datepicker';
   import './datepicker.css';
   import TodoMap from "./TodoMap";
+  import draggable from "vuedraggable";
 
   export default {
     props: ['currentMindMap'],
@@ -189,6 +198,7 @@
         fieldDisabled: false,
         format: 'YYYY-MM-DD',
         editInProgress: false,
+        dragging: false
       }
     },
     components: {
@@ -214,12 +224,24 @@
             this.fetchToDos()
           }
           else {
-            this.fetchToDos()
+            // this.fetchToDos()
           }
         }
       }
     },
     methods: {
+
+      dropItem(){
+        debugger
+      },
+      checkMove(evt) {
+        let deps = [...this.myTodos];
+        let futureElem = deps[evt.draggedContext.futureIndex];
+        let draggedElem = deps[evt.draggedContext.index];
+        const removeElemFromArray = deps.splice(evt.draggedContext.index, 1)[0];
+        let result = deps.splice(evt.draggedContext.futureIndex, 0, removeElemFromArray)
+        // debugger
+      },
       clearTodoObj() {
         this.todo = {}
         this.todoData = { title: null, date: null }
