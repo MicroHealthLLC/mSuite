@@ -154,6 +154,7 @@
           href="javascript:;"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.prevent.stop="saveMSuite"
+          v-b-tooltip.hover :title="expDeleteDays"
         >
           <i class="material-icons save_btn icons d-flex center_flex"></i>
         </a>
@@ -251,6 +252,23 @@
       }
     },
     methods:{
+      expDeleteDays() {
+        if(this.currentMindMap)
+        {
+          this.expDays = JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
+          this.findTotalDaysBetweenDates()
+          if(this.expDays == '5') this.expDays = this.deleteAfter
+          let date = new Date()
+          date.setDate(date.getDate() + this.expDays)
+          return date.toString().substr(0,15)
+        }
+      },
+      findTotalDaysBetweenDates() {
+        let oneDay = 24 * 60 * 60 * 1000;
+        let currentDate = new Date();
+        let comingDate = new Date(this.expDays);
+        this.expDays = Math.round(Math.abs((currentDate - comingDate) / oneDay));
+      },
       putMSuite (value) {
         let _this = this
         http.patch(`/msuite/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})
