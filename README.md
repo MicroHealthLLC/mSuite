@@ -83,7 +83,7 @@ choose one.  install it into the directory of your choice.  but for the conf bel
 Below "http {" section, add these if not already present
 
         passenger_root /usr/share/ruby/vendor_ruby/phusion_passenger/locations.ini;
-        passenger_ruby /usr/local/rvm/gems/ruby-2.6.6/wrappers/ruby;
+        passenger_ruby /usr/local/rvm/gems/ruby-2.6.1/wrappers/ruby;
         passenger_instance_registry_dir /var/run/passenger-instreg;
 
 Below "server {" section add these
@@ -141,12 +141,17 @@ Below "server {" section add these
 
         gem install bundler -v 2.1.4
 
-        yum install nodejs - https://linuxize.com/post/how-to-install-yarn-on-centos-7/
+        install nodejs
+        -  curl --silent --location https://rpm.nodesource.com/setup_14.x | sudo bash -
+        -  sudo yum install nodejs
         
+        install yarn
+        -  curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+        -  sudo rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg
+        -  sudo yum install yarn
+
         bundle install
 
-        yarn install - https://linuxize.com/post/how-to-install-yarn-on-centos-7/       
-        
         rake secret  THEN put that output in config/secrets.yml
         
         rails db:create RAILS_ENV=production
@@ -163,7 +168,7 @@ Below "server {" section add these
         
         Service nginx restart
   
-  # change the default password
+  # change the default password 
   
 go to https://your-url/admin
 
