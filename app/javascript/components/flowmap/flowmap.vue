@@ -22,7 +22,7 @@
         direction="horizontal"
         linkStyle="straight"
         ref="refTree"
-        class="flowmap-center-vertical parentComponent"
+        class="flowmap-center-vertical overflow-hidden"
       >
         <template v-slot:node="{ node }">
           <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
