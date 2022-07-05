@@ -1,14 +1,13 @@
 <template>
   <div>
     <b-list-group-item class="mb-0">
-      <div class="flex" v-if="selectedTodo.id != node.id">
+      <div class="flex" v-if="selectedTodo.id != node.id" @drop="dragDrop($event,node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart($event,node.id)">
         <div class="col-8 d-flex flex-row">
           <div class="flex-auto">
             <input
                 type="checkbox"
                 class="mr-4"
                 :checked="node.is_disabled"
-
                 @click="updateTodo(node, node.name, !node.is_disabled)"
             />
           </div>
@@ -19,7 +18,7 @@
         </div>
         <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)"
           class="dueDate col-3"
-          :class="{ 'line-through': node.is_disabled }"> 
+          :class="{ 'line-through': node.is_disabled }">
             {{node.duedate}}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
@@ -33,7 +32,7 @@
             <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
               <b-row>
                 <b-col cols="5" sm="5">
-                  <b-form-input 
+                  <b-form-input
                     v-model="selectedTodo.name"
                     :class="fieldDisabled ? 'shake': ''"
                     ref="title"
@@ -45,7 +44,7 @@
                 <b-col cols="5" sm="5" class="w-50 d-flex flex-row">
                   <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')" @mouseleave="showCalendar('task-date')" class="dateInput">
                     <date-picker
-                      id="task-date" 
+                      id="task-date"
                       v-model='selectedTodo.duedate'
                       :placeholder="selectedTodo.duedate"
                       :format="format"
@@ -68,7 +67,7 @@
     </b-list-group-item>
     <div  v-if="node.children && node.children.length">
       <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
-        <div class="flex" v-if="selectedTodo.id != child.id">
+        <div class="flex" v-if="selectedTodo.id != child.id" @drop="event.preventDefault();" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart($event,child.id)">
           <div class="col-8 d-flex flex-row">
             <div class="flex-auto">
               <input
@@ -145,7 +144,8 @@
       node: Object,
       selectedTodo: Object,
       completedTasks: Boolean,
-      editInProgress: Boolean
+      editInProgress: Boolean,
+      currentMindMap: null
     },
     data() {
       return {
@@ -154,9 +154,21 @@
         format: 'YYYY-MM-DD',
         fieldDisabled: false,
         editStatus: false,
+        prevElement: null,
+        dropElement: null
       }
     },
     methods:{
+      dragStart(event,nodeId){
+        event.dataTransfer.setData("Text", nodeId);
+      },
+      dragDrop(event,nodeId){
+        this.prevElement = parseInt(event.dataTransfer.getData("Text"))
+        this.prevElement = this.currentMindMap.nodes.find((node) => node.id == this.prevElement)
+        this.dropElement = this.currentMindMap.nodes.find((node) => node.id == nodeId)
+        this.prevElement.parent_node = this.dropElement.id
+        this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
+      },
       closeDatePicker(objId) {
         this.hideCalendar(objId)
       },
@@ -212,19 +224,9 @@
       sortedChildTodos() {
         if(this.completedTasks){
           return this.node.children
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
             .filter(task => (!task.is_disabled) ? task : '')
         } else {
           return this.node.children
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
         }
       }
     },

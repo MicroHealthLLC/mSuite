@@ -2,6 +2,7 @@ class NodesController < AuthenticatedController
   before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
   before_action :set_nodes, only:[:index]
   include NodeConcern
+
   def create
     # get nested children
     @node = Node.create(node_params)

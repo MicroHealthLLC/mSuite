@@ -40,8 +40,9 @@
                     :selectedTodo="selectedTodo" 
                     :completedTasks="completedTasks"
                     :editInProgress="editInProgress"
-                    @updateTodo="updateTodo" 
-                    @toggleChildModal="toggleChildModal" 
+                    :current-mind-map="currentMindMap"
+                    @updateTodo="updateTodo"
+                    @toggleChildModal="toggleChildModal"
                     @toggleDeleteTodo="toggleDeleteTodo"
                     @showInputField="showInputField"
                     @blurEvent="blurEvent"
@@ -53,7 +54,7 @@
                           <b-form @submit.prevent="addChildTodo()">
                             <b-row>
                               <b-col cols="5" sm="5">
-                                <b-form-input 
+                                <b-form-input
                                   :class="fieldDisabled ? 'shake': ''"
                                   v-model="todoChildData.title"
                                   ref="title"
@@ -64,7 +65,7 @@
                               </b-col>
                               <b-col cols="5" sm="5">
                                   <date-picker
-                                    id="input" 
+                                    id="input"
                                     class="w-75"
                                     v-model='todoChildData.date'
                                     placeholder="Due Date"
@@ -91,7 +92,7 @@
                     <b-form @submit.prevent="addTodo()">
                       <b-row>
                         <b-col cols="5" class="todo-field">
-                          <b-form-input 
+                          <b-form-input
                             :class="fieldDisabled ? 'shake': ''"
                             v-model="todoData.title"
                             ref="title"
@@ -102,7 +103,7 @@
                         </b-col>
                         <b-col cols="5">
                             <date-picker
-                              id="input" 
+                              id="input"
                               class="w-75"
                               v-model='todoData.date'
                               placeholder="Due Date"
@@ -252,7 +253,7 @@
           this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
         } else {
           this.deleteMindmap()
-        } 
+        }
       },
       deleteMindmapProtected(password) {
         http
@@ -355,11 +356,11 @@
           }
           parent_nodes.forEach((p, index)=> {
             if(p.id == node.parent_node){
-              let obj = { name: node.title, 
-                          id: node.id , 
+              let obj = { name: node.title,
+                          id: node.id ,
                           is_disabled: node.is_disabled,
-                          parent: p.id, 
-                          duedate: date, 
+                          parent: p.id,
+                          duedate: date,
                           children: []}
               parent_nodes[index].children.push(obj)
             }
@@ -370,7 +371,7 @@
         }
         this.myTodos = parent_nodes
       },
-      async addTodo() {     
+      async addTodo() {
         if(this.todoData.title == null || this.todoData.title.trim().length === 0){
           this.$refs['errTitle'].open()
           this.fieldDisabled = true
@@ -422,16 +423,11 @@
         }
         if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
           this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - this.selectedTodo.duedate.getTimezoneOffset() * 60 * 1000)
-        }  
-        let obj = {
-          node: {
-            id: todo.id,
-            title: title,
-            is_disabled: completed,
-            duedate: this.selectedTodo.duedate
-          }
         }
-        http.put(`/nodes/${todo.id}`, obj)
+        todo.title = title
+        todo.is_disabled = completed
+        todo.duedate = this.selectedTodo.duedate
+        http.put(`/nodes/${todo.id}`, todo)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
       },
@@ -481,19 +477,9 @@
       sortedTodos() {
         if(this.completedTasks){
           return this.myTodos
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
             .filter(task => (!task.is_disabled) ? task : '')
         } else {
           return this.myTodos
-            .sort((a,b) => {
-              if (a.duedate > b.duedate) { return  1 }
-              if (b.duedate > a.duedate) { return -1 }
-              return 0
-            })
         }
       }
     },
