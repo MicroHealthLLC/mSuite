@@ -11,6 +11,7 @@
       @exportToDocument="exportToDocument"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       :exportId="'ofice'">
     </navigation-bar>
@@ -110,6 +111,7 @@
         await http
         .get(`/msuite/${id}.json`)
         .then((res) => {
+          this.expDays = res.data.expDays
           this.defaultDeleteDays = res.data.defaultDeleteDays
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap

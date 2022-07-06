@@ -154,7 +154,7 @@
           href="javascript:;"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.prevent.stop="saveMSuite"
-          v-b-tooltip.hover :title="expDeleteDays"
+          v-b-tooltip.hover :title="currentMindMap.will_delete_at"
         >
           <i class="material-icons save_btn icons d-flex center_flex"></i>
         </a>
@@ -189,7 +189,7 @@
       </span>
     </div>
     <comment-map-modal :mind-map='currentMindMap' ref="comment-box-modal"></comment-map-modal>
-    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter"></confirm-save-key-modal>
+    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays"></confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
@@ -223,7 +223,7 @@
   import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
@@ -252,9 +252,6 @@
       }
     },
     methods:{
-      expDeleteDays() {
-        if(this.currentMindMap) return this.currentMindMap.will_delete_at
-      },
       putMSuite (value) {
         let _this = this
         http.patch(`/msuite/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})
@@ -262,6 +259,7 @@
           _this.currentMindMap = res.data.mindmap
           _this.mSuiteName = res.data.mindmap.title
           _this.defaultDeleteDays = res.data.defaultDeleteDays
+          _this.expDays = res.data.expDays
           _this.deleteAfter = res.data.deleteAfter
         })
       },

@@ -70,7 +70,7 @@
         deletedAtMSuite: JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays','deleteAfter', 'isSaveMSuite'],
+    props: ['currentMindMap', 'defaultDeleteDays', 'expDays', 'deleteAfter', 'isSaveMSuite'],
     computed: {
       getBaseUrl () {
         return window.location.href
@@ -80,7 +80,7 @@
         {
           this.expDays = JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
           this.findTotalDaysBetweenDates()
-          if(this.expDays == '5') this.expDays = this.deleteAfter
+          if(this.expDays == this.expDays) this.expDays = this.deleteAfter
           return this.expDays
         }
       }

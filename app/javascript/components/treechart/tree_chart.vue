@@ -9,6 +9,7 @@
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       @resetMindmap="resetMindmap"
       @zoomOutScale="zoomOutScale">
@@ -160,7 +161,7 @@
       }
     },
     mixins: [Common],
-    props:['currentMindMap','defaultDeleteDays', 'deleteAfter'],
+    props:['currentMindMap','defaultDeleteDays', 'deleteAfter','expDays'],
     mounted: async function(){
       this.$cable.subscribe({
         channel: "WebNotificationsChannel",
@@ -345,6 +346,7 @@
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/msuite/${mindmap_key}.json`)
         this.selectedNode = {id: ''}
+        this.expDays = response.data.expDays
         this.defaultDeleteDays = response.data.defaultDeleteDays
         this.deleteAfter= response.data.deleteAfter
         this.currentMindMap = response.data.mindmap
@@ -445,6 +447,7 @@
         .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
         .then(res=>{
           if (res.data.mindmap) {
+            this.expDays = res.data.expDays
             this.defaultDeleteDays = res.data.defaultDeleteDays
             this.deleteAfter= res.data.deleteAfter
             this.currentMindMap.password = res.data.mindmap.password

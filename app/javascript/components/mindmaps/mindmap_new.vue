@@ -17,6 +17,7 @@
       @cutSelectedNode="cutSelectedNode"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       :scaleFactor="scaleFactor"
       :selected-node="selectedNode"
@@ -159,7 +160,7 @@
       DeletePasswordModal,
     },
 
-    props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays'],
+    props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays','expDays'],
 
     data() {
       return {
@@ -319,6 +320,7 @@
           .then((res) => {
             this.stopWatch      = true
             this.isMounted = true
+            this.expDays = res.data.expDays
             this.defaultDeleteDays = res.data.defaultDeleteDays
             this.deleteAfter = res.data.deleteAfter
             this.currentMindMap = res.data.mindmap
@@ -337,6 +339,7 @@
         http
           .post('/msuite.json', { mindmap: { name: "Central Idea" } })
           .then((res) => {
+            this.expDays = this.expDays
             this.loading        = false
             this.currentMindMap = res.data.mindmap
             this.defaultDeleteDays = res.data.defaultDeleteDays
