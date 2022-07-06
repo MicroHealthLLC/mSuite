@@ -85,7 +85,7 @@
             this.table.setStyle(this.sheetData.style)
             for(let i = 0; i < 32; i++) this.table.setWidth(i,50);
             this.table.deleteColumn(32,26)
-            $('.arrow-down, .arrow-up').remove()
+            $('.arrow-down, .arrow-up').removeClass('arrow-down arrow-up');
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             setTimeout(() => {
