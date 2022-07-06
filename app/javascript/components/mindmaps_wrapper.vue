@@ -8,6 +8,7 @@
       :is="viewIs"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       :whiteboard-image="currentMindMap.canvas"
     />
@@ -44,6 +45,7 @@
         loading: true,
         currentMindMap: {},
         defaultDeleteDays: '',
+        expDays: '',
         deleteAfter: '',
         is_verified: false
       }
@@ -89,6 +91,7 @@
           .then((res) => {
             this.currentMindMap = res.data.mindmap
             this.defaultDeleteDays = res.data.defaultDeleteDays
+            this.expDays = res.data.expDays
             this.deleteAfter = res.data.deleteAfter
             this.is_verified = res.data.is_verified
             this.loading = false

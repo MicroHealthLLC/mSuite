@@ -9,6 +9,7 @@
       @exportXLS="exportXLS($event)"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       :exportId="'spreadSheet'"
       :isEditing="isEditing"
@@ -47,7 +48,7 @@
   import "./styles/jsuites.css";
 
   export default {
-    props: ['currentMindMap','defaultDeleteDays','deleteAfter'],
+    props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
     data() {
       return {
         isMounted: false,

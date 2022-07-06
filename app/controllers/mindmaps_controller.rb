@@ -10,7 +10,7 @@ class MindmapsController < AuthenticatedController
   def new
     @mindmap = Mindmap.new(name: "Central Idea")
     respond_to do |format|
-      format.json { render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i } }
+      format.json { render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i } }
       format.html { render action: 'index' }
     end
   end
@@ -18,7 +18,7 @@ class MindmapsController < AuthenticatedController
   def create
     @mindmap = Mindmap.new(mindmap_params)
     if @mindmap.save
-      render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i }
+      render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
     else
       render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: :found
     end
@@ -28,13 +28,13 @@ class MindmapsController < AuthenticatedController
     @mindmap.update(mindmap_params)
     message = password_present?
     ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
-    render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i }
+    render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
   end
 
   def show
     if @mindmap
       respond_to do |format|
-        format.json { render json: { mindmap: @mindmap.to_json, is_verified: @is_verified, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i } }
+        format.json { render json: { mindmap: @mindmap.to_json, is_verified: @is_verified, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i } }
         format.html { render action: 'index' }
       end
     else
@@ -59,7 +59,7 @@ class MindmapsController < AuthenticatedController
   def find_or_create
     @mindmap = Mindmap.create_with(name: 'Central Idea').find_or_create_by(unique_key: params[:key])
     respond_to do |format|
-      format.json { render json: { success: true, mindmap: @mindmap, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i } }
+      format.json { render json: { success: true, mindmap: @mindmap, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i } }
       format.html {}
     end
   end
@@ -67,7 +67,7 @@ class MindmapsController < AuthenticatedController
   def list_all_maps
     @mindmaps = Mindmap.order('updated_at DESC')
     respond_to do |format|
-      format.json { render json: { success: true, mindmaps: @mindmaps, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i } }
+      format.json { render json: { success: true, mindmaps: @mindmaps, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i } }
       format.html {}
     end
   end

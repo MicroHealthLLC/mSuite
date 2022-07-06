@@ -9,6 +9,7 @@
       @resetMindmap="resetMindmap"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       :exportId="'todo'"
       ref="todoNavigation">
@@ -234,6 +235,7 @@
         await http
         .get(`/msuite/${id}.json`)
         .then((res) => {
+          this.expDays = res.data.expDays
           this.defaultDeleteDays = res.data.defaultDeleteDays
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
@@ -315,7 +317,8 @@
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/msuite/${mindmap_key}.json`)
         this.defaultDeleteDays = response.data.defaultDeleteDays
-        this.deleteAfter= response.data.deleteAfter
+        this.deleteAfter = response.data.deleteAfter
+        this.expDays = response.data.expDays
         this.currentMindMap = response.data.mindmap
         this.todos = response.data.mindmap.nodes
         this.renderTodos()

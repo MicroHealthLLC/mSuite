@@ -5,6 +5,7 @@
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
+      :expDays="expDays"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       :exportId="'treeMapGraph'">
@@ -82,7 +83,7 @@
       DeletePasswordModal
     },
     mixins: [Common],
-    props:['currentMindMap','defaultDeleteDays','deleteAfter'], //Props to be used in the widget
+    props:['currentMindMap','defaultDeleteDays','deleteAfter','expDays'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
@@ -322,7 +323,8 @@
         this.currentMindMap.name = response.data.mindmap.name
         this.currentMindMap.title = response.data.mindmap.title
         this.defaultDeleteDays = response.data.defaultDeleteDays
-        this.defaultDeleteDays = response.data.deleteAfter
+        this.deleteAfter = response.data.deleteAfter
+        this.expDays = response.data.expDays
         this.currentMindMap.line_color = response.data.mindmap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = response.data.mindmap.nodes

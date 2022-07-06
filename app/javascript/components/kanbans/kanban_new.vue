@@ -9,6 +9,7 @@
       :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       :exportId="'kanban-board'">
     </navigation-bar>
@@ -155,7 +156,7 @@
         }
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'deleteAfter'],
+    props: ['currentMindMap', 'defaultDeleteDays', 'expDays', 'deleteAfter'],
     channels: {
       WebNotificationsChannel: {
         received(data) {

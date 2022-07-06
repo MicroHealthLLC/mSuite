@@ -7,6 +7,7 @@
       @deleteMindmap="deleteMap"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
       :deleteAfter="deleteAfter"
       @resetMindmap="resetMindmap"
       :exportId="'vue_canvas'"
@@ -146,6 +147,7 @@
         color: "#AADDCC",
         mapColors: [],
         image: "",
+        expDays: '',
         defaultDeleteDays: '',
         colorPicker: "#000000",
         colorSelected: false,
@@ -210,6 +212,7 @@
         http
         .get(`/msuite/${id}.json`)
         .then((res) => {
+          this.expDays = res.data.expDays
           this.defaultDeleteDays = res.data.defaultDeleteDays
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
