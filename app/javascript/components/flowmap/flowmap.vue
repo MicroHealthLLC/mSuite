@@ -325,8 +325,10 @@
         if(nodeElement.name == this.currentMindMap.name) this.nodeTemp.parent_node = null
         else this.nodeTemp.parent_node = nodeElement.id
         this.nodes.push(this.nodeTemp)
-        this.renderTreeChart()
         this.addNodeTree = true
+        this.selectedNode.name = 'Enter Node Title for node ' + this.nodes.length
+        this.saveNodeTreeChart()
+        this.renderTreeChart()
       },
       mountMap(){
         this.selectedNode = {id: ''}

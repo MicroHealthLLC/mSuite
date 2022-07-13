@@ -107,7 +107,7 @@
         treemap_data: [],
         submitChild: false,
         isSaveMSuite: false,
-        nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
+        nodeSample: {label: 'Enter node title for node',parent_label: '',color: '#CCBBBB'},
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -272,9 +272,10 @@
       },
       submitChildNode: async function (obj) {
         let _this = this
+        let nodeNumber = this.nodes.length + 1
         let data = {
           node: {
-            title: obj.label,
+            title: obj.label + ' ' + nodeNumber,
             line_color: obj.color,
             node_width: 50,//obj.node_width,
             parent_node: ((obj.parent_label != null) ? obj.parent_label : 0),
