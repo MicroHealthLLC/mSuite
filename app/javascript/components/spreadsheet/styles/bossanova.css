@@ -636,8 +636,8 @@
 
 .jexcel_toolbar select.jexcel_toolbar_item
 {
-    margin-left:2px;
-    margin-right:2px;
+    margin-left:1%;
+    margin-right:1%;
     display:inline-block;
     border:0px;
     background-color:transparent;
