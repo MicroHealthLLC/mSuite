@@ -401,6 +401,7 @@
         this.allStages.splice(stage_index + 1, 0, {title: ''})
         this.new_stage = true
         this.new_index = stage_index + 1
+        this.createNewStage('STAGE ' + this.allStages.length)
         setTimeout(()=>{
           this.getColorNode('.drag-column')
         },50)
@@ -417,8 +418,8 @@
           this.selectedElement = null
           this.selectedStage = null
           this.colorSelected = false
-          return;
         }
+
         let data = {
           stage: {
             title: val,
@@ -430,13 +431,18 @@
         http
         .post(`/stages.json`, data)
         .then((res) => {
-          this.allStages.splice(index, 1, res.data.stage)
-          this.new_stage = false
-          this.stage = null
-          this.selectedElement = null
-          this.selectedStage = null
-          this.colorSelected = false
-          this.getColorNode('.drag-column')
+          if(res.data.status == 500){
+            val = val + '0'
+            this.createNewStage(val)
+          } else {
+            this.allStages.splice(index, 1, res.data.stage)
+            this.new_stage = false
+            this.stage = null
+            this.selectedElement = null
+            this.selectedStage = null
+            this.colorSelected = false
+            this.getColorNode('.drag-column')
+          }
         })
         .catch((error) => {
           this.stage = null
@@ -690,7 +696,9 @@
       checkDuplicate(val){
         let is_val = false
         this.allStages.forEach((x) => {
-          if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
+          if(this.stage){
+            if(x.title.toLowerCase() === val.toLowerCase() && x.title.toLowerCase() !== this.stage.title.toLowerCase()) is_val = true
+          }
         })
         return is_val
       },

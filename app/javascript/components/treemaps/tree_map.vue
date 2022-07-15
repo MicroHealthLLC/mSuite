@@ -51,7 +51,7 @@
     <sweet-modal ref="errorNodeModal" class="of_v" icon="error" title="Node Title Error">
       Nodes Title Cannot Be Empty
     </sweet-modal>
-    <sweet-modal ref="errorAddNode" class="of_v" icon="error" title="Node Title Error">
+    <sweet-modal ref="errorAddNode" class="of_v" icon="error" title="Node Error">
       {{ err }}
     </sweet-modal>
     <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
@@ -289,8 +289,8 @@
           _this.child_node = null
           _this.nodeSample.parent_label = ''
           if( res.data.node.id == null ){
-            _this.err = 'Please Change Your Previous Node Title'
-            _this.$refs['errorAddNode'].open()
+            obj.label = obj.label + ' 0'
+            this.submitChildNode(obj)
           }
           // success modal display
         }).catch(err => {
