@@ -528,6 +528,7 @@
         })
         this.canvas.on('mouse:up', (event) => {
           if(this.isDrawing) this.canvas.setActiveObject(event.currentTarget)
+          if(this.drawLine) this.canvas.setActiveObject(this.stLine)
           this.isStraightLine = false;
           this.mousePressed = false
           if(this.eraser){
