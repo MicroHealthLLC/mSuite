@@ -14,6 +14,7 @@
       :exportId="'spreadSheet'"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :excel_data="sheetData.data"
       ref="spreadSheetNavigation">
     </navigation-bar>
     <div id="spreadSheet" class="overflow-auto">
@@ -282,7 +283,7 @@
       exportXLS(option){
         if(option === 1){
           let head = []
-          jsontoexcel.getXlsx(this.sheetData.data, head, 'download.xlsx');
+          jsontoexcel.getXlsx(this.sheetData.data, head, `Excel ::: ${this.currentMindMap.title}.xls`);
         }
         if(option === 2){
           this.table.download(true);
