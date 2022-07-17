@@ -60,17 +60,21 @@
           </div>
         </div>
       </kanban-board>
-        <div v-if="colorSelected">
-          <div class="card p-0 border-none color-picker-placement">
-            <div class="card-body p-0">
-              <sketch-picker v-model="selectedStage.stage_color" :preset-colors="uniqueColors" @input="updateColor"/>
-            </div>
-            <div class="card-button d-flex">
-              <button v-if="selectedStage.title.length > 0" class="btn btn-success w-50 border-none" @click="saveNodeColor"> Update </button>
-              <button class="btn btn-info w-50 border-none" @click="closeModelPicker"> Cancel </button>
-            </div>
-          </div>
+      <div v-if="colorSelected">
+        <div class="card p-0 border-none color-picker-placement">
+          <color-palette
+            :treeNode="selectedStage"
+            :nodes="allStages"
+            :currentMindMap="currentMindMap"
+            :customPallete="customPallete"
+            :uniqueColors="uniqueColors"
+            @updateColorNode="updateColor"
+            @saveNodeColor="saveNodeColor"
+            @closeModelPicker="closeModelPicker"
+            @updateTreeChartNode="updateStageRequest"
+            ></color-palette>
         </div>
+      </div>
     </div>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
@@ -115,7 +119,9 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import Sortable from 'sortablejs';
+  import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
+
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
@@ -125,7 +131,8 @@
       MakePrivateModal,
       DeleteBlockModal,
       DeleteMapModal,
-      DeletePasswordModal
+      DeletePasswordModal,
+      ColorPalette
     },
     mixins: [Common],
     data() {
@@ -149,6 +156,7 @@
         hover_addtask: '',
         selected: '',
         isSaveMSuite: false,
+        customPallete: [],
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -307,6 +315,8 @@
             position : obj.position
           }
         }
+        this.colorSelected = false
+        if (obj.line_color) this.selectedStage = null
         return http.patch(`/stages/${obj.id}.json`,data)
       },
       updateBackgroundColors(){
@@ -317,6 +327,7 @@
       },
       updateColor(){
         this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
+        this.getColorNode('.drag-column')
         this.getColorNode('.drag-column')
       },
       selectedStageBg(stage, e){
@@ -336,13 +347,14 @@
         response.then((res) => {
           let index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
           Vue.set(this.allStages[index], 'stage_color', res.data.stage.stage_color)
-          this.selectedStage = null
-          this.selectedElement = null
-          this.colorSelected = false
         })
         .catch( err => {
           console.log(err)
         })
+        this.selectedStage = null
+        this.selectedElement = null
+        this.colorSelected = false
+        this.getColorNode('.drag-column')
       },
       saveTempColor(){
         let index = this.allStages.findIndex( stg => stg.title === this.selectedStage.title)
@@ -357,6 +369,12 @@
         this.selectedElement.style.backgroundColor = this.previousColor
         this.selectedElement = null
         this.selectedStage = null
+
+        Object.values(this.allStages).forEach((stage, index) => {
+          let element = document.getElementsByClassName('drag-column')[index]
+          element.style.backgroundColor = stage.stage_color
+        });
+
         this.colorSelected = false
         this.getColorNode('.drag-column')
       },

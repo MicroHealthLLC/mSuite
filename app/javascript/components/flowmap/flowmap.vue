@@ -54,14 +54,19 @@
         </template>
       </vue-tree>
       <div v-if="colorSelected">
-        <div class="card card-position p-0 border-none z-index mt-5">
-          <div class="card-body p-0">
-            <sketch-picker v-model="treeNode.line_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
-          </div>
-          <div class="card-button d-flex">
-            <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-            <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
-          </div>
+         <div class="card-position p-0 border-none z-index mt-5">
+            <color-palette
+              :treeNode="treeNode"
+              :nodes="this.nodes"
+              :currentMindMap="this.currentMindMap"
+              :customPallete="customPallete"
+              :uniqueColors="uniqueColors"
+              @updateColorNode="updateColorNode"
+              @saveNodeColor="saveNodeColor"
+              @closeModelPicker="closeModelPicker"
+              @updatedTreeChart="updatedTreeChart"
+              @updateTreeChartNode="updateTreeChartNode"
+            ></color-palette>
         </div>
       </div>
     </section>
@@ -115,8 +120,10 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
+  import ColorPalette from '../../common/modals/color_palette_modal'
   import domtoimage from "dom-to-image-more"
   import Common from "../../mixins/common.js"
+
 
   Vue.config.warnHandler = function(msg, vm, info) {}
   export default {
@@ -158,7 +165,8 @@
         nodeChildTreeMaps: [],
         nodes: [],
         addNodeTree: false,
-        isSaveMSuite: false
+        isSaveMSuite: false,
+        customPallete: []
       }
     },
     mixins: [Common],
@@ -174,7 +182,8 @@
     components: {
       DeleteMapModal,
       MakePrivateModal,
-      DeletePasswordModal
+      DeletePasswordModal,
+      ColorPalette
     },
     methods: {
       dragStart(nodeId){
@@ -217,8 +226,12 @@
         this.nodeColor.hex = nodeObj.color
         this.treeNode.line_color = this.nodeColor
         this.colorSelected = true
+        setTimeout(()=>{
+          $('.vc-sketch-presets')[0].style.maxHeight = '10vh'
+        },10)
       },
       updateColorNode(){
+        this.palleteUpdate = false
         let element = document.getElementById('treeChart'+this.treeNode.id)
         element.style.backgroundColor = this.treeNode.line_color.hex
         this.treeNode.line_color = this.treeNode.line_color.hex
@@ -233,18 +246,18 @@
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
-        if(this.selectedNodeTitle == this.currentMindMap.name)
-        {
-          this.currentMindMap.line_color = this.treeNode.line_color
-          this.updatedTreeChart(this.currentMindMap)
-        }
-        else
-        {
-          var objNode = {id: '', line_color: ''}
-          objNode.id = this.treeNode.id
-          objNode.line_color = this.treeNode.line_color
-          this.updateTreeChartNode(objNode)
-        }
+          if(this.selectedNodeTitle == this.currentMindMap.name)
+          {
+            this.currentMindMap.line_color = this.treeNode.line_color
+            this.updatedTreeChart(this.currentMindMap)
+          }
+          else
+          {
+            var objNode = {id: '', line_color: ''}
+            objNode.id = this.treeNode.id
+            objNode.line_color = this.treeNode.line_color
+            this.updateTreeChartNode(objNode)
+          }
         this.colorSelected = false
       },
       blurEvent(val, e){
@@ -419,6 +432,7 @@
       },
       async updateTreeChartNode(obj){
         await http.put(`/nodes/${obj.id}`, obj);
+        this.colorSelected = false
       },
       async deleteSelectedNode(obj){
         await http.delete(`/nodes/${obj.id}.json`);
