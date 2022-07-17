@@ -204,7 +204,7 @@
       <button slot="button" @click="exportXLS(1)" class="btn btn-warning float-left mr-2">Export to Excel</button>
 
       <button slot="button" @click="exportXLS(2)" class="btn btn-info float-left">Export to csv</button>
-      <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
+      <button slot="button" @click="$refs['exportOptionCsv'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
     <reset-map-modal
       ref="reset-map-modal"
