@@ -248,3 +248,20 @@ ul.drag-inner-list {
   bottom: 10px;
   right: 10px;
 }
+.pallete{
+  width: 21vw !important;
+  max-height: 15vh;
+  background: linear-gradient(135deg, #eee, white);
+  overflow: auto;
+}
+.color-pallete {
+  text-align : center;
+  padding : 0.6em;
+  border : 0.01em solid black;
+  width  : 1em;
+  height : 1em;
+  border-radius: 100%;
+}
+ .w-85 {
+  width: 85%;
+ }

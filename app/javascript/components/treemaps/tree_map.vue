@@ -17,13 +17,18 @@
       </div>
       <div v-if="colorSelected">
         <div class="card card-position p-0 border-none mt-5">
-          <div class="card-body p-0">
-            <sketch-picker v-model="selectedNodeColor.line_color" :preset-colors="uniqueColors" @input="updateColorNode"/>
-          </div>
-          <div class="card-button d-flex">
-            <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-            <button class="btn btn-info w-50 border-none" @click="closeModelPicker">Cancel</button>
-          </div>
+          <color-palette
+            :treeNode="selectedNodeColor"
+            :nodes="nodes"
+            :currentMindMap="currentMindMap"
+            :customPallete="customPallete"
+            :uniqueColors="uniqueColors"
+            @updateColorNode="updateColorNode"
+            @saveNodeColor="saveNodeColor"
+            @closeModelPicker="closeModelPicker"
+            @updatedTreeChart="updateTreeMaps"
+            @updateTreeChartNode="updateSelectedNode"
+          ></color-palette>
         </div>
       </div>
     </div>
@@ -71,6 +76,7 @@
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
+  import ColorPalette from '../../common/modals/color_palette_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import Common from "../../mixins/common.js"
 
@@ -80,7 +86,8 @@
       JqxTreeMap,
       MakePrivateModal,
       DeleteMapModal,
-      DeletePasswordModal
+      DeletePasswordModal,
+      ColorPalette
     },
     mixins: [Common],
     props:['currentMindMap','defaultDeleteDays','deleteAfter','expDays'], //Props to be used in the widget
@@ -108,6 +115,7 @@
         submitChild: false,
         isSaveMSuite: false,
         nodeSample: {label: 'Enter node title for node',parent_label: '',color: '#CCBBBB'},
+        customPallete: [],
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -254,6 +262,7 @@
         this.parent_node = null
         this.hiddenNode = false
         this.addChildTreeMap = false
+        this.colorSelected = false
       },
       updateSelectedNode: async function(obj){
         await http.put(`/nodes/${obj.id}`, obj).then((res) => {
@@ -505,6 +514,7 @@
           this.currentElementObj[0].style.color = '#fff'
         }
         this.selectedNodeColor.line_color = this.selectedNodeColor.line_color.hex
+        this.getColorNode('.jqx-treemap-rectangle')
       },
       saveNodeColor(){
         if(this.parent_node){
@@ -512,12 +522,13 @@
         } else {
           this.updateSelectedNode(this.selectedNodeColor)
         }
-        this.colorSelected = false
-        this.selectedNodeColor = null
+      this.colorSelected = false
+      this.selectedNodeColor = null
       },
       closeModelPicker(){
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
         this.colorSelected = false
+        this.getColorNode('.jqx-treemap-rectangle')
       },
       colorChange(value, elementObject){
         if(this.addChildTreeMap) return
@@ -537,7 +548,6 @@
           this.nodeColor.hex = objKey.line_color
           this.selectedNodeColor.line_color = this.nodeColor
         }
-
       },
       deleteNode(value){
         if(this.addChildTreeMap){
@@ -579,4 +589,19 @@
 
 <style>
   @import "./tree_map.scss";
+</style>
+<style scoped>
+  .pallete{
+    max-height: 15vh;
+    background: linear-gradient(135deg, #eee, white);
+    overflow: auto;
+  }
+  .color-pallete {
+    text-align : center;
+    padding : 0.6em;
+    border : 0.01em solid black;
+    width  : 1em;
+    height : 1em;
+    border-radius: 100%;
+  }
 </style>

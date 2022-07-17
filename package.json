@@ -2,6 +2,7 @@
   "name": "mindmaps-rails-vue",
   "private": true,
   "dependencies": {
+    "@color-palette/color-palette": "^1.3.0",
     "@rails/webpacker": "^4.0.7",
     "@ssthouse/vue-tree-chart": "^0.5.4",
     "@vue/composition-api": "^1.4.2",
