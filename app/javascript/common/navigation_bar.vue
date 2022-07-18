@@ -189,7 +189,7 @@
       </span>
     </div>
     <comment-map-modal :mind-map='currentMindMap' ref="comment-box-modal"></comment-map-modal>
-    <confirm-save-key-modal @openPrivacy="openPrivacy" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays"></confirm-save-key-modal>
+    <confirm-save-key-modal @openPrivacy="openPrivacy" @updateInActiveDate="updateMsuite" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays"></confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
@@ -252,6 +252,13 @@
       }
     },
     methods:{
+      updateMsuite(obj) {
+        let _this = this
+        http.put(`/msuite/${this.currentMindMap.unique_key}.json`, obj)
+        .then((res) => {
+          _this.currentMindMap = res.data.mindmap
+        })
+      },
       putMSuite (value) {
         let _this = this
         http.patch(`/msuite/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})

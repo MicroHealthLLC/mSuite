@@ -76,13 +76,7 @@
         return window.location.href
       },
       expDeleteDays () {
-        if(this.currentMindMap)
-        {
-          this.expDays = JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
-          this.findTotalDaysBetweenDates()
-          if(this.expDays == this.expDays) this.expDays = this.deleteAfter
-          return this.expDays
-        }
+        if(this.currentMindMap) return this.findTotalDaysBetweenDates()
       }
     },
     methods: {
@@ -100,19 +94,15 @@
         }
       },
       updateInActiveDate () {
-        let _this = this
-        http.put(`/msuite/${this.currentMindMap.unique_key}.json`, this.currentMindMap)
-        .then((res) => {
-          _this.currentMindMap = res.data.mindmap
-        })
+        this.$emit("updateInActiveDate", this.currentMindMap)
       },
       goHome () {
-        if(this.currentMindMap && this.expDays == '180') this.expireDate(this.expDays)
+        if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         if(this.isSaveMSuite) this.closeModal()
         else window.open("/", "_self")
       },
       openPrivacy () {
-        if(this.currentMindMap && this.expDays == '180') this.expireDate(this.expDays)
+        if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         this.$emit("openPrivacy")
       },
       closeModal() {
@@ -124,8 +114,8 @@
       findTotalDaysBetweenDates() {
         let oneDay = 24 * 60 * 60 * 1000;
         let currentDate = new Date();
-        let comingDate = new Date(this.expDays);
-        this.expDays = Math.round(Math.abs((currentDate - comingDate) / oneDay));
+        let comingDate = new Date(this.currentMindMap.will_delete_at);
+        return Math.round(Math.abs((currentDate - comingDate) / oneDay) + 1);
       }
     }
   }
