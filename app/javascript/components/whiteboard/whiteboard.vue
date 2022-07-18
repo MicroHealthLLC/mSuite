@@ -372,6 +372,7 @@
           this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           this.colorSelected = false
         }else{
+          this.createSelection = false
           this.colorSelected = false
           http
           .get(`/msuite/${this.$route.params.key}.json`)
