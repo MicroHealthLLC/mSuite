@@ -4,6 +4,7 @@ class MindmapsController < AuthenticatedController
   before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
   before_action :verify_password, only: :show
   before_action :check_password_update, only: :update
+  include HistoryConcern
 
   def index; end
 
@@ -92,6 +93,26 @@ class MindmapsController < AuthenticatedController
     @mindmap.reset_mindmap
     ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Reset mindmap", mindmap: @mindmap
     render json: { success: true, mindmap: @mindmap }
+  end
+
+  def undo_mindmap
+    undoNode = params[:undoNode]
+    unless undoNode.empty?
+      myNode = undo_my_node(undoNode)
+      if myNode
+        ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "undo mindmap", node: myNode
+        render json: { success: true, node: myNode }
+      end
+    end
+  end
+
+  def redo_mindmap
+    redoNode = params[:redoNode]
+    myNode = redo_my_node(redoNode)
+    if myNode
+      ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "redo mindmap", node: myNode
+      render json: { success: true, node: myNode }
+    end
   end
 
   def destroy

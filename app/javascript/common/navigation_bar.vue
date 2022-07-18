@@ -119,6 +119,34 @@
           <i class="material-icons restore_icon icons d-flex center_flex"></i>
         </a>
         <a
+          v-if="currentMindMap.mm_type==='kanban' ||
+                currentMindMap.mm_type==='tree_chart' ||
+                currentMindMap.mm_type==='flowmap' ||
+                currentMindMap.mm_type==='todo' ||
+                currentMindMap.mm_type==='tree_map'"
+          href="javascript:;"
+          role="button"
+          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          @click.stop="redoMindmap"
+        >
+          <i class="fas fa-redo-alt"></i>
+          <span class="fa-icon-text">Redo</span>
+        </a>
+        <a
+          v-if="currentMindMap.mm_type==='kanban' ||
+                currentMindMap.mm_type==='tree_chart' ||
+                currentMindMap.mm_type==='flowmap' ||
+                currentMindMap.mm_type==='todo' ||
+                currentMindMap.mm_type==='tree_map'"
+          href="javascript:;"
+          role="button"
+          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          @click.stop="undoMindmap"
+        >
+          <i class="fas fa-undo-alt"></i>
+          <span class="fa-icon-text">Undo</span>
+        </a>
+        <a
           v-if="currentMindMap.mm_type==='simple'"
           ref="exportWordBtn"
           role="button"
@@ -319,6 +347,12 @@
       },
       resetMap () {
         this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
+      },
+      redoMindmap() {
+        this.$emit("redoMindmap")
+      },
+      undoMindmap() {
+        this.$emit("undoMindmap")
       },
       makeEditable () {
         this.editable = true

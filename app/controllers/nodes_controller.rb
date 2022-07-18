@@ -2,7 +2,7 @@ class NodesController < AuthenticatedController
   before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
   before_action :set_nodes, only:[:index]
   include NodeConcern
-
+  $deleted_child_nodes = []
   def create
     # get nested children
     @node = Node.create(node_params)
@@ -40,11 +40,12 @@ class NodesController < AuthenticatedController
 
   def destroy
     if @node.destroy
-      delete_child_nodes Node.where(parent_node: @node.id)
+      delNodes = delete_child_nodes Node.where(parent_node: @node.id)
+      $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
       respond_to do |format|
-        format.json { render json: {success: true}}
+        format.json { render json: {success: true, node: delNodes}}
         format.html { }
       end
     else
@@ -109,8 +110,9 @@ class NodesController < AuthenticatedController
 
     nodes.each do |nod|
       delete_child_nodes Node.where(parent_node: nod.id)
-      nod.destroy
+      $deleted_child_nodes.push(nod.destroy)
     end
+    return $deleted_child_nodes
   end
 
   def set_node

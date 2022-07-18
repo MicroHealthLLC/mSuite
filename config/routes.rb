@@ -25,6 +25,8 @@ Rails.application.routes.draw do
       get :compute_child_nodes
       put :destroy_file
       get :reset_mindmap
+      post :undo_mindmap
+      put :redo_mindmap
     end
   end
 

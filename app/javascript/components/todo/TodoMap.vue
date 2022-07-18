@@ -23,7 +23,7 @@
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
           <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-3 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
-          <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-1 ml-xs-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
+          <i v-b-tooltip.hover title="Delete Todo" class="ml-lg-3 ml-xs-1 fa fa-times deleteTodo"  @click="toggleDeleteTodo(node)" ></i>
         </div>
       </div>
       <div class="ml-3" v-else-if="selectedTodo.id == node.id">
@@ -88,8 +88,8 @@
               {{child.duedate}}
           </span>
           <div class="col-1 ml-xl-5 ml-lg-5 ml-md-4 ml-sm-4 ml-4 pl-xl-1 pl-lg-0 pl-md-1 pl-sm-1 pl-1">
-            <i class="d-none fa fa-times"></i>
-            <i v-b-tooltip.hover placement="top" title="Delete Todo" class="mt-1 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
+            <i class="d-none ml-2 fa fa-times"></i>
+            <i v-b-tooltip.hover placement="top" title="Delete Todo" class="mt-1 ml-2 fa fa-times deleteTodo" @click="toggleDeleteTodo(child)"></i>
           </div>
         </div>
         <div v-else-if="selectedTodo.id == child.id">

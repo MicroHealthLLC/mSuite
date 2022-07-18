@@ -43,7 +43,6 @@ class Mindmap < ApplicationRecord
         }
       end
     end
-
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
       attach_files: attach_files,

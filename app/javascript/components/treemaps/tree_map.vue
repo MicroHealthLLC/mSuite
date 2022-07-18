@@ -8,6 +8,8 @@
       :expDays="expDays"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
+      @undoMindmap="undoObj"
+      @redoMindmap="redoObj"
       :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-1 main_body">
@@ -58,11 +60,6 @@
     </sweet-modal>
     <sweet-modal ref="errorAddNode" class="of_v" icon="error" title="Node Error">
       {{ err }}
-    </sweet-modal>
-    <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
-      Do you want to delete this node?
-      <button slot="button" @click="deleteSelectedNode(child_node)" class="btn btn-warning mr-2">Delete</button>
-      <button slot="button" @click="$refs['deleteNodeConfirm'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
   </div>
 </template>
@@ -117,6 +114,10 @@
         nodeSample: {label: 'Enter node title for node',parent_label: '',color: '#CCBBBB'},
         customPallete: [],
         nodeNumber: 0,
+        undoNodes: [],
+        redoNodes: [],
+        undoDone: false,
+        nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -188,7 +189,7 @@
     methods: {
       onBindingComplete: function (event) {
         let nodestreeMaps = []
-        var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Map')
+        var nodeElement = this.insertNodeElement('fas ml-2 fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Map')
         var nodeElementSecond = this.insertNodeElement('fas fa-plus add-icon cancel-btn mt-1 icon-opacity', 'Add Child Node')
         var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
         event.target.children[0].addEventListener('drop', this.dropNode)
@@ -199,7 +200,7 @@
       appendElementTreeMap(objArray){
         let jqxParentArray = new Array()
         objArray.forEach((e)=>{
-          var nodeElement = this.insertNodeElement('fas fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Node')
+          var nodeElement = this.insertNodeElement('fas ml-2 fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Node')
           var nodeElementSecond = this.insertNodeElement('fas fa-plus add-icon cancel-btn mt-1 icon-opacity', 'Add Child Node')
           var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
@@ -271,6 +272,23 @@
         this.colorSelected = false
       },
       updateSelectedNode: async function(obj){
+        if(this.undoNodes.length > 0) {
+          this.undoNodes.forEach((element, index) => {
+            if(element['receivedData']){
+              if(element['receivedData'].id === obj.id) {
+                this.undoNodes[index]['receivedData'].title = obj.title
+                this.undoNodes[index]['receivedData'].line_color = obj.line_color
+              } else if(element['node']) {
+                if(element['node'].id === obj.id) {
+                  this.undoNodes[index]['node'].title = obj.title
+                  this.undoNodes[index]['node'].line_color = obj.line_color
+                }
+              }
+            }
+          });
+        } else {
+          this.undoNodes.push({'req': 'addNode', node: obj})
+        }
         await http.put(`/nodes/${obj.id}`, obj).then((res) => {
         }).catch(err => {
           this.err = err.message
@@ -282,8 +300,22 @@
         this.addChildTreeMap = false
       },
       deleteSelectedNode: async function(obj){
-        await http.delete(`/nodes/${obj.id}.json`);
-        this.$refs['deleteNodeConfirm'].close()
+        await http.delete(`/nodes/${obj.id}.json`).then((res) => {
+          let receivedNodes = res.data.node
+          if(receivedNodes && receivedNodes.length > 0){
+            this.undoNodes.push({'req': 'deleteNode', receivedNodes})
+          }
+          if (!this.undoDone) {
+            let myNode = {
+              id: obj.id,
+              title: obj.title,
+              line_color: obj.line_color,
+              mindmap_id: obj.mindmap_id,
+              parent_node: obj.parent_node
+            }
+            this.undoNodes.push({'req': 'deleteNode', node: myNode})
+          }
+        });
       },
       submitChildNode: async function (obj) {
 
@@ -325,6 +357,10 @@
           if( res.data.node.id == null ){
             obj.label = obj.label + ' 0'
             this.submitChildNode(obj)
+          }
+          if (!this.undoDone) {
+            let receivedData = res.data.node
+            _this.undoNodes.push({'req': 'addNode', receivedData})
           }
           // success modal display
         }).catch(err => {
@@ -520,6 +556,7 @@
           color: '#CCBBBB'
         }
         if(this.child_node) node.parent_label = this.child_node.id
+        this.undoDone = false
         this.submitChildNode(node)
       },
       putData(){
@@ -584,7 +621,9 @@
         if(this.parent_node){
           this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
         } else {
-          this.$refs['deleteNodeConfirm'].open()
+          this.child_node.mindmap_id = this.currentMindMap.id
+          this.undoDone = false
+          this.deleteSelectedNode(this.child_node)
         }
       },
       deleteMap(){
@@ -594,6 +633,7 @@
         if(this.addChildTreeMap) return
         this.setNodeSelected(value)
         if(this.child_node) this.nodeSample.parent_label = this.child_node.id
+        this.undoDone = false
         this.submitChildNode(this.nodeSample)
         this.addChildTreeMap = true
 
@@ -603,11 +643,41 @@
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.currentMindMap.nodes = []
+            this.undoNodes = []
+            this.redoNodes = []
           })
           .catch((err) => {
             console.log(err)
           })
       },
+      undoObj(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
+          .then((res) => {
+            this.undoNodes.pop()
+            let req = res.data.node.req
+            let node = res.data.node.node
+            this.redoNodes.push({req, node})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoObj(){
+        this.redoDone = true
+        http
+          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
+          .then((res) => {
+            this.redoNodes.pop()
+            let req = res.data.node.req
+            let receivedData = res.data.node.node
+            this.undoNodes.push({req, receivedData})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     }
   }
 </script>

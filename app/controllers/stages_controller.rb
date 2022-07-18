@@ -37,10 +37,12 @@ class StagesController < AuthenticatedController
   end
 
   def destroy
+    stageNodes = @stage.nodes.to_json
     if @stage.destroy
+      stageNodes = JSON.parse(stageNodes)
       ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Deleted", stage: @stage
       respond_to do |format|
-        format.json { render json: {success: true} }
+        format.json { render json: {success: true, stage: @stage, nodes: stageNodes} }
         format.html { }
       end
     else
