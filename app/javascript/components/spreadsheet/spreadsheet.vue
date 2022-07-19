@@ -220,6 +220,7 @@
           ondeleterow: this.dataChange,
           oninsertcolumn: this.insertColumn,
           ondeletecolumn: this.deleteColumn,
+          csvFileName: `${this.currentMindMap.unique_key}`,
           toolbar:[
             {
               type: 'i',
@@ -380,11 +381,46 @@
       },
       exportXLS(option){
         if(option === 1){
-          let head = []
-          jsontoexcel.getXlsx(this.sheetData.data, head, `Excel ::: ${this.currentMindMap.title}.xls`);
+
+          var tab_text="<table border='0.5px'><tr>";
+          var textRange; var j=0;
+          let tab = document.getElementsByClassName('jexcel')[0];
+
+          for(j = 1 ; j < tab.rows.length ; j++)
+          {
+              tab_text = tab_text+tab.rows[j].innerHTML+"</tr>";
+              tab_text = tab_text.replace(`<td data-y="${j-1}" class="jexcel_row">${j}</td>`,"")
+          }
+          tab_text = tab_text.replace(`<td data-y="0" class="jexcel_row">${tab.rows.length}</td>`,"")
+
+          tab_text=tab_text+"</table>";
+          tab_text= tab_text.replace(/<A[^>]*>|<\/A>/g, "");
+          tab_text= tab_text.replace(/<img[^>]*>/gi,"");
+          tab_text= tab_text.replace(/<input[^>]*>|<\/input>/gi, "");
+
+          var ua = window.navigator.userAgent;
+          var msie = ua.indexOf("MSIE ");
+          let sa = null
+          if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+            txtArea1.document.open("txt/html","replace");
+            txtArea1.document.write(tab_text);
+            txtArea1.document.close();
+            txtArea1.focus();
+            sa=txtArea1.document.execCommand("SaveAs",true,"Say Thanks to Sumit.xls");
+          } else {
+              this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
+              let myDocument = 'data:application/vnd.ms-excel,' + encodeURIComponent(tab_text);
+              let link = document.createElement("a");
+              document.body.appendChild(link);
+              link.download = `${this.currentMindMap.unique_key}.xls`;
+              link.href = myDocument;
+              link.click();
+              document.body.removeChild(link);
+            }
+          return (sa);
         }
         if(option === 2){
-          this.table.download(true);
+          this.table.download();
         }
         this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
       }
