@@ -57,12 +57,16 @@
         sheetData: {
           data: [[]],
           style: {},
-          width: []
+          width: [],
+          rows: null,
+          column: null,
+          columns: [],
         },
         isReset: false,
         isEditing: false,
         saveElement: true,
-        changeRequest: 0
+        changeRequest: 0,
+        addColumnReq: false
       }
     },
     components: {
@@ -84,18 +88,53 @@
           else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id){
             this.sheetData = JSON.parse(data.mindmap.canvas)
             this.table.setData(this.sheetData.data)
-            this.table.setStyle(this.sheetData.style)
-            for(let i = 0; i < 32; i++) this.table.setWidth(i,50);
-            this.table.deleteColumn(32,26)
-            $('.arrow-down, .arrow-up').removeClass('arrow-down arrow-up');
+            if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
+
+            this.table.destroy()
+            this.createSheet(data.mindmap.canvas)
+            $(".jexcel_content").addClass('h-100 w-100')
+            $(".jexcel").addClass('w-100 h-100')
+            $(".jexcel_content")[0].style.maxHeight = '100vh'
+            setTimeout(()=>{
+              let navbarHeight = $(".buttons_container").height()
+              let toolbarHeight= $('.jexcel_toolbar').height()
+              let totalHeight = navbarHeight + toolbarHeight
+              let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
+              $('#mytable')[0].style.height = heightVal
+            },200)
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             setTimeout(() => {
               this.currentMindMap = data.mindmap
               this.sheetData = JSON.parse(data.mindmap.canvas)
-              this.table.setData(this.sheetData.data)
+              if(this.sheetData.data != undefined) this.table.setData(this.sheetData.data)
               this.changeRequest = this.changeRequest + 1
               if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
+              if(this.sheetData.column != undefined) {
+                if(this.sheetData.columns.length != this.table.options.columns.length){
+
+                  if(this.sheetData.column.addCol){
+                    this.table.insertColumn({
+                      insertBefore: this.sheetData.column.insertBefore,
+                      numOfColumns: this.sheetData.column.numOfColumns,
+                      columnNumber: this.sheetData.column.columnNumber,
+                    })
+                  } else if(this.sheetData.column.delCol){
+                    this.table.deleteColumn(this.sheetData.column.columnNumber, this.sheetData.column.numOfColumns)
+                    this.sheetData.columns.pop()
+                  }
+
+                  this.sheetData.column = null
+
+                  let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+                  let id = this.currentMindMap.unique_key
+                  if(!this.isReset){
+                    http.patch(`/msuite/${id}.json`,mindmap)
+                    this.isEditing = false
+                    this.saveElement = true
+                  }
+                }
+              }
             }, 500)
           }
           else {}
@@ -170,12 +209,17 @@
           tableOverflow: true,
           tableHeight: '100vh',
           minDimensions:[32,32],
+          allowRenameColumn: false,
           onchange: this.dataChange,
           onchangestyle: this.changeStyle,
           onresizecolumn: this.changeSizeColmun,
           onselection: this.selectionCreated,
           oneditionstart: this.editStart,
           oneditionend: this.editEnd,
+          oninsertrow: this.insertRow,
+          ondeleterow: this.dataChange,
+          oninsertcolumn: this.insertColumn,
+          ondeletecolumn: this.deleteColumn,
           toolbar:[
             {
               type: 'i',
@@ -279,6 +323,60 @@
       },
       selectionCreated(){
         this.changeRequest = 0
+      },
+      insertRow(el, rowNumber, numOfRows, historyRecords, insertBefore){
+        this.sheetData.row = {
+          rowNumber      : rowNumber,
+          numOfRows      : numOfRows,
+          historyRecords : historyRecords,
+          insertBefore   : insertBefore
+        }
+        let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+        let id = this.currentMindMap.unique_key
+        if(!this.isReset){
+          http.patch(`/msuite/${id}.json`,mindmap)
+          this.isEditing = false
+          this.saveElement = true
+        }
+
+      },
+      insertColumn(worksheet, columnNumber, numOfColumns, historyRecords, insertBefore){
+        this.table.resetSelection(true)
+        this.sheetData.column = {
+          columnNumber   : columnNumber,
+          numOfColumns   : numOfColumns,
+          historyRecords : historyRecords,
+          insertBefore   : insertBefore,
+          addCol         : true
+        }
+        this.sheetData.columns = this.table.options.columns
+
+          let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+          let id = this.currentMindMap.unique_key
+          if(!this.isReset){
+            http.patch(`/msuite/${id}.json`,mindmap)
+            this.isEditing = false
+            this.saveElement = true
+          }
+      },
+      deleteColumn(worksheet, columnNumber, numOfColumns, affectedDOMElements, historyProperties, cellAttributes){
+        this.table.resetSelection(true)
+        this.sheetData.column = {
+            columnNumber        : columnNumber,
+            numOfColumns        : numOfColumns,
+            affectedDOMElements : affectedDOMElements,
+            historyProperties   : historyProperties,
+            cellAttributes      : cellAttributes,
+            delCol              : true
+          }
+        this.sheetData.columns = this.table.options.columns
+          let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+          let id = this.currentMindMap.unique_key
+          if(!this.isReset){
+            http.patch(`/msuite/${id}.json`,mindmap)
+            this.isEditing = false
+            this.saveElement = true
+          }
       },
       exportXLS(option){
         if(option === 1){
