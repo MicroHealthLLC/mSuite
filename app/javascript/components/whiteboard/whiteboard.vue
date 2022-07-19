@@ -91,6 +91,18 @@
           </span>
           <span class="ml-1">Undo</span>
         </div>
+        <div @click="bringForward" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
+          <span class="material-icons">
+            arrow_outward
+          </span>
+          <span class="ml-1">Forward</span>
+        </div>
+        <div @click="sendBackward" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
+          <span class="material-icons rotate-180">
+            arrow_outward
+          </span>
+          <span class="ml-1">Backward</span>
+        </div>
       </div>
       <div id="vue_canvas" class="col-11 p-0 m-0 font-serif">
         <canvas id="canvas" class="border"></canvas>
@@ -386,6 +398,14 @@
       undoCanvas() {
         this.toggleResetDraw();
         this.canvas.undo();
+      },
+      bringForward(){
+        this.canvas.bringForward(this.canvas.getActiveObject())
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+      },
+      sendBackward(){
+        this.canvas.sendBackwards(this.canvas.getActiveObject())
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
       },
       redoCanvas() {
         this.toggleResetDraw();
