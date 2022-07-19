@@ -554,6 +554,16 @@
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
         this.canvas.on('selection:updated', (event) => {
+
+          this.drawLine = false
+          if(!this.eraser) this.createSelection = true
+          if(this.isDrawing && !this.eraser) this.canvas.isDrawingMode = false
+          this.isDrawing = false;
+          this.activeObject = this.canvas.getActiveObject();
+          if(this.activeObject) {
+            this.line = this.activeObject.strokeWidth
+            this.colorPicker = this.activeObject.stroke}
+          this.canvas.renderAll();
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
       },
