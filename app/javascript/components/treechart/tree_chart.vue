@@ -433,6 +433,10 @@
         let data = { node }
         http.post(`/nodes.json`, data).then((res) => {
           _this.addNodeTree = false
+          if(res.data.node.id == null){
+            node.title = node.title + '0'
+            this.submitChildNode(node)
+          }
         }).catch(err => {
           alert(err.message)
         })
