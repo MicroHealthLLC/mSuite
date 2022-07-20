@@ -220,6 +220,7 @@
           ondeleterow: this.dataChange,
           oninsertcolumn: this.insertColumn,
           ondeletecolumn: this.deleteColumn,
+          onsort: this.sort,
           csvFileName: `${this.currentMindMap.unique_key}`,
           toolbar:[
             {
@@ -430,6 +431,13 @@
     },
     updated() {
       setTimeout(() => this.saveElement = false, 1200)
+      setTimeout(()=>{
+        if($('.arrow-down').length > 0 && $('.arrow-up').length < 1){
+          $('.arrow-down').addClass('arrow-up').removeClass('arrow-down')
+        } else if ($('.arrow-up').length > 0 && $('.arrow-down').length < 1){
+          $('.arrow-up').addClass('arrow-down').removeClass('arrow-up')
+        }
+      }, 500)
     },
     mounted() {
       this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
