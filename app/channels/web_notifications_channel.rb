@@ -6,4 +6,7 @@ class WebNotificationsChannel < ApplicationCable::Channel
   def unsubscribed
     # Any cleanup needed when channel is unsubscribed
   end
+  def receive(data)
+    ActionCable.server.broadcast("web_notifications_channel#{params[:room]}", data)
+  end
 end

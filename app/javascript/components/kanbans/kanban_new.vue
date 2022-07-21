@@ -157,6 +157,7 @@
         selected: '',
         isSaveMSuite: false,
         customPallete: [],
+        nodeNumber: 0,
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -181,6 +182,10 @@
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id)
           {
             Vue.set(this.currentMindMap, 'title', data.mindmap.title)
+          }
+          else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
+          {
+            localStorage.nodeNumber = data.content.nodeNumber
           }
           else {
             this.getAllStages()
@@ -419,7 +424,25 @@
         this.allStages.splice(stage_index + 1, 0, {title: ''})
         this.new_stage = true
         this.new_index = stage_index + 1
-        this.createNewStage('STAGE ' + this.allStages.length)
+
+        localStorage.mindmap_id = this.currentMindMap.id
+        if(this.allStages.length > 3 && localStorage.nodeNumber != 'NaN'){
+          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        } else {
+          localStorage.nodeNumber = this.nodeNumber + 1
+        }
+
+        this.$cable.perform({
+            channel: 'WebNotificationsChannel',
+            room: this.currentMindMap.id,
+
+            data: {
+              message: 'storage updated',
+              content: localStorage
+            }
+        });
+
+        this.createNewStage('STAGE ' + localStorage.nodeNumber)
         setTimeout(()=>{
           this.getColorNode('.drag-column')
         },50)
