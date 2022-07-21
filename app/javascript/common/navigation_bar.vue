@@ -8,7 +8,7 @@
           class="navbar-brand"
           @click.stop="goHome"
         >
-          <img src="/assets/microhealthllc.png"/>
+          <img src="/assets/msuite.png"/>
         </a>
     
       </span>
