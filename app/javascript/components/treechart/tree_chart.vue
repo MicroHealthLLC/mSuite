@@ -165,7 +165,8 @@
         nodes: [],
         addNodeTree: false,
         isSaveMSuite: false,
-        palleteUpdate: false
+        palleteUpdate: false,
+        nodeNumber: 0
       }
     },
     mixins: [Common],
@@ -336,7 +337,24 @@
         else this.nodeTemp.parent_node = nodeElement.id
         this.nodes.push(this.nodeTemp)
         this.addNodeTree = true
-        this.selectedNode.name = 'Enter Node Title for node ' + this.nodes.length
+        localStorage.mindmap_id = this.currentMindMap.id
+        if(this.nodes.length > 1 && localStorage.nodeNumber != 'NaN'){
+          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        } else {
+          localStorage.nodeNumber = this.nodeNumber + 1
+        }
+        this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
+
+        this.$cable.perform({
+            channel: 'WebNotificationsChannel',
+            room: this.currentMindMap.id,
+
+            data: {
+              message: 'storage updated',
+              content: localStorage
+            }
+        });
+
         this.saveNodeTreeChart()
         this.renderTreeChart()
       },
@@ -553,6 +571,11 @@
             setTimeout(()=>{
               location.reload()
             }, 1000)
+          }
+          else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
+          {
+            localStorage.nodeNumber = data.content.nodeNumber
+            this.fetchTreeChart()
           }
           else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap

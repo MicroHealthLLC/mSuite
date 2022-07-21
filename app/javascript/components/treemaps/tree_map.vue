@@ -116,6 +116,7 @@
         isSaveMSuite: false,
         nodeSample: {label: 'Enter node title for node',parent_label: '',color: '#CCBBBB'},
         customPallete: [],
+        nodeNumber: 0,
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -166,7 +167,12 @@
             setTimeout(() => {
               location.reload()
             }, 1000)
-          } 
+          }
+          else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
+          {
+            localStorage.nodeNumber = data.content.nodeNumber
+            this.getTreeMap()
+          }
           else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
             this.getTreeMap()
@@ -280,11 +286,30 @@
         this.$refs['deleteNodeConfirm'].close()
       },
       submitChildNode: async function (obj) {
+
         let _this = this
+
+        localStorage.mindmap_id = _this.currentMindMap.id
+        if(_this.nodes.length > 0 && localStorage.nodeNumber != 'NaN'){
+          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        } else {
+          localStorage.nodeNumber = this.nodeNumber + 1
+        }
+
+        this.$cable.perform({
+            channel: 'WebNotificationsChannel',
+            room: this.currentMindMap.id,
+
+            data: {
+              message: 'storage updated',
+              content: localStorage
+            }
+        });
+
         let nodeNumber = this.nodes.length + 1
         let data = {
           node: {
-            title: obj.label + ' ' + nodeNumber,
+            title: obj.label + ' ' + localStorage.nodeNumber,
             line_color: obj.color,
             node_width: 50,//obj.node_width,
             parent_node: ((obj.parent_label != null) ? obj.parent_label : 0),

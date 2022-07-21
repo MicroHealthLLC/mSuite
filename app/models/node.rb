@@ -18,7 +18,7 @@ class Node < ApplicationRecord
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
 
   def validate_title
-    return self.mindmap.mm_type == "tree_map" || self.mindmap.mm_type == "tree_chart" || self.mindmap.mm_type == "flowmap"
+    return self.mindmap.mm_type == "tree_map"
   end
 
   def validate_kanban
