@@ -1,6 +1,6 @@
 
 title = "mSuite" + (content_for?(:title) ? " | " + yield(:title) : "")
-
+=favicon_link_tag asset_path("favicon.ico")
 meta http-equiv="x-ua-compatible" content="ie=edge"
 meta content="width=device-width, initial-scale=1.0" name="viewport" id="viewport"
 = csrf_meta_tags
