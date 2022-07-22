@@ -47,7 +47,7 @@
       },
       closeModelPicker(){
         if (this.currentMindMap.mm_type == 'tree_map'){
-          myClass = 'jqx-treemap-rectangle'
+          let myClass = 'jqx-treemap-rectangle'
           let element = document.getElementsByClassName(myClass)[0]
           element.style.backgroundColor = this.currentMindMap.line_color
           Object.values(this.nodes).forEach((node, index) => {
