@@ -429,13 +429,6 @@
     },
     updated() {
       setTimeout(() => this.saveElement = false, 1200)
-      setTimeout(()=>{
-        if($('.arrow-down').length > 0 && $('.arrow-up').length < 1){
-          $('.arrow-down').addClass('arrow-up').removeClass('arrow-down')
-        } else if ($('.arrow-up').length > 0 && $('.arrow-down').length < 1){
-          $('.arrow-up').addClass('arrow-down').removeClass('arrow-up')
-        }
-      }, 500)
     },
     mounted() {
       this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
@@ -454,3 +447,11 @@
     },
   }
 </script>
+<style>
+  .arrow-down{
+    background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='none' d='M0 0h24v24H0V0z'/%3E%3Cpath d='M7 14l5-5 5 5H7z' fill='gray'/%3E%3C/svg%3E") !important;
+  }
+  .arrow-up{
+    background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='none' d='M0 0h24v24H0V0z'/%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='gray'/%3E%3C/svg%3E") !important;
+  }
+</style>
