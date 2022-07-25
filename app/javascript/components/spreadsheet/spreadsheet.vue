@@ -104,38 +104,36 @@
             },200)
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            setTimeout(() => {
-              this.currentMindMap = data.mindmap
-              this.sheetData = JSON.parse(data.mindmap.canvas)
-              if(this.sheetData.data != undefined) this.table.setData(this.sheetData.data)
-              this.changeRequest = this.changeRequest + 1
-              if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
-              if(this.sheetData.column != undefined) {
-                if(this.sheetData.columns.length != this.table.options.columns.length){
+            this.currentMindMap = data.mindmap
+            this.sheetData = JSON.parse(data.mindmap.canvas)
+            if(this.sheetData && this.sheetData.data != undefined) this.table.setData(JSON.parse(data.mindmap.canvas).data)
+            this.changeRequest = this.changeRequest + 1
+            if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
+            if(this.sheetData.column != undefined) {
+              if(this.sheetData.columns.length != this.table.options.columns.length){
 
-                  if(this.sheetData.column.addCol){
-                    this.table.insertColumn({
-                      insertBefore: this.sheetData.column.insertBefore,
-                      numOfColumns: this.sheetData.column.numOfColumns,
-                      columnNumber: this.sheetData.column.columnNumber,
-                    })
-                  } else if(this.sheetData.column.delCol){
-                    this.table.deleteColumn(this.sheetData.column.columnNumber, this.sheetData.column.numOfColumns)
-                    this.sheetData.columns.pop()
-                  }
+                if(this.sheetData.column.addCol){
+                  this.table.insertColumn({
+                    insertBefore: this.sheetData.column.insertBefore,
+                    numOfColumns: this.sheetData.column.numOfColumns,
+                    columnNumber: this.sheetData.column.columnNumber,
+                  })
+                } else if(this.sheetData.column.delCol){
+                  this.table.deleteColumn(this.sheetData.column.columnNumber, this.sheetData.column.numOfColumns)
+                  this.sheetData.columns.pop()
+                }
 
-                  this.sheetData.column = null
+                this.sheetData.column = null
 
-                  let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-                  let id = this.currentMindMap.unique_key
-                  if(!this.isReset){
-                    http.patch(`/msuite/${id}.json`,mindmap)
-                    this.isEditing = false
-                    this.saveElement = true
-                  }
+                let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+                let id = this.currentMindMap.unique_key
+                if(!this.isReset){
+                  http.patch(`/msuite/${id}.json`,mindmap)
+                  this.isEditing = false
+                  this.saveElement = true
                 }
               }
-            }, 500)
+            }
           }
           else {}
         }
@@ -220,7 +218,6 @@
           ondeleterow: this.dataChange,
           oninsertcolumn: this.insertColumn,
           ondeletecolumn: this.deleteColumn,
-          onsort: this.sort,
           csvFileName: `${this.currentMindMap.unique_key}`,
           toolbar:[
             {
@@ -285,14 +282,16 @@
         });
         this.table = table
       },
-      dataChange(){
+      async dataChange(){
         this.sheetData.data = this.table.getData()
         let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
         let id = this.currentMindMap.unique_key
         if(!this.isReset){
-          http.patch(`/msuite/${id}.json`,mindmap)
-          this.isEditing = false
-          this.saveElement = true
+          let response = await http.patch(`/msuite/${id}.json`,mindmap)
+          if (response) {
+            this.isEditing = false
+            this.saveElement = true
+          }
         }
         else this.isReset = false
       },
@@ -340,7 +339,6 @@
           this.isEditing = false
           this.saveElement = true
         }
-
       },
       insertColumn(worksheet, columnNumber, numOfColumns, historyRecords, insertBefore){
         this.table.resetSelection(true)
