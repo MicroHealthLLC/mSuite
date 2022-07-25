@@ -5,8 +5,9 @@
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
-      @addTodo="toggleModal"
       @resetMindmap="resetMindmap"
+      @undoMindmap="undoObj"
+      @redoMindmap="redoObj"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -119,7 +120,6 @@
                       </b-row>
                     </b-form>
                   </div>
-                  <div @click="toggleModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
                 </div>
               </b-list-group-item>
             </div>
@@ -141,11 +141,6 @@
     </sweet-modal>
     <sweet-modal ref="successModal" class="of_v" icon="success">
       Password updated successfully!
-    </sweet-modal>
-    <sweet-modal ref="deleteTodoConfirm" class="of_v" icon="warning" title="Delete ToDo">
-      Do you want to delete this ToDo?
-      <button slot="button" @click="deleteTodo" class="btn btn-warning mr-2">Delete</button>
-      <button slot="button" @click="$refs['deleteTodoConfirm'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
     <sweet-modal ref="errTitle" class="of_v" icon="error">
       Node Title Can't be empty!
@@ -191,6 +186,9 @@
         fieldDisabled: false,
         format: 'YYYY-MM-DD',
         editInProgress: false,
+        undoNodes: [],
+        redoNodes: [],
+        undoDone: false
       }
     },
     components: {
@@ -296,13 +294,6 @@
         this.$refs['passwordMismatched'].close()
         this.openPrivacy()
       },
-      toggleModal() {
-        this.todo = {}
-        this.showChildModalTodo = false
-        this.showModalTodo = !this.showModalTodo
-        this.$nextTick(() => this.$refs.title.focus())
-        this.$refs['addTodo'].open()
-      },
       toggleChildModal(todo) {
         this.todo = todo
         this.todo_parent = todo.id
@@ -389,6 +380,7 @@
         }
         http.post(`/nodes.json`, data).then((result) => {
           this.myTodos.push(result.data.node)
+          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
           this.showModalTodo = false
           this.clearTodoObj()
         }).catch((err) => {
@@ -409,6 +401,7 @@
           node: {title: this.todoChildData.title, duedate: this.todoChildData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
         }
         http.post(`/nodes.json`, data).then((result) => {
+          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
           this.showChildModalTodo = false
           this.clearTodoObj()
         }).catch((err) => {
@@ -430,6 +423,27 @@
         todo.title = title
         todo.is_disabled = completed
         todo.duedate = this.selectedTodo.duedate
+
+        if(this.undoNodes.length > 0) {
+          this.undoNodes.forEach((element, index) => {
+            if(element['receivedData']){
+              if(element['receivedData'].id === todo.id) {
+              this.undoNodes[index]['receivedData'].title = todo.title
+              this.undoNodes[index]['receivedData'].duedate = todo.duedate
+              this.undoNodes[index]['receivedData'].is_disabled = completed
+              }
+            } else {
+              if(element['node'].id === todo.id) {
+              this.undoNodes[index]['node'].title = todo.title
+              this.undoNodes[index]['node'].duedate = todo.duedate
+              this.undoNodes[index]['node'].is_disabled = completed
+              }
+            }
+          });
+        } else {
+          this.undoNodes.push({'req': 'addNode', node: todo})
+        }
+
         http.put(`/nodes/${todo.id}`, todo)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
@@ -437,17 +451,32 @@
       async deleteTodo() {
         let todo = this.selectedTodoDelete
         this.index = this.myTodos.findIndex(e => e.id == todo.id)
-        await  http.delete(`/nodes/${todo.id}`)
-          .then((result) => {
+        await  http.delete(`/nodes/${todo.id}.json`)
+          .then((res) => {
+            let receivedNodes = res.data.node
+            if(receivedNodes && receivedNodes.length > 0){
+              this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
+            }
+            if (!this.undoDone) {
+              let myNode = {
+                id: todo.id,
+                title: todo.name,
+                duedate: todo.duedate,
+                mindmap_id: this.currentMindMap.id,
+                parent_node: todo.parent,
+                is_disabled: todo.is_disabled
+              }
+              this.undoNodes.push({'req': 'deleteNode', node: myNode})
+            }
           }).catch((err) => {
             console.error(err);
           });
-        this.$refs['deleteTodoConfirm'].close()
       },
       toggleDeleteTodo(todo){
         this.selectedTodoDelete = todo
+        this.undoDone = false
         this.clearTodoObj()
-        this.$refs['deleteTodoConfirm'].open()
+        this.deleteTodo()
       },
       showInputField(todo){
         let _this = this
@@ -468,6 +497,8 @@
           .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
           .then((res) => {
             this.currentMindMap.nodes = []
+            this.undoNodes = []
+            this.redoNodes = []
             this.cancelChildObj()
             this.completedTasks = false
           })
@@ -475,6 +506,33 @@
             console.log(err)
           })
       },
+      undoObj(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
+          .then((res) => {
+            this.undoNodes.pop()
+            let node = res.data.node.node
+            let req = res.data.node.req
+            this.redoNodes.push({req, node})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoObj(){
+        http
+          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
+          .then((res) => {
+            this.redoNodes.pop()
+            let receivedData = res.data.node.node
+            let req = res.data.node.req
+            this.undoNodes.push({req, receivedData})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     },
     computed: {
       sortedTodos() {

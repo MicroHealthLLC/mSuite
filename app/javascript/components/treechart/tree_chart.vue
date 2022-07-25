@@ -6,6 +6,8 @@
       @resetZoomScale="resetZoomScale"
       @deleteMindmap="deleteMSuite"
       @zoomInScale="zoomInScale"
+      @undoMindmap="undoObj"
+      @redoMindmap="redoObj"
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
@@ -28,7 +30,7 @@
           <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': currentMindMap.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
             <div>
               <span @click="deleteMap(node)">
-                <i class="fas fa-times float-right icon-opacity text-danger" :title="currentMindMap.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
+                <i class="fas ml-2 fa-times float-right icon-opacity text-danger" :title="currentMindMap.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
               </span>
               <span @click="node.name != 'Enter title here' ? addNode(node) : ''">
                 <i class="fas fa-plus float-right icon-opacity add-icon" title="Add Child Node"></i>
@@ -75,12 +77,6 @@
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
 
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
-
-    <sweet-modal ref="deleteNodeConfirm" class="of_v" icon="warning" title="Delete node">
-      Do you want to delete this node?
-      <button slot="button" @click="deleteSelectedNode(deleteNodeObj)" class="btn btn-warning mr-2">Delete</button>
-      <button slot="button" @click="$refs['deleteNodeConfirm'].close()" class="btn btn-secondary">Cancel</button>
-    </sweet-modal>
 
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
@@ -163,10 +159,13 @@
         treeConfig: { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
         nodeChildTreeMaps: [],
         nodes: [],
+        undoNodes: [],
+        redoNodes: [],
         addNodeTree: false,
         isSaveMSuite: false,
         palleteUpdate: false,
-        nodeNumber: 0
+        nodeNumber: 0,
+        undoDone: false
       }
     },
     mixins: [Common],
@@ -282,6 +281,7 @@
             objNode.parent_node = this.nodeTemp.parent_node
             objNode.mindmap_id = this.currentMindMap.id
             objNode.line_color = '#EBECF0'
+            this.undoDone = false
             this.submitChildNode(objNode)
           }else if(objNode.title.replace(/\s/g, '') == '') {
             this.selectedNode.name = this.selectedNodeTitle
@@ -435,7 +435,7 @@
         this.nodes.forEach((node) => {
           parent_nodes.forEach((p, index)=> {
             if(p.id == node.parent_node){
-              let obj = { name: node.title, id: node.id , color: node.line_color, children: []}
+              let obj = { name: node.title, id: node.id , color: node.line_color, children: [], parent_node: node.parent_node}
               parent_nodes[index].children.push(obj)
               childNodes = childNodes.concat(parent_nodes[index].children)
             }
@@ -448,8 +448,22 @@
       },
       async submitChildNode(node){
         let _this = this
-        let data = { node }
+        let data = {}
+        if(_this.undoDone){
+          data = { node:{
+            line_color: node.color,
+            mindmap_id: node.mindmap_id,
+            parent_node: node.parent_node,
+            title: node.name
+          }}
+        } else {
+          data = { node }
+        }
         http.post(`/nodes.json`, data).then((res) => {
+          if (!this.undoDone) {
+            let receivedData = res.data.node
+            _this.undoNodes.push({'req': 'addNode', receivedData})
+          }
           _this.addNodeTree = false
           if(res.data.node.id == null){
             node.title = node.title + '0'
@@ -460,11 +474,42 @@
         })
       },
       async updateTreeChartNode(obj){
+        if(this.undoNodes.length > 0) {
+          this.undoNodes.forEach((element, index) => {
+            if(element['receivedData']){
+              if(element['receivedData'].id === obj.id) {
+              this.undoNodes[index]['receivedData'].title = obj.title
+              this.undoNodes[index]['receivedData'].line_color = obj.line_color
+              }
+            } else {
+              if(element['node'].id === obj.id) {
+              this.undoNodes[index]['node'].title = obj.title
+              this.undoNodes[index]['node'].line_color = obj.line_color
+              }
+            }
+          });
+        } else {
+          this.undoNodes.push({'req': 'addNode', node: obj})
+        }
         await http.put(`/nodes/${obj.id}`, obj);
       },
       async deleteSelectedNode(obj){
-        await http.delete(`/nodes/${obj.id}.json`);
-        this.$refs['deleteNodeConfirm'].close()
+        await http.delete(`/nodes/${obj.id}.json`).then((res) => {
+          let receivedNodes = res.data.node
+          if(receivedNodes && receivedNodes.length > 0){
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
+          }
+          if (!this.undoDone) {
+            let myNode = {
+              id: obj.id,
+              title: obj.name,
+              line_color: obj.color,
+              mindmap_id: obj.mindmap_id,
+              parent_node: obj.parent_node
+            }
+            this.undoNodes.push({'req': 'deleteNode', node: myNode})
+          }
+        });
       },
       async updatedTreeChart(obj){
         this.colorSelected = false
@@ -527,8 +572,9 @@
           if(this.currentMindMap.name == node.name) this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
           else
           {
-            this.deleteNodeObj = node
-            this.$refs['deleteNodeConfirm'].open()
+            node.mindmap_id = this.currentMindMap.id
+            this.undoDone = false
+            this.deleteSelectedNode(node)
           }
         }
         this.getColorNode('.rich-media-node')
@@ -551,11 +597,40 @@
             this.currentMindMap = res.data.mindmap
             this.selectedNode = { id: ''}
             this.currentMindMap.nodes = []     
+            this.undoNodes = []
+            this.redoNodes = []
           })
           .catch((err) => {
             console.log(err)
           })
       },
+      undoObj(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
+          .then((res) => {
+            this.undoNodes.pop()
+            let node = res.data.node.node
+            let req = res.data.node.req
+            this.redoNodes.push({req, node})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoObj(){
+        http
+          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
+          .then((res) => {
+            this.redoNodes.pop()
+            let receivedData = res.data.node.node
+            let req = res.data.node.req
+            this.undoNodes.push({req, receivedData})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     },
     channels: {
       WebNotificationsChannel: {

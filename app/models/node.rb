@@ -28,9 +28,9 @@ class Node < ApplicationRecord
   def to_json
     parent = ''
     if self.parent_node == 0 || self.parent_node == nil
-      parent = Mindmap.find_by_id(self.mindmap_id).name
+      parent = Mindmap.find_by_id(self.mindmap_id)&.name
     else
-      parent = Node.find_by_id(self.parent_node).title
+      parent = Node.find_by_id(self.parent_node)&.title
     end
     attach_files = []
     if self.node_files.attached?

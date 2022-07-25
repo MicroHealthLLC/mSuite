@@ -6,6 +6,8 @@
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage"
       @resetMindmap="resetMindmap"
+      @undoMindmap="undoObj"
+      @redoMindmap="redoObj"
       :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
       :defaultDeleteDays="defaultDeleteDays"
@@ -31,7 +33,7 @@
                       <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
                   </div>
                   <div class="pointer" @click="deleteStageConfirm(stage)">
-                    <i class="fas fa-times mt-1 icon-delete-stage" title="Delete Stage"></i>
+                    <i class="fas ml-2 fa-times mt-1 icon-delete-stage" title="Delete Stage"></i>
                   </div>
                 </div>
               </div>
@@ -50,7 +52,7 @@
               <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
-                  <i class="fas fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
+                  <i class="fas ml-2 fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
                 </div>
                 <div>
                   <i class="fas fa-arrows-alt position-relative ml-2 icon-opacity" title="Drag Task"></i>
@@ -91,12 +93,6 @@
       Stage Title Cannot Be Duplicate
     </sweet-modal>
 
-    <sweet-modal ref="deleteStageConfirm" class="of_v" icon="warning" title="Delete Stage">
-      Do you want to delete this stage?
-      <button slot="button" @click="deleteStage" class="btn btn-warning mr-2">Delete</button>
-      <button slot="button" @click="$refs['deleteStageConfirm'].close()" class="btn btn-secondary">Cancel</button>
-    </sweet-modal>
-
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
@@ -115,7 +111,6 @@
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
   import MakePrivateModal from "../../common/modals/make_private_modal"
-  import DeleteBlockModal from './modals/delete_block_modal'
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import Sortable from 'sortablejs';
@@ -129,7 +124,6 @@
   export default {
     components:{
       MakePrivateModal,
-      DeleteBlockModal,
       DeleteMapModal,
       DeletePasswordModal,
       ColorPalette
@@ -158,6 +152,9 @@
         isSaveMSuite: false,
         customPallete: [],
         nodeNumber: 0,
+        undoNodes: [],
+        redoNodes: [],
+        undoDone: false,
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -483,6 +480,7 @@
             this.selectedStage = null
             this.colorSelected = false
             this.getColorNode('.drag-column')
+            this.undoNodes.push({'req': 'addStage', stage: res.data.stage})
           }
         })
         .catch((error) => {
@@ -507,13 +505,13 @@
         .post(`/nodes.json`, data)
         .then((res) => {
           this.blocks.push(res.data.node)
+          this.undoNodes.push({'req': 'addNode', receivedData: res.data.node})
         })
         .catch((err) => {
           console.log(err)
         })
       },
       deleteStage() {
-        this.$refs['deleteStageConfirm'].close()
         if(this.stage === '')
         {
           this.allStages.splice(this.new_index,1)
@@ -535,6 +533,7 @@
             this.allStages = this.allStages.filter(stg => stg.title !== this.stage)
             this.blocks = this.blocks.filter(block => block.status !== this.stage)
             this.stage = null
+            this.undoNodes.push({'req': 'deleteStage', stage: response.data.stage, nodes: response.data.nodes })
           }
           else {
             alert("Stage unable to be deleted")
@@ -615,7 +614,7 @@
       deleteStageConfirm(stage){
         this.stage = stage
         this.colorSelected = false
-        this.$refs['deleteStageConfirm'].open()
+        this.deleteStage()
       },
       // =====================STAGES CRUD OPERATIONS==============================//
 
@@ -687,6 +686,21 @@
         .then(response => {
           if (response.data.success === true){
             this.blocks = this.blocks.filter(blk => blk.id !== block.id)
+            let receivedNodes = response.data.node
+            if(receivedNodes && receivedNodes.length > 0){
+              this.undoNodes.push({'req': 'deleteNode', node: receivedNodes})
+            }
+            if (!this.undoDone || true) {
+              let myNode = {
+                id: block.id,
+                title: block.title,
+                line_color: block.line_color,
+                mindmap_id: block.mindmap_id,
+                parent_node: block.parent_node,
+                stage_id: block.stage_id
+              }
+              this.undoNodes.push({'req': 'deleteNode', node: myNode})
+            }
           }
           else {
             alert("Stage unable to be deleted")
@@ -729,7 +743,7 @@
       },
       deleteBlockConfirm(block){
         this.block = block;
-        this.$refs['delete-block-modal'].$refs['deleteBlock'].open()
+        this.deleteBlock(this.block)
       },
       selectedNode(index){
         this.selected = index
@@ -750,6 +764,8 @@
           .then((res) => {
             this.currentMindMap.nodes = []
             this.allStages = []
+            this.undoNodes = []
+            this.redoNodes = []
             this.reset_stages()
             this.getMindmap()
           })
@@ -757,6 +773,44 @@
             console.log(err)
           })
       },
+      undoObj(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
+          .then((res) => {
+            this.undoNodes.pop()
+            let req = res.data.node.req
+            let node = null
+            node = res.data.node.node
+            if(req === 'addStage' || req === 'deleteStage'){
+              this.redoNodes.push({req, stage: node, nodes: res.data.node.childNode})
+            } else {
+              this.redoNodes.push({req, node})
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoObj(){
+        this.redoDone = true
+        http
+          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
+          .then((res) => {
+            this.redoNodes.pop()
+            let req = res.data.node.req
+            let receivedData =null
+            receivedData = res.data.node.node
+            if(req === 'addStage' || req === 'deleteStage'){
+              this.undoNodes.push({req, stage: receivedData, nodes: res.data.node.childNode})
+            } else {
+              this.undoNodes.push({req, node: receivedData})
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     }
   }
 </script>
