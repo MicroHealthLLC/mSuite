@@ -12,8 +12,11 @@
     </navigation-bar>
     <div class="row mt-1 main_body">
       <div class="col-12 mt-4 font-serif" id="treeMapGraph">
-        <JqxTreeMap ref="myTreeMap" @bindingComplete="onBindingComplete($event)" :colorRange="50"
-        :renderCallbacks="renderCallbacks"/>
+        <JqxTreeMap
+          ref="myTreeMap"
+          @bindingComplete="onBindingComplete($event)"
+          :colorRange="50"
+          :renderCallbacks="renderCallbacks"/>
       </div>
       <div v-if="colorSelected">
         <div class="card card-position p-0 border-none mt-5">
