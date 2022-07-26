@@ -423,7 +423,7 @@
         this.new_index = stage_index + 1
 
         localStorage.mindmap_id = this.currentMindMap.id
-        if(this.allStages.length > 3 && localStorage.nodeNumber != 'NaN'){
+        if(this.allStages.length > 2 && localStorage.nodeNumber != 'NaN'){
           localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
         } else {
           localStorage.nodeNumber = this.nodeNumber + 1
@@ -766,6 +766,7 @@
             this.allStages = []
             this.undoNodes = []
             this.redoNodes = []
+            localStorage.nodeNumber = 3
             this.reset_stages()
             this.getMindmap()
           })
