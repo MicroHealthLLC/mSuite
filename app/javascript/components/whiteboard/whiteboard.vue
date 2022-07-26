@@ -199,8 +199,7 @@
             setTimeout(() => {
               location.reload()
             }, 500)
-          } else {
-            this.currentMindMap = data.mindmap
+          } else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.initialImage = data.mindmap.canvas
             this.mapColors = []
             JSON.parse(this.initialImage).objects.forEach((x, i) => {
@@ -548,8 +547,14 @@
           }
         })
         this.canvas.on('mouse:up', (event) => {
-          if(this.isDrawing) this.canvas.setActiveObject(event.currentTarget)
-          if(this.drawLine) this.canvas.setActiveObject(this.stLine)
+          if(this.isDrawing) {
+            this.newObj = true
+            this.canvas.setActiveObject(event.currentTarget)
+          }
+          if(this.drawLine) {
+            this.newObj = true
+            this.canvas.setActiveObject(this.stLine)
+          }
           this.isStraightLine = false;
           this.mousePressed = false
           if(this.eraser){
@@ -621,9 +626,11 @@
       this.mouseEvents();
       this.canvas.renderAll();
       this.initialImage = this.whiteboardImage
-      JSON.parse(this.initialImage).objects.forEach((x, i) => {
-        this.mapColors.push(x.stroke)
-      })
+      if(JSON.parse(this.initialImage).objects){
+        JSON.parse(this.initialImage).objects.forEach((x, i) => {
+          this.mapColors.push(x.stroke)
+        })
+      }
       if (this.initialImage) {
         this.canvas.loadFromJSON(this.initialImage);
         this.canvas.renderAll();
