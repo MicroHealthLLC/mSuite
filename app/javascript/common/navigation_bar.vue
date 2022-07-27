@@ -359,6 +359,7 @@
         setTimeout(() => {
           document.getElementById('mSuiteTitle').focus()
         }, 300)
+        this.$emit('updateWhiteBoard')
       },
       mSuiteTitleUpdate () {
         this.editable = false
