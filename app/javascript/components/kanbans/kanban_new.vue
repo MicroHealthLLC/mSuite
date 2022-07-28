@@ -398,6 +398,12 @@
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
         .then((res) => {
           this.allStages = res.data.stages
+          if(this.allStages.length == 3 &&
+              this.allStages[0].title == 'TO DO' &&
+              this.allStages[1].title == 'IN PROGRESS' &&
+              this.allStages[2].title == 'DONE'){
+            localStorage.nodeNumber = 0
+          }
           this.mapColors = []
           this.uniqueColors = []
           setTimeout(()=>{
@@ -766,7 +772,7 @@
             this.allStages = []
             this.undoNodes = []
             this.redoNodes = []
-            localStorage.nodeNumber = 3
+            localStorage.nodeNumber = 0
             this.reset_stages()
             this.getMindmap()
           })
