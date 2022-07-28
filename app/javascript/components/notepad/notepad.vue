@@ -48,6 +48,8 @@
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   import { quillEditor } from 'vue-quill-editor'
+  import katex from 'katex';
+  import "katex/dist/katex.min.css"
 
   export default {
     props: ['currentMindMap'],
@@ -63,6 +65,7 @@
         editorOption: {
           placeholder: '',
           modules:{
+            formula: true,
             toolbar: [
              ['bold','italic','underline','strike'],
              ['blockquote','code-block'],
@@ -262,6 +265,7 @@
       setTimeout(()=>{
         this.strongTagStyleBold()
       },100)
+      window.katex = katex;
     },
   }
 </script>
