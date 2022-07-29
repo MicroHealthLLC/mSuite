@@ -89,6 +89,7 @@
         http
           .get(`/msuite/${id}.json`)
           .then((res) => {
+            if(res.data.mindmap == undefined) window.open('/', "_self");
             this.currentMindMap = res.data.mindmap
             this.defaultDeleteDays = res.data.defaultDeleteDays
             this.expDays = res.data.expDays

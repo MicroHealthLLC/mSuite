@@ -181,7 +181,7 @@
       },
       resetMindmap() {
         this.isReset = true
-        let mindmap = { mindmap: { canvas: '', title: 'Title' } }
+        let mindmap = { mindmap: { canvas: null, title: 'Title' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },

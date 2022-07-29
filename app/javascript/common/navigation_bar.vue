@@ -217,7 +217,18 @@
       </span>
     </div>
     <comment-map-modal :mind-map='currentMindMap' ref="comment-box-modal"></comment-map-modal>
-    <confirm-save-key-modal @openPrivacy="openPrivacy" @updateInActiveDate="updateMsuite" @deleteMindmap="deleteMindmap" ref="confirm-save-key-modal" :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays"></confirm-save-key-modal>
+    <confirm-save-key-modal 
+      @openPrivacy="openPrivacy" 
+      @updateInActiveDate="updateMsuite" 
+      @deleteMindmap="deleteMindmap" 
+      @changeIsMsuitSaved="handleChangeIsMsuiteSaved" 
+      ref="confirm-save-key-modal" 
+      :current-mind-map="currentMindMap" 
+      :isSaveMSuite="isSaveMSuite" 
+      :defaultDeleteDays="defaultDeleteDays" 
+      :deleteAfter="deleteAfter" 
+      :expDays="expDays">
+    </confirm-save-key-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
@@ -256,8 +267,12 @@
       return{
         mSuiteName: this.currentMindMap.title,
         editable: false,
-        isSaveMSuite: false
+        isSaveMSuite: true,
+        isMsuiteSaved: true
       }
+    },
+    created(){
+      window.addEventListener('beforeunload', this.isMsuiteEmpty) 
     },
     components:{
       ConfirmSaveKeyModal,
@@ -280,6 +295,18 @@
       }
     },
     methods:{
+      isMsuiteEmpty () {
+        if (this.isMsuiteSaved){
+          let data = new FormData()
+          let token = document.querySelector('meta[name="csrf-token"]').attributes['content'].value;
+          data.append('unique_key', this.currentMindMap.unique_key);
+          data.append("authenticity_token", token);
+          navigator.sendBeacon('is_msuite_empty', data)
+        }
+      },
+      handleChangeIsMsuiteSaved(){
+        this.isMsuiteSaved = false
+      },
       updateMsuite(obj) {
         let _this = this
         http.put(`/msuite/${this.currentMindMap.unique_key}.json`, obj)

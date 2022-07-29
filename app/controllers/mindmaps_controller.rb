@@ -39,10 +39,6 @@ class MindmapsController < AuthenticatedController
         format.html { render action: 'index' }
       end
     else
-      respond_to do |format|
-        format.json { render json: { error: 'The file you were working on was deleted by a user.' } }
-        format.html { redirect_to error_404_path }
-      end
     end
   end
 
@@ -135,6 +131,23 @@ class MindmapsController < AuthenticatedController
       format.json { render json: { success: true, mindmap: @mindmap.compute_child } }
       format.html {}
     end
+  end
+
+  def delete_empty_msuite
+    fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
+    if fetched_mindmap.nodes.empty? && fetched_mindmap.comments.empty?  && fetched_mindmap.title == "Title" && fetched_mindmap.name == "Central Idea" && fetched_mindmap.will_delete_at == Date.today+ENV['EXP_DAYS'].to_i.day && fetched_mindmap.password.nil? && (fetched_mindmap.canvas.nil? || fetched_mindmap.canvas == '{"version":"4.6.0","data":[], "style":{}, "width": []}' || fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"objects\":[]}")
+      if fetched_mindmap.mm_type =="kanban" &&
+        fetched_mindmap.stages.count == 3 && 
+        fetched_mindmap.stages[0][:title] == "TO DO" && 
+        fetched_mindmap.stages[1][:title] == "IN PROGRESS" &&  
+        fetched_mindmap.stages[2][:title] == "DONE"
+
+          fetched_mindmap.destroy
+      elsif fetched_mindmap.mm_type !="kanban"
+        fetched_mindmap.destroy
+      end
+      ActionCable.server.broadcast "web_notifications_channel#{fetched_mindmap.id}", message: "Mindmap Deleted", mindmap: fetched_mindmap
+    end  
   end
 
   private
