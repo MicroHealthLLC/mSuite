@@ -5,6 +5,7 @@
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
+      @updateWhiteBoard="updateWhiteBoard"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -180,7 +181,8 @@
         addObj: false,
         newObj: false,
         drawLine: false,
-        createSelection: false
+        createSelection: false,
+        oldColor: '',
       }
     },
     components: {
@@ -200,6 +202,7 @@
               location.reload()
             }, 500)
           } else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+            this.currentMindMap = data.mindmap
             this.initialImage = data.mindmap.canvas
             this.mapColors = []
             JSON.parse(this.initialImage).objects.forEach((x, i) => {
@@ -378,20 +381,14 @@
       },
       cancelUpdateColor(){
         if(this.newObj){
-          let activeObject = this.canvas.getActiveObject();
           this.activeObject.set("stroke", this.color)
           this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           this.colorSelected = false
         }else{
-          this.createSelection = false
           this.colorSelected = false
-          http
-          .get(`/msuite/${this.$route.params.key}.json`)
-          .then((res) => {
-            this.initialImage = res.data.mindmap.canvas
-            this.canvas.loadFromJSON(this.initialImage);
-            this.canvas.renderAll();
-          })
+          this.activeObject.set("stroke", this.oldColor);
+          this.color = this.oldColor
+          this.canvas.renderAll();
         }
       },
       undoCanvas() {
@@ -500,7 +497,7 @@
       toggleCreateSelection(){
         if(this.createSelection){
           this.createSelection = false
-          this.canvas.discardActiveObject()
+          this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
         } else {
           this.createSelection = true
           this.eraser = false
@@ -570,6 +567,7 @@
           if(this.isDrawing && !this.eraser) this.canvas.isDrawingMode = false
           this.isDrawing = false;
           this.activeObject = this.canvas.getActiveObject();
+          this.oldColor = this.activeObject.stroke
           if(this.activeObject) {
             this.line = this.activeObject.strokeWidth
             this.colorPicker = this.activeObject.stroke}
@@ -577,6 +575,7 @@
         })
         this.canvas.on('selection:cleared', (event) => {
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
         this.canvas.on('selection:updated', (event) => {
 
@@ -590,9 +589,13 @@
             this.colorPicker = this.activeObject.stroke}
           this.canvas.renderAll();
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+          else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
         })
       },
       updateWhiteBoard(obj) {
+        if(obj == undefined){
+          obj = JSON.stringify(this.canvas.toJSON())
+        }
         let mindmap = { mindmap: { canvas: obj } }
         let id = this.currentMindMap.unique_key
         if(!this.isRest){
@@ -608,7 +611,11 @@
         this.eraser = false
         this.canvas.isDrawingMode = false
         this.drawLine = false
-        let mindmap = { mindmap: { canvas: '{"version":"4.6.0","objects":[]}', title: 'Title' } }
+        let mindmap = { mindmap: {
+            canvas: '{"version":"4.6.0","objects":[]}',
+            title: 'Title'
+          }
+        }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },
