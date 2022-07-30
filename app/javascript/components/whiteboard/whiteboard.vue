@@ -378,10 +378,11 @@
         this.color = this.colorPicker.hex8
         this.saveData = true
         this.colorSelected = false
+        this.mapColors.push(this.color)
       },
       cancelUpdateColor(){
         if(this.newObj){
-          this.activeObject.set("stroke", this.color)
+          this.activeObject.set("stroke", this.oldColor)
           this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           this.colorSelected = false
         }else{
@@ -628,12 +629,12 @@
         canvas2.height = $(document).height() - 75;
       }
       this.canvas = new fabric.Canvas('canvas',{
-        selection: false
+        selection: true
       });
       this.mouseEvents();
       this.canvas.renderAll();
       this.initialImage = this.whiteboardImage
-      if(JSON.parse(this.initialImage).objects){
+      if(JSON.parse(this.initialImage)){
         JSON.parse(this.initialImage).objects.forEach((x, i) => {
           this.mapColors.push(x.stroke)
         })
