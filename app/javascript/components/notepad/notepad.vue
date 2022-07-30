@@ -13,17 +13,9 @@
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
-      :exportId="'ofice'">
+      :exportId="'notepad'">
     </navigation-bar>
-    <div id="office">
-      <div>
-        <quill-editor
-          ref="notepad"
-          v-model:content="content"
-          :options="editorOption"
-          @input="blurEvent"></quill-editor>
-      </div>
-    </div>
+    <div id="notepad"></div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
@@ -47,7 +39,10 @@
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
-  import { quillEditor } from 'vue-quill-editor'
+  import Quill from 'quill'
+  import Delta from 'quill-delta'
+  import katex from 'katex'
+  import 'katex/dist/katex.min.css'
 
   export default {
     props: ['currentMindMap'],
@@ -60,30 +55,13 @@
         savingStatus: null,
         saveText: null,
         toolbar: null,
-        editorOption: {
-          placeholder: '',
-          modules:{
-            toolbar: [
-             ['bold','italic','underline','strike'],
-             ['blockquote','code-block'],
-             ['formula'],
-             [{ 'header': 1 },{'header': 2}],
-             [{'list':'ordered'}, {'list':'bullet' }],
-             [{'indent':'-1'}, {'indent':'+1' }],
-             [{'size': ['small', false,'large','huge'] }],
-             [{'header': [1, 2, 3, 4, 5, 6, false] }],
-             [{'color': [] }, {'background': [] }],
-             [{'font': [] }],
-             ['align', {'align': 'center'},{'align': 'right'},{'align': 'justify'}] ]
-          }
-        }
+        qeditor: null,
       }
     },
     components: {
       DeleteMapModal,
       DeletePasswordModal,
-      MakePrivateModal,
-      quillEditor
+      MakePrivateModal
     },
     channels: {
       WebNotificationsChannel: {
@@ -98,9 +76,17 @@
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
           }
-          else {
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.currentMindMap = data.mindmap
-            this.content = data.mindmap.canvas
+            this.content = JSON.parse(data.mindmap.canvas)
+            if(this.content == null){
+              this.qeditor.setContents([
+                { insert: '' },
+              ])
+            } else {
+              let range = this.qeditor.getSelection();
+              if(range == null) this.qeditor.setContents(this.content)
+            }
           }
         }
       }
@@ -172,30 +158,115 @@
         this.openPrivacy()
       },
       updateDocument() {
-        let mindmap = { mindmap: { canvas: this.content } }
-        let id = this.currentMindMap.unique_key
-        if(!this.isReset){
-          http.patch(`/msuite/${id}.json`,mindmap)
+        let _this = this
+        let range = this.qeditor.getSelection();
+        if(range && (range.length == 0 || range.index == 0)) {
+          let mindmap = { mindmap: { canvas: JSON.stringify(this.qeditor.getContents())}}
+          let id = this.currentMindMap.unique_key
+          if(!this.isReset){
+            http.patch(`/msuite/${id}.json`,mindmap).then(res => {
+            })
+          }
+          else this.isReset = false
         }
-        else this.isReset = false
+      },
+      createEditor(){
+        this.qeditor = new Quill('#notepad', {
+          modules:{
+            toolbar: [
+             ['bold','italic','underline','strike'],
+             ['blockquote','code-block'],
+             ['formula'],
+             [{ 'header': 1 },{'header': 2}],
+             [{'list':'ordered'}, {'list':'bullet' }],
+             [{'indent':'-1'}, {'indent':'+1' }],
+             [{'size': ['small', false,'large','huge'] }],
+             [{'header': [1, 2, 3, 4, 5, 6, false] }],
+             [{'color': [] }, {'background': [] }],
+             [{'font': [] }],
+             ['align', {'align': 'center'},{'align': 'right'},{'align': 'justify'}] ]
+          },
+          theme: 'snow'
+        });
+
+        this.editorStyle = document.querySelectorAll('.ql-editor')[0].style
+        this.editorStyle.height = '82.5vh'
+        this.editorStyle.border = '20px'
+        this.editorStyle.padding = "3% 8% 0% 8%"
+        this.editorStyle.border = "20px solid #ccc"
+
+        document.querySelectorAll('.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button').forEach(function (editorToolbar) {
+          editorToolbar.classList.add('ml-2');
+        });
+        this.toolbar = $(".ql-toolbar")[0]
+        this.savingStatus = document.createElement("span");
+        this.toolbar.appendChild(this.savingStatus);
+        setTimeout(()=>{
+          this.strongTagStyleBold()
+        },100)
+      },
+      editorEvents() {
+        let _this = this
+        let change = new Delta();
+        let myDelta = this.qeditor.getContents();
+
+        this.qeditor.on('text-change', function(delta) {
+          let lists = document.getElementsByTagName('li')
+
+          lists.forEach( list => {
+            if(list.firstChild.tagName && list.firstChild.style.color != ''){
+              list.style.color = list.firstChild.style.color
+            }
+            if (list.firstChild.className == 'ql-size-small'){
+              list.classList.add('ql-size-small')
+              list.classList.remove('ql-size-huge')
+              list.classList.remove('ql-size-large')
+            } else if (list.firstChild.className == 'ql-size-large'){
+              list.classList.add('ql-size-large')
+              list.classList.remove('ql-size-huge')
+            } else if (list.firstChild.className == 'ql-size-huge'){
+              list.classList.add('ql-size-huge')
+            } else {
+              list.classList.remove('ql-size-small')
+              list.classList.remove('ql-size-large')
+              list.classList.remove('ql-size-huge')
+            }
+          })
+          change = change.compose(delta);
+        });
+
+        setInterval(function() {
+          if (change.length() > 0) {
+            _this.updateDocument()
+            change = new Delta();
+          }
+        }, 500);
+
+        window.onbeforeunload = function() {
+          if (change.length() > 0) {
+            return 'There are unsaved changes. Are you sure you want to leave?';
+          }
+        }
       },
       resetMindmap() {
         this.isReset = true
-        let mindmap = { mindmap: { canvas: '', title: 'Title' } }
+        let mindmap = { mindmap: { canvas: null, title: 'Title' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },
       exportToDocument(option) {
-        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
-        var postHtml = "</body></html>"
-        var html = preHtml + this.content + postHtml ;
 
+       var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
+        var postHtml = "</body></html>"
+
+        let htmlContent = document.querySelector('#notepad').innerHTML
+
+        var html = preHtml + htmlContent + postHtml ;
         if(option === 1){
           var blob = new Blob(['\ufeff', html], {
             type:'application/msword'
           });
           var url = 'data:application/vnd.ms-word; charset-utf-8,' + encodeURIComponent(html);
-
           var filename = filename? filename+'.doc':'document.doc'
         } else if (option === 2) {
           var blob = new Blob(['\ufeff', html], {
@@ -206,7 +277,6 @@
         }
         var downloadLink = document.createElement('a')
         document.body.appendChild(downloadLink)
-
         if (navigator.msSaveOrOpenBlob) {
           navigator.msSaveOrOpenBlob(blob, filename)
         } else {
@@ -217,12 +287,6 @@
         document.body.removeChild(downloadLink);
         this.$refs['navigationBar'].$refs['exportOption'].close()
       },
-      blurEvent: _.debounce(
-        function() {
-          this.updateDocument()
-        },
-        2000
-      ),
       strongTagStyleBold(){
         var strong_list = document.querySelectorAll('strong');
         var strong_array = [...strong_list];
@@ -233,7 +297,8 @@
     },
     updated() {
       this.savingStatus.style.fontWeight = '450';
-      if(this.content === this.currentMindMap.canvas){
+
+      if (JSON.stringify(this.qeditor.getContents()) === this.currentMindMap.canvas) {
         this.savingStatus.innerHTML = 'Saved';
         this.savingStatus.style.color = 'green';
       } else {
@@ -245,23 +310,14 @@
     mounted() {
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
+        window.katex = katex
       }
-      this.content = this.currentMindMap.canvas
-      this.editorStyle = document.querySelectorAll('.ql-editor')[0].style
-      this.editorStyle.height = '82.5vh'
-      this.editorStyle.border = '20px'
-      this.editorStyle.padding = "3% 8% 0% 8%"
-      this.editorStyle.border = "20px solid #ccc"
+      this.content = JSON.parse(this.currentMindMap.canvas)
 
-      document.querySelectorAll('.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button').forEach(function (editorToolbar) {
-        editorToolbar.classList.add('ml-2');
-      });
-      this.toolbar = $(".ql-toolbar")[0]
-      this.savingStatus = document.createElement("span");
-      this.toolbar.appendChild(this.savingStatus);
-      setTimeout(()=>{
-        this.strongTagStyleBold()
-      },100)
+      this.createEditor()
+      this.editorEvents()
+
+      this.qeditor.setContents(this.content)
     },
   }
 </script>
