@@ -28,6 +28,12 @@ export default {
                 kanbanElement.children[1].children[0].style.color = "dodgerblue"
                 kanbanElement.children[0].children[0].style.color = "#474748"
               }
+              if (this.currentMindMap.mm_type == 'flowmap' || this.currentMindMap.mm_type == 'tree_chart'){
+                let nodeElement = color.children[0]
+                nodeElement.children.forEach(node => {
+                  node.style.filter = "invert(0%)"
+                })
+              }
             color.style.color = '#000'
             } else {
               color.style.color = '#fff'
