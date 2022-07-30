@@ -65,7 +65,7 @@
         isReset: false,
         isEditing: false,
         saveElement: true,
-        changeRequest: 0,
+        changeRequest: 1,
         addColumnReq: false
       }
     },
@@ -268,7 +268,7 @@
               k: 'font-weight',
               v: 'bold'
             },
-             {
+            {
               type: 'color',
               content: 'format_color_text',
               k: 'color'
@@ -305,7 +305,7 @@
         this.sheetData.width = this.table.getWidth().map(function (x) {
           return parseInt(x, 10);
         });
-        this.changeStyle()
+          this.changeStyle()
       },
       changeStyle(){
         if(this.changeRequest < 1){

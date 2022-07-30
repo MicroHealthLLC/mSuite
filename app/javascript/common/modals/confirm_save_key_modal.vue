@@ -20,7 +20,7 @@
                 id="willDeleteAt"
               />
             </code>
-             days.
+              days.
           </p>
         </div>
         <div class="col-12">
@@ -98,10 +98,12 @@
       },
       goHome () {
         if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
+        this.$emit("changeIsMsuitSaved")
         if(this.isSaveMSuite) this.closeModal()
         else window.open("/", "_self")
       },
       openPrivacy () {
+        this.$emit("changeIsMsuitSaved")
         if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         this.$emit("openPrivacy")
       },
@@ -115,7 +117,7 @@
         let oneDay = 24 * 60 * 60 * 1000;
         let currentDate = new Date();
         let comingDate = new Date(this.currentMindMap.will_delete_at);
-        return Math.round(Math.abs((currentDate - comingDate) / oneDay) + 1);
+        return Math.round(Math.abs((currentDate - comingDate) / oneDay));
       }
     }
   }
