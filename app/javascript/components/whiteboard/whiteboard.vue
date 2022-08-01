@@ -381,16 +381,10 @@
         this.mapColors.push(this.color)
       },
       cancelUpdateColor(){
-        if(this.newObj){
-          this.activeObject.set("stroke", this.oldColor)
-          this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
-          this.colorSelected = false
-        }else{
-          this.colorSelected = false
-          this.activeObject.set("stroke", this.oldColor);
-          this.color = this.oldColor
-          this.canvas.renderAll();
-        }
+        this.colorSelected = false
+        this.activeObject.set("stroke", this.oldColor);
+        this.color = this.oldColor
+        this.canvas.renderAll();
       },
       undoCanvas() {
         this.toggleResetDraw();
