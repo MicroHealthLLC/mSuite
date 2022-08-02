@@ -39,6 +39,10 @@ class MindmapsController < AuthenticatedController
         format.html { render action: 'index' }
       end
     else
+      respond_to do |format|
+        format.json { render json: { error: 'The file you were working on was deleted by a user.' } }
+        format.html { redirect_to error_404_path }
+      end
     end
   end
 
