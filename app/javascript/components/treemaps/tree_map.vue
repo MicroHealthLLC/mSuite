@@ -210,7 +210,7 @@
           {
             e.style.marginTop = '13px'
             e.style.width = e.style.width.split('px')[0] - 5 + 'px'
-            e.style.height = e.style.height.split('px')[0] - 15 + 'px'
+            e.style.height = e.style.height.split('px')[0] - 16 + 'px'
             this.bindDragAndDrop(e)
             e.append(nodeElement, nodeElementSecond, nodeElementThird)
             jqxParentArray = [].concat.apply(jqxParentArray, e.children)
@@ -219,7 +219,7 @@
           if(e.className == 'jqx-treemap-rectangle'){
             e.style.marginTop = '13px'
             e.style.width = e.style.width.split('px')[0] - 10 + 'px'
-            e.style.height = e.style.height.split('px')[0] - 20 + 'px'
+            e.style.height = e.style.height.split('px')[0] - 21 + 'px'
             this.bindDragAndDrop(e)
             e.append(nodeElement, nodeElementSecond, nodeElementThird)
           }
