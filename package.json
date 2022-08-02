@@ -5,6 +5,7 @@
     "@color-palette/color-palette": "^1.3.0",
     "@rails/webpacker": "^4.0.7",
     "@ssthouse/vue-tree-chart": "^0.5.4",
+    "@toast-ui/calendar": "^2.0.5",
     "@vue/composition-api": "^1.4.2",
     "actioncable-vue": "^1.3.0",
     "axios": "^0.21.2",
@@ -23,6 +24,7 @@
     "lodash": "^4.17.21",
     "poseidon-crdt": "^0.1.8",
     "quill": "^1.3.7",
+    "moment": "^2.29.4",
     "sortablejs": "^1.14.0",
     "sweet-modal-vue": "^2.0.0",
     "vue": "^2.6.10",
@@ -40,6 +42,7 @@
     "vue-table-to-excel": "^1.0.6",
     "vue-template-compiler": "^2.6.10",
     "vue-textarea-autosize": "^1.1.1",
+    "vue-uuid": "^3.0.0",
     "vue2-datepicker": "^3.10.4",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.6.2"
