@@ -253,6 +253,7 @@
         let mindmap = { mindmap: { canvas: null, title: 'Title' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
+        this.qeditor.focus()
       },
       exportToDocument(option) {
 
@@ -316,6 +317,7 @@
 
       this.createEditor()
       this.editorEvents()
+      this.qeditor.focus()
 
       this.qeditor.setContents(this.content)
     },
