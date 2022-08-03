@@ -25,12 +25,16 @@
         <span>{{this.calendarTitle}}</span>
         <button @click="moveCalendar(1)">Next</button>
       </div>
+      <div>
+        <button @click="addRecurringEvents"> Check</button>
+      </div>
       <div id="calendar"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
+    <recurring-calendar-event-modal ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
@@ -50,11 +54,13 @@
   import DeleteMapModal from '../../common/modals/delete_modal';
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
+  import RecurringCalendarEventModal from '../../common/modals/recurring_calendar_event_modal';
   import Calendar from '@toast-ui/calendar';
   import '@toast-ui/calendar/dist/toastui-calendar.min.css';
   import 'tui-date-picker/dist/tui-date-picker.css';
   import 'tui-time-picker/dist/tui-time-picker.css';
   import { uuid } from 'vue-uuid';
+  import Chance from 'chance'
 
   export default {
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
@@ -70,7 +76,8 @@
     components: {
       DeleteMapModal,
       DeletePasswordModal,
-      MakePrivateModal
+      MakePrivateModal,
+      RecurringCalendarEventModal
     },
     channels: {
       WebNotificationsChannel: {
@@ -174,18 +181,34 @@
       this.calendar = new Calendar('#calendar', {
         usageStatistics: false,
         defaultView: 'month',
-        calendars: [
-          {
-            id: 'calendar'
-          }],
-        onBeforeUpdateEvent: this.beforeUpdate
+        gridSelection: {
+          enableDblClick: true,
+          enableClick: false,
+        },
       });
       this.calendar.setOptions({
         useFormPopup: true,
         useDetailPopup: true
       });
-      let _this = this 
+      this.calendar.setOptions({
+        week: {
+          taskView: false,
+        },
+      });
+      this.calendar.setOptions({
+        template: {
+          locationPlaceholder() {
+            return 'Description';
+          },
+          popupDetailRecurrenceRule({ recurrenceRule }) {
+            return recurrenceRule;
+          },
+        },
+      });
+      let _this = this
       this.calendar.on('beforeCreateEvent', (eventObj) => {
+        // eventObj.recurrenceRule = 'FREQ=DAILY;INTERVAL=1'
+        // eventObj.recurrenceRule = (new Date(new Date() + 2)).toString()
         this.calendar.createEvents([
           {
             ...eventObj,
@@ -193,13 +216,9 @@
             }
           ]);
         });
-        // this.calendar.on('beforeUpdateEvent', ({ event, change }) => {
-        //   this.calendar.updateEvent(event.id, event.calendarId, change);
-        
-        //   // this.calendar.updateEvent(event.id, event.calendarId, {
-        //   //   title: 'Weekly Meeting (Canceled)',
-        //   // });
-        // });  
+        this.calendar.on('beforeUpdateEvent', (eventObj) => {
+          this.calendar.updateEvent(eventObj.event.id, eventObj.event.calendarId, eventObj.changes);
+        });  
         this.calendar.on('beforeDeleteEvent', (eventObj) => {
           this.calendar.deleteEvent(eventObj.id, eventObj.calendarId);
         });
@@ -216,6 +235,9 @@
         var calendarDate = new Date(this.calendar.getDate())
         var getMonthName =  new Intl.DateTimeFormat("en-US", { month: "long" }).format
         this.calendarTitle = getMonthName(calendarDate)+ ' ' + calendarDate.getFullYear()
+      },
+      addRecurringEvents(){
+        this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
       }
 
     },
@@ -223,7 +245,6 @@
       this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
       this.createCalendar()
       this.getCalendarTitle()
-        
     },
     
   }
