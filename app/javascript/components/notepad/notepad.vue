@@ -299,7 +299,8 @@
     updated() {
       this.savingStatus.style.fontWeight = '450';
 
-      if (JSON.stringify(this.qeditor.getContents()) === this.currentMindMap.canvas) {
+      if (JSON.stringify(this.qeditor.getContents()) === this.currentMindMap.canvas ||
+          JSON.stringify(this.qeditor.getContents()) ==='{"ops":[{"insert":"\\n"}]}') {
         this.savingStatus.innerHTML = 'Saved';
         this.savingStatus.style.color = 'green';
       } else {
