@@ -97,7 +97,7 @@
         this.$emit("updateInActiveDate", this.currentMindMap)
       },
       goHome () {
-        if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
+        if(this.findTotalDaysBetweenDates() == this.expDays - 1) this.expireDate(this.deleteAfter)
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMSuite) this.closeModal()
         else window.open("/", "_self")
