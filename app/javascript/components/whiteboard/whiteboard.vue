@@ -623,7 +623,7 @@
         canvas2.height = $(document).height() - 75;
       }
       this.canvas = new fabric.Canvas('canvas',{
-        selection: true
+        selection: false
       });
       this.mouseEvents();
       this.canvas.renderAll();
