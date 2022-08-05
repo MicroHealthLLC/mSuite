@@ -34,7 +34,7 @@
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
-    <recurring-calendar-event-modal ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
+    <recurring-calendar-event-modal @continue="calendarRecurringEvents" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
@@ -70,7 +70,8 @@
         isEditing: false,
         saveElement: true,
         calendar: null,
-        calendarTitle: null
+        calendarTitle: null,
+        recurringEvents: null
       }
     },
     components: {
@@ -186,6 +187,8 @@
           enableClick: false,
         },
       });
+      // let popupSec = document.getElementsByClassName("toastui-calendar-popup-section");
+
       this.calendar.setOptions({
         useFormPopup: true,
         useDetailPopup: true
@@ -207,8 +210,6 @@
       });
       let _this = this
       this.calendar.on('beforeCreateEvent', (eventObj) => {
-        // eventObj.recurrenceRule = 'FREQ=DAILY;INTERVAL=1'
-        // eventObj.recurrenceRule = (new Date(new Date() + 2)).toString()
         this.calendar.createEvents([
           {
             ...eventObj,
@@ -222,6 +223,9 @@
         this.calendar.on('beforeDeleteEvent', (eventObj) => {
           this.calendar.deleteEvent(eventObj.id, eventObj.calendarId);
         });
+        this.calendar.openFormPopup(
+          this.calendar.fire('some-event')
+        );
 
       },
       toggleCalendarView(value){
@@ -237,7 +241,43 @@
         this.calendarTitle = getMonthName(calendarDate)+ ' ' + calendarDate.getFullYear()
       },
       addRecurringEvents(){
-        this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
+        let val = document.getElementsByClassName("toastui-calendar-content")
+        if (val[0].value && val[1].value){
+          this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
+        }
+      },
+      calendarRecurringEvents(events){
+        this.recurringEvents = events
+        this.generateRecurringEvents()
+      },
+      generateRecurringEvents(){
+        this.calendar.on('beforeCreateEvent', (eventObj) => {
+          let _this = this
+          let arrayEvents = []
+          this.recurringEvents.forEach((currentValue, index, rEvents)=> {
+            eventObj.start.d = currentValue
+            eventObj.end.d = currentValue
+            arrayEvents.push(eventObj)
+            this.calendar.createEvents([
+            {
+              ...eventObj,
+              }
+            ])
+          })
+          // this.calendar.createEvents(arrayEvents)
+        })
+      },
+      addButton(){
+        setTimeout(()=>{
+          const popupSec = document.getElementsByClassName("toastui-calendar-popup-section")[5]
+          let moreOption = document.createElement("span")
+          moreOption.id ="options"
+          moreOption.innerText = "More options"
+          moreOption.classList.add("toastui-calendar-popup-button")
+          moreOption.classList.add("toastui-calendar-popup-confirm")
+          moreOption.onclick = this.addRecurringEvents
+          popupSec.appendChild(moreOption)
+        }, 400)
       }
 
     },
@@ -245,13 +285,24 @@
       this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
       this.createCalendar()
       this.getCalendarTitle()
-    },
-    
+      setTimeout(()=>{
+        if($(".toastui-calendar-daygrid-cell").length > 0){
+          $(".toastui-calendar-daygrid-cell").each( (cellId, cell) => {
+            cell.addEventListener("dblclick", this.addButton)
+          } )
+        }
+      },10)
+      
+    }
   }
 </script>
 <style>
-#calendar{
-  height:70vh;
-}
-
+  #calendar{
+    height:70vh;
+  }
+  #options{
+    padding: 6px 1px 1px 1px;
+    background-color:MediumSeaGreen;
+    float: left;
+  }
 </style>

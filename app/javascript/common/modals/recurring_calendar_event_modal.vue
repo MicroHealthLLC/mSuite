@@ -96,6 +96,10 @@
         if (this.repeatType == "Month"){
           this.calculateMonthRecurrence(eventDate)
         }
+        else{
+          this.calculateWeekRecurrence(eventDate)
+        }
+        this.$emit('continue', this.events)
         this.closeMapModal()
       },
       closeMapModal() {
@@ -116,12 +120,63 @@
           if (this.endOnDate.getTime() > eventDate.getTime()){
             while(12-i >=this.repeatTime){
               myDate = new Date(eventDate.setMonth(eventDate.getMonth() + parseInt(this.repeatTime)))
+              if (myDate.getTime() > this.endOnDate.getTime()){
+                break
+              }
               newEvents.push(myDate)
               i = i + parseInt(this.repeatTime)
             }
           }
         }
-
+        else{
+          let count = 0
+          while(12-i >=this.repeatTime){
+            if (count == this.occurences){
+              break
+            }
+            myDate = new Date(eventDate.setMonth(eventDate.getMonth() + parseInt(this.repeatTime)))
+            newEvents.push(myDate)
+            i = i + parseInt(this.repeatTime)
+            count++
+          }
+        }
+        this.events = newEvents
+      },
+      calculateWeekRecurrence(eventDate){
+        let newEvents = []
+        let i = 0
+        let myDate = null
+        if (this.endsOn == "never"){
+          while(52-i >=this.repeatTime){
+            myDate = new Date(eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime)*7 ))
+            newEvents.push(myDate)
+            i = i + parseInt(this.repeatTime)
+          }
+        }
+        else if(this.endsOn == "on"){
+          if (this.endOnDate.getTime() > eventDate.getTime()){
+            while(52-i >=this.repeatTime){
+              myDate = new Date(eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime)*7 ))
+              if (myDate.getTime() > this.endOnDate.getTime()){
+                break
+              }
+              newEvents.push(myDate)
+              i = i + parseInt(this.repeatTime)
+            }
+          }
+        }
+        else{
+          let count = 0
+          while(12-i >=this.repeatTime){
+            if (count == this.occurences){
+              break
+            }
+            myDate = new Date(eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime)*7 ))
+            newEvents.push(myDate)
+            i = i + parseInt(this.repeatTime)
+            count++
+          }
+        }
         this.events = newEvents
       }
     }
