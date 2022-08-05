@@ -205,6 +205,7 @@
             this.currentMindMap = data.mindmap
             this.initialImage = data.mindmap.canvas
             this.mapColors = []
+            this.color = "#AADDCC"
             JSON.parse(this.initialImage).objects.forEach((x, i) => {
               this.mapColors.push(x.stroke)
             })
