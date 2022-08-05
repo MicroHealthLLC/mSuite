@@ -117,7 +117,7 @@
         let oneDay = 24 * 60 * 60 * 1000;
         let currentDate = new Date();
         let comingDate = new Date(this.currentMindMap.will_delete_at);
-        return Math.round(Math.abs((currentDate - comingDate) / oneDay));
+        return Math.round(Math.abs(comingDate.getDate() - currentDate.getDate()));
       }
     }
   }
