@@ -71,7 +71,38 @@
           <i class="material-icons copy_icon icons d-flex center_flex"></i>
         </a>
       </span>
-      <span v-if = "currentMindMap.mm_type === 'spreadsheet'" class="mt-3">
+      <a
+        href="javascript:;"
+        role="button"
+        class="d-flex text-info pointer mr-3 center_flex"
+        v-b-tooltip.hover title="Status"
+      >
+        <div v-if="isEditing">
+          <span>{{temporaryUser}} is Editing</span>
+          <span class="dots-cont" v-if="isEditing">
+            <span class="dot dot-1"></span>
+            <span class="dot dot-2"></span>
+            <span class="dot dot-3"></span>
+          </span>
+        </div>
+        <!-- <div v-else v-show="saveElement">
+          <span class="save">Saved</span>
+        </div> -->
+      </a>
+
+
+      <a
+        href="javascript:;"
+        role="button"
+        class="d-flex text-info pointer mr-3 center_flex"
+        v-b-tooltip.hover title="Status"
+        v-if="saveElement"
+      >
+          <span>Edited By {{temporaryUser}}</span>
+      </a>
+
+
+      <!-- <span v-if = "currentMindMap.mm_type === 'spreadsheet'" class="mt-3">
         <a
           href="javascript:;"
           role="button"
@@ -90,7 +121,7 @@
             <span class="save">Saved</span>
           </div>
         </a>
-      </span>
+      </span> -->
       <span>
         <a
           href="javascript:;"
@@ -100,6 +131,15 @@
         >
           <i class="fas fa-trash-alt icons d-flex center_flex"></i>
           <span class="fa-icon-text">Delete</span>
+        </a>
+        <a
+          href="javascript:;"
+          role="button"
+          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          @click.prevent="openUserModal"
+        >
+          <i class="fas fa-user-edit icons d-flex center_flex"></i>
+          <span class="fa-icon-text">User</span>
         </a>
         <a
           href="javascript:;"
@@ -216,19 +256,22 @@
         </span>
       </span>
     </div>
+    <sweet-modal>
+    </sweet-modal>
     <comment-map-modal :mind-map='currentMindMap' ref="comment-box-modal"></comment-map-modal>
-    <confirm-save-key-modal 
-      @openPrivacy="openPrivacy" 
-      @updateInActiveDate="updateMsuite" 
-      @deleteMindmap="deleteMindmap" 
-      @changeIsMsuitSaved="handleChangeIsMsuiteSaved" 
-      ref="confirm-save-key-modal" 
-      :current-mind-map="currentMindMap" 
-      :isSaveMSuite="isSaveMSuite" 
-      :defaultDeleteDays="defaultDeleteDays" 
-      :deleteAfter="deleteAfter" 
+    <confirm-save-key-modal
+      @openPrivacy="openPrivacy"
+      @updateInActiveDate="updateMsuite"
+      @deleteMindmap="deleteMindmap"
+      @changeIsMsuitSaved="handleChangeIsMsuiteSaved"
+      ref="confirm-save-key-modal"
+      :current-mind-map="currentMindMap"
+      :isSaveMSuite="isSaveMSuite"
+      :defaultDeleteDays="defaultDeleteDays"
+      :deleteAfter="deleteAfter"
       :expDays="expDays">
     </confirm-save-key-modal>
+    <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
@@ -259,10 +302,11 @@
   import domtoimage from "dom-to-image-more"
   import http from "./http"
   import ResetMapModal from '../components/mindmaps/modals/reset_map_modal'
+  import UserMapModal from "./modals/user_map_modal"
   import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
@@ -272,17 +316,18 @@
       }
     },
     created(){
-      window.addEventListener('beforeunload', this.isMsuiteEmpty) 
+      window.addEventListener('beforeunload', this.isMsuiteEmpty)
     },
     components:{
       ConfirmSaveKeyModal,
       ResetMapModal,
-      CommentMapModal
+      CommentMapModal,
+      UserMapModal
     },
     computed: {
       mSuiteTitle () {
         return this.mSuiteName
-      }
+      },
     },
     filters: {
       truncate: function(data,num){
@@ -324,6 +369,9 @@
           _this.expDays = res.data.expDays
           _this.deleteAfter = res.data.deleteAfter
         })
+      },
+      openUserModal () {
+        this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
       },
       openCommentModal () {
         this.$refs['comment-box-modal'].$refs['commentBoxModal'].open()
@@ -387,9 +435,11 @@
           document.getElementById('mSuiteTitle').focus()
         }, 300)
         this.$emit('updateWhiteBoard')
+        this.$emit('sendLocals', true)
       },
       mSuiteTitleUpdate () {
         this.editable = false
+        this.$emit('sendLocals', false)
         this.mSuiteName = this.mSuiteName.trim()
         if(this.mSuiteName) this.putMSuite(this.mSuiteName)
         else this.mSuiteName = this.currentMindMap.title

@@ -15,12 +15,16 @@
       @deleteSelectedNode="deleteSelectedNode"
       @pasteCopiedNode="pasteCopiedNode"
       @cutSelectedNode="cutSelectedNode"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
       :scaleFactor="scaleFactor"
       :selected-node="selectedNode"
+      :temporaryUser="temporaryUser"
+      :isEditing="isEditing"
+      :saveElement="saveElement"
       :copied-node="copiedNode">
     </navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
@@ -53,6 +57,8 @@
           :hide-children="node.hide_children"
           :node-attr="node"
           :editable="currentMindMap.editable"
+          :isEditing="isEditing"
+          @sendLocals="sendLocals"
           @start-drag="startDrag($event, node)"
           @mousedown-event="startDragNode($event, node)"
           @node-updated="nodeUpdated(node)"
@@ -209,6 +215,8 @@
         attachFiles       : [],
         fileLoading       : false,
         descEditMode      : false,
+        temporaryUser: '',
+        saveElement: false,
         editorOption      : {
           modules : {
             toolbar : [
@@ -262,8 +270,24 @@
           ) {
             this.selectedNode = data.node
           }
+          else if ( data.message === "storage updated"             &&
+                    this.currentMindMap.id == data.content.mindmap_id
+          ) {
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
+          }
           else {
             this.getMindmap(this.currentMindMap.unique_key)
+            this.saveElement = true
+            setTimeout(()=>{
+              this.saveElement = false
+            },1200)
           }
         }
       }
@@ -360,6 +384,8 @@
         this.selectedNode = { id: ''}
         this.dragging     = false
         this.draggingNode = false
+        this.isEditing = true
+        this.sendLocals()
       },
       // =============== GETTING MAP =====================
 
@@ -411,6 +437,8 @@
           c.height         = this.windowHeight
         }
         this.currentPositionX = this.currentPositionY = 0
+
+        this.sendLocals(true)
       },
       startDragNode(event, node) {
         this.selectedNode = node
@@ -489,6 +517,9 @@
           this.removeLines()
           this.drawLines()
         }
+
+
+        this.sendLocals(false)
       },
       // =============== DRAGGING OPERATIONS =====================
 
@@ -630,6 +661,9 @@
         ctx.lineTo(node.position_x + 80, node.position_y + 17)
         ctx.stroke()
         ctx.closePath()
+
+        this.isEditing = true
+        this.sendLocals(true)
       },
       nullifyFlags() {
         this.selectedNode = { id: ''}
@@ -734,6 +768,8 @@
         }).catch((error) => {
           console.log(error)
         })
+
+        this.sendLocals(true)
       },
       nodeUpdated: _.debounce(
         function(node) {
@@ -755,6 +791,8 @@
         }).catch((error) => {
           console.log(error)
         })
+
+        this.sendLocals(false)
       },
       deletAllNodes(nodes) {
         http.put('/msuite/destroy_nodes.json', {nodes: nodes})
@@ -1077,6 +1115,8 @@
         this.saveNode(this.selectedNode)
         this.descEditMode = false
         // this.$refs["attachment-modal"].$refs.attachmentModal.close()
+
+        this.sendLocals(true)
       },
       addFileToNode(files) {
         this.uploadFiles = files
@@ -1098,6 +1138,8 @@
         this.saveCurrentMap()
         this.descEditMode = false
         // this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.close()
+
+        this.sendLocals(true)
       },
       addFileToCentralNode(files) {
         this.uploadFiles = files
@@ -1138,7 +1180,29 @@
         size.h = size.h + (ASPECT_MARGIN * 2)
 
         return size
-      }
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            isEditing: this.isEditing,
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
+      },
     },
 
     mounted() {

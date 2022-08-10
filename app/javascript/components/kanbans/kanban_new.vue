@@ -8,11 +8,15 @@
       @resetMindmap="resetMindmap"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
+      :temporaryUser="temporaryUser"
+      :isEditing="isEditing"
+      :saveElement="saveElement"
       :exportId="'kanban-board'">
     </navigation-bar>
     
@@ -155,6 +159,8 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
+        temporaryUser: '',
+        saveElement: false,
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -183,6 +189,15 @@
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             localStorage.nodeNumber = data.content.nodeNumber
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
           }
           else {
             this.getAllStages()
@@ -319,6 +334,7 @@
         }
         this.colorSelected = false
         if (obj.line_color) this.selectedStage = null
+        this.sendLocals(false)
         return http.patch(`/stages/${obj.id}.json`,data)
       },
       updateBackgroundColors(){
@@ -342,6 +358,8 @@
         this.previousColor = this.selectedStage.stage_color
         this.selectedElement = document.getElementsByClassName('drag-column-' + stage)[0]
         this.colorSelected = true
+
+        this.sendLocals(true)
       },
       saveNodeColor(){
         this.selectedStage.stage_color = this.selectedStage.stage_color.hex
@@ -364,6 +382,7 @@
         this.selectedStage = null
         this.selectedElement = null
         this.colorSelected = false
+        this.sendLocals(true)
       },
       closeModelPicker(){
         let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
@@ -449,6 +468,8 @@
         setTimeout(()=>{
           this.getColorNode('.drag-column')
         },50)
+
+        this.sendLocals(false)
       },
       deleteMap(){
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
@@ -487,6 +508,7 @@
             this.colorSelected = false
             this.getColorNode('.drag-column')
             this.undoNodes.push({'req': 'addStage', stage: res.data.stage})
+            this.sendLocals(false)
           }
         })
         .catch((error) => {
@@ -512,6 +534,7 @@
         .then((res) => {
           this.blocks.push(res.data.node)
           this.undoNodes.push({'req': 'addNode', receivedData: res.data.node})
+          this.sendLocals(true)
         })
         .catch((err) => {
           console.log(err)
@@ -540,6 +563,7 @@
             this.blocks = this.blocks.filter(block => block.status !== this.stage)
             this.stage = null
             this.undoNodes.push({'req': 'deleteStage', stage: response.data.stage, nodes: response.data.nodes })
+            this.sendLocals(false)
           }
           else {
             alert("Stage unable to be deleted")
@@ -557,6 +581,7 @@
       },
 
       editStageTitle(val){
+        this.sendLocals(true)
         val = val.replace(/\r?\n|\r/g, "")
         val.length < 1 ? this.$refs['errorStageModal'].open() : ''
         if (val.length > 0 && this.checkDuplicate(val)){
@@ -596,9 +621,11 @@
       },
       newStageTitle(e) {
         if (this.stage !== null && this.stage.title) {
+          this.sendLocals(true)
           this.editStageTitle(e.target.value.trim())
         }
         else if (this.new_stage && e.target.value !== '') {
+          this.sendLocals(true)
           this.createNewStage(e.target.value.trim())
         }
         else {
@@ -817,6 +844,28 @@
           .catch((err) => {
             console.log(err)
           })
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        this.saveElement = true
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
       }
     }
   }

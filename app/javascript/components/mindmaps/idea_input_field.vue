@@ -46,7 +46,8 @@
       'hideChildren',
       'isEdited',
       'nodeAttr',
-      'editable'
+      'editable',
+      'isEditing'
     ],
 
     data() {
@@ -91,6 +92,8 @@
       updateIdea: function(input) {
         this.localValue     = this.$refs.new_idea.value
         this.tempLocalValue = this.$refs.new_idea.value
+        this.isEditing = true
+        this.$emit('sendLocals', event)
       },
       startDragIdea(event) {
         this.$emit('mousedown-event', event)

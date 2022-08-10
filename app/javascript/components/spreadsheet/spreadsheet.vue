@@ -7,6 +7,7 @@
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @exportXLS="exportXLS($event)"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -15,6 +16,7 @@
       :isEditing="isEditing"
       :saveElement="saveElement"
       :excel_data="sheetData.data"
+      :temporaryUser="temporaryUser"
       ref="spreadSheetNavigation">
     </navigation-bar>
     <div id="spreadSheet" class="overflow-auto">
@@ -77,15 +79,22 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
-          {
+          if (
+            data.message === "Mindmap Deleted"      &&
+            this.currentMindMap.id === data.mindmap.id
+          ) {
             window.open('/','_self')
-          } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
+          } else if (
+            data.message === "Password Updated"     &&
+            this.currentMindMap.id === data.mindmap.id
+          ) {
             setTimeout(() => {
               location.reload()
             }, 500)
-          }
-          else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id){
+          } else if (
+            data.message === "Reset mindmap"        &&
+            this.currentMindMap.id === data.mindmap.id
+          ) {
             this.sheetData = JSON.parse(data.mindmap.canvas)
             this.table.setData(this.sheetData.data)
             if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
@@ -102,8 +111,24 @@
               let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
               $('#mytable')[0].style.height = heightVal
             },200)
-          }
-          else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+          } else if (
+            data.message === "storage updated"             &&
+            this.currentMindMap.id == data.content.mindmap_id
+          ) {
+            localStorage.nodeNumber = data.content.nodeNumber
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
+          } else if (
+            data.message === "Mindmap Updated"      &&
+            this.currentMindMap.id === data.mindmap.id
+          ) {
             this.currentMindMap = data.mindmap
             this.sheetData = JSON.parse(data.mindmap.canvas)
             if(this.sheetData && this.sheetData.data != undefined) this.table.setData(JSON.parse(data.mindmap.canvas).data)
@@ -129,8 +154,8 @@
                 let id = this.currentMindMap.unique_key
                 if(!this.isReset){
                   http.patch(`/msuite/${id}.json`,mindmap)
-                  this.isEditing = false
                   this.saveElement = true
+                  this.sendLocals(false)
                 }
               }
             }
@@ -289,14 +314,14 @@
         if(!this.isReset){
           let response = await http.patch(`/msuite/${id}.json`,mindmap)
           if (response) {
-            this.isEditing = false
             this.saveElement = true
+            this.sendLocals(false)
           }
         }
         else this.isReset = false
       },
       editStart(){
-        this.isEditing = true
+        this.sendLocals(true)
       },
       editEnd(){
         this.sheetData.data = JSON.stringify(this.table.getData())
@@ -315,8 +340,8 @@
             let id = this.currentMindMap.unique_key
             if(!this.isReset){
               http.patch(`/msuite/${id}.json`,mindmap)
-              this.isEditing = false
               this.saveElement = true
+              this.sendLocals(false)
             }
             else this.isReset = false
           },500)
@@ -336,8 +361,8 @@
         let id = this.currentMindMap.unique_key
         if(!this.isReset){
           http.patch(`/msuite/${id}.json`,mindmap)
-          this.isEditing = false
           this.saveElement = true
+          this.sendLocals(false)
         }
       },
       insertColumn(worksheet, columnNumber, numOfColumns, historyRecords, insertBefore){
@@ -355,8 +380,8 @@
           let id = this.currentMindMap.unique_key
           if(!this.isReset){
             http.patch(`/msuite/${id}.json`,mindmap)
-            this.isEditing = false
             this.saveElement = true
+            this.sendLocals(false)
           }
       },
       deleteColumn(worksheet, columnNumber, numOfColumns, affectedDOMElements, historyProperties, cellAttributes){
@@ -374,8 +399,8 @@
           let id = this.currentMindMap.unique_key
           if(!this.isReset){
             http.patch(`/msuite/${id}.json`,mindmap)
-            this.isEditing = false
             this.saveElement = true
+            this.sendLocals(false)
           }
       },
       exportXLS(option){
@@ -422,7 +447,30 @@
           this.table.download();
         }
         this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
-      }
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            isEditing: this.isEditing,
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        this.saveElement = true
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
+      },
     },
     created() {
       setTimeout(() => this.saveElement = false, 1200)

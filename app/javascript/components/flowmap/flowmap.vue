@@ -9,11 +9,15 @@
       @resetMindmap="resetMindmap"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
+      @sendLocals="sendLocals"
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
+      :temporaryUser="temporaryUser"
+      :isEditing="isEditing"
+      :saveElement="saveElement"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
     <!-- tree chart -->
@@ -166,7 +170,10 @@
         customPallete: [],
         nodeNumber: 0,
         undoDone: false,
-        redoDone: false
+        redoDone: false,
+        temporaryUser: '',
+        isEditing: false,
+        saveElement: false,
       }
     },
     mixins: [Common],
@@ -191,6 +198,7 @@
       },
       dragDrop(nodeId){
         let dropElement = this.nodes.find((node) => node.id == nodeId)
+        this.sendLocals(true)
         if(nodeId && nodeId != this.dragElement.id && this.dragElement.id != dropElement.parent_node)
         {
           this.dragElement.parent_node = nodeId
@@ -220,6 +228,7 @@
       },
       showColorPicker(nodeObj){
         this.addNodeTree = false
+        this.sendLocals(true)
         this.selectedNodeTitle = JSON.parse(JSON.stringify(nodeObj.name))
         this.treeNode = Object.assign({}, nodeObj)
         this.$refs.refTree.collapseEnabled = false
@@ -232,6 +241,7 @@
       },
       updateColorNode(){
         this.palleteUpdate = false
+        this.sendLocals(true)
         let element = document.getElementById('treeChart'+this.treeNode.id)
         element.style.backgroundColor = this.treeNode.line_color.hex
         this.treeNode.line_color = this.treeNode.line_color.hex
@@ -243,9 +253,11 @@
         else element.style.backgroundColor = this.currentMindMap.line_color
         this.colorSelected = false
         this.getColorNode('.rich-media-node')
+        this.sendLocals(false)
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
+        this.sendLocals(true)
         if(this.selectedNodeTitle == this.currentMindMap.name)
         {
           this.currentMindMap.line_color = this.treeNode.line_color
@@ -267,6 +279,7 @@
         if (e.target) e.target.blur()
       },
       saveNodeTreeChart(){
+        this.sendLocals(true)
         this.$refs.refTree.collapseEnabled = false
         this.node.mindmap_id = this.currentMindMap.id
         var objNode = {title: ''}
@@ -312,6 +325,7 @@
         this.$refs.refTree.collapseEnabled = false
         this.selectedNode = node
         this.selectedNodeTitle = JSON.parse(JSON.stringify(node.name))
+        this.sendLocals(true)
         setTimeout(() => {
           document.getElementById('textArea'+ _this.selectedNode.id).focus()
         }, 300)
@@ -351,17 +365,7 @@
           localStorage.nodeNumber = this.nodeNumber + 1
         }
         this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
-
-        this.$cable.perform({
-            channel: 'WebNotificationsChannel',
-            room: this.currentMindMap.id,
-
-            data: {
-              message: 'storage updated',
-              content: localStorage
-            }
-        });
-
+        this.sendLocals()
         this.saveNodeTreeChart()
         this.renderTreeChart()
       },
@@ -462,6 +466,7 @@
             _this.undoNodes.push({'req': 'addNode', receivedData})
           }
           _this.addNodeTree = false
+          _this.sendLocals(false)
           if(res.data.node.id == null){
             node.title = node.title + '0'
             this.submitChildNode(node)
@@ -489,16 +494,14 @@
           this.undoNodes.push({'req': 'addNode', node: obj})
         }
         await http.put(`/nodes/${obj.id}`, obj);
+        this.sendLocals(false)
         this.colorSelected = false
       },
       async deleteSelectedNode(obj){
-
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
-            // receivedNodes.forEach((node) => {
-              this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
-            // })
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
           if (!this.undoDone) {
             let myNode = {
@@ -511,9 +514,11 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
+        this.sendLocals(false)
       },
       async updatedTreeChart(obj){
         await http.put(`/msuite/${obj.unique_key}`, obj);
+        this.sendLocals(false)
       },
       openPrivacy(val) {
         this.isSaveMSuite = val
@@ -629,7 +634,28 @@
           .catch((err) => {
             console.log(err)
           })
-      }
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            isEditing: this.isEditing,
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        this.isEditing = isEditing
+        this.cableSend()
+
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
+      },
     },
     channels: {
       WebNotificationsChannel: {
@@ -647,7 +673,15 @@
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             localStorage.nodeNumber = data.content.nodeNumber
-            this.fetchTreeChart()
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
           }
           else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
           {
@@ -658,6 +692,10 @@
           else
           {
             this.fetchTreeChart()
+            this.saveElement = true
+            setTimeout(()=>{
+              this.saveElement = false
+            },1200)
           }
         },
         disconnected() {}

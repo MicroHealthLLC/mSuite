@@ -9,10 +9,14 @@
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @exportToDocument="exportToDocument"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
+      :temporaryUser="temporaryUser"
+      :isEditing="isEditing"
+      :saveElement="saveElement"
       :exportId="'notepad'">
     </navigation-bar>
     <div id="notepad"></div>
@@ -56,6 +60,8 @@
         saveText: null,
         toolbar: null,
         qeditor: null,
+        temporaryUser: '',
+        saveElement: false,
       }
     },
     components: {
@@ -75,6 +81,21 @@
             }, 500)
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
+          } else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
+          {
+            localStorage.nodeNumber = data.content.nodeNumber
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
+            if (this.qeditor.hasFocus() && data.content.user != localStorage.user) {
+              this.qeditor.blur()
+            }
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.currentMindMap = data.mindmap
@@ -165,6 +186,11 @@
           let id = this.currentMindMap.unique_key
           if(!this.isReset){
             http.patch(`/msuite/${id}.json`,mindmap).then(res => {
+              this.sendLocals(false)
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
             })
           }
           else this.isReset = false
@@ -226,6 +252,7 @@
               list.classList.remove('ql-size-huge')
             } else if (list.firstChild.className == 'ql-size-huge'){
               list.classList.add('ql-size-huge')
+              list.classList.remove('ql-size-large')
             } else {
               list.classList.remove('ql-size-small')
               list.classList.remove('ql-size-large')
@@ -294,18 +321,36 @@
         strong_array.forEach(el => {
           el.style.fontWeight = 'bold'
         });
-      }
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            isEditing: this.isEditing,
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+      },
     },
     updated() {
       this.savingStatus.style.fontWeight = '450';
-
       if (JSON.stringify(this.qeditor.getContents()) === this.currentMindMap.canvas ||
-          JSON.stringify(this.qeditor.getContents()) ==='{"ops":[{"insert":"\\n"}]}') {
+          JSON.stringify(this.qeditor.getContents()) === '{"ops":[{"insert":"\\n"}]}') {
         this.savingStatus.innerHTML = 'Saved';
         this.savingStatus.style.color = 'green';
       } else {
         this.savingStatus.innerHTML = 'Editing...';
         this.savingStatus.style.color = 'blue';
+        this.sendLocals(true)
       }
       this.strongTagStyleBold()
     },
