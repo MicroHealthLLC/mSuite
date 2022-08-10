@@ -25,16 +25,13 @@
         <span>{{this.calendarTitle}}</span>
         <button @click="moveCalendar(1)">Next</button>
       </div>
-      <div>
-        <button @click="addRecurringEvents"> Check</button>
-      </div>
       <div id="calendar"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
-    <recurring-calendar-event-modal @continue="calendarRecurringEvents" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
+    <recurring-calendar-event-modal  :recurringEventsDate="recurringEventsDate" @continue="calendarRecurringEvents" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
@@ -71,7 +68,8 @@
         saveElement: true,
         calendar: null,
         calendarTitle: null,
-        recurringEvents: null
+        recurringEvents: null,
+        recurringEventsDate: null
       }
     },
     components: {
@@ -160,73 +158,60 @@
         http.get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
       },
       getUuid(){
-        return uuid.v1()
+        let id = uuid.v1()
+        return id
       },
       createCalendar(){
         const container = document.getElementById('calendar');
-        const options = {
-          defaultView: 'week',
-          timezone: {
-            zones: [
-              {
-                timezoneName: 'Asia/Seoul',
-                displayLabel: 'Seoul',
-              },
-              {
-                timezoneName: 'Europe/London',
-                displayLabel: 'London',
-              },
-            ],
-        },
-      };
-      this.calendar = new Calendar('#calendar', {
-        usageStatistics: false,
-        defaultView: 'month',
-        gridSelection: {
-          enableDblClick: true,
-          enableClick: false,
-        },
-      });
-      // let popupSec = document.getElementsByClassName("toastui-calendar-popup-section");
-
-      this.calendar.setOptions({
-        useFormPopup: true,
-        useDetailPopup: true
-      });
-      this.calendar.setOptions({
-        week: {
-          taskView: false,
-        },
-      });
-      this.calendar.setOptions({
-        template: {
-          locationPlaceholder() {
-            return 'Description';
+        this.calendar = new Calendar('#calendar', {
+          usageStatistics: false,
+          defaultView: 'month',
+          useFormPopup: true,
+          useDetailPopup: true,
+          gridSelection: {
+            enableDblClick: true,
+            enableClick: false,
           },
-          popupDetailRecurrenceRule({ recurrenceRule }) {
-            return recurrenceRule;
+          week: {
+            taskView: false,
           },
-        },
-      });
-      let _this = this
-      this.calendar.on('beforeCreateEvent', (eventObj) => {
-        this.calendar.createEvents([
-          {
-            ...eventObj,
-            id: _this.getUuid(),
+          template: {
+            locationPlaceholder() {
+              return 'Description';
             }
-          ]);
-        });
+          },
+        })
+        let _this = this
+        this.calendar.on('beforeCreateEvent', (eventObj) => {
+
+          let data = {
+            title: eventObj.title,
+            description: eventObj.location,
+            startdate: eventObj.start.d.d,
+            duedate: eventObj.end.d.d,
+            is_disabled: eventObj.isAllday,
+            line_color: eventObj.state,
+            mindmap_id: this.currentMindMap.id
+          }
+
+          http.post(`/nodes.json`, data)
+
+          this.calendar.createEvents([
+            {
+              ...eventObj,
+              id: _this.getUuid()
+              }
+            ])
+          if (this.recurringEvents){
+            this.generateRecurringEvents(eventObj)
+          }
+        })
         this.calendar.on('beforeUpdateEvent', (eventObj) => {
           this.calendar.updateEvent(eventObj.event.id, eventObj.event.calendarId, eventObj.changes);
-        });  
+        })
         this.calendar.on('beforeDeleteEvent', (eventObj) => {
           this.calendar.deleteEvent(eventObj.id, eventObj.calendarId);
-        });
-        this.calendar.openFormPopup(
-          this.calendar.fire('some-event')
-        );
-
+        })
       },
       toggleCalendarView(value){
         this.calendar.changeView(value);
@@ -243,29 +228,26 @@
       addRecurringEvents(){
         let val = document.getElementsByClassName("toastui-calendar-content")
         if (val[0].value && val[1].value){
+          this.recurringEventsDate = val[3].value
           this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
         }
       },
       calendarRecurringEvents(events){
         this.recurringEvents = events
-        this.generateRecurringEvents()
       },
-      generateRecurringEvents(){
-        this.calendar.on('beforeCreateEvent', (eventObj) => {
-          let _this = this
-          let arrayEvents = []
-          this.recurringEvents.forEach((currentValue, index, rEvents)=> {
-            eventObj.start.d = currentValue
-            eventObj.end.d = currentValue
-            arrayEvents.push(eventObj)
-            this.calendar.createEvents([
+      generateRecurringEvents(eventObj){
+        let _this = this
+        this.recurringEvents.forEach((currentValue, index, rEvents)=> {
+          eventObj.start.d = currentValue
+          eventObj.end.d = currentValue
+          this.calendar.createEvents([
             {
               ...eventObj,
-              }
-            ])
-          })
-          // this.calendar.createEvents(arrayEvents)
+              id: _this.getUuid(),
+            }
+          ])
         })
+        this.recurringEvents = null 
       },
       addButton(){
         setTimeout(()=>{
@@ -292,7 +274,6 @@
           } )
         }
       },10)
-      
     }
   }
 </script>

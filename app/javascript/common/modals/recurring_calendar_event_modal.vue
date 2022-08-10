@@ -78,6 +78,7 @@
 
   export default {
     Name: "RecurringCalendarEventModal",
+    props: ['recurringEventsDate'],
     data () {
       return{
         repeatTime: 1,
@@ -92,7 +93,7 @@
     components: { DatePicker },
     methods: {
       calculateRecurrence() {
-        let eventDate = new Date()
+        let eventDate = new Date(this.recurringEventsDate)
         if (this.repeatType == "Month"){
           this.calculateMonthRecurrence(eventDate)
         }
