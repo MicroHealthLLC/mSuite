@@ -14,7 +14,7 @@ export default {
         objColors[item] += 1;
       })
       for (let val in objColors)
-        if(objColors[val] != undefined) uniqueColors.push(val);
+        if(objColors[val] != undefined && val != 'null') uniqueColors.push(val)
       return uniqueColors;
     },
     getColorNode(myNodeClass){
