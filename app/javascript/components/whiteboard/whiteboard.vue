@@ -162,7 +162,7 @@
         image: "",
         expDays: '',
         defaultDeleteDays: '',
-        colorPicker: "#000000",
+        colorPicker: "#AADDCC",
         colorSelected: false,
         points: [],
         increaseIcon: false,
@@ -207,7 +207,8 @@
             this.mapColors = []
             this.color = "#AADDCC"
             JSON.parse(this.initialImage).objects.forEach((x, i) => {
-              this.mapColors.push(x.stroke)
+              if(x.stroke == null) this.mapColors.push(x.fill)
+              else this.mapColors.push(x.stroke)
             })
             this.colorSelected = false
             this.canvas.loadFromJSON(this.initialImage);
@@ -333,7 +334,8 @@
           left: 70,
           top: 70,
           fontFamily: 'sans-serif',
-          fill: this.color
+          fill: this.color,
+          strokeWidth: this.line,
         })
         this.newObj = true
         this.canvas.add(this.text);
@@ -631,7 +633,8 @@
       this.initialImage = this.whiteboardImage
       if(JSON.parse(this.initialImage)){
         JSON.parse(this.initialImage).objects.forEach((x, i) => {
-          this.mapColors.push(x.stroke)
+          if(x.stroke == null) this.mapColors.push(x.fill)
+          else this.mapColors.push(x.stroke)
         })
       }
       if (this.initialImage) {
