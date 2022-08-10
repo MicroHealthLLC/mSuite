@@ -8,11 +8,15 @@
       @resetMindmap="resetMindmap"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
       :exportId="'todo'"
+      :isEditing="isEditing"
+      :temporaryUser="temporaryUser"
+      :saveElement="saveElement"
       ref="todoNavigation">
     </navigation-bar>
     <div id="todo">
@@ -188,7 +192,9 @@
         editInProgress: false,
         undoNodes: [],
         redoNodes: [],
-        undoDone: false
+        undoDone: false,
+        isEditing: false,
+        saveElement: false
       }
     },
     components: {
@@ -209,12 +215,28 @@
             setTimeout(() => {
               location.reload()
             }, 500)
+          } else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
+          {
+            localStorage.nodeNumber = data.content.nodeNumber
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
             this.fetchToDos()
           }
           else {
             this.fetchToDos()
+            this.saveElement = true
+            setTimeout(()=>{
+              this.saveElement = false
+            },1200)
           }
         }
       }
@@ -298,11 +320,13 @@
         this.todo = todo
         this.todo_parent = todo.id
         this.showChildModalTodo = true
+        this.sendLocals(true)
       },
       clearTodoEditObj() {
         this.selectedTodo = {id: ''}
         this.editInProgress = false
         this.fetchToDos()
+        this.sendLocals(false)
       },
       async fetchToDos(){
         let mindmap_key = window.location.pathname.split('/')[2]
@@ -383,6 +407,7 @@
           this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
           this.showModalTodo = false
           this.clearTodoObj()
+          this.sendLocals(false)
         }).catch((err) => {
           console.error(err);
         });
@@ -404,6 +429,7 @@
           this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
           this.showChildModalTodo = false
           this.clearTodoObj()
+          this.sendLocals(false)
         }).catch((err) => {
           console.error(err);
         });
@@ -447,6 +473,7 @@
         http.put(`/nodes/${todo.id}`, todo)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
+        this.sendLocals(false)
       },
       async deleteTodo() {
         let todo = this.selectedTodoDelete
@@ -477,6 +504,7 @@
         this.undoDone = false
         this.clearTodoObj()
         this.deleteTodo()
+        this.sendLocals(false)
       },
       showInputField(todo){
         let _this = this
@@ -487,10 +515,14 @@
             document.getElementById('textArea'+ _this.selectedTodo.id).focus()
           }, 300)
         }
+        this.sendLocals(true)
       },
       blurEvent(val, e){
         this.selectedTodo = {id: null}
-        if (e.target) e.target.blur()
+        if (e.target) {
+          e.target.blur()
+          this.sendLocals(false)
+        }
       },
       resetMindmap() {
         http
@@ -532,7 +564,30 @@
           .catch((err) => {
             console.log(err)
           })
-      }
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            content: localStorage,
+            isEditing: this.isEditing
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        this.saveElement = true
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
+      },
     },
     computed: {
       sortedTodos() {

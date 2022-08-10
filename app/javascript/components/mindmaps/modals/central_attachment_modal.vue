@@ -30,42 +30,10 @@
         </section>
       </div>
     </sweet-modal-tab>
-    <!-- <sweet-modal-tab title="Files" id="files-tab">
-      <section v-if="fileLoading" class="loading-tab">
-        <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
-      </section>
-      <section v-show="!fileLoading" class="row node-files-tab">
-        <div class="col" v-if="currentMindMap.editable">
-          <attachment-input
-            :show-label="true"
-            @input="addFileToCentralNode"
-          >
-          </attachment-input>
-        </div>
-        <div class="col node-files-list">
-          <div v-if="attachFiles && attachFiles.length > 0">
-            <div class="files-list p-2" v-for="file in attachFiles">
-              <file-box
-                :file="file"
-                :key="file.id"
-                :central="true"
-                :node="currentMindMap"
-                :editable="currentMindMap.editable"
-              ></file-box>
-            </div>
-          </div>
-          <div v-else class="empty-file-list text-secondary">
-            No files attached...
-          </div>
-        </div>
-      </section>
-    </sweet-modal-tab> -->
   </sweet-modal>
 </template>
 
 <script>
-  import AttachmentInput from '../../shared/attachment_input'
-  import FileBox from '../../shared/file_box'
   import { quillEditor } from "vue-quill-editor"
   import "quill/dist/quill.core.css"
   import "quill/dist/quill.snow.css"
@@ -75,14 +43,10 @@
     name: "CentralAttachmentModal",
     props: ['editorOption', 'currentMindMap'],
     components: {
-      quillEditor,
-      AttachmentInput,
-      FileBox,
+      quillEditor
     },
     data() {
       return {
-        fileLoading: false,
-        attachFiles: [],
         statusBtn: "Saved",
         centralNotes: ""
       }
@@ -90,7 +54,6 @@
     mounted() {
       if (this.currentMindMap.id) {
         this.centralNotes = this.currentMindMap.description
-        this.attachFiles = this.currentMindMap.attach_files
       }
     },
     methods: {
@@ -104,11 +67,6 @@
       updateMapNotes() {
         this.$emit('update-map-notes', this.centralNotes)
       },
-      async addFileToCentralNode(files) {
-        this.fileLoading = true
-        await this.$emit('add-file-to-central-node', files)
-        this.fileLoading = false
-      }
     },
     updated(){
       if(this.centralNotes === this.currentMindMap.description) this.statusBtn = 'Saved';
@@ -118,7 +76,6 @@
       currentMindMap: {
         handler(value) {
           this.centralNotes = value.description
-          this.attachFiles = value.attach_files
         }, deep: true
       }
     }
@@ -144,12 +101,6 @@
     display: none;
   }
 
-  .node-files-tab {
-    height: 40vh;
-    max-height: 40vh;
-    font-size: 78%;
-  }
-
   .edit-icon {
     position: absolute;
     top: 88px;
@@ -170,31 +121,5 @@
     i {
       font-size: 22px;
     }
-  }
-
-  .node-files-list {
-    height: 100%;
-    border: 1px solid #ccc;
-    overflow: auto;
-
-    .files-list {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      word-break: break-word;
-    }
-    .empty-file-list {
-      font-size: 15px;
-      font-style: italic;
-      padding: 1em;
-    }
-  }
-
-  .loading-tab {
-    height: 40vh;
-    max-height: 40vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 </style>

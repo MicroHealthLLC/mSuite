@@ -6,12 +6,16 @@
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @updateWhiteBoard="updateWhiteBoard"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
       @resetMindmap="resetMindmap"
       :exportId="'vue_canvas'"
+      :temporaryUser="temporaryUser"
+      :isEditing="isEditing"
+      :saveElement="saveElement"
       ref="whiteBoardNavigation">
     </navigation-bar>
     <div class="row">
@@ -183,6 +187,8 @@
         drawLine: false,
         createSelection: false,
         oldColor: '',
+        temporaryUser: '',
+        saveElement: false,
       }
     },
     components: {
@@ -194,14 +200,35 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
-          {
+          if (
+            data.message === "Mindmap Deleted"      &&
+            this.currentMindMap.id === data.mindmap.id
+          ) {
             window.open('/','_self')
-          } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
+          } else if (
+            data.message === "Password Updated"     &&
+            this.currentMindMap.id === data.mindmap.id
+          ) {
             setTimeout(() => {
               location.reload()
             }, 500)
-          } else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+          } else if (
+            data.message          === "storage updated"    &&
+            this.currentMindMap.id == data.content.mindmap_id
+          ) {
+            localStorage.nodeNumber = data.content.nodeNumber
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
+          } else if( data.message  === "Mindmap Updated" &&
+            this.currentMindMap.id ===      data.mindmap.id
+          ) {
             this.currentMindMap = data.mindmap
             this.initialImage = data.mindmap.canvas
             this.mapColors = []
@@ -508,6 +535,9 @@
       showColorPicker() {
         if(this.activeObject.type == 'i-text') this.colorPicker = this.activeObject.fill
         if(this.canvas.getActiveObject()) this.colorSelected = true
+
+        this.saveElement = false
+        this.sendLocals(true)
       },
       mouseEvents() {
         let _this = this
@@ -518,6 +548,8 @@
         this.canvas.on('mouse:move', (event) => {
           if(!_this.createSelection && _this.canvas.getActiveObject()) _this.canvas.discardActiveObject()
           if(!this.drawLine) return
+
+          this.sendLocals(true)
 
           this.pointer = this.canvas.getPointer(event.e);
           this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
@@ -531,6 +563,9 @@
               this.canvas.setActiveObject(activeObject)
             }
           }
+
+          this.sendLocals(false)
+
           if (this.drawLine) {
             const mousePos = canvas.getBoundingClientRect();
 
@@ -539,6 +574,9 @@
 
             this.points = [ x1, y1, x1, y1 ]
             this.straightLine()
+
+            this.sendLocals(true)
+
           }
         })
         this.canvas.on('mouse:up', (event) => {
@@ -558,6 +596,8 @@
           if(this.drawLine) {
             this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           }
+
+          this.sendLocals(false)
         })
         this.canvas.on('selection:created', (event) => {
           this.drawLine = false
@@ -570,10 +610,14 @@
             this.line = this.activeObject.strokeWidth
             this.colorPicker = this.activeObject.stroke}
           this.canvas.renderAll();
+
+          this.sendLocals(true)
         })
         this.canvas.on('selection:cleared', (event) => {
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+
+          this.sendLocals(false)
         })
         this.canvas.on('selection:updated', (event) => {
 
@@ -588,6 +632,9 @@
           this.canvas.renderAll();
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
+
+
+          this.sendLocals(true)
         })
       },
       updateWhiteBoard(obj) {
@@ -599,6 +646,8 @@
         if(!this.isRest){
           http.patch(`/msuite/${id}.json`,mindmap)
           this.newObj = false
+
+          this.sendLocals(false)
         }
         else this.isRest = false
       },
@@ -617,6 +666,28 @@
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        this.saveElement = true
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
+      }
     },
     mounted() {
       if (this.$route.params.key) {

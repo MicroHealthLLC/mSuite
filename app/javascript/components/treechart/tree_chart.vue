@@ -8,11 +8,15 @@
       @zoomInScale="zoomInScale"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
+      @sendLocals="sendLocals"
       :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
+      :temporaryUser="temporaryUser"
+      :saveElement="saveElement"
+      :isEditing="isEditing"
       @resetMindmap="resetMindmap"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
@@ -165,7 +169,10 @@
         isSaveMSuite: false,
         palleteUpdate: false,
         nodeNumber: 0,
-        undoDone: false
+        undoDone: false,
+        temporaryUser: '',
+        saveElement: false,
+        isEditing: false,
       }
     },
     mixins: [Common],
@@ -187,6 +194,7 @@
     methods: {
       dragStart(nodeId){
         this.dragElement = this.nodes.find((node) => node.id == nodeId)
+        this.sendLocals(true)
       },
       dragDrop(nodeId){
         let dropElement = this.nodes.find((node) => node.id == nodeId)
@@ -228,12 +236,14 @@
         setTimeout(()=>{
           $('.vc-sketch-presets')[0].style.maxHeight = '10vh'
         },10)
+        this.sendLocals(true)
       },
       updateColorNode(){
         let element = document.getElementById('treeChart'+this.treeNode.id)
         element.style.backgroundColor = this.treeNode.line_color.hex
         this.treeNode.line_color = this.treeNode.line_color.hex
         this.getColorNode('.rich-media-node')
+        this.sendLocals(true)
       },
       closeModelPicker(){
         let element = document.getElementById('treeChart'+this.treeNode.id)
@@ -241,6 +251,8 @@
         else element.style.backgroundColor = this.currentMindMap.line_color
         this.colorSelected = false
         this.getColorNode('.rich-media-node')
+        this.saveElement = true
+        this.sendLocals(false)
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
@@ -257,6 +269,7 @@
             this.updateTreeChartNode(objNode)
           }
         this.colorSelected = false
+        this.sendLocals(false)
       },
       blurEvent(val, e){
         if (e.target) e.target.blur()
@@ -309,6 +322,9 @@
         setTimeout(() => {
           document.getElementById('textArea'+ _this.selectedNode.id).focus()
         }, 300)
+
+        this.isEditing = true
+        this.sendLocals(true)
       },
       collapseNode(node){
         this.getColorNode('.rich-media-node')
@@ -344,17 +360,7 @@
           localStorage.nodeNumber = this.nodeNumber + 1
         }
         this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
-
-        this.$cable.perform({
-            channel: 'WebNotificationsChannel',
-            room: this.currentMindMap.id,
-
-            data: {
-              message: 'storage updated',
-              content: localStorage
-            }
-        });
-
+        this.sendLocals()
         this.saveNodeTreeChart()
         this.renderTreeChart()
       },
@@ -492,6 +498,7 @@
           this.undoNodes.push({'req': 'addNode', node: obj})
         }
         await http.put(`/nodes/${obj.id}`, obj);
+        this.sendLocals(false)
       },
       async deleteSelectedNode(obj){
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
@@ -510,10 +517,12 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
+        this.sendLocals(false)
       },
       async updatedTreeChart(obj){
         this.colorSelected = false
         await http.put(`/msuite/${obj.unique_key}`, obj);
+        this.sendLocals(false)
       },
       openPrivacy(val) {
         this.isSaveMSuite = val
@@ -630,7 +639,30 @@
           .catch((err) => {
             console.log(err)
           })
-      }
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            isEditing: this.isEditing,
+            content: localStorage
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        this.saveElement = true
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
+      },
     },
     channels: {
       WebNotificationsChannel: {
@@ -650,7 +682,15 @@
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             localStorage.nodeNumber = data.content.nodeNumber
-            this.fetchTreeChart()
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
           }
           else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap

@@ -6,10 +6,14 @@
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
       :expDays="expDays"
+      :temporaryUser="temporaryUser"
+      :saveElement="saveElement"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
+      @sendLocals="sendLocals"
+      :isEditing="isEditing"
       :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-1 main_body">
@@ -114,6 +118,7 @@
         treemap_data: [],
         submitChild: false,
         isSaveMSuite: false,
+        isEditing: false,
         nodeSample: {label: 'Enter node title for node',parent_label: '',color: '#CCBBBB'},
         customPallete: [],
         nodeNumber: 0,
@@ -121,6 +126,8 @@
         redoNodes: [],
         undoDone: false,
         nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
+        temporaryUser: '',
+        saveElement: false,
         parent_nodes: {
           label: 'centralized',
           value: 100,
@@ -175,7 +182,15 @@
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             localStorage.nodeNumber = data.content.nodeNumber
-            this.getTreeMap()
+            localStorage.userNumber = data.content.userNumber
+            this.temporaryUser = data.content.userEdit
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
           }
           else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
@@ -273,6 +288,7 @@
         this.hiddenNode = false
         this.addChildTreeMap = false
         this.colorSelected = false
+        this.sendLocals(false)
       },
       updateSelectedNode: async function(obj){
         if(this.undoNodes.length > 0) {
@@ -293,6 +309,7 @@
           this.undoNodes.push({'req': 'addNode', node: obj})
         }
         await http.put(`/nodes/${obj.id}`, obj).then((res) => {
+          this.sendLocals(false)
         }).catch(err => {
           this.err = err.message
           this.$refs['errorAddNode'].open()
@@ -319,6 +336,7 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
+        this.sendLocals()
       },
       submitChildNode: async function (obj) {
 
@@ -330,18 +348,7 @@
         } else {
           localStorage.nodeNumber = this.nodeNumber + 1
         }
-
-        this.$cable.perform({
-            channel: 'WebNotificationsChannel',
-            room: this.currentMindMap.id,
-
-            data: {
-              message: 'storage updated',
-              content: localStorage
-            }
-        });
-
-        let nodeNumber = this.nodes.length + 1
+        this.sendLocals()
         let data = {
           node: {
             title: obj.label + ' ' + localStorage.nodeNumber,
@@ -371,6 +378,29 @@
           _this.$refs['errorAddNode'].open()
           // error modal display
         })
+      },
+      cableSend(){
+        this.$cable.perform({
+          channel: 'WebNotificationsChannel',
+          room: this.currentMindMap.id,
+
+          data: {
+            message: 'storage updated',
+            content: localStorage,
+            isEditing: this.isEditing
+          }
+        });
+      },
+      sendLocals(isEditing){
+        localStorage.userEdit = localStorage.user
+        localStorage.mindmap_id = this.currentMindMap.id
+        this.isEditing = isEditing
+        this.cableSend()
+
+        this.saveElement = true
+        setTimeout(()=>{
+          this.saveElement = false
+        },1200)
       },
       mountMap: async function() {
         this.parent_nodes.label = this.currentMindMap.name
@@ -492,6 +522,7 @@
       },
       textEdit(eventElement, value){
         let _this = this
+        _this.sendLocals(true)
         _this.hiddenNode = true
         if(value.label == 'Enter Node Title Here') return this.saveNodeElement(eventElement,value);
         var keyUpTimeOut
@@ -501,6 +532,7 @@
         eventElement.target.style.backgroundColor = "white"
         eventElement.target.style.color = "black"
         _this.colorSelected = false
+        _this.sendLocals(false)
         _this.oldEventElement = eventElement
         eventElement.target.addEventListener('keyup', function(){
           clearTimeout(keyUpTimeOut)
@@ -570,6 +602,7 @@
           this.child_node.title = this.node_title
           this.updateSelectedNode(this.child_node)
         }
+        this.sendLocals(false)
       },
       updateColorNode(){
         this.currentElementObj[0].style.backgroundColor = this.selectedNodeColor.line_color.hex
@@ -589,17 +622,20 @@
         }
       this.colorSelected = false
       this.selectedNodeColor = null
+      this.sendLocals(false)
       },
       closeModelPicker(){
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
         this.colorSelected = false
         this.getColorNode('.jqx-treemap-rectangle')
+        this.sendLocals(false)
       },
       colorChange(value, elementObject){
         if(this.addChildTreeMap) return
         this.currentElementObj = elementObject
         this.setNodeSelected(value)
         this.colorSelected = true
+        this.sendLocals(true)
         this.oldElementColor = JSON.parse(JSON.stringify(this.currentElementObj[0].style.backgroundColor))
 
         if(this.parent_node){
