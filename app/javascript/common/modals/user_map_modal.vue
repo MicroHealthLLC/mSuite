@@ -26,6 +26,7 @@
     },
     mounted(){
       if(localStorage.user) this.user = localStorage.user
+      this.user = this.genRandomName()
     },
     watch:{
       user(newName) {
@@ -37,6 +38,15 @@
         localStorage.user = newName;
       }
     },
+    methods: {
+      genRandomName() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for (var i = 0; i < 5; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+        return text;
+      }
+    }
   }
 
 </script>

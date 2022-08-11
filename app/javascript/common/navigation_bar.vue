@@ -85,9 +85,6 @@
             <span class="dot dot-3"></span>
           </span>
         </div>
-        <!-- <div v-else v-show="saveElement">
-          <span class="save">Saved</span>
-        </div> -->
       </a>
 
 
@@ -101,27 +98,6 @@
           <span>Edited By {{temporaryUser}}</span>
       </a>
 
-
-      <!-- <span v-if = "currentMindMap.mm_type === 'spreadsheet'" class="mt-3">
-        <a
-          href="javascript:;"
-          role="button"
-          class="d-flex text-info pointer mr-3 center_flex"
-          v-b-tooltip.hover title="Status"
-        >
-          <div v-if="isEditing">
-            <span>Editing</span>
-            <span class="dots-cont" v-if="isEditing">
-              <span class="dot dot-1"></span>
-              <span class="dot dot-2"></span>
-              <span class="dot dot-3"></span>
-            </span>
-          </div>
-          <div v-else v-show="saveElement">
-            <span class="save">Saved</span>
-          </div>
-        </a>
-      </span> -->
       <span>
         <a
           href="javascript:;"
