@@ -30,7 +30,7 @@
     watch:{
       user(newName) {
         if (newName == ''){
-          if(localStorage.userNumber == 'NaN') localStorage.userNumber = 1
+          if(localStorage.userNumber == 'NaN' || localStorage.userNumber == undefined) localStorage.userNumber = 1
           else localStorage.userNumber = parseInt(localStorage.userNumber) + 1
           newName = 'User ' + localStorage.userNumber
         }

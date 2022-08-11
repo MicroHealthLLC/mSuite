@@ -435,14 +435,32 @@
           document.getElementById('mSuiteTitle').focus()
         }, 300)
         this.$emit('updateWhiteBoard')
+        if(localStorage.userNumber == 'NaN' || localStorage.userNumber == 'undefined') localStorage.userNumber = 1
         this.$emit('sendLocals', true)
+        this.createTempUser()
       },
       mSuiteTitleUpdate () {
         this.editable = false
+        if(localStorage.userNumber == 'NaN' || localStorage.userNumber == 'undefined') localStorage.userNumber = 1
         this.$emit('sendLocals', false)
+        this.createTempUser()
         this.mSuiteName = this.mSuiteName.trim()
         if(this.mSuiteName) this.putMSuite(this.mSuiteName)
         else this.mSuiteName = this.currentMindMap.title
+      },
+      createTempUser () {
+        if(
+            localStorage.userNumber != undefined  &&
+            (this.temporaryUser == "" || this.temporaryUser == undefined)
+          ) {
+          let number = parseInt(localStorage.userNumber) + 1
+          let newName = 'User ' + number
+          localStorage.user = newName
+          this.temporaryUser = localStorage.user
+        } else {
+          // localStorage.user = 'User 1'
+          this.temporaryUser = localStorage.user
+        }
       },
       blurEvent (val, e) {
         if (e.target) {
