@@ -25,14 +25,25 @@
         <span>{{this.calendarTitle}}</span>
         <button @click="moveCalendar(1)">Next</button>
       </div>
+      <div class="editPopup" v-if="showEditEvent">
+        <div>
+          <button @click="editEventModal">edit</button>
+          <button>delete</button>
+          <button>cross</button>
+        </div>
+        <div>{{this.showEvent.title}}</div>
+        <div>{{this.showEvent.start.d.d}}</div>
+        <div>{{this.showEvent.body}}</div>
+        <div>{{this.showEvent.state}}</div>
+      </div>
       <div id="calendar"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
-    <recurring-calendar-event-modal  :recurringEventsDate="recurringEventsDate" @continue="calendarRecurringEvents" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
-    <add-calendar-event-modal :eventDates="eventDates" ref="add-calendar-event-modal"></add-calendar-event-modal>
+    <add-calendar-event-modal :eventDates="eventDates" :showEvent="showEvent" @createEvent="beforeCreateEvent" @openRecurringModal="openRecurringEventsModal" ref="add-calendar-event-modal"></add-calendar-event-modal>
+    <recurring-calendar-event-modal  :recurringEventsDate="recurringEventsDate" @continue="getRecurringEventsDate" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
@@ -73,7 +84,9 @@
         recurringEvents: null,
         recurringEventsDate: null,
         fetchedEvents:[],
-        eventDates: null
+        eventDates: null,
+        showEvent: null,
+        showEditEvent: false
       }
     },
     components: {
@@ -99,9 +112,11 @@
             
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            
           }
-          else {}
+          else {
+            this.calendar.store.getState().calendar.events.internalMap.clear()
+            this.fetchEvents()
+          }
         }
       }
     },
@@ -181,23 +196,13 @@
           week: {
             taskView: false,
           },
-          template: {
-            locationPlaceholder() {
-              return 'Description';
-            }
-          },
-        })
-        this.calendar.on('beforeCreateEvent', (eventObj) => {
-          this.saveEvents(eventObj)
-          this.calendar.createEvents([
-            {
-              ...eventObj
-              }
-            ])
-          if (this.recurringEvents){
-            this.generateRecurringEvents(eventObj)
-          }
-        })
+          })
+        // this.calendar.on('beforeCreateEvent', (eventObj) => {
+        //   this.saveEvents(eventObj)
+        //   if (this.recurringEvents){
+        //     this.generateRecurringEvents(eventObj)
+        //   }
+        // })
         this.calendar.on('beforeUpdateEvent', (eventObj) => {
           this.calendar.updateEvent(eventObj.event.id, eventObj.event.calendarId, eventObj.changes);
         })
@@ -205,10 +210,17 @@
           this.calendar.deleteEvent(eventObj.id, eventObj.calendarId);
         })
         this.calendar.on('selectDateTime', (eventObj) => {
+          this.showEditEvent = false
           this.eventDates = eventObj
           this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
-          this.calendar.clearGridSelections();
-        });
+          this.recurringEvents = null
+          this.calendar.clearGridSelections()
+        })
+        this.calendar.on('clickEvent', (eventObj) => {
+          
+          this.showEvent = eventObj.event
+          this.showEditEvent = true
+        })
       },
       toggleCalendarView(value){
         this.calendar.changeView(value);
@@ -222,50 +234,38 @@
         var getMonthName =  new Intl.DateTimeFormat("en-US", { month: "long" }).format
         this.calendarTitle = getMonthName(calendarDate)+ ' ' + calendarDate.getFullYear()
       },
-      calculateRecurringEvents(){
-        let val = document.getElementsByClassName("toastui-calendar-content")
-        if (val[0].value && val[1].value){
-          this.recurringEventsDate = val[3].value
+      openRecurringEventsModal(){
+          this.recurringEventsDate = this.eventDates.end
           this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
-        }
       },
-      calendarRecurringEvents(events){
+      getRecurringEventsDate(events){
+        
         this.recurringEvents = events
       },
       generateRecurringEvents(eventObj){
-        let _this = this
         this.recurringEvents.forEach((currentValue, index, rEvents)=> {
-          eventObj.start.d.d = currentValue
-          eventObj.end.d.d = currentValue
+          eventObj.start = currentValue
+          eventObj.end = currentValue
           this.saveEvents(eventObj)
-          this.calendar.createEvents([
-            {
-              ...eventObj
-            }
-          ])
         })
+        
         this.recurringEvents = null 
       },
-      addButton(){
-        // this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
-        // this.calendar.clearGridSelections();
-        // setTimeout(()=>{
-        //   const popupSec = document.getElementsByClassName("toastui-calendar-popup-section")[5]
-        //   let moreOption = document.createElement("span")
-        //   moreOption.id ="options"
-        //   moreOption.innerText = "More options"
-        //   moreOption.classList.add("toastui-calendar-popup-button")
-        //   moreOption.classList.add("toastui-calendar-popup-confirm")
-        //   moreOption.onclick = this.calculateRecurringEvents
-        //   popupSec.appendChild(moreOption)
-        // }, 400)
+      beforeCreateEvent(data){
+        this.saveEvents(data)
+          if (this.recurringEvents){
+            this.generateRecurringEvents(data)
+          }
+      },
+      editEventModal(){
+        this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       saveEvents(eventObj){
         let data = {
           title: eventObj.title,
-          description: eventObj.location,
-          startdate: eventObj.start.d.d,
-          duedate: eventObj.end.d.d,
+          description: eventObj.body,
+          startdate: eventObj.start,
+          duedate: eventObj.end,
           is_disabled: eventObj.isAllday,
           line_color: eventObj.state,
           mindmap_id: this.currentMindMap.id
@@ -283,19 +283,20 @@
         this.renderEvents()
       },
       renderEvents(){
+        
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           this.calendar.createEvents([
             {
               id: currentValue.id,
-              calendarId: '',
               title: currentValue.title,
               start: currentValue.startdate,
               end: currentValue.duedate,
-              location: currentValue.description,
+              body: currentValue.description,
               state: currentValue.line_color,
             }
           ])
         })
+        this.fetchedEvents = []
       }
 
     },
@@ -303,15 +304,6 @@
       this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
       this.createCalendar()
       this.getCalendarTitle()
-      if(this.calendar){
-        setTimeout(()=>{
-          if($(".toastui-calendar-daygrid-cell").length > 0){
-            $(".toastui-calendar-daygrid-cell").each( (cellId, cell) => {
-              cell.addEventListener("dblclick", this.addButton)
-            } )
-          }
-        },10)
-      }
       this.fetchEvents()
     }
   }
