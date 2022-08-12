@@ -26,7 +26,10 @@
     },
     mounted(){
       if(localStorage.user) this.user = localStorage.user
-      this.user = this.genRandomName()
+      else {
+        this.user = this.genRandomName()
+        localStorage.user = this.user
+      }
     },
     watch:{
       user(newName) {
