@@ -120,6 +120,7 @@
   import Sortable from 'sortablejs';
   import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
 
   var autoScroll = require('dom-autoscroller');
@@ -132,7 +133,7 @@
       DeletePasswordModal,
       ColorPalette
     },
-    mixins: [Common],
+    mixins: [Common, TemporaryUser],
     data() {
       return {
         loading: true,
@@ -210,10 +211,7 @@
       }
     },
     mounted() {
-      this.$cable.subscribe({
-        channel: "WebNotificationsChannel",
-        room: this.currentMindMap.id,
-      });
+      this.subscribeCable(this.currentMindMap.id)
       if (this.$route.params.key) {
         this.getMindmap()
       }
@@ -534,7 +532,7 @@
         .then((res) => {
           this.blocks.push(res.data.node)
           this.undoNodes.push({'req': 'addNode', receivedData: res.data.node})
-          this.sendLocals(true)
+          this.sendLocals(false)
         })
         .catch((err) => {
           console.log(err)
@@ -590,6 +588,7 @@
           this.allStages[index].title = ''
           this.getAllStages()
           this.getAllNodes()
+          this.sendLocals(false)
           return
         }
 
@@ -602,6 +601,7 @@
             this.allStages[index].title = ''
             this.getAllStages()
             this.getAllNodes()
+            this.sendLocals(false)
           }
           else if (index > -1) {
             Vue.set(this.allStages[index], 'title', '')
@@ -610,6 +610,7 @@
             stage_style.style.backgroundColor = result.data.stage.stage_color
             this.updateStageTasks(this.stage.id)
             this.stage = null
+            this.sendLocals(false)
           }
         })
       },
@@ -618,6 +619,7 @@
         this.blocks.filter(b => b.stage_id == stage.id).map((b) => {
           b.status = stage.title
         })
+        this.sendLocals(false)
       },
       newStageTitle(e) {
         if (this.stage !== null && this.stage.title) {
@@ -705,6 +707,7 @@
         .then((res)=>{
           let index = this.blocks.findIndex(b => b.id === res.data.node.id)
           Vue.set(this.blocks, index, res.data.node)
+          this.sendLocals(false)
         })
         .catch(err => {
           console.log(err)
@@ -845,28 +848,6 @@
             console.log(err)
           })
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
-      }
     }
   }
 </script>

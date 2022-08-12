@@ -152,6 +152,7 @@
   import DeleteMapModal from '../../common/modals/delete_modal'
   import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import http from "../../common/http"
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     components: {
@@ -167,6 +168,7 @@
     },
 
     props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays','expDays'],
+    mixins: [TemporaryUser],
 
     data() {
       return {
@@ -384,8 +386,7 @@
         this.selectedNode = { id: ''}
         this.dragging     = false
         this.draggingNode = false
-        this.isEditing = true
-        this.sendLocals()
+        this.sendLocals(true)
       },
       // =============== GETTING MAP =====================
 
@@ -1181,35 +1182,10 @@
 
         return size
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            isEditing: this.isEditing,
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
-      },
     },
 
     mounted() {
-      this.$cable.subscribe({
-        channel: "WebNotificationsChannel",
-        room: this.currentMindMap.id,
-      });
+      this.subscribeCable(this.currentMindMap.id)
       if (this.$route.params.key) {
         this.mountMap()
         // this.getMindmap(this.$route.params.key)

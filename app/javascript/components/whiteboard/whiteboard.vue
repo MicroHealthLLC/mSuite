@@ -150,13 +150,14 @@
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   import Common from "../../mixins/common.js"
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   import { fabric } from './fabric.js'
   import 'fabric-history';
 
   export default {
     props: ['whiteboardImage'],
-    mixins: [Common],
+    mixins: [Common, TemporaryUser],
     data() {
       return {
         isMounted: false,
@@ -260,7 +261,7 @@
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+          this.subscribeCable(this.currentMindMap.id)
         })
       },
       openPrivacy(val) {
@@ -666,28 +667,6 @@
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
-      }
     },
     mounted() {
       if (this.$route.params.key) {

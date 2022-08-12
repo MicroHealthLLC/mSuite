@@ -47,6 +47,7 @@
   import Delta from 'quill-delta'
   import katex from 'katex'
   import 'katex/dist/katex.min.css'
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     props: ['currentMindMap'],
@@ -61,7 +62,7 @@
         toolbar: null,
         qeditor: null,
         temporaryUser: '',
-        saveElement: false,
+        saveElement: false
       }
     },
     components: {
@@ -69,6 +70,7 @@
       DeletePasswordModal,
       MakePrivateModal
     },
+    mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -122,7 +124,7 @@
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+          this.subscribeCable(this.currentMindMap.id)
         })
       },
       openPrivacy(val) {
@@ -321,24 +323,6 @@
         strong_array.forEach(el => {
           el.style.fontWeight = 'bold'
         });
-      },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            isEditing: this.isEditing,
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
       },
     },
     updated() {

@@ -161,6 +161,7 @@
   import DatePicker from 'vue2-datepicker';
   import './datepicker.css';
   import TodoMap from "./TodoMap";
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     props: ['currentMindMap'],
@@ -205,6 +206,7 @@
       ToggleButton,
       DatePicker
     },
+    mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -260,7 +262,7 @@
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+          this.subscribeCable(this.currentMindMap.id)
         })
       },
       openPrivacy(val) {
@@ -564,29 +566,6 @@
           .catch((err) => {
             console.log(err)
           })
-      },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            content: localStorage,
-            isEditing: this.isEditing
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
       },
     },
     computed: {

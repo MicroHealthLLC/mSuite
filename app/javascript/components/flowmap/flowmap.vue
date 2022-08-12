@@ -123,6 +123,7 @@
   import ColorPalette from '../../common/modals/color_palette_modal'
   import domtoimage from "dom-to-image-more"
   import Common from "../../mixins/common.js"
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
 
   Vue.config.warnHandler = function(msg, vm, info) {}
@@ -176,15 +177,11 @@
         saveElement: false,
       }
     },
-    mixins: [Common],
+    mixins: [Common, TemporaryUser],
     props:['currentMindMap','defaultDeleteDays', 'deleteAfter','expDays'],
     mounted: async function(){
-      this.$cable.subscribe({
-        channel: "WebNotificationsChannel",
-        room: this.currentMindMap.id,
-      });
+      this.subscribeCable(this.currentMindMap.id)
       this.mountMap()
-      // this.fetchTreeChart()
     },
     components: {
       DeleteMapModal,
@@ -365,7 +362,7 @@
           localStorage.nodeNumber = this.nodeNumber + 1
         }
         this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
-        this.sendLocals()
+        this.sendLocals(false)
         this.saveNodeTreeChart()
         this.renderTreeChart()
       },
@@ -634,27 +631,6 @@
           .catch((err) => {
             console.log(err)
           })
-      },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            isEditing: this.isEditing,
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        this.isEditing = isEditing
-        this.cableSend()
-
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
       },
     },
     channels: {
