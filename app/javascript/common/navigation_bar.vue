@@ -1,11 +1,11 @@
 <template>
   <div class="buttons_area">
-    <div class="buttons_container p-2 row">
+    <div class="buttons_container px-2 pt-2 row pb-0">
       <span class="flex ml-5 col-2 pr-0">
         <a
           href="javascript:;"
           role="button"
-          class="navbar-brand"
+          class="navbar-brand p-0"
           @click.stop="goHome"
         >
           <img src="/assets/msuite.png"/>
@@ -199,7 +199,7 @@
           </a>
         </span>
       </span>
-      <span class="col-12 d-flex justify-content-end">
+      <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem;">
         <a
           href="javascript:;"
           role="button"
@@ -215,7 +215,7 @@
           role="button"
           class="d-flex text-info pointer mr-3 center_flex"
           v-b-tooltip.hover title="Status"
-          v-if="saveElement"
+          v-if="temporaryUser"
         >
             <span> Last Edited By {{temporaryUser}}</span>
         </a>
@@ -296,7 +296,7 @@
       },
       expireDateTime () {
         let x = new Date(this.currentMindMap.will_delete_at)
-        return x.toLocaleDateString("en-US",this.dateFormate)
+        return x.toDateString();
       },
       checkMSuiteTypes () {
         return this.currentMindMap.mm_type==='kanban' || this.currentMindMap.mm_type==='tree_chart' || this.currentMindMap.mm_type==='flowmap' || this.currentMindMap.mm_type==='todo' || this.currentMindMap.mm_type==='tree_map'
