@@ -113,14 +113,16 @@
       generateDataObj(){
         if (this.title && this.description && this.state){
           let data = {
-            title: this.title,
-            body: this.description,
-            start: this.startDate,
-            end: this.endDate,
-            isAllday: this.allDay,
-            state: this.state
-          }
-        return data
+              title: this.title,
+              body: this.description,
+              start: this.startDate,
+              end: this.endDate,
+              isAllday: this.allDay,
+              state: this.state,
+              id: null
+            }
+          if(this.actionType == 'update') data.id = this.showEvent.id
+          return data
         }
       },
       createEvent(){
@@ -129,6 +131,7 @@
       },
       updateEvent(){
         this.$emit('updateEvent', this.generateDataObj())
+        this.closeMapModal()
       },
       setDefaultValues(){
         this.title = '',

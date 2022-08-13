@@ -28,8 +28,8 @@
       <div class="editPopup" v-if="showEditEvent">
         <div>
           <button @click="editEventModal">edit</button>
-          <button>delete</button>
-          <button>cross</button>
+          <button @click="deleteEvents">delete</button>
+          <button @click="showEditEvent = false">cross</button>
         </div>
         <div>{{this.showEvent.title}}</div>
         <div>{{this.showEvent.start.d.d}}</div>
@@ -42,7 +42,7 @@
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
-    <add-calendar-event-modal :eventDates="eventDates" :showEvent="showEvent" @createEvent="beforeCreateEvent" @openRecurringModal="openRecurringEventsModal" ref="add-calendar-event-modal"></add-calendar-event-modal>
+    <add-calendar-event-modal :eventDates="eventDates" :showEvent="showEvent" @createEvent="beforeCreateEvent" @updateEvent="updateEvent" @openRecurringModal="openRecurringEventsModal" ref="add-calendar-event-modal"></add-calendar-event-modal>
     <recurring-calendar-event-modal  :recurringEventsDate="recurringEventsDate" @continue="getRecurringEventsDate" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
@@ -86,7 +86,8 @@
         fetchedEvents:[],
         eventDates: null,
         showEvent: null,
-        showEditEvent: false
+        showEditEvent: false,
+        counter: 0
       }
     },
     components: {
@@ -114,8 +115,10 @@
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
           }
           else {
-            this.calendar.store.getState().calendar.events.internalMap.clear()
-            this.fetchEvents()
+            if (this.counter < 1){
+              this.calendar.store.getState().calendar.events.internalMap.clear()
+              this.fetchEvents()
+            }
           }
         }
       }
@@ -197,18 +200,6 @@
             taskView: false,
           },
           })
-        // this.calendar.on('beforeCreateEvent', (eventObj) => {
-        //   this.saveEvents(eventObj)
-        //   if (this.recurringEvents){
-        //     this.generateRecurringEvents(eventObj)
-        //   }
-        // })
-        this.calendar.on('beforeUpdateEvent', (eventObj) => {
-          this.calendar.updateEvent(eventObj.event.id, eventObj.event.calendarId, eventObj.changes);
-        })
-        this.calendar.on('beforeDeleteEvent', (eventObj) => {
-          this.calendar.deleteEvent(eventObj.id, eventObj.calendarId);
-        })
         this.calendar.on('selectDateTime', (eventObj) => {
           this.showEditEvent = false
           this.eventDates = eventObj
@@ -252,12 +243,14 @@
         this.recurringEvents = null 
       },
       beforeCreateEvent(data){
+        this.counter = 0
         this.saveEvents(data)
           if (this.recurringEvents){
             this.generateRecurringEvents(data)
           }
       },
       editEventModal(){
+        this.counter = 0
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       saveEvents(eventObj){
@@ -272,7 +265,25 @@
           }
         http.post(`/nodes.json`, data)
       },
+      updateEvent(eventObj){
+        this.showEditEvent = false
+        this.eventDates = eventObj.end
+        let data = {
+          title: eventObj.title,
+          description: eventObj.body,
+          startdate: eventObj.start,
+          duedate: eventObj.end,
+          is_disabled: eventObj.isAllday,
+          line_color: eventObj.state,
+          }
+        http.put(`/nodes/${eventObj.id}`, data);
+      },
+      deleteEvents(){
+        this.showEditEvent = false
+        http.delete(`/nodes/${this.showEvent.id}.json`)
+      },
       async fetchEvents(){
+        this.counter = this.counter + 1
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/msuite/${mindmap_key}.json`)
         this.defaultDeleteDays = response.data.defaultDeleteDays
@@ -283,7 +294,6 @@
         this.renderEvents()
       },
       renderEvents(){
-        
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           this.calendar.createEvents([
             {
