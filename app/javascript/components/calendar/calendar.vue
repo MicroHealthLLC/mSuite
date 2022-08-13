@@ -25,7 +25,7 @@
         <span>{{this.calendarTitle}}</span>
         <button @click="moveCalendar(1)">Next</button>
       </div>
-      <div class="editPopup" v-if="showEditEvent">
+      <b-popover target="calendar" :show.sync="showEditEvent" class="editPopup" v-if="showEditEvent">
         <div>
           <button @click="editEventModal">edit</button>
           <button @click="deleteEvents">delete</button>
@@ -35,7 +35,7 @@
         <div>{{this.showEvent.start.d.d}}</div>
         <div>{{this.showEvent.body}}</div>
         <div>{{this.showEvent.state}}</div>
-      </div>
+      </b-popover>
       <div id="calendar"></div>
     </div>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
@@ -87,7 +87,7 @@
         eventDates: null,
         showEvent: null,
         showEditEvent: false,
-        counter: 0
+        counter: 0,
       }
     },
     components: {
@@ -113,6 +113,12 @@
             
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+          }
+          else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
+            if (this.counter < 2){
+              this.calendar.store.getState().calendar.events.internalMap.clear()
+              this.fetchEvents()
+            }
           }
           else {
             if (this.counter < 1){
@@ -208,10 +214,26 @@
           this.calendar.clearGridSelections()
         })
         this.calendar.on('clickEvent', (eventObj) => {
-          
           this.showEvent = eventObj.event
           this.showEditEvent = true
+            var x = eventObj.nativeEvent.pageX;
+            var y = eventObj.nativeEvent.pageY;
+            var timeout;
+            // $(".editPopup").css({position: 'relative'})
+            clearTimeout(timeout)
+            timeout = setTimeout(()=>{
+              $("#__bv_popover_64__").css('transform', `translate3d(${y}px, ${x}px, 0px)`);
+            },500)    
+        // document.getElementByClassname("editPopup").style.position = "relative";
+        // document.getElementByClassname("editPopup").style.top = x;
+        // document.getElementByClassname("editPopup").style.left = y;
         })
+        this.calendar.on('beforeUpdateEvent', (eventObj) => {
+          let data = eventObj.event
+          data.start = eventObj.changes.start
+          data.end = eventObj.changes.end
+          this.updateEvent(data)
+        });
       },
       toggleCalendarView(value){
         this.calendar.changeView(value);
@@ -263,11 +285,13 @@
           line_color: eventObj.state,
           mindmap_id: this.currentMindMap.id
           }
-        http.post(`/nodes.json`, data)
+        http.post('/nodes.json', data)
       },
       updateEvent(eventObj){
-        this.showEditEvent = false
-        this.eventDates = eventObj.end
+        let _this = this
+        _this.counter = 0
+        _this.showEditEvent = false
+        _this.eventDates = eventObj.end
         let data = {
           title: eventObj.title,
           description: eventObj.body,
@@ -276,7 +300,9 @@
           is_disabled: eventObj.isAllday,
           line_color: eventObj.state,
           }
-        http.put(`/nodes/${eventObj.id}`, data);
+        http.put(`/nodes/${eventObj.id}`, data).then(res=>{
+          // _this.fetchedEvents()
+        });
       },
       deleteEvents(){
         this.showEditEvent = false
@@ -294,6 +320,7 @@
         this.renderEvents()
       },
       renderEvents(){
+        this.counter = 0
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           this.calendar.createEvents([
             {
