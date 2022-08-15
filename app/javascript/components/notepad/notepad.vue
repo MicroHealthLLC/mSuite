@@ -47,13 +47,14 @@
   import Delta from 'quill-delta'
   import katex from 'katex'
   import 'katex/dist/katex.min.css'
+  import Document from 'poseidon-crdt'
+  import _ from 'lodash'
 
   export default {
     props: ['currentMindMap'],
     data() {
       return {
         isMounted: false,
-        content: '',
         editor: null,
         isReset: false,
         savingStatus: null,
@@ -62,6 +63,8 @@
         qeditor: null,
         temporaryUser: '',
         saveElement: false,
+        document: new Document(),
+        oldText: ""
       }
     },
     components: {
@@ -99,14 +102,27 @@
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.currentMindMap = data.mindmap
-            this.content = JSON.parse(data.mindmap.canvas)
-            if(this.content == null){
+            let ops = JSON.parse(data.mindmap.canvas) || []
+
+            if(ops == null){
               this.qeditor.setContents([
                 { insert: '' },
               ])
             } else {
-              let range = this.qeditor.getSelection();
-              if(range == null) this.qeditor.setContents(this.content)
+             let range = this.qeditor.getSelection()
+
+             this.document.locations = [range.index, (range.index + range.length)]
+             for (let op of ops){
+               this.document.merge(op)
+             }
+
+             range.index = this.document.locations[0]
+             range.length = this.document.locations[1] - this.document.locations[0]
+
+
+              this.oldText = this.document.text
+              this.qeditor.setContents([{ insert: this.document.text }])
+              this.qeditor.setSelection(range)
             }
           }
         }
@@ -180,9 +196,21 @@
       },
       updateDocument() {
         let _this = this
-        let range = this.qeditor.getSelection();
+        let range = this.qeditor.getSelection()
         if(range && (range.length == 0 || range.index == 0)) {
-          let mindmap = { mindmap: { canvas: JSON.stringify(this.qeditor.getContents())}}
+          let currentDelta = this.qeditor.getContents()
+          let diff = Document.getDiff(this.oldText, currentDelta.ops[0].insert, (range.index + range.length))
+          let ops = this.document.diffToOps(diff)
+          if (!ops.length) {
+            return
+          }
+          for (let op of ops) {
+            this.document.merge(op, false)
+          }
+
+          this.oldText = this.document.text
+          let stringOps = JSON.stringify(ops)
+          let mindmap = { mindmap: { canvas: stringOps } }
           let id = this.currentMindMap.unique_key
           if(!this.isReset){
             http.patch(`/msuite/${id}.json`,mindmap).then(res => {
@@ -235,8 +263,7 @@
         let _this = this
         let change = new Delta();
         let myDelta = this.qeditor.getContents();
-
-        this.qeditor.on('text-change', function(delta) {
+        let onChange = _.debounce((delta) => {
           let lists = document.getElementsByTagName('li')
 
           lists.forEach( list => {
@@ -260,15 +287,22 @@
             }
           })
           change = change.compose(delta);
+          this.updateDocument()
+        }, 500)
+        this.qeditor.on('text-change', (delta, old, source ) => {
+          if (source == 'api') {
+            return
+          }
+          onChange(delta)
         });
-
+        /*
         setInterval(function() {
           if (change.length() > 0) {
             _this.updateDocument()
             change = new Delta();
           }
         }, 500);
-
+        */
         window.onbeforeunload = function() {
           if (change.length() > 0) {
             return 'There are unsaved changes. Are you sure you want to leave?';
@@ -359,13 +393,22 @@
         this.getMindmap(this.$route.params.key)
         window.katex = katex
       }
-      this.content = JSON.parse(this.currentMindMap.canvas)
+      let ops = JSON.parse(this.currentMindMap.canvas) || []
 
       this.createEditor()
       this.editorEvents()
       this.qeditor.focus()
+      let range = this.qeditor.getSelection()
 
-      this.qeditor.setContents(this.content)
+      this.document.locations = [range.index, (range.index + range.length)]
+      for (let op of ops){
+        this.document.merge(op)
+      }
+      range.index = this.document.locations[0]
+      range.length = this.document.locations[1] - this.document.locations[0]
+
+      this.oldText = this.document.text
+      this.qeditor.setContents([{ insert: this.document.text }])
     },
   }
 </script>
