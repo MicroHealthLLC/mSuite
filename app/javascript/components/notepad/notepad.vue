@@ -338,7 +338,6 @@
       } else {
         this.savingStatus.innerHTML = 'Editing...';
         this.savingStatus.style.color = 'blue';
-        this.sendLocals(true)
       }
       this.strongTagStyleBold()
     },
