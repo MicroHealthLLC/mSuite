@@ -16,6 +16,7 @@
       :isEditing="isEditing"
       :saveElement="saveElement"
       :excel_data="sheetData.data"
+      :userList="userList"
       :temporaryUser="temporaryUser"
       ref="spreadSheetNavigation">
     </navigation-bar>
@@ -66,6 +67,7 @@
           columns: [],
         },
         isReset: false,
+        userList: [],
         isEditing: false,
         saveElement: true,
         changeRequest: 1,
@@ -120,6 +122,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -470,6 +474,10 @@
         let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
         $('#mytable')[0].style.height = heightVal
       },200)
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
       this.isMounted = true
     },
   }

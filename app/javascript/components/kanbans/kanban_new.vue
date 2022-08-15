@@ -17,6 +17,7 @@
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :userList="userList"
       :exportId="'kanban-board'">
     </navigation-bar>
     
@@ -162,6 +163,7 @@
         undoDone: false,
         temporaryUser: '',
         saveElement: false,
+        userList: [],
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -192,6 +194,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -257,6 +261,10 @@
           this.updateBackgroundColors()
         }, 1500)
       })
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
     computed: {
       computedStages() {

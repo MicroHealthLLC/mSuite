@@ -16,6 +16,7 @@
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :userList="userList"
       ref="whiteBoardNavigation">
     </navigation-bar>
     <div class="row">
@@ -189,6 +190,7 @@
         createSelection: false,
         oldColor: '',
         temporaryUser: '',
+        userList: [],
         saveElement: false,
       }
     },
@@ -226,6 +228,8 @@
             }
 
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -704,6 +708,10 @@
       if (this.initialImage) {
         this.canvas.loadFromJSON(this.initialImage);
         this.canvas.renderAll();
+      }
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
       }
     },
   }

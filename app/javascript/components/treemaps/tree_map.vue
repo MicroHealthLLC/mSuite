@@ -14,6 +14,7 @@
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
       :isEditing="isEditing"
+      :userList="userList"
       :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-1 main_body">
@@ -106,6 +107,7 @@
         selectedNodeColor: null,
         nodes: [],
         width: 850,
+        userList: [],
         parent_node: null,
         child_node: null,
         addChildTreeMap: false,
@@ -162,6 +164,10 @@
     mounted: async function () {
       this.subscribeCable(this.currentMindMap.id)
       this.mountMap()
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
     channels: {
       WebNotificationsChannel: {
@@ -182,6 +188,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
