@@ -42,8 +42,20 @@
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
     <confirm-save-key-modal ref="confirm-save-key-modal" :current-mind-map="currentMindMap"></confirm-save-key-modal>
-    <add-calendar-event-modal :eventDates="eventDates" :showEvent="showEvent" @createEvent="beforeCreateEvent" @updateEvent="updateEvent" @openRecurringModal="openRecurringEventsModal" ref="add-calendar-event-modal"></add-calendar-event-modal>
-    <recurring-calendar-event-modal  :recurringEventsDate="recurringEventsDate" @continue="getRecurringEventsDate" ref="recurring-calendar-event-modal"></recurring-calendar-event-modal>
+    <add-calendar-event-modal 
+      :eventDates="eventDates"
+      :showEvent="showEvent" 
+      @createEvent="beforeEventCreate" 
+      @updateEvent="beforeEventUpdate" 
+      @openRecurringModal="openRecurringEventsModal" 
+      ref="add-calendar-event-modal">
+    </add-calendar-event-modal>
+    <recurring-calendar-event-modal 
+      :recurringEvents="recurringEvents"  
+      :recurringEventsDate="recurringEventsDate" 
+      @continue="getRecurringEventsDate" 
+      ref="recurring-calendar-event-modal">
+    </recurring-calendar-event-modal>
     <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
       Your Password and Confirm Password are Mismatched, Please Try Again!
       <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
@@ -118,6 +130,7 @@
             if (this.counter < 2){
               this.calendar.store.getState().calendar.events.internalMap.clear()
               this.fetchEvents()
+              this.recurringEvents = null
             }
           }
           else {
@@ -230,8 +243,8 @@
         })
         this.calendar.on('beforeUpdateEvent', (eventObj) => {
           let data = eventObj.event
-          data.start = eventObj.changes.start
-          data.end = eventObj.changes.end
+          data.start = eventObj.changes.start.d.d
+          data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         });
       },
@@ -248,11 +261,16 @@
         this.calendarTitle = getMonthName(calendarDate)+ ' ' + calendarDate.getFullYear()
       },
       openRecurringEventsModal(){
+        this.recurringEvents = null
+        if(this.eventDates){
           this.recurringEventsDate = this.eventDates.end
-          this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
+        }
+        else{
+          this.recurringEventsDate = this.showEvent.end.d.d
+        }        
+        this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
       },
       getRecurringEventsDate(events){
-        
         this.recurringEvents = events
       },
       generateRecurringEvents(eventObj){
@@ -261,15 +279,21 @@
           eventObj.end = currentValue
           this.saveEvents(eventObj)
         })
-        
-        this.recurringEvents = null 
+        this.recurringEvents = null
       },
-      beforeCreateEvent(data){
+      beforeEventCreate(data){
         this.counter = 0
         this.saveEvents(data)
           if (this.recurringEvents){
             this.generateRecurringEvents(data)
           }
+      },
+      beforeEventUpdate(data){
+        // this.eventDates = data.end
+        this.updateEvent(data)
+        if (this.recurringEvents){
+          this.generateRecurringEvents(data)
+        }
       },
       editEventModal(){
         this.counter = 0
@@ -288,10 +312,8 @@
         http.post('/nodes.json', data)
       },
       updateEvent(eventObj){
-        let _this = this
-        _this.counter = 0
-        _this.showEditEvent = false
-        _this.eventDates = eventObj.end
+        this.counter = 0
+        this.showEditEvent = false
         let data = {
           title: eventObj.title,
           description: eventObj.body,
@@ -301,7 +323,6 @@
           line_color: eventObj.state,
           }
         http.put(`/nodes/${eventObj.id}`, data).then(res=>{
-          // _this.fetchedEvents()
         });
       },
       deleteEvents(){

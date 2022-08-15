@@ -138,6 +138,7 @@ class NodesController < AuthenticatedController
       :position,
       :node_width,
       :duedate,
+      :startdate,
       node_files: []
     )
   end

@@ -89,7 +89,7 @@
       },
       "showEvent.id"(newVal, oldVal){
         this.setDefaultValues()
-        this.showSelectedEvent()
+        this.showSelectedEvent('update')
       }
     },
     methods: {
@@ -101,14 +101,14 @@
         this.endDate = this.eventDates.end
         this.actionType = 'create'
       },
-      showSelectedEvent(){
+      showSelectedEvent(actType){
         this.title = this.showEvent.title
         this.description = this.showEvent.body
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
         this.state = this.showEvent.state
-        this.actionType = 'update'
+        this.actionType = actType
       },
       generateDataObj(){
         if (this.title && this.description && this.state){
@@ -134,11 +134,11 @@
         this.closeMapModal()
       },
       setDefaultValues(){
-        this.title = '',
-        this.description = '',
-        this.startDate = null,
-        this.endDate = null,
-        this.allDay = false,
+        this.title = ''
+        this.description = ''
+        this.startDate = null
+        this.endDate = null
+        this.allDay = false
         this.state = ''
         this.actionType = ''
       },

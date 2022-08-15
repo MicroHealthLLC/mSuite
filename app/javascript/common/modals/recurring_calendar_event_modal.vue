@@ -93,6 +93,7 @@
     components: { DatePicker },
     methods: {
       calculateRecurrence() {
+        this.events = []
         let eventDate = new Date(this.recurringEventsDate)
         if (this.repeatType == "Month"){
           this.calculateMonthRecurrence(eventDate)
@@ -101,6 +102,7 @@
           this.calculateWeekRecurrence(eventDate)
         }
         this.$emit('continue', this.events)
+        this.setDefaultValues()
         this.closeMapModal()
       },
       closeMapModal() {
@@ -179,6 +181,15 @@
           }
         }
         this.events = newEvents
+      },
+      setDefaultValues(){
+        this.repeatTime = 1
+        this.repeatType = 'Week'
+        this.endsOn = null
+        this.occurences = 1
+        this.endOnDate = new Date()
+        this.format = 'YYYY-MM-DD'
+        this.events = []
       }
     }
   }
