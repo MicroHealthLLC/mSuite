@@ -48,8 +48,7 @@ class MindmapsController < AuthenticatedController
       message = password_present?
       @mindmap[:canvas] = ops.to_json
       ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
-      mindmap_params["canvas"] = document.text
-
+      mindmap_params[:canvas] = document.operations.to_json
       @mindmap.update(mindmap_params)
     else
       @mindmap.update(mindmap_params)
