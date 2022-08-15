@@ -16,6 +16,7 @@
       :exportId="'todo'"
       :isEditing="isEditing"
       :temporaryUser="temporaryUser"
+      :userList="userList"
       :saveElement="saveElement"
       ref="todoNavigation">
     </navigation-bar>
@@ -170,6 +171,7 @@
         isMounted: false,
         todos: [],
         todo: {},
+        userList: [],
         selectedTodo: { id: null },
         myTodos: [{
           name: '',
@@ -221,6 +223,8 @@
           {
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.temporaryUser = data.content.userEdit
             this.isEditing = data.isEditing
             if (!this.isEditing) {
@@ -587,6 +591,10 @@
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
 
       $(".v-switch-label, .v-right").css({"color": "#212529"})
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
   }
 </script>

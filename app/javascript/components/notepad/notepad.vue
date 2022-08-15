@@ -17,6 +17,7 @@
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :userList="userList"
       :exportId="'notepad'">
     </navigation-bar>
     <div id="notepad"></div>
@@ -61,6 +62,7 @@
         saveText: null,
         toolbar: null,
         qeditor: null,
+        userList: [],
         temporaryUser: '',
         saveElement: false
       }
@@ -88,6 +90,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -350,6 +354,10 @@
       this.qeditor.focus()
 
       this.qeditor.setContents(this.content)
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
   }
 </script>

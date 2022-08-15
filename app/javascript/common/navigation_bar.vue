@@ -206,8 +206,11 @@
           class="d-flex text-info pointer mr-3 center_flex"
           v-b-tooltip.hover title="Status"
         >
-          <div v-if="isEditing">
-            <span>Editing by: {{temporaryUser}}</span>
+          <div v-if="renderUserList && renderUserList.length > 0">
+            Editing by:
+            <span v-for="user in renderUserList">
+              {{user}},
+            </span>
           </div>
         </a>
         <a
@@ -271,7 +274,7 @@
   import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
@@ -291,6 +294,9 @@
       UserMapModal
     },
     computed: {
+      renderUserList () {
+        if(this.userList) return this.userList.filter((v, i, a) => a.indexOf(v) === i)
+      },
       mSuiteTitle () {
         return this.mSuiteName
       },

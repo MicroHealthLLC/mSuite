@@ -20,6 +20,7 @@
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
+      :userList="userList"
       :scaleFactor="scaleFactor"
       :selected-node="selectedNode"
       :temporaryUser="temporaryUser"
@@ -172,6 +173,7 @@
 
     data() {
       return {
+        userList          : [],
         isSaveMSuite      : false,
         selectedNode      : null,
         isMounted         : false,
@@ -276,6 +278,8 @@
                     this.currentMindMap.id == data.content.mindmap_id
           ) {
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -1192,6 +1196,10 @@
       }
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
 
     created(){

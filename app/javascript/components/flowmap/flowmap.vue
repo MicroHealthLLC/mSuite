@@ -14,6 +14,7 @@
       :exportId="'treeChartObj'"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
+      :userList="userList"
       :deleteAfter="deleteAfter"
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
@@ -142,6 +143,7 @@
         selectedNode: {id: null},
         selectedNodeTitle: '',
         nodeColor: { hex: '' },
+        userList: [],
         treeChartObj: {
           name: '',
           children: []
@@ -182,6 +184,10 @@
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
       this.mountMap()
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
     components: {
       DeleteMapModal,
@@ -651,6 +657,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
