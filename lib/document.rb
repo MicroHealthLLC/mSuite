@@ -56,11 +56,7 @@ class Document
       if !@deletions.contains(operation["index"])
         index = @deletions.inverse(operation["index"])
         deletions.union(operation["index"])
-        if @text.length <= 1
-          @text = ""
-        else
-          @text = (index == 0 ? "" : @text[0..(index - 1)]) + ((index + 1) == @text.length ? "" : @text[(index + 1)..[(@text.length - 1), 0].max])
-        end
+        @text.slice!(index,1)
 
         for i in (0).upto((@locations.length) - 1) do
           if @locations[i] > index
@@ -71,7 +67,9 @@ class Document
     when "insert"
       @deletions.forwardTransform(operation["index"])
       index = @deletions.inverse(operation["index"])
-      @text = @text[0..[(index - 1), 0].max] + operation["value"] + @text[index..[(@text.length - 1), 0].max]
+      before = index < 1 ? "" : @text[0..[(index - 1), 0].max]
+      after = (index == @text.length ? "" : (@text.length < 1 ? "" : @text[index..[(@text.length - 1), 0].max]))
+      @text = before + operation["value"] + after
       for i in (0).upto((@locations.length) - 1) do
         if locations[i] > index
           locations[i] += 1
