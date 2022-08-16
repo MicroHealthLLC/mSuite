@@ -56,7 +56,12 @@ class Document
       if !@deletions.contains(operation["index"])
         index = @deletions.inverse(operation["index"])
         deletions.union(operation["index"])
-        @text = "#{@text.slice(0, index)}#{@text.slice(index + 1)}"
+        if @text.length <= 1
+          @text = ""
+        else
+          @text = (index == 0 ? "" : @text[0..(index - 1)]) + ((index + 1) == @text.length ? "" : @text[(index + 1)..[(@text.length - 1), 0].max])
+        end
+
         for i in (0).upto((@locations.length) - 1) do
           if @locations[i] > index
             @locations[i] -= 1
@@ -66,7 +71,7 @@ class Document
     when "insert"
       @deletions.forwardTransform(operation["index"])
       index = @deletions.inverse(operation["index"])
-      @text = "#{@text.slice(0, index)}#{operation["value"]}#{text.slice(index)}"
+      @text = @text[0..[(index - 1), 0].max] + operation["value"] + @text[index..[(@text.length - 1), 0].max]
       for i in (0).upto((@locations.length) - 1) do
         if locations[i] > index
           locations[i] += 1
@@ -77,7 +82,6 @@ class Document
 
   def merge(operation, ignoreSelf = true )
     currentId = (@priority * 0x1000000) + @counter
-    puts operation
     if ignoreSelf && (operation["priority"] == @priority) && (operation["id"] <= currentId)
       return
     end
@@ -91,8 +95,6 @@ class Document
     end
 
     for index in @revision.upto((@operations.length) -1) do
-      puts @operations.length
-      puts @revision
       if @operations[index]["id"] == operation["id"]
         @context.add(operation["id"])
       end
@@ -168,5 +170,48 @@ class Document
       result.push({priority: @priority, index: (index + 1), id: getId, value: newText[i]})
     end
     return result
+  end
+end
+
+if __FILE__ == $0
+  bundle = []
+  bundle[0] = [
+    {"priority"=>6780298, "type"=>"insert", "index"=>0, "id"=>7109657755649, "value"=>"3"},
+    {"priority"=>6780298, "type"=>"insert", "index"=>1, "id"=>7109657755650, "value"=>"3"},
+    {"priority"=>6780298, "type"=>"insert", "index"=>2, "id"=>7109657755651, "value"=>"\n"}
+  ]
+  bundle[1] = [
+    {"priority"=>6248022, "type"=>"insert", "index"=>1, "id"=>6551525916673, "value"=>"2"},
+    {"priority"=>6248022, "type"=>"insert", "index"=>2, "id"=>6551525916674, "value"=>"2"}
+  ]
+  bundle[2] = [
+    {"priority"=>6780298, "type"=>"insert", "index"=>4, "id"=>7109657755652, "value"=>"3"},
+    {"priority"=>6780298, "type"=>"insert", "index"=>5, "id"=>7109657755653, "value"=>"3"}
+  ]
+  bundle[3] = [
+    {"priority"=>6780298, "type"=>"insert", "index"=>6, "id"=>7109657755654, "value"=>"h"},
+    {"priority"=>6780298, "type"=>"insert", "index"=>7, "id"=>7109657755655, "value"=>"h"},
+    {"priority"=>6780298, "type"=>"insert", "index"=>8, "id"=>7109657755656, "value"=>"h"}
+  ]
+  bundle[4] = [
+    {"priority"=>6248022, "type"=>"insert", "index"=>5, "id"=>6551525916675, "value"=>"4"},
+    {"priority"=>6248022, "type"=>"insert", "index"=>6, "id"=>6551525916676, "value"=>"4"}
+  ]
+  bundle[5] = [
+    {"priority"=>6248022, "type"=>"insert", "index"=>7, "id"=>6551525916677, "value"=>"4"}
+  ]
+  bundle[6] = [
+    {"priority"=>6248022, "type"=>"insert", "index"=>8, "id"=>6551525916678, "value"=>"o"}
+  ]
+  document = Document.new
+  def merge(bundle, document)
+    for op in bundle do
+      document.merge(op)
+    end
+  end
+
+  for i in (0).upto(bundle.length - 1) do
+    merge(bundle[i], document)
+    p "bundle#{ i + 1} operationCount: #{document.operationsCount} text: #{document.text}"
   end
 end

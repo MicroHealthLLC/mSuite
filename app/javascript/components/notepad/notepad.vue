@@ -393,19 +393,11 @@
         this.getMindmap(this.$route.params.key)
         window.katex = katex
       }
-      let ops = JSON.parse(this.currentMindMap.canvas) || []
+      this.document.text = this.currentMindMap.canvas || ""
 
       this.createEditor()
       this.editorEvents()
       this.qeditor.focus()
-      let range = this.qeditor.getSelection()
-
-      this.document.locations = [range.index, (range.index + range.length)]
-      for (let op of ops){
-        this.document.merge(op)
-      }
-      range.index = this.document.locations[0]
-      range.length = this.document.locations[1] - this.document.locations[0]
 
       this.oldText = this.document.text
       this.qeditor.setContents([{ insert: this.document.text }])

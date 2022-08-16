@@ -48,8 +48,10 @@ class MindmapsController < AuthenticatedController
       message = password_present?
       @mindmap[:canvas] = ops.to_json
       ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
-      mindmap_params[:canvas] = document.operations.to_json
-      @mindmap.update(mindmap_params)
+      mindmap_params[:canvas] = document.text
+      p "Current text for #{@mindmap.unique_key}: #{document.text}"
+
+      @mindmap.update({canvas: document.text})
     else
       @mindmap.update(mindmap_params)
       message = password_present?
@@ -206,11 +208,8 @@ class MindmapsController < AuthenticatedController
         @@documents[@mindmap.unique_key] = Document.new
         if !@mindmap.nil?
           if !@mindmap[:canvas].nil?
-            ops = JSON.parse(@mindmap[:canvas])
             document = @@documents[@mindmap.unique_key]
-            for op in ops do
-              document.merge(op)
-            end
+            document.text = @mindmap[:canvas]
           end
         end
       end
