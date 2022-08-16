@@ -16,6 +16,7 @@
       :exportId="'todo'"
       :isEditing="isEditing"
       :temporaryUser="temporaryUser"
+      :userList="userList"
       :saveElement="saveElement"
       ref="todoNavigation">
     </navigation-bar>
@@ -161,6 +162,7 @@
   import DatePicker from 'vue2-datepicker';
   import './datepicker.css';
   import TodoMap from "./TodoMap";
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     props: ['currentMindMap'],
@@ -169,6 +171,7 @@
         isMounted: false,
         todos: [],
         todo: {},
+        userList: [],
         selectedTodo: { id: null },
         myTodos: [{
           name: '',
@@ -205,6 +208,7 @@
       ToggleButton,
       DatePicker
     },
+    mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -219,6 +223,8 @@
           {
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.temporaryUser = data.content.userEdit
             this.isEditing = data.isEditing
             if (!this.isEditing) {
@@ -260,7 +266,7 @@
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+          this.subscribeCable(this.currentMindMap.id)
         })
       },
       openPrivacy(val) {
@@ -565,29 +571,6 @@
             console.log(err)
           })
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            content: localStorage,
-            isEditing: this.isEditing
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
-      },
     },
     computed: {
       sortedTodos() {
@@ -608,6 +591,10 @@
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
 
       $(".v-switch-label, .v-right").css({"color": "#212529"})
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
   }
 </script>

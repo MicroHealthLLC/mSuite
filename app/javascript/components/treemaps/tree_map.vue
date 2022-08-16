@@ -14,6 +14,7 @@
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
       :isEditing="isEditing"
+      :userList="userList"
       :exportId="'treeMapGraph'">
     </navigation-bar>
     <div class="row mt-1 main_body">
@@ -83,6 +84,7 @@
   import ColorPalette from '../../common/modals/color_palette_modal'
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import Common from "../../mixins/common.js"
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     components: {
@@ -93,7 +95,7 @@
       DeletePasswordModal,
       ColorPalette
     },
-    mixins: [Common],
+    mixins: [Common, TemporaryUser],
     props:['currentMindMap','defaultDeleteDays','deleteAfter','expDays'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
@@ -105,6 +107,7 @@
         selectedNodeColor: null,
         nodes: [],
         width: 850,
+        userList: [],
         parent_node: null,
         child_node: null,
         addChildTreeMap: false,
@@ -159,11 +162,12 @@
       }
     },
     mounted: async function () {
-      this.$cable.subscribe({
-        channel: "WebNotificationsChannel",
-        room: this.currentMindMap.id,
-      });
+      this.subscribeCable(this.currentMindMap.id)
       this.mountMap()
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
     channels: {
       WebNotificationsChannel: {
@@ -184,6 +188,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -336,7 +342,7 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
-        this.sendLocals()
+        this.sendLocals(false)
       },
       submitChildNode: async function (obj) {
 
@@ -348,7 +354,7 @@
         } else {
           localStorage.nodeNumber = this.nodeNumber + 1
         }
-        this.sendLocals()
+        this.sendLocals(false)
         let data = {
           node: {
             title: obj.label + ' ' + localStorage.nodeNumber,
@@ -378,29 +384,6 @@
           _this.$refs['errorAddNode'].open()
           // error modal display
         })
-      },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            content: localStorage,
-            isEditing: this.isEditing
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
       },
       mountMap: async function() {
         this.parent_nodes.label = this.currentMindMap.name

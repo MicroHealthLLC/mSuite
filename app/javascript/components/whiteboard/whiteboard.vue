@@ -16,6 +16,7 @@
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :userList="userList"
       ref="whiteBoardNavigation">
     </navigation-bar>
     <div class="row">
@@ -150,13 +151,14 @@
   import MakePrivateModal from "../../common/modals/make_private_modal"
   import DeletePasswordModal from '../../common/modals/delete_password_modal';
   import Common from "../../mixins/common.js"
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   import { fabric } from './fabric.js'
   import 'fabric-history';
 
   export default {
     props: ['whiteboardImage'],
-    mixins: [Common],
+    mixins: [Common, TemporaryUser],
     data() {
       return {
         isMounted: false,
@@ -188,6 +190,7 @@
         createSelection: false,
         oldColor: '',
         temporaryUser: '',
+        userList: [],
         saveElement: false,
       }
     },
@@ -218,7 +221,15 @@
           ) {
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
+
+            if(data.content.canvas && localStorage.user != data.content.user){
+              this.canvas.loadFromJSON(data.content.canvas);
+              this.canvas.renderAll();
+            }
+
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -260,7 +271,7 @@
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+          this.subscribeCable(this.currentMindMap.id)
         })
       },
       openPrivacy(val) {
@@ -334,6 +345,7 @@
         this.rect.set('erasable',true)
         this.canvas.add(this.rect);
         this.canvas.setActiveObject(this.rect)
+        localStorage.canvas = JSON.stringify(this.canvas.toJSON())
       },
       addCircleToCanvas() {
         this.toggleResetDraw();
@@ -353,6 +365,7 @@
         });
         this.canvas.add(this.circle);
         this.canvas.setActiveObject(this.circle)
+        localStorage.canvas = JSON.stringify(this.canvas.toJSON())
       },
       addTextToCanvas() {
         this.toggleResetDraw();
@@ -367,6 +380,7 @@
         this.newObj = true
         this.canvas.add(this.text);
         this.canvas.setActiveObject(this.text)
+        localStorage.canvas = JSON.stringify(this.canvas.toJSON())
       },
       addTriangleToCanvas() {
         this.newObj = true
@@ -385,6 +399,7 @@
         })
         this.canvas.add(this.triangle);
         this.canvas.setActiveObject(this.triangle)
+        localStorage.canvas = JSON.stringify(this.canvas.toJSON())
       },
       straightLine(){
         const myPoints = Object.values(this.points);
@@ -537,6 +552,7 @@
         if(this.canvas.getActiveObject()) this.colorSelected = true
 
         this.saveElement = false
+        localStorage.canvas = JSON.stringify(this.canvas.toJSON())
         this.sendLocals(true)
       },
       mouseEvents() {
@@ -546,14 +562,16 @@
           _this.addObj = false;
         })
         this.canvas.on('mouse:move', (event) => {
-          if(!_this.createSelection && _this.canvas.getActiveObject()) _this.canvas.discardActiveObject()
+          if(!_this.createSelection && _this.canvas.getActiveObject() != undefined) _this.canvas.discardActiveObject()
           if(!this.drawLine) return
 
-          this.sendLocals(true)
 
           this.pointer = this.canvas.getPointer(event.e);
-          this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
+          if(this.stLine) this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
           this.canvas.renderAll();
+
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
+          this.sendLocals(true)
         })
         this.canvas.on('mouse:down', (event) => {
           if(_this.colorSelected) this.cancelUpdateColor()
@@ -563,7 +581,7 @@
               this.canvas.setActiveObject(activeObject)
             }
           }
-
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(false)
 
           if (this.drawLine) {
@@ -574,7 +592,7 @@
 
             this.points = [ x1, y1, x1, y1 ]
             this.straightLine()
-
+            localStorage.canvas = JSON.stringify(this.canvas.toJSON())
             this.sendLocals(true)
 
           }
@@ -596,7 +614,7 @@
           if(this.drawLine) {
             this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           }
-
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(false)
         })
         this.canvas.on('selection:created', (event) => {
@@ -610,13 +628,13 @@
             this.line = this.activeObject.strokeWidth
             this.colorPicker = this.activeObject.stroke}
           this.canvas.renderAll();
-
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(true)
         })
         this.canvas.on('selection:cleared', (event) => {
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
-
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(false)
         })
         this.canvas.on('selection:updated', (event) => {
@@ -633,7 +651,7 @@
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
 
-
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(true)
         })
       },
@@ -646,7 +664,7 @@
         if(!this.isRest){
           http.patch(`/msuite/${id}.json`,mindmap)
           this.newObj = false
-
+          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(false)
         }
         else this.isRest = false
@@ -665,29 +683,8 @@
         }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
+        localStorage.canvas = null
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
-      }
     },
     mounted() {
       if (this.$route.params.key) {
@@ -711,6 +708,10 @@
       if (this.initialImage) {
         this.canvas.loadFromJSON(this.initialImage);
         this.canvas.renderAll();
+      }
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
       }
     },
   }

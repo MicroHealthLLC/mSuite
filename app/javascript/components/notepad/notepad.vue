@@ -17,6 +17,7 @@
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :userList="userList"
       :exportId="'notepad'">
     </navigation-bar>
     <div id="notepad"></div>
@@ -49,7 +50,8 @@
   import 'katex/dist/katex.min.css'
   import Document from 'poseidon-crdt'
   import _ from 'lodash'
-
+  import TemporaryUser from "../../mixins/temporary_user.js"
+  
   export default {
     props: ['currentMindMap'],
     data() {
@@ -61,6 +63,7 @@
         saveText: null,
         toolbar: null,
         qeditor: null,
+        userList: [],
         temporaryUser: '',
         saveElement: false,
         document: new Document(),
@@ -72,6 +75,7 @@
       DeletePasswordModal,
       MakePrivateModal
     },
+    mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -89,6 +93,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -138,7 +144,7 @@
           this.deleteAfter = res.data.deleteAfter
           this.currentMindMap = res.data.mindmap
           this.isMounted = true
-          this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+          this.subscribeCable(this.currentMindMap.id)
         })
       },
       openPrivacy(val) {
@@ -356,24 +362,6 @@
           el.style.fontWeight = 'bold'
         });
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            isEditing: this.isEditing,
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-      },
     },
     updated() {
       this.savingStatus.style.fontWeight = '450';
@@ -384,7 +372,6 @@
       } else {
         this.savingStatus.innerHTML = 'Editing...';
         this.savingStatus.style.color = 'blue';
-        this.sendLocals(true)
       }
       this.strongTagStyleBold()
     },
@@ -401,6 +388,10 @@
 
       this.oldText = this.document.text
       this.qeditor.setContents([{ insert: this.document.text }])
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     },
   }
 </script>

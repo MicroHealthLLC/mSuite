@@ -16,6 +16,7 @@
       :isEditing="isEditing"
       :saveElement="saveElement"
       :excel_data="sheetData.data"
+      :userList="userList"
       :temporaryUser="temporaryUser"
       ref="spreadSheetNavigation">
     </navigation-bar>
@@ -49,6 +50,7 @@
   import { jsontoexcel } from "vue-table-to-excel";
   import "./styles/bossanova.css";
   import "./styles/jsuites.css";
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
@@ -65,6 +67,7 @@
           columns: [],
         },
         isReset: false,
+        userList: [],
         isEditing: false,
         saveElement: true,
         changeRequest: 1,
@@ -76,6 +79,7 @@
       DeletePasswordModal,
       MakePrivateModal
     },
+    mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -118,6 +122,8 @@
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
             this.isEditing = data.isEditing
             if (!this.isEditing) {
               this.saveElement = true
@@ -448,29 +454,6 @@
         }
         this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
       },
-      cableSend(){
-        this.$cable.perform({
-          channel: 'WebNotificationsChannel',
-          room: this.currentMindMap.id,
-
-          data: {
-            message: 'storage updated',
-            isEditing: this.isEditing,
-            content: localStorage
-          }
-        });
-      },
-      sendLocals(isEditing){
-        localStorage.userEdit = localStorage.user
-        localStorage.mindmap_id = this.currentMindMap.id
-        this.isEditing = isEditing
-        this.cableSend()
-
-        this.saveElement = true
-        setTimeout(()=>{
-          this.saveElement = false
-        },1200)
-      },
     },
     created() {
       setTimeout(() => this.saveElement = false, 1200)
@@ -479,7 +462,7 @@
       setTimeout(() => this.saveElement = false, 1200)
     },
     mounted() {
-      this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+      this.subscribeCable(this.currentMindMap.id)
       this.createSheet(this.currentMindMap.canvas)
       $(".jexcel_content").addClass('h-100 w-100')
       $(".jexcel").addClass('w-100 h-100')
@@ -491,6 +474,10 @@
         let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
         $('#mytable')[0].style.height = heightVal
       },200)
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
       this.isMounted = true
     },
   }

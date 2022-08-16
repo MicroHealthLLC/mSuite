@@ -114,10 +114,14 @@
         this.$emit("deleteMindmap")
       },
       findTotalDaysBetweenDates() {
-        let oneDay = 24 * 60 * 60 * 1000;
         let currentDate = new Date();
         let comingDate = new Date(this.currentMindMap.will_delete_at);
-        return Math.round(Math.abs(comingDate.getDate() - currentDate.getDate()));
+        return this.totalDays(comingDate,currentDate)
+      },
+      totalDays (date_1, date_2) {
+        let difference = date_1.getTime() - date_2.getTime();
+        let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        return TotalDays;
       }
     }
   }

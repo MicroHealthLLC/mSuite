@@ -26,16 +26,16 @@
     },
     mounted(){
       if(localStorage.user) this.user = localStorage.user
-      this.user = this.genRandomName()
+      else {
+        this.user = this.genRandomName()
+        localStorage.user = this.user
+      }
     },
     watch:{
       user(newName) {
-        if (newName == ''){
-          if(localStorage.userNumber == 'NaN') localStorage.userNumber = 1
-          else localStorage.userNumber = parseInt(localStorage.userNumber) + 1
-          newName = 'User ' + localStorage.userNumber
-        }
+        if (newName == '') newName = this.genRandomName()
         localStorage.user = newName;
+        this.user = newName
       }
     },
     methods: {

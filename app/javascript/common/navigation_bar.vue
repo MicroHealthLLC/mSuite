@@ -1,121 +1,48 @@
 <template>
   <div class="buttons_area">
-    <div class="buttons_container p-2">
-      <span class="flex ml-5">
+    <div class="buttons_container px-2 pt-2 row pb-0">
+      <span class="flex ml-5 col-2 pr-0">
         <a
           href="javascript:;"
           role="button"
-          class="navbar-brand"
+          class="navbar-brand p-0"
           @click.stop="goHome"
         >
           <img src="/assets/msuite.png"/>
         </a>
-    
       </span>
-      <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
-      <textarea
-        v-show="editable"
-        :rows="1"
-        id="mSuiteTitle"
-        @keydown.enter.prevent="mSuiteTitleUpdate"
-        type="text"
-        v-debounce:3000ms="blurEvent"
-        v-model="mSuiteName"
-        class="border-0 mindmap-title w-25 text-sapphire font-weight-bold align-items-center pt-2 mt-1"
-        @blur="mSuiteTitleUpdate"
-        placeholder="Enter mSuite Map Title"
-      >
-      </textarea>
-
-      <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'">
-        <a
-          href="javascript:;"
-          role="button"
-          :disabled="!selectedNode"
-          :class="{button_disabled: !selectedNode}"
-          class="d-flex text-info edit_delete_btn mr-3 center_flex"
-          @click.stop="deleteSelectedNode"
+      <span class="col-9">
+        <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
+        <textarea
+          v-show="editable"
+          :rows="1"
+          id="mSuiteTitle"
+          @keydown.enter.prevent="mSuiteTitleUpdate"
+          type="text"
+          v-debounce:3000ms="blurEvent"
+          v-model="mSuiteName"
+          class="border-0 mindmap-title text-sapphire font-weight-bold align-items-center pt-2 mt-1"
+          @blur="mSuiteTitleUpdate"
+          placeholder="Enter mSuite Map Title"
         >
-          <i class="material-icons delete_icon icons d-flex center_flex"></i>
-        </a>
+        </textarea>
         <a
           href="javascript:;"
           role="button"
-          :disabled="!selectedNode"
-          :class="{button_disabled: !copiedNode}"
-          class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-          @click.stop="pasteCopiedNode"
-        >
-          <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Paste</span>
-        </a>
-        <a
-          href="javascript:;"
-          role="button"
-          :disabled="!selectedNode"
-          :class="{button_disabled: !selectedNode}"
-          class="fa-icon d-flex text-info edit_delete_btn mr-3 center_flex"
-          @click.stop="cutSelectedNode"
-        >
-          <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Cut</span>
-        </a>
-        <a
-          href="javascript:;"
-          role="button"
-          :disabled="!selectedNode"
-          :class="{button_disabled: !selectedNode}"
-          class="d-flex text-info edit_delete_btn mr-3 center_flex"
-          @click.stop="copySelectedNode"
-        >
-          <i class="material-icons copy_icon icons d-flex center_flex"></i>
-        </a>
-      </span>
-      <a
-        href="javascript:;"
-        role="button"
-        class="d-flex text-info pointer mr-3 center_flex"
-        v-b-tooltip.hover title="Status"
-      >
-        <div v-if="isEditing">
-          <span>{{temporaryUser}} is Editing</span>
-          <span class="dots-cont" v-if="isEditing">
-            <span class="dot dot-1"></span>
-            <span class="dot dot-2"></span>
-            <span class="dot dot-3"></span>
-          </span>
-        </div>
-      </a>
-
-
-      <a
-        href="javascript:;"
-        role="button"
-        class="d-flex text-info pointer mr-3 center_flex"
-        v-b-tooltip.hover title="Status"
-        v-if="saveElement"
-      >
-          <span>Edited By {{temporaryUser}}</span>
-      </a>
-
-      <span>
-        <a
-          href="javascript:;"
-          role="button"
-          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          v-b-tooltip.hover title="Delete"
+          class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.prevent="deleteMindmap"
         >
           <i class="fas fa-trash-alt icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Delete</span>
         </a>
         <a
           href="javascript:;"
           role="button"
-          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          v-b-tooltip.hover title="User"
+          class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.prevent="openUserModal"
         >
           <i class="fas fa-user-edit icons d-flex center_flex"></i>
-          <span class="fa-icon-text">User</span>
         </a>
         <a
           href="javascript:;"
@@ -130,92 +57,86 @@
           href="javascript:;"
           role="button"
           class="d-flex text-info edit_delete_btn mr-3 center_flex"
+          v-b-tooltip.hover title="Reset"
           @click.stop="resetMap"
         >
           <i class="material-icons restore_icon icons d-flex center_flex"></i>
         </a>
-        <a
-          v-if="currentMindMap.mm_type==='kanban' ||
-                currentMindMap.mm_type==='tree_chart' ||
-                currentMindMap.mm_type==='flowmap' ||
-                currentMindMap.mm_type==='todo' ||
-                currentMindMap.mm_type==='tree_map'"
-          href="javascript:;"
-          role="button"
-          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-          @click.stop="redoMindmap"
-        >
-          <i class="fas fa-redo-alt"></i>
-          <span class="fa-icon-text">Redo</span>
-        </a>
-        <a
-          v-if="currentMindMap.mm_type==='kanban' ||
-                currentMindMap.mm_type==='tree_chart' ||
-                currentMindMap.mm_type==='flowmap' ||
-                currentMindMap.mm_type==='todo' ||
-                currentMindMap.mm_type==='tree_map'"
-          href="javascript:;"
-          role="button"
-          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-          @click.stop="undoMindmap"
-        >
-          <i class="fas fa-undo-alt"></i>
-          <span class="fa-icon-text">Undo</span>
-        </a>
+        <span v-if="checkMSuiteTypes">
+          <a
+            href="javascript:;"
+            role="button"
+            v-b-tooltip.hover title="Redo"
+            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.stop="redoMindmap"
+          >
+            <i class="fas fa-redo-alt"></i>
+          </a>
+          <a
+            href="javascript:;"
+            role="button"
+            v-b-tooltip.hover title="Undo"
+            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.stop="undoMindmap"
+          >
+            <i class="fas fa-undo-alt"></i>
+          </a>
+        </span>
         <a
           v-if="currentMindMap.mm_type==='simple'"
           ref="exportWordBtn"
           role="button"
-          class="fa-icon d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+          v-b-tooltip.hover title="Export Word"
+          class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.stop="exportToWord"
         >
           <i class="fas fa-file-word icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Export Word</span>
         </a>
         <a
           ref="exportBtn"
           role="button"
           href="javascript:;"
+          v-b-tooltip.hover title="Export"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.prevent.stop="$refs['exportOption'].open()"
         >
           <i class="material-icons export_icon icons d-flex center_flex"></i>
-            <!-- <font-awesome-icon icon="fa-solid fa-file-export d-flex center_flex" /> -->
         </a>
         <a
           v-if="currentMindMap.mm_type==='spreadsheet'"
           ref="exportBtn"
           role="button"
           href="javascript:;"
-          class="fa-icon zoom_btn text-info edit_delete_btn center_flex mr-3"
+          class="zoom_btn text-info edit_delete_btn center_flex mr-3"
+          v-b-tooltip.hover title="Export"
           @click.prevent.stop="$refs['exportOptionCsv'].open()"
         >
           <i class="fas fa-file-excel icons d-flex center_flex"></i>
-          <span class="fa-icon-text">Export</span>
         </a>
         <a
           role="button"
           href="javascript:;"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
           @click.prevent.stop="saveMSuite"
-          v-b-tooltip.hover :title="currentMindMap.will_delete_at"
+          v-b-tooltip.hover :title="'Expires '+ expireDateTime"
         >
           <i class="material-icons save_btn icons d-flex center_flex"></i>
         </a>
-        <span class="scaling_area" v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart' || currentMindMap.mm_type === 'flowmap'">
+        <span v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart' || currentMindMap.mm_type === 'flowmap'">
           <a
             v-if="scaleFactor != 1"
             href="javascript:;"
             role="button"
-            class="fa-icon zoom_btn text-info edit_delete_btn center_flex mr-3"
+            v-b-tooltip.hover title="100%"
+            class="zoom_btn text-info edit_delete_btn center_flex mr-3"
             @click.prevent="resetZoomScale"
           >
             <i class="fas fa-history icons d-flex center_flex"></i>
-            <span class="fa-icon-text">100%</span>
           </a>
           <a
             href="javascript:;"
             role="button"
+            v-b-tooltip.hover title="Zoom +"
             class="zoom_btn text-info edit_delete_btn center_flex mr-3"
             @click.prevent="zoomInScale"
           >
@@ -224,12 +145,83 @@
           <a
             href="javascript:;"
             role="button"
+            v-b-tooltip.hover title="Zoom -"
             class="zoom_btn text-info edit_delete_btn mr-3 center_flex"
             @click.prevent="zoomOutScale"
           >
             <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
           </a>
         </span>
+        <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'">
+          <a
+            href="javascript:;"
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
+            v-b-tooltip.hover title="Delete"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
+            @click.stop="deleteSelectedNode"
+          >
+            <i class="material-icons delete_icon icons d-flex center_flex"></i>
+          </a>
+          <a
+            href="javascript:;"
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !copiedNode}"
+            v-b-tooltip.hover title="Paste"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
+            @click.stop="pasteCopiedNode"
+          >
+            <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
+          </a>
+          <a
+            href="javascript:;"
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
+            v-b-tooltip.hover title="Cut"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
+            @click.stop="cutSelectedNode"
+          >
+            <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
+          </a>
+          <a
+            href="javascript:;"
+            role="button"
+            :disabled="!selectedNode"
+            :class="{button_disabled: !selectedNode}"
+            v-b-tooltip.hover title="Copy"
+            class="d-flex text-info edit_delete_btn mr-3 center_flex"
+            @click.stop="copySelectedNode"
+          >
+            <i class="material-icons copy_icon icons d-flex center_flex"></i>
+          </a>
+        </span>
+      </span>
+      <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem;">
+        <a
+          href="javascript:;"
+          role="button"
+          class="d-flex text-info pointer mr-3 center_flex"
+          v-b-tooltip.hover title="Status"
+        >
+          <div v-if="renderUserList && renderUserList.length > 0">
+            Editing by:
+            <span v-for="user in renderUserList">
+              {{user}},
+            </span>
+          </div>
+        </a>
+        <a
+          href="javascript:;"
+          role="button"
+          class="d-flex text-info pointer mr-3 center_flex"
+          v-b-tooltip.hover title="Status"
+          v-if="temporaryUser"
+        >
+            <span> Last Edited By {{temporaryUser}}</span>
+        </a>
       </span>
     </div>
     <sweet-modal>
@@ -282,13 +274,14 @@
   import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
         editable: false,
         isSaveMSuite: true,
-        isMsuiteSaved: true
+        isMsuiteSaved: true,
+        dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
       }
     },
     created(){
@@ -301,9 +294,19 @@
       UserMapModal
     },
     computed: {
+      renderUserList () {
+        if(this.userList) return this.userList.filter((v, i, a) => a.indexOf(v) === i)
+      },
       mSuiteTitle () {
         return this.mSuiteName
       },
+      expireDateTime () {
+        let x = new Date(this.currentMindMap.will_delete_at)
+        return x.toDateString();
+      },
+      checkMSuiteTypes () {
+        return this.currentMindMap.mm_type==='kanban' || this.currentMindMap.mm_type==='tree_chart' || this.currentMindMap.mm_type==='flowmap' || this.currentMindMap.mm_type==='todo' || this.currentMindMap.mm_type==='tree_map'
+      }
     },
     filters: {
       truncate: function(data,num){
