@@ -570,8 +570,6 @@
           if(this.stLine) this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
           this.canvas.renderAll();
 
-          localStorage.canvas = JSON.stringify(this.canvas.toJSON())
-          this.sendLocals(true)
         })
         this.canvas.on('mouse:down', (event) => {
           if(_this.colorSelected) this.cancelUpdateColor()
@@ -681,6 +679,7 @@
             title: 'Title'
           }
         }
+        localStorage.canvas = mindmap.mindmap.canvas
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
         localStorage.canvas = null
