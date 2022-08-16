@@ -14,30 +14,50 @@
       :saveElement="saveElement"
       ref="calendarNavigation">
     </navigation-bar>
-    <div id="cal">
-      <div>
-        <button @click="toggleCalendarView('month')">Month</button>
-        <button @click="toggleCalendarView('week')">Week</button>
-        <button @click="toggleCalendarView('day')">Day</button>
+    <div id="cal" class="row">
+      <div class="col-9 d-flex px-5">
+        <span class="py-2 pl-2">
+          <a
+            href="javascript:;"
+            role="button"
+            class="d-flex text-info pointer mr-3"
+            @click.prevent="moveCalendar(-1)"
+          >
+            <i class="fa fa-solid fa-less-than d-flex"></i>
+          </a>
+        </span>
+        <span class="p-1 text-info">{{this.calendarTitle}}</span>
+        <span class="p-2">
+          <a
+            href="javascript:;"
+            role="button"
+            class="d-flex text-info pointer mr-3"
+            @click.prevent="moveCalendar(1)"
+          >
+            <i class="fa fa-solid fa-greater-than d-flex"></i>
+          </a>
+        </span>
       </div>
-      <div>
-        <button @click="moveCalendar(-1)">Previous</button>
-        <span>{{this.calendarTitle}}</span>
-        <button @click="moveCalendar(1)">Next</button>
+      <div class="col-3 text-info d-flex justify-content-end pr-5">
+        <select id="calendarFormate" class="form-control w-50" @change="toggleCalendarView()">
+          <option selected value="month">Month</option>
+          <option value="week"> Week </option>
+          <option value="day"> Day </option>
+        </select>
       </div>
-      <b-popover target="calendar" :show.sync="showEditEvent" class="editPopup" v-if="showEditEvent">
-        <div>
-          <button @click="editEventModal">edit</button>
-          <button @click="deleteEvents">delete</button>
-          <button @click="showEditEvent = false">cross</button>
-        </div>
-        <div>{{this.showEvent.title}}</div>
-        <div>{{this.showEvent.start.d.d}}</div>
-        <div>{{this.showEvent.body}}</div>
-        <div>{{this.showEvent.state}}</div>
-      </b-popover>
-      <div id="calendar"></div>
+      <div class="col-12 px-5" id="calendar"></div>
     </div>
+    <b-popover target="calendar" :show.sync="showEditEvent" class="editPopup" v-if="showEditEvent">
+      <div>
+        <button @click="editEventModal">edit</button>
+        <button @click="deleteEvents">delete</button>
+        <button @click="showEditEvent = false">cross</button>
+      </div>
+      <div>{{this.showEvent.title}}</div>
+      <div>{{this.showEvent.start.d.d}}</div>
+      <div>{{this.showEvent.body}}</div>
+      <div>{{this.showEvent.state}}</div>
+    </b-popover>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
@@ -248,7 +268,8 @@
           this.updateEvent(data)
         });
       },
-      toggleCalendarView(value){
+      toggleCalendarView(){
+        let value = document.getElementById("calendarFormate").value;
         this.calendar.changeView(value);
       },
       moveCalendar(value){
