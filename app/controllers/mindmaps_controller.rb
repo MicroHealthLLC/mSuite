@@ -205,10 +205,10 @@ class MindmapsController < AuthenticatedController
       @@documents[:counter] += 1
       @mindmap = Mindmap.find_by(unique_key: params[:id])
       if @@documents[params[:id]].nil?
-        @@documents[@mindmap.unique_key] = Document.new
+        @@documents[params[:id]] = Document.new
         if !@mindmap.nil?
           if !@mindmap[:canvas].nil?
-            document = @@documents[@mindmap.unique_key]
+            document = @@documents[params[:id]]
             document.text = @mindmap[:canvas]
           end
         end
