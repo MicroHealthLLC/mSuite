@@ -57,7 +57,7 @@ class Document
         index = @deletions.inverse(operation["index"])
         deletions.union(operation["index"])
         @text.slice!(index,1)
-
+        @text = @text || ""
         for i in (0).upto((@locations.length) - 1) do
           if @locations[i] > index
             @locations[i] -= 1
@@ -84,7 +84,7 @@ class Document
       return
     end
 
-    if (@revision < @operations.length) && (@operations[@revision]["id"] == id)
+    if (@revision < @operations.length) && (@operations[@revision]["id"] == operation["id"])
       while (@revision < @operations.length) && @context.include?(@operations[@revision]["id"])
         @context.delete?(@operations[@revision]["id"])
         @revision += 1
