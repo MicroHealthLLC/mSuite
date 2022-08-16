@@ -42,3 +42,6 @@ dump.rdb
 
 # Ignore env files
 .env
+vendor/
+mysql2-0.5.4
+.idea
