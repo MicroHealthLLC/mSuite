@@ -21,7 +21,7 @@
     "jspreadsheet-ce": "^4.11.1",
     "katex": "^0.16.0",
     "lodash": "^4.17.21",
-    "poseidon-crdt": "^0.1.7",
+    "poseidon-crdt": "^0.1.8",
     "quill": "^1.3.7",
     "sortablejs": "^1.14.0",
     "sweet-modal-vue": "^2.0.0",
