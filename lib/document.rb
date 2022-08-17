@@ -69,7 +69,7 @@ class Document
       index = @deletions.inverse(operation["index"])
       before = index < 1 ? "" : @text[0..[(index - 1), 0].max]
       after = (index == @text.length ? "" : (@text.length < 1 ? "" : @text[index..[(@text.length - 1), 0].max]))
-      @text = before + operation["value"] + after
+      @text = (before || "") + (operation["value"] || "") + (after || "")
       for i in (0).upto((@locations.length) - 1) do
         if locations[i] > index
           locations[i] += 1
