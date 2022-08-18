@@ -122,20 +122,20 @@
                 </div>
               </li> 
               <div v-if="replyField && selectedComment.id === comment.id">
-                  <div class="row mb-2">
-                    <div class="form__group field">
-                      <input 
-                        type="input" 
-                        v-model="replyNotes" 
-                        class="form__field" 
-                        placeholder="Type Your Reply Here..." 
-                        @keydown.enter="postReplyComment(comment)"
-                        required />
-                      <label for="name" class="form__label">Your Reply</label>
-                    </div>
-                    <i class="fas pointer fa-times feedback feedback-cancel mt-4" @click="replyField = false"></i>
+                <div class="row mb-2">
+                  <div class="form__group field">
+                    <input
+                      type="input"
+                      v-model="replyNotes"
+                      class="form__field"
+                      placeholder="Type Your Reply Here..."
+                      @keydown.enter="postReplyComment(comment)"
+                      required />
+                    <label for="name" class="form__label">Your Reply</label>
                   </div>
+                  <i class="fas pointer fa-times feedback feedback-cancel mt-4" @click="replyField = false"></i>
                 </div>
+              </div>
             </ul>
           </li>
         </ul>

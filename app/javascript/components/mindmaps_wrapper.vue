@@ -27,6 +27,8 @@
   import ToDo from "./todo/todo"
   import Notepad from "./notepad/notepad"
   import SpreadSheet from "./spreadsheet/spreadsheet"
+  import Poll from "./poll/poll"
+
   export default {
     components: {
       MindmapView,
@@ -38,7 +40,8 @@
       Flowmap,
       ToDo,
       Notepad,
-      SpreadSheet
+      SpreadSheet,
+      Poll
     },
     data() {
       return {
@@ -75,6 +78,8 @@
               return "Notepad"
             case "spreadsheet":
               return "SpreadSheet"
+            case "poll":
+              return "Poll"
             default:
               return "MindmapView"
           }
