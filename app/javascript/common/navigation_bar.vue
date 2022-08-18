@@ -114,6 +114,17 @@
           <i class="fas fa-file-excel icons d-flex center_flex"></i>
         </a>
         <a
+          v-if="currentMindMap.mm_type==='poll'"
+          ref="pollEditBtn"
+          role="button"
+          href="javascript:;"
+          class="zoom_btn text-info edit_delete_btn center_flex mr-3"
+          v-b-tooltip.hover title="Edit Poll"
+          @click.prevent.stop="editPollStatus "
+        >
+          <i class="fad fa-edit icons d-flex center_flex"></i>
+        </a>
+        <a
           role="button"
           href="javascript:;"
           class="d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -256,6 +267,33 @@
       <button slot="button" @click="exportXLS(2)" class="btn btn-info float-left">Export to csv</button>
       <button slot="button" @click="$refs['exportOptionCsv'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
+    <sweet-modal ref="editPoll" class="of_v" icon="info" title="Enter Pin">
+      Kindly Enter the Pin of Poll
+      <div class="">
+        <div class="form__group__parent field">
+          <input
+            id="pin"
+            type="input"
+            ref="pin"
+            v-model="poll_pin"
+            class="form__field"
+            :class="showError ? 'shake': ''"
+            placeholder="your pin please"
+            @blur="enterPin"
+            @keyup.enter="enterPin"
+            required />
+          <label
+            for="name"
+            class="form__label"
+            :class="showError ? 'shake': ''">
+            Pin is required
+          </label>
+        </div>
+      </div>
+    </sweet-modal>
+    <sweet-modal ref="pin_error" class="of_v" icon="error">
+      You entered wrong pin
+    </sweet-modal>
     <reset-map-modal
       ref="reset-map-modal"
       @reset-mindmap="resetMindmap"
@@ -274,13 +312,15 @@
   import CommentMapModal from "./modals/comment_map_modal"
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList","pollPin","pollEdit"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
         editable: false,
         isSaveMSuite: true,
         isMsuiteSaved: true,
+        poll_pin: null,
+        pollEditing: false,
         dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
       }
     },
@@ -370,6 +410,7 @@
         this.$emit("deleteMindmap")
       },
       resetMindmap () {
+        this.pollEditing = false
         this.$emit("resetMindmap")
       },
       exportToWord () {
@@ -427,6 +468,23 @@
         if (e.target) {
           e.target.blur()
         };
+      },
+      editPollStatus(){
+        this.$refs['editPoll'].open()
+        this.pollEditing = true
+      },
+      enterPin(){
+        if (this.pollPin.pin == ''){
+          return
+        } else if( this.pollEditing && ( this.poll_pin == this.pollPin.pin ) ) {
+          this.$emit('pollEditData')
+          this.$refs['editPoll'].close()
+        } else if ( this.poll_pin == this.pollPin.pin ){
+          this.$emit('pollEditData')
+          this.$emit('resetMindmap')
+          this.$refs['editPoll'].close()
+        }
+        else this.$refs['pin_error'].open()
       },
       exportImage(option) {
         if (this.currentMindMap.mm_type === 'simple')

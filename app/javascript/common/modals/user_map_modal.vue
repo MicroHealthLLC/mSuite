@@ -17,11 +17,13 @@
   </sweet-modal>
 </template>
 <script>
+  import { uuid } from 'vue-uuid';
 
   export default {
     data(){
       return {
-        user: ''
+        user: '',
+        user_id: uuid.v1()
       }
     },
     mounted(){
@@ -29,6 +31,11 @@
       else {
         this.user = this.genRandomName()
         localStorage.user = this.user
+      }
+      if(localStorage.user_id) this.user_id = localStorage.user_id
+      else {
+        this.user_id = this.genRandomId()
+        localStorage.user_id = this.user_id
       }
     },
     watch:{
@@ -45,6 +52,9 @@
         for (var i = 0; i < 5; i++)
           text += possible.charAt(Math.floor(Math.random() * possible.length));
         return text;
+      },
+      genRandomId() {
+        return uuid.v1()
       }
     }
   }
