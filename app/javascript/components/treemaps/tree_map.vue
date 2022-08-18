@@ -504,6 +504,7 @@
         }
       },
       textEdit(eventElement, value){
+        if(this.oldEventElement) this.oldEventElement.target.style.backgroundColor = ""
         let _this = this
         _this.sendLocals(true)
         _this.hiddenNode = true
