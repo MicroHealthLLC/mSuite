@@ -136,32 +136,35 @@
             this.currentMindMap.id === data.mindmap.id
           ) {
             this.currentMindMap = data.mindmap
-            this.sheetData = JSON.parse(data.mindmap.canvas)
-            if(this.sheetData && this.sheetData.data != undefined) this.table.setData(JSON.parse(data.mindmap.canvas).data)
-            this.changeRequest = this.changeRequest + 1
-            if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
-            if(this.sheetData.column != undefined) {
-              if(this.sheetData.columns.length != this.table.options.columns.length){
+            if(this.currentMindMap.canvas)
+            {
+              this.sheetData = JSON.parse(data.mindmap.canvas)
+              if(this.sheetData && this.sheetData.data != undefined) this.table.setData(JSON.parse(data.mindmap.canvas).data)
+              if(this.sheetData && this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
+              this.changeRequest = this.changeRequest + 1
+              if(this.sheetData && this.sheetData.column != undefined) {
+                if(this.sheetData.columns.length != this.table.options.columns.length){
 
-                if(this.sheetData.column.addCol){
-                  this.table.insertColumn({
-                    insertBefore: this.sheetData.column.insertBefore,
-                    numOfColumns: this.sheetData.column.numOfColumns,
-                    columnNumber: this.sheetData.column.columnNumber,
-                  })
-                } else if(this.sheetData.column.delCol){
-                  this.table.deleteColumn(this.sheetData.column.columnNumber, this.sheetData.column.numOfColumns)
-                  this.sheetData.columns.pop()
-                }
+                  if(this.sheetData.column.addCol){
+                    this.table.insertColumn({
+                      insertBefore: this.sheetData.column.insertBefore,
+                      numOfColumns: this.sheetData.column.numOfColumns,
+                      columnNumber: this.sheetData.column.columnNumber,
+                    })
+                  } else if(this.sheetData.column.delCol){
+                    this.table.deleteColumn(this.sheetData.column.columnNumber, this.sheetData.column.numOfColumns)
+                    this.sheetData.columns.pop()
+                  }
 
-                this.sheetData.column = null
+                  this.sheetData.column = null
 
-                let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-                let id = this.currentMindMap.unique_key
-                if(!this.isReset){
-                  http.patch(`/msuite/${id}.json`,mindmap)
-                  this.saveElement = true
-                  this.sendLocals(false)
+                  let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+                  let id = this.currentMindMap.unique_key
+                  if(!this.isReset){
+                    http.patch(`/msuite/${id}.json`,mindmap)
+                    this.saveElement = true
+                    this.sendLocals(false)
+                  }
                 }
               }
             }
