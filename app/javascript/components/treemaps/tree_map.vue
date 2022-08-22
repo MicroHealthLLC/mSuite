@@ -156,6 +156,10 @@
                   this.deleteNode(value)
                 }
               }
+              else if(event.target.tagName === 'DIV')
+              {
+                if(this.oldEventElement) this.oldEventElement.target.style.backgroundColor = ""
+              }
             })
           }
         }
