@@ -522,6 +522,9 @@
         _this.colorSelected = false
         _this.sendLocals(false)
         _this.oldEventElement = eventElement
+        eventElement.target.addEventListener('blur', function(){
+          if(_this.oldEventElement) _this.oldEventElement.target.style.backgroundColor = ""
+        })
         eventElement.target.addEventListener('keyup', function(){
           clearTimeout(keyUpTimeOut)
           var newTitle = event.target.innerText.split('\n').join('')
