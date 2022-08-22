@@ -40,7 +40,7 @@
     },
     watch:{
       user(newName) {
-        if (newName == '') newName = this.genRandomName()
+        if (newName.trim() == '') newName = this.genRandomName()
         localStorage.user = newName;
         this.user = newName
       }
