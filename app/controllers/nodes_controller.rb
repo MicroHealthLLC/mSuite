@@ -13,7 +13,7 @@ class NodesController < AuthenticatedController
       dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
       Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
     end
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
       format.html { }
@@ -43,7 +43,7 @@ class NodesController < AuthenticatedController
       delNodes = delete_child_nodes Node.where(parent_node: @node.id)
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
       respond_to do |format|
         format.json { render json: {success: true, node: delNodes}}
         format.html { }
@@ -76,7 +76,7 @@ class NodesController < AuthenticatedController
     @flag = params[:flag]
     @node.update_column('hide_children', @flag)
     hide_show_nested_children(Node.where(parent_node: @node.id))
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "This is Message"
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
     respond_to do |format|
       format.json { render json: {success: true}}
       format.html { }

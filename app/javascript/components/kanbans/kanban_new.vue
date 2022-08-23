@@ -204,12 +204,20 @@
               },1200)
             }
           }
+          else if(data.message === "Reset mindmap"){
+            this.getMindmap()
+          }
+          else if(data.message === "Stage Reset"){
+            this.allStages = data.stages
+            this.updateBackgroundColors()
+          }
           else {
             this.getAllStages()
             this.getAllNodes()
-            setTimeout(() => {
+            if(data.message === "Stage Updated"){
+              this.allStages = data.stages
               this.updateBackgroundColors()
-            }, 100)
+            }
           }
         }
       }

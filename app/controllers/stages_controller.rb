@@ -19,8 +19,9 @@ class StagesController < AuthenticatedController
   end
 
   def update
+    @stages = Stage.where(mindmap_id: @stage.mindmap_id)
     if @stage.update(stage_params)
-      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Updated", stage: @stage
+      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Updated", stage: @stage, stages: @stages
       respond_to do |format|
         format.json { render json: {stage: @stage} }
         format.html { }
