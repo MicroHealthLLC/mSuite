@@ -13,7 +13,7 @@ class NodesController < AuthenticatedController
       dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
       Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
     end
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
       format.html { }
@@ -43,7 +43,7 @@ class NodesController < AuthenticatedController
       delNodes = delete_child_nodes Node.where(parent_node: @node.id)
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
       respond_to do |format|
         format.json { render json: {success: true, node: delNodes}}
         format.html { }
@@ -138,6 +138,7 @@ class NodesController < AuthenticatedController
       :position,
       :node_width,
       :duedate,
+      :startdate,
       node_files: []
     )
   end
@@ -155,6 +156,7 @@ class NodesController < AuthenticatedController
       :description,
       :position,
       :node_width,
+      :startdate,
       :duedate,
       node_files: []
     )

@@ -4,7 +4,8 @@
     <%= render 'layouts/head_items' %>
     <%= action_cable_meta_tag %>
     <%= csrf_meta_tags %>
-  </head>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes"></head>
 
   <body>
     <%= yield %>

@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get 'nodes/hide_children' => 'nodes#hide_children'
   get 'error_404' => 'home#page_404'
   post 'msuite/is_msuite_empty' =>'mindmaps#delete_empty_msuite'
+  post '/msuite/sendkeys' => 'mindmaps#sendkeys'
 
   resources :mindmaps, path: 'msuite', except: [:edit] do
     member do
