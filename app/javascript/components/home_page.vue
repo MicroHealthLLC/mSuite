@@ -27,6 +27,7 @@
               <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
               <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
               <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
+              <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
               <span class="text-center icon-text">{{type.value}}</span>
             </div>
           </div>
@@ -80,7 +81,8 @@
           { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
           { key: 'todo', value: 'ToDo', imgsrc: "" },
           { key: 'Notepad', value: 'Notepad', imgsrc: "" },
-          { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" }
+          { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" },
+          { key: 'calendar', value: 'Calendar', imgsrc: "" }
         ]
       }
     },

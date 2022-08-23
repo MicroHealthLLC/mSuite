@@ -12,7 +12,6 @@ import store from '../store/TreeMap'
 import vueDebounce from 'vue-debounce'
 import VueTextareaAutosize from 'vue-textarea-autosize'
 import VueCookies from 'vue-cookies';
-
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
 Vue.use(ActionCableVue, {
@@ -34,7 +33,6 @@ Vue.component('sweet-modal-tab', SweetModalTab)
 Vue.use(vueDebounce,{
   listenTo: 'keyup',
 })
-
 // eslint-disable-next-line no-unused-vars
 window._MindmapApp_ = new Vue({
   router,
