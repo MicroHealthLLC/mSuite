@@ -1,6 +1,8 @@
 require "tree.rb"
 require "set"
+require "logger"
 
+$logger = Logger.new(STDOUT)
 def adjustOperation(operation1, operation2)
   if operation2["type"] != "insert"
     return operation1
@@ -100,6 +102,8 @@ class Document
     s = nil
     t = nil
 
+    $logger.debug("Revision #{@revision}")
+    $logger.debug("Operations Count #{@operations.length}")
     for index in ((@operations.length) - 1).downto(@revision) do
       current = @operations[index]
       if @current["type"]
