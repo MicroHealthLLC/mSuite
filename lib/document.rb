@@ -106,6 +106,7 @@ class Document
     $logger.debug("Operations Count #{@operations.length}")
     for index in ((@operations.length) - 1).downto(@revision) do
       current = @operations[index]
+      $logger.debug("Current Operation #{current}")
       if @current["type"]
         i = !s.nil? ? s.transform(current["index"]) : current["index"]
         if !context.include?(current["index"])
