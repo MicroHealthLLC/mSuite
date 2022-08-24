@@ -118,10 +118,13 @@
              let range = this.qeditor.getSelection()
 
              this.document.locations = [range.index, (range.index + range.length)]
-             for (let op of ops){
+             let before = this.document.operationsCount
+             for (let op of ops) {
                this.document.merge(op)
              }
-
+             if (this.document.operationsCount > before) {
+               console.log("received operations", ops)
+             }
              range.index = this.document.locations[0]
              range.length = this.document.locations[1] - this.document.locations[0]
 
@@ -213,6 +216,7 @@
           for (let op of ops) {
             this.document.merge(op, false)
           }
+          console.log("sent operations", ops)
 
           this.oldText = this.document.text
           let stringOps = JSON.stringify(ops)
@@ -380,7 +384,12 @@
         this.getMindmap(this.$route.params.key)
         window.katex = katex
       }
-      this.document.text = this.currentMindMap.canvas || ""
+      if (this.currentMindMap.canvas) {
+        let ops = JSON.parse(this.currentMindMap.canvas)
+        for (let op of ops) {
+          this.document.merge(op)
+        }
+      }
 
       this.createEditor()
       this.editorEvents()
