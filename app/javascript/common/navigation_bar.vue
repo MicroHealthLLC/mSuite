@@ -11,7 +11,7 @@
           <img src="/assets/msuite.png"/>
         </a>
       </span>
-      <span class="col-9">
+      <span class="col-3 d-flex justify-content-center px-0">
         <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
         <textarea
           v-show="editable"
@@ -21,11 +21,13 @@
           type="text"
           v-debounce:3000ms="blurEvent"
           v-model="mSuiteName"
-          class="border-0 mindmap-title text-sapphire font-weight-bold align-items-center pt-2 mt-1"
+          class="mindmap-title border-0 text-sapphire font-weight-bold align-items-center pt-2 mt-1 w-100 text-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
         >
         </textarea>
+      </span>
+      <span class="col-6">
         <a
           href="javascript:;"
           role="button"
@@ -547,38 +549,38 @@
   @import "../components/mindmaps/styles/mindmap_new.scss";
 
   .dot {
-   width: 3px;
-   height: 3px;
-   background: #0F6674;
-   display: inline-block;
-   border-radius: 50%;
-   right: 0px;
-   bottom: 0px;
-   margin: 0px 0.2px;
-   position: relative;
-   animation: jump 1s infinite;
+    width: 3px;
+    height: 3px;
+    background: #0F6674;
+    display: inline-block;
+    border-radius: 50%;
+    right: 0px;
+    bottom: 0px;
+    margin: 0px 0.2px;
+    position: relative;
+    animation: jump 1s infinite;
   }
   .dots-cont:hover > .dot {
-   animation: none;
+    animation: none;
   }
   .dots-cont .dot-1 {
-   -webkit-animation-delay: 100ms;
-   animation-delay: 100ms;
+    -webkit-animation-delay: 100ms;
+    animation-delay: 100ms;
   }
   .dots-cont .dot-2 {
-   -webkit-animation-delay: 200ms;
-   animation-delay: 200ms;
+    -webkit-animation-delay: 200ms;
+    animation-delay: 200ms;
   }
   .dots-cont .dot-3 {
-   -webkit-animation-delay: 300ms;
-   animation-delay: 300ms;
+    -webkit-animation-delay: 300ms;
+    animation-delay: 300ms;
   }
   @keyframes jump {
-   0%   {bottom: 0px;}
-   20%  {bottom: 5px;}
-   40%  {bottom: 0px;}
+    0%   {bottom: 0px;}
+    20%  {bottom: 5px;}
+    40%  {bottom: 0px;}
   }
-
-
-
+  .mindmap-title{
+    resize:none
+  }
 </style>
