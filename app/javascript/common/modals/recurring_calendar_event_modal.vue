@@ -12,8 +12,8 @@
           <label class="form-label ">Repeat Every</label>
         </span>
         <span class="col-9 d-flex px-0">
-          <input type="number" v-model="repeatTime" min="1" max="100" class="w-25 mx-2 form-control"/>
-          <select name="repeat" id="repeat" class="w-50 form-control" v-model="repeatType">
+          <input type="number" v-model="repeatTime" min="1" max="53" class="repeatNumber w-25 mx-2 form-control"/>
+          <select name="repeat" id="repeat" class="w-50 form-control" v-model="repeatType" :validateValues="validateValues">
             <option disabled value="">Select option</option>
             <option value="Week" >Week</option>
             <option value="Month">Month</option>
@@ -54,7 +54,7 @@
         <span class="col-1 pb-0 mt-2 px-0 d-flex content-justified-start">
           <label for="on" class="form-label">On</label>
         </span>
-          <span class="col-6 mt-1 d-flex content-justified-start align-items-center ml-2">
+          <span class="datePicker col-6 mt-1 d-flex content-justified-start align-items-center ml-2">
           <date-picker :disabled="endsOn !='on'" v-model="endOnDate" :format="format"></date-picker>
         </span>
       </div>
@@ -66,7 +66,7 @@
           <label for="after" class="form-label">After</label>
         </span>
           <span class="col-3 ml-2 d-flex content-justified-start">  
-            <input :disabled="endsOn !='after'" class="form-control" type="number" value="1" v-model="occurences"/>
+            <input :disabled="endsOn !='after'" class="occurences form-control" type="number" value="1" min="1" max="53" v-model="occurences"/>
           </span>
           <span class="col-1 mt-2 px-0">
             Occurences
@@ -76,7 +76,7 @@
     <div class="center_flex mt_2">
       <a
         href="javascript:;"
-        class="btn_2 bg-success text-white mr_1"
+        class="recurrenceButton btn_2 bg-success text-white mr_1"
         @click.stop="calculateRecurrence"
       >
         <i class="material-icons mr-1">done</i>
@@ -109,7 +109,8 @@
         occurences: 1,
         endOnDate: null,
         format: 'YYYY-MM-DD',
-        events: []
+        events: [],
+        isValueInvalid: false
       }
     },
     components: { DatePicker },
@@ -121,17 +122,19 @@
     },
     methods: {
       calculateRecurrence() {
-        this.events = []
-        let eventDate = new Date(this.recurringEventsDate)
-        if (this.repeatType == "Month"){
-          this.calculateMonthRecurrence(eventDate)
+        if (!this.isValueInvalid){
+          this.events = []
+          let eventDate = new Date(this.recurringEventsDate)
+          if (this.repeatType == "Month"){
+            this.calculateMonthRecurrence(eventDate)
+          }
+          else{
+            this.calculateWeekRecurrence(eventDate)
+          }
+          this.$emit('continue', this.events)
+          this.setDefaultValues()
+          this.closeMapModal()
         }
-        else{
-          this.calculateWeekRecurrence(eventDate)
-        }
-        this.$emit('continue', this.events)
-        this.setDefaultValues()
-        this.closeMapModal()
       },
       closeMapModal() {
         this.$refs.RecurringCalendarEventModal.close()
@@ -221,6 +224,44 @@
       showDay(val){
         $('.day').css('background-color' ,'rgb(51, 144, 255)')
         $('#' + val).css('background-color', 'rgb(4, 63, 133)')
+      },
+      disableRecurrence(fieldToDisable){
+        this.isValueInvalid = true
+        $(fieldToDisable).css('background-color',' #FCE8E6')
+        $(".recurrenceButton").attr('disabled','disabled')
+      },
+      enableRecurrence(){
+        this.isValueInvalid = false
+        $('.occurences').css('background-color',' #FFFFFF')
+        $('.repeatNumber').css('background-color',' #FFFFFF')
+        $('.datePicker').css('background-color',' #FFFFFF')
+        $(".recurrenceButton").removeAttr('disabled')
+      }
+    },
+    computed: {
+      validateValues(){
+        this.enableRecurrence()
+        if (this.repeatType == "Month"){
+          if ((this.occurences < 1 || this.occurences > 11 || this.occurences % 1 != 0) && this.endsOn =="after" ){
+            this.disableRecurrence('.occurences')
+          }
+          else if(this.repeatTime < 1 || this.repeatTime > 1 || this.repeatTime % 1 != 0){
+            this.disableRecurrence('.repeatNumber')
+          }
+        }
+        else{
+          if ((this.occurences < 1 || this.occurences > 53 || this.occurences % 1 != 0) && this.endsOn =="after" ){
+            this.disableRecurrence('.occurences')
+          }
+          else if(this.repeatTime < 1 || this.repeatTime > 53 || this.repeatTime % 1 != 0){
+            this.disableRecurrence('.repeatNumber')
+          }
+        }
+          if (this.recurringEventsDate){
+            if(this.recurringEventsDate.toLocaleDateString() > this.endOnDate.toLocaleDateString() && this.endsOn =="on" ){
+              this.disableRecurrence('.datePicker')
+              }
+          }
       }
     }
   }

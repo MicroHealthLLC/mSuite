@@ -15,7 +15,7 @@
       ref="calendarNavigation">
     </navigation-bar>
     <div id="cal" class="row">
-      <div class="col-9 d-flex px-5">
+      <div class="col-9 d-flex px-5" @click="showEditEvent = false">
         <span class="py-2 pl-2">
           <a
             href="javascript:;"
@@ -38,7 +38,7 @@
           </a>
         </span>
       </div>
-      <div class="col-3 text-info d-flex justify-content-end pr-5">
+      <div class="col-3 text-info d-flex justify-content-end pr-5" @click="showEditEvent = false">
         <select id="calendarFormat" class="form-control w-50" @change="toggleCalendarView()">
           <option selected value="month">Month</option>
           <option value="week"> Week </option>
@@ -158,10 +158,12 @@
             }, 500)
           }
           else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id){
+            this.currentMindMap = data.mindmap
             this.calendar.destroy()
             this.createCalendar()
           }
           else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+            this.currentMindMap = data.mindmap
           }
           else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
               this.calendar.store.getState().calendar.events.internalMap.clear()
@@ -230,15 +232,7 @@
       },
       resetMindmap() {
         this.isReset = true
-        http
-          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-          .then((res) => {
-            this.currentMindMap.nodes = []
-            this.currentMindMap.title = 'Title'
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        http.get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
       },
       createCalendar(){
         const container = document.getElementById('calendar');
@@ -259,7 +253,6 @@
         this.calendar.on('selectDateTime', (eventObj) => {
           this.showEditEvent = false
           eventObj.end.setSeconds(1)
-
           this.eventDates = eventObj
           this.createEventDate = eventObj.end
           this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
@@ -269,14 +262,6 @@
         this.calendar.on('clickEvent', (eventObj) => {
           this.showEvent = eventObj.event
           this.showEditEvent = true
-          let x = eventObj.nativeEvent.pageX;
-          let y = eventObj.nativeEvent.pageY;
-          let timeout;
-
-            clearTimeout(timeout)
-            timeout = setTimeout(()=>{
-              $("#__bv_popover_64__").css('transform', `translate3d(${y}px, ${x}px, 0px)`);
-            },500)    
         })
         this.calendar.on('beforeUpdateEvent', (eventObj) => {
           let data = eventObj.event
@@ -296,6 +281,7 @@
         this.calendar.changeView(value);
       },
       moveCalendar(value){
+        this.showEditEvent = false
         this.calendar.move(value)
         this.getCalendarTitle()
       },
@@ -498,4 +484,5 @@
   .popover{
     width: 45vh;
   }
+  
 </style>
