@@ -13,7 +13,7 @@
       </span>
       <span class="col-3 d-flex justify-content-center px-0">
         <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
-        <textarea
+        <input
           v-show="editable"
           :rows="1"
           id="mSuiteTitle"
@@ -25,7 +25,7 @@
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
         >
-        </textarea>
+        </input>
       </span>
       <span class="col-6">
         <a
