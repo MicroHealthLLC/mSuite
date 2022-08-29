@@ -254,20 +254,6 @@
             }, 500)
           }
           else if (
-            this.selectedNode !== null           &&
-            data.message === "Node file deleted" &&
-            this.selectedNode.id === data.node   &&
-            this.openVModal === true
-          ) {
-            _.remove(this.attachFiles, (f) => f.id === data.file.id)
-          }
-          else if (
-            data.message === "Central Node file deleted" &&
-            this.openVModal === true
-          ) {
-            _.remove(this.attachFiles, (f) => f.id === data.file.id)
-          }
-          else if (
             this.selectedNode !== null         &&
             data.message === "Node is updated" &&
             this.selectedNode.id === data.node.id
