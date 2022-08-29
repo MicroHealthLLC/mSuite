@@ -5,7 +5,7 @@
       @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage"
-      @resetMindmap="resetMindmap"
+      @resetMindmap="reset_stages"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
@@ -20,7 +20,7 @@
       :userList="userList"
       :exportId="'kanban-board'">
     </navigation-bar>
-    
+
     <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
         <div v-for="stage, index in computedStages" :slot="stage" :key="index" class="w-100 font-serif" >
@@ -204,12 +204,10 @@
               },1200)
             }
           }
-          else if(data.message === "Reset mindmap"){
-            this.getMindmap()
-          }
           else if(data.message === "Stage Reset"){
-            this.allStages = data.stages
-            this.updateBackgroundColors()
+            this.currentMindMap = data.mindmap
+            this.getMindmap()
+            this.mountKanBan()
           }
           else {
             this.getAllStages()
@@ -227,48 +225,7 @@
       if (this.$route.params.key) {
         this.getMindmap()
       }
-      this.$nextTick(function () {
-        setTimeout(()=>{
-          var elements = Array.from(document.querySelectorAll(".drag-inner-list, #kanban-board"));
-          autoScroll(
-            elements,
-            {
-              margin: 20,
-              maxSpeed: 7,
-              scrollWhenOutside: true,
-              autoScroll: function() {
-                return this.down
-              }
-            }
-          );
-          var dragElement = document.getElementsByClassName('drag-list')[0];
-          var newStageEle = null
-          var _this = this
-          var sortable = new Sortable(dragElement, {
-            sort: true,
-            delay: 0,
-            draggable: ".drag-column",
-            dragClass: "sortable-drag",
-            ghostClass: "sortable-ghost",
-            filter: ".drag-column-, .block-title",
-            onEnd: function (evt) {
-              var itemEl = evt.item
-              let title = itemEl.getElementsByTagName('textarea')[0].value
-              _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
-            },
-            onFilter: function (evt) {
-              var item = evt.item, ctrl = evt.target
-              if (Sortable.utils.is(ctrl, ".drag-column-")) {
-                item.getElementsByTagName('textarea')[0].focus()
-              }
-              else if (Sortable.utils.is(ctrl, ".block-title")) {
-                ctrl.focus()
-              }
-            }
-          });
-          this.updateBackgroundColors()
-        }, 1500)
-      })
+      this.mountKanBan()
       if(localStorage.mindmap_id == this.currentMindMap.id){
         this.userList = JSON.parse(localStorage.userList)
         this.temporaryUser = localStorage.userEdit
@@ -283,6 +240,50 @@
       }
     },
     methods: {
+      mountKanBan(){
+        this.$nextTick(function () {
+          setTimeout(()=>{
+            var elements = Array.from(document.querySelectorAll(".drag-inner-list, #kanban-board"));
+            autoScroll(
+              elements,
+              {
+                margin: 20,
+                maxSpeed: 7,
+                scrollWhenOutside: true,
+                autoScroll: function() {
+                  return this.down
+                }
+              }
+            );
+            var dragElement = document.getElementsByClassName('drag-list')[0];
+            var newStageEle = null
+            var _this = this
+            var sortable = new Sortable(dragElement, {
+              sort: true,
+              delay: 0,
+              draggable: ".drag-column",
+              dragClass: "sortable-drag",
+              ghostClass: "sortable-ghost",
+              filter: ".drag-column-, .block-title",
+              onEnd: function (evt) {
+                var itemEl = evt.item
+                let title = itemEl.getElementsByTagName('textarea')[0].value
+                _this.changeStagePositions(title, evt.oldIndex, evt.newIndex)
+              },
+              onFilter: function (evt) {
+                var item = evt.item, ctrl = evt.target
+                if (Sortable.utils.is(ctrl, ".drag-column-")) {
+                  item.getElementsByTagName('textarea')[0].focus()
+                }
+                else if (Sortable.utils.is(ctrl, ".block-title")) {
+                  ctrl.focus()
+                }
+              }
+            });
+            this.updateBackgroundColors()
+          }, 1500)
+        })
+      },
       //=====================GETTING MINDMAP==============================//
       getMindmap(){
         this.getAllStages()
@@ -333,8 +334,6 @@
         })
       },
           //=====================MINDMAP DELETE ==============================//
-
-
 
       // =====================STAGES CRUD OPERATIONS==============================//
       updateStageRequest(obj){
@@ -414,17 +413,19 @@
         this.getColorNode('.drag-column')
       },
       reset_stages() {
-        let data = {
-          mindmap_id: this.currentMindMap.id
-        }
+        let _this = this
+        let data = { mindmap_id: this.currentMindMap.id }
         http
         .post('/stages/reset_stages', data)
         .then((res) => {
-          this.getAllStages()
-          })
+          _this.currentMindMap = res.data.mindmap
+          _this.getMindmap()
+          _this.mountKanBan()
+        })
         .catch((err) => {
           console.log(err)
         })
+
       },
       getAllStages() {
         http
@@ -810,22 +811,6 @@
         return is_val
       },
       //=====================OTHER FUNCTIONS ==============================//
-      resetMindmap() {
-        http
-          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-          .then((res) => {
-            this.currentMindMap.nodes = []
-            this.allStages = []
-            this.undoNodes = []
-            this.redoNodes = []
-            localStorage.nodeNumber = 0
-            this.reset_stages()
-            this.getMindmap()
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      },
       undoObj(){
         this.undoDone = true
         http
