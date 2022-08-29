@@ -248,7 +248,7 @@
           onselection: this.selectionCreated,
           oneditionstart: this.editStart,
           oneditionend: this.editEnd,
-          oninsertrow: this.insertRow,
+          oninsertrow: this.dataChange,
           ondeleterow: this.dataChange,
           oninsertcolumn: this.insertColumn,
           ondeletecolumn: this.deleteColumn,
@@ -318,6 +318,7 @@
       },
       async dataChange(){
         this.sheetData.data = this.table.getData()
+        if(this.table.getStyle()) this.sheetData.style = this.table.getStyle()
         let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
         let id = this.currentMindMap.unique_key
         if(!this.isReset){
