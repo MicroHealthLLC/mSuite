@@ -55,16 +55,17 @@ class StagesController < AuthenticatedController
   end
 
   def reset_stages
+    @mindmap.reset_mindmap
+    @nodes = Node.where(mindmap_id: params[:mindmap_id])
     Stage.where(mindmap_id: params[:mindmap_id]).delete_all
     @mindmap.stages.create([{title:'TO DO'},{title:'IN PROGRESS'},{title:'DONE'}])
     @stages = Stage.where(mindmap_id: params[:mindmap_id])
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Stage Reset", stages: @stages
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Stage Reset", stages: @stages, mindmap: @mindmap, nodes: @nodes
     respond_to do |format|
-      format.json { render json: {stages: @stages} }
+      format.json { render json: {stages: @stages, mindmap: @mindmap, nodes: @nodes} }
       format.html { }
     end
   end
-
   private
 
   def set_stage
