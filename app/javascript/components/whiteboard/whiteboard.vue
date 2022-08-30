@@ -7,6 +7,7 @@
       @deleteMindmap="deleteMap"
       @updateWhiteBoard="updateWhiteBoard"
       @sendLocals="sendLocals"
+      @beforeReset="beforeReset"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -426,6 +427,7 @@
         this.mapColors.push(this.color)
       },
       cancelUpdateColor(){
+        this.isRest = false
         this.colorSelected = false
         this.activeObject.set("stroke", this.oldColor);
         this.color = this.oldColor
@@ -565,13 +567,13 @@
           if(!_this.createSelection && _this.canvas.getActiveObject() != undefined) _this.canvas.discardActiveObject()
           if(!this.drawLine) return
 
-
           this.pointer = this.canvas.getPointer(event.e);
           if(this.stLine) this.stLine.set({ x2: this.pointer.x, y2: this.pointer.y });
           this.canvas.renderAll();
 
         })
         this.canvas.on('mouse:down', (event) => {
+          
           if(_this.colorSelected) this.cancelUpdateColor()
           if (_this.eraser) {
             var activeObject = this.canvas.getActiveObject();
@@ -673,7 +675,17 @@
         }
         else this.isRest = false
       },
+      beforeReset(){
+        let mindmap = { mindmap: {
+            canvas: '{"version":"4.6.0","objects":[]}',
+            title: 'Title'
+          }
+        }
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+        localStorage.canvas = mindmap.mindmap.canvas
+      },
       resetMindmap() {
+        
         this.isRest = true
         this.createSelection = false
         this.isDrawing = false
