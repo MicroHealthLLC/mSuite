@@ -1,6 +1,6 @@
 <template>
-  <div @mousedown.stop="startDragIdea" class="main">
-    <span v-if="editable" @mousedown.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
+  <div @mousedown.stop="startDragIdea" @touchstart.stop="startDragIdea" class="main">
+    <span v-if="editable" @mousedown.stop="startDrag" @touchstart.stop="startDrag" class="start_dot" :class="C_startDotPositionClass"></span>
     <span
       v-if="hasChild"
       class="collapse_child"
