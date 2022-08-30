@@ -415,17 +415,7 @@
       reset_stages() {
         let _this = this
         let data = { mindmap_id: this.currentMindMap.id }
-        http
-        .post('/stages/reset_stages', data)
-        .then((res) => {
-          _this.currentMindMap = res.data.mindmap
-          _this.getMindmap()
-          _this.mountKanBan()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-
+        http.post('/stages/reset_stages', data)
       },
       getAllStages() {
         http
