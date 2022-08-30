@@ -115,7 +115,7 @@
                 { insert: '' },
               ])
             } else {
-             let range = this.qeditor.getSelection()
+             let range = this.qeditor.getSelection() || {length: 0, index: 0};
 
              this.document.locations = [range.index, (range.index + range.length)]
              let before = this.document.operationsCount
