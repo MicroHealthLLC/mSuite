@@ -584,15 +584,21 @@
 
           if (this.drawLine) {
             const mousePos = canvas.getBoundingClientRect();
-
-            const x1 = Math.round(event.e.clientX - mousePos.left);
-            const y1 = Math.round(event.e.clientY - mousePos.top);
-
+            let x1 , y1
+            if(event.e.touches){
+              const touches = event.e.touches
+              x1 = Math.round(touches[0].clientX - mousePos.left);
+              y1 = Math.round(touches[0].clientY - mousePos.top);
+            }
+            else{
+              const elment = event.e
+              x1 = Math.round(elment.clientX - mousePos.left);
+              y1 = Math.round(elment.clientY - mousePos.top);
+            }
             this.points = [ x1, y1, x1, y1 ]
             this.straightLine()
             localStorage.canvas = JSON.stringify(this.canvas.toJSON())
             this.sendLocals(true)
-
           }
         })
         this.canvas.on('mouse:up', (event) => {

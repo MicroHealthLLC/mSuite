@@ -282,7 +282,7 @@
       insertNodeElement(class_list, title) {
         var nodeElement = document.createElement("i");
         var textnodeElement = document.createTextNode("")
-        nodeElement.appendChild(textnodeElement);
+        nodeElement.appendChild(textnodeElement)
         nodeElement.setAttribute('class', class_list)
         nodeElement.title = title
         return nodeElement

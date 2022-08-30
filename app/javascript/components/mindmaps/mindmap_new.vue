@@ -28,8 +28,8 @@
       :saveElement="saveElement"
       :copied-node="copiedNode">
     </navigation-bar>
-    <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false">
-      <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" :style="C_scaleFactor">
+    <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit"  @touchstart.stop="slideInit" @touchmove.prevent="slideTheCanvas" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false" @touchend="isSlideDown = false">
+      <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" @touchmove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <div class="row central_node_attachment text-secondary">
             <div class="col-12 px-0">
@@ -42,7 +42,7 @@
               </span>
             </div>
           </div>
-          <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" class="start_dot"></span>
+          <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" @touchstart.prevent.stop="startDrag" class="start_dot"></span>
           <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-on:keyup.enter="saveCurrentMap" v-model="centralIdea" class="shadow-lg central_idea" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
         </div>
         <input-field
@@ -411,10 +411,16 @@
           }
         } else {
           this.mousePos = $("#map-canvas")[0].getBoundingClientRect();
-          this.parent_x = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width,
-          this.parent_y = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
+          if (event.touches){
+            this.parent_x = (event.touches[0].clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width,
+            this.parent_y = (event.touches[0].clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
+          
+          }
+          else{
+            this.parent_x = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width,
+            this.parent_y = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
+          }
         }
-
         let canvas_id = this.parent_x + ""
         if (!document.getElementById(canvas_id)) {
           let c = document.createElement('CANVAS')
@@ -434,16 +440,30 @@
       startDragNode(event, node) {
         this.selectedNode = node
         if (!this.currentMindMap.editable) return false
-        this.nodeOffsetX  = event.clientX - node.position_x
-        this.nodeOffsetY  = event.clientY - node.position_y
+        if (event.touches){
+          this.nodeOffsetX  = event.touches[0].clientX - node.position_x
+          this.nodeOffsetY  = event.touches[0].clientY - node.position_y
+        }
+        else{
+          this.nodeOffsetX  = event.clientX - node.position_x
+          this.nodeOffsetY  = event.clientY - node.position_y
+
+        }
         this.draggingNode = true
         this.currentPositionX = this.currentPositionY = 0
       },
       doDrag(event) {
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
-          this.currentPositionX = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
-          this.currentPositionY = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
+          if (event.touches){
+            this.currentPositionX = (event.touches[0].clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
+            this.currentPositionY = (event.touches[0].clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
+          }
+          else{
+            this.currentPositionX = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
+            this.currentPositionY = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
+          }
+
           let c = document.getElementById(this.parent_x + "")
           let ctx = c.getContext("2d");
 
@@ -459,8 +479,15 @@
         } else if (this.draggingNode) {
           this.nodeUpdatedFlag = true
           let node = this.currentMindMap.nodes.findIndex((nod) => nod.id == this.selectedNode.id)
-          this.currentMindMap.nodes[node].position_x = event.clientX - this.nodeOffsetX
-          this.currentMindMap.nodes[node].position_y = event.clientY - this.nodeOffsetY
+          if (event.touches){
+            this.currentMindMap.nodes[node].position_x = event.touches[0].clientX - this.nodeOffsetX
+            this.currentMindMap.nodes[node].position_y = event.touches[0].clientY - this.nodeOffsetY
+          }
+          else{
+            this.currentMindMap.nodes[node].position_x = event.clientX - this.nodeOffsetX
+            this.currentMindMap.nodes[node].position_y = event.clientY - this.nodeOffsetY
+            
+          }
         }
       },
       stopDrag(event) {
@@ -1058,16 +1085,29 @@
       slideInit(e) {
         let slider           = this.$refs.slideSection
         this.isSlideDown     = true
-        this.slideStartX     = e.pageX - slider.offsetLeft
-        this.slideStartY     = e.pageY - slider.offsetTop
+        if (e.touches){
+          this.slideStartX     = e.touches[0].pageX - slider.offsetLeft
+          this.slideStartY     = e.touches[0].pageY - slider.offsetTop
+        }
+        else{
+          this.slideStartX     = e.pageX - slider.offsetLeft
+          this.slideStartY     = e.pageY - slider.offsetTop
+        }
         this.slideScrollLeft = slider.scrollLeft
         this.slideScrollTop  = slider.scrollTop
       },
       slideTheCanvas(e) {
         let slider = this.$refs.slideSection
         if (!this.isSlideDown) { return; }
-
-        let x     = e.pageX - slider.offsetLeft
+        let x , y
+        if (e.touches){
+          x     = e.touches[0].pageX - slider.offsetLeft
+          y     = e.touches[0].pageY - slider.offsetTop
+        }
+        else{
+          x     = e.pageX - slider.offsetLeft
+          y     = e.pageY - slider.offsetTop
+        }
         let walkX = x - this.slideStartX
         walkX     = this.slideScrollLeft - walkX
 
@@ -1075,7 +1115,6 @@
           slider.scrollLeft = walkX
         }
 
-        let y     = e.pageY - slider.offsetTop
         let walkY = y - this.slideStartY
         walkY     = this.slideScrollTop - walkY
 
@@ -1181,6 +1220,7 @@
         // this.getMindmap(this.$route.params.key)
       }
       window.addEventListener('mouseup', this.stopDrag)
+      window.addEventListener('touchend', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)
       if(localStorage.mindmap_id == this.currentMindMap.id){
         this.userList = JSON.parse(localStorage.userList)
