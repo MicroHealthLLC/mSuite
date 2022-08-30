@@ -451,6 +451,7 @@
         this.$emit("cutSelectedNode")
       },
       resetMap () {
+        this.$emit("beforeReset")
         this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
       },
       redoMindmap() {
