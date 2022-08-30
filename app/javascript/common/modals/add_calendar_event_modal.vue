@@ -180,13 +180,13 @@
         this.allDayNotHidden = true
       },
       openRecurringEventModal(){
-          if (this.title && this.description && this.state && !this.isValueInvalid){
-            let data = {
-              start: this.startDate,
-              end: this.endDate
-            }
-            this.$emit('openRecurringModal',data)
+        if (this.title && this.description && this.state && !this.isValueInvalid){
+          let data = {
+            start: this.startDate,
+            end: this.endDate
           }
+          this.$emit('openRecurringModal',data)
+        }
       },
       disableEventCreation(){
         $(".btn_2").attr('disabled','disabled')
@@ -200,43 +200,43 @@
     },
     computed: {
       toggleAllDay(){
-          this.isValueInvalid = false
-          let dateTwoUTC = Date.UTC(
-            this.endDate.getFullYear(),
-            this.endDate.getMonth(),
-            this.endDate.getDate()
-          )
-          let dateOneUTC = Date.UTC(
-            this.startDate.getFullYear(),
-            this.startDate.getMonth(),
-            this.startDate.getDate()
-          )
-          let diffrence = dateTwoUTC - dateOneUTC
-          diffrence = diffrence/(1000 * 60 * 60 * 24)
-          if (diffrence > 0){
-            this.invalidMessage = false
-            this.allDayNotHidden = false
-            this.errorMessage = ''
-            this.allDay = true
-          }
-          else if(diffrence < 0){
+        this.isValueInvalid = false
+        let dateTwoUTC = Date.UTC(
+          this.endDate.getFullYear(),
+          this.endDate.getMonth(),
+          this.endDate.getDate()
+        )
+        let dateOneUTC = Date.UTC(
+          this.startDate.getFullYear(),
+          this.startDate.getMonth(),
+          this.startDate.getDate()
+        )
+        let diffrence = dateTwoUTC - dateOneUTC
+        diffrence = diffrence/(1000 * 60 * 60 * 24)
+        if (diffrence > 0){
+          this.invalidMessage = false
+          this.allDayNotHidden = false
+          this.errorMessage = ''
+          this.allDay = true
+        }
+        else if(diffrence < 0){
+          this.isValueInvalid = true
+          this.errorMessage = 'End Date is Less Than Start Date'
+          this.invalidMessage = true
+        }
+        else{
+          if ((this.endDate - this.startDate) <= 0 && this.allDay == false ){
             this.isValueInvalid = true
-            this.errorMessage = 'End Date is Less Than Start Date'
+            this.errorMessage = 'Event End Time Should Be Greater Than Event Start Time'
             this.invalidMessage = true
           }
           else{
-            if ((this.endDate - this.startDate) <= 0 && this.allDay == false ){
-              this.isValueInvalid = true
-              this.errorMessage = 'Event End Time Should Be Greater Than Event Start Time'
-              this.invalidMessage = true
-            }
-            else{
-              this.errorMessage = ''
-              this.invalidMessage = false
-            }
-            this.allDayNotHidden = true
+            this.errorMessage = ''
+            this.invalidMessage = false
           }
-        },
+          this.allDayNotHidden = true
+        }
+      },
       validateValues(){
         if (this.title && this.description && !this.isValueInvalid){
           this.enableEventCreation()
@@ -245,7 +245,6 @@
           this.disableEventCreation()
         }
       }
-
     }
   }
 </script>

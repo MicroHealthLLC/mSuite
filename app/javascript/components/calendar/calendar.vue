@@ -326,15 +326,11 @@
       beforeEventCreate(data){
         this.counter = 0
         this.saveEvents(data)
-          if (this.recurringEvents){
-            this.generateRecurringEvents(data)
-          }
+        if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       beforeEventUpdate(data){
         this.updateEvent(data)
-        if (this.recurringEvents){
-          this.generateRecurringEvents(data)
-        }
+        if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       editEventModal(){
         this.counter = 0
@@ -371,10 +367,7 @@
         let diffrence = dateTwoUTC - dateOneUTC
         diffrence = diffrence/(1000 * 60 * 60 * 24)
 
-        if (diffrence > 0){
-          eventObj.isAllday = true
-        }
-
+        if (diffrence > 0) eventObj.isAllday = true
         this.showEditEvent = false
         let data = {
           title: eventObj.title,
@@ -384,8 +377,7 @@
           is_disabled: eventObj.isAllday,
           line_color: eventObj.state,
           }
-        http.put(`/nodes/${eventObj.id}`, data).then(res=>{
-        });
+        http.put(`/nodes/${eventObj.id}`, data)
       },
       deleteEvents(){
         this.showEditEvent = false
@@ -414,7 +406,6 @@
             currentValue.startdate = new Date(currentValue.startdate)
             currentValue.duedate = new Date(currentValue.duedate)
           }
-
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -470,19 +461,5 @@
   }
 </script>
 <style>
-  #calendar{
-    height:70vh;
-  }
-  #options{
-    padding: 6px 1px 1px 1px;
-    background-color:MediumSeaGreen;
-    float: left;
-  }
-  .material-icons{
-    cursor: pointer;
-  }
-  .popover{
-    width: 45vh;
-  }
-  
+  @import "./calendar.scss";
 </style>

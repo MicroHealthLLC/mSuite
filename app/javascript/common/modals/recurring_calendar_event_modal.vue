@@ -125,12 +125,8 @@
         if (!this.isValueInvalid){
           this.events = []
           let eventDate = new Date(this.recurringEventsDate)
-          if (this.repeatType == "Month"){
-            this.calculateMonthRecurrence(eventDate)
-          }
-          else{
-            this.calculateWeekRecurrence(eventDate)
-          }
+          if (this.repeatType == "Month") this.calculateMonthRecurrence(eventDate)
+          else this.calculateWeekRecurrence(eventDate)
           this.$emit('continue', this.events)
           this.setDefaultValues()
           this.closeMapModal()
@@ -189,7 +185,7 @@
         }
         else if(this.endsOn == "on"){
           if (this.endOnDate.getTime() > eventDate.getTime()){
-            while(52-i >=this.repeatTime){
+            while(52-i >= this.repeatTime){
               myDate = new Date(eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime)*7 ))
               if (myDate.getTime() > this.endOnDate.getTime()){
                 break
@@ -201,7 +197,7 @@
         }
         else{
           let count = 0
-          while(12-i >=this.repeatTime){
+          while(12-i >= this.repeatTime){
             if (count == this.occurences){
               break
             }
