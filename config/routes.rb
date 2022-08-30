@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       put :destroy_file
       get :reset_mindmap
       post :undo_mindmap
+      post :sendkeys
       put :redo_mindmap
     end
   end

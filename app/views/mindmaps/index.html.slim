@@ -8,6 +8,10 @@
   |Vue.prototype.$google_recaptcha_site_key = "#{Setting.first.google_recaptcha_site_key}"
     Vue.prototype.$beta_status = "#{Setting.first.beta_status}"
     Vue.prototype.$beta_url = "#{Setting.first.beta_url}"
+    Vue.prototype.$mindmap_id = "#{@mindmap.id}"
+    Vue.prototype.$vapidPublicKey = new Uint8Array(#{Base64.urlsafe_decode64(ENV['VAPID_PUBLIC_KEY']).bytes})
 
 = javascript_pack_tag "map_dashboard", async: true
 = stylesheet_pack_tag "map_dashboard"
+
+link href="/manifest.json" rel="manifest"

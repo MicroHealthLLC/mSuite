@@ -185,6 +185,8 @@ class MindmapsController < AuthenticatedController
     end  
   end
 
+  def sendkeys; end
+
   private
 
     def set_access_user

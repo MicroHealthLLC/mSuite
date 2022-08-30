@@ -34,4 +34,38 @@ module NodeConcern
       end
     end
   end
+
+  def get_time(node)
+    eventTime = nil
+    if Time.zone.now >= node.startdate - 15 * 60 && Time.zone.now <= node.startdate
+      eventTime = Time.zone.now + 1 * 60
+    else
+      eventTime = node.startdate - 15 * 60
+    end
+    return eventTime
+  end
+
+  def create_worker(node)
+    SendEventWorker.perform_at(get_time(node) , node.id)
+  end
+
+  def update_worker(node)
+    scheduler = Sidekiq::ScheduledSet.new
+    if scheduler.size > 0
+      scheduler.each do |job|
+        if job.klass == 'SendEventWorker' && job.args == [node.id]
+          job.reschedule(get_time(node))
+        end
+      end
+    else
+      SendEventWorker.perform_at(get_time(node) , node.id)
+    end
+  end
+
+  def del_worker(node)
+    queue = Sidekiq::ScheduledSet.new
+    queue.each do |job|
+      job.delete if (job.klass == 'SendEventWorker' && job.args == [node.id])
+    end
+  end
 end
