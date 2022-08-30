@@ -7,13 +7,15 @@ class NodesController < AuthenticatedController
     # get nested children
     @node = Node.create(node_params)
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
+    create_worker(@node) if @node.mindmap.mm_type == 'calendar'
+
     if params[:duplicate_child_nodes].present?
       @node.duplicate_attributes(params[:duplicate_child_nodes])
       @node.duplicate_files(params[:duplicate_child_nodes])
       dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
       Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
     end
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated", node: @node.to_json
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node.to_json }
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
       format.html { }
@@ -24,7 +26,9 @@ class NodesController < AuthenticatedController
     previous_title = @node.title
     @node.update(update_node_params)
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node is updated", node: @node.to_json}
+    update_worker(@node) if @node.mindmap.mm_type == 'calendar'
+
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node.to_json }
     respond_to do |format|
       format.json { render json: {node: @node.to_json}}
       format.html { }
@@ -43,7 +47,9 @@ class NodesController < AuthenticatedController
       delNodes = delete_child_nodes Node.where(parent_node: @node.id)
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
+      del_worker(@node) if @node.mindmap.mm_type == 'calendar'
+
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node.to_json }
       respond_to do |format|
         format.json { render json: {success: true, node: delNodes}}
         format.html { }
@@ -59,7 +65,7 @@ class NodesController < AuthenticatedController
   def destroy_file
     if file = @node.node_files.find_by(id: file_params[:id]) and file.present?
       file.purge
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", {message: "Node file deleted", node: @node.id, file: file}
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node file deleted", node: @node.id, file: file }
       respond_to do |format|
         format.json { render json: {success: true}}
         format.html { }
@@ -138,6 +144,7 @@ class NodesController < AuthenticatedController
       :position,
       :node_width,
       :duedate,
+      :startdate,
       node_files: []
     )
   end
@@ -155,6 +162,7 @@ class NodesController < AuthenticatedController
       :description,
       :position,
       :node_width,
+      :startdate,
       :duedate,
       node_files: []
     )

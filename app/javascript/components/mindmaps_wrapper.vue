@@ -28,7 +28,7 @@
   import Notepad from "./notepad/notepad"
   import SpreadSheet from "./spreadsheet/spreadsheet"
   import Poll from "./poll/poll"
-
+  import Calendar from "./calendar/calendar"
   export default {
     components: {
       MindmapView,
@@ -41,7 +41,8 @@
       ToDo,
       Notepad,
       SpreadSheet,
-      Poll
+      Poll,
+      Calendar
     },
     data() {
       return {
@@ -56,6 +57,7 @@
     mounted() {
       if (this.$route.params.key) {
         this.getMindmap(this.$route.params.key)
+        this.checkNotifs('event')
       }
     },
     computed: {
@@ -80,6 +82,8 @@
               return "SpreadSheet"
             case "poll":
               return "Poll"
+            case "calendar":
+              return "Calendar"
             default:
               return "MindmapView"
           }
@@ -102,6 +106,47 @@
             this.is_verified = res.data.is_verified
             this.loading = false
           })
+      },
+      checkNotifs(obj){
+
+        if (!("Notification" in window)) {
+        }
+        else if (Notification.permission === "granted") {
+          this.getKeys();
+        }
+        else if (Notification.permission !== 'denied') {
+          Notification.requestPermission(function (permission) {
+            if (permission === "granted") {
+              this.getKeys();
+           }
+          });
+        }
+      },
+      getKeys(){
+        let _this = this
+        navigator.serviceWorker.register('/serviceworker.js', {scope: '/'})
+        .then(function(registration) {
+          return registration.pushManager.getSubscription()
+          .then(function(subscription) {
+            if (subscription) {
+              return subscription;
+            }
+            return registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: Vue.prototype.$vapidPublicKey
+            });
+          });
+        })
+        .then(function(subscription) {
+          _this.sendKeys(subscription.toJSON())
+        });
+      },
+
+      sendKeys(subscription){
+        http.post(`/msuite/${this.$route.params.key}/sendkeys`, {
+          subscription: subscription,
+          message: 'Sending subscription'
+        });
       }
     }
   }
