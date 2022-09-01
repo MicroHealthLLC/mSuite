@@ -819,6 +819,7 @@
 
       // =============== Map CRUD OPERATIONS =====================
       saveCurrentMap(files = null) {
+        this.currentMindMap.name = this.centralIdea
         if (this.currentMindMap.id) {
           let formData = { mindmap: this.currentMindMap }
           http.put(`/msuite/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
