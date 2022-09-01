@@ -40,7 +40,7 @@
       <a
         disabled
         href="javascript:;"
-        class="btn_2 bg-success text-white mr_1"
+        class="calendar_btn btn_2 bg-success text-white mr_1"
         @click.stop="createEvent"
         v-if="actionType == 'create'"
       >
@@ -49,7 +49,7 @@
       </a>
       <a
         href="javascript:;"
-        class="btn_2 bg-success text-white mr_1"
+        class="calendar_btn btn_2 bg-success text-white mr_1"
         @click.stop="updateEvent"
         v-if="actionType == 'update'"
       >
@@ -58,7 +58,7 @@
       </a>
       <a
         href="javascript:;"
-        class="btn_2 bg-primary text-white mr_1"
+        class="calendar_btn btn_2 bg-primary text-white mr_1"
         @click.stop="openRecurringEventModal"
       >
         <i class="material-icons mr-1">unfold_more_double</i>
@@ -183,10 +183,10 @@
         }
       },
       disableEventCreation(){
-        $(".btn_2").attr('disabled','disabled')
+        $(".calendar_btn").attr('disabled','disabled')
       },
       enableEventCreation(){
-        $(".btn_2").removeAttr('disabled')
+        $(".calendar_btn").removeAttr('disabled')
         if (!this.title && !this.description){
           this.disableEventCreation()
         }
