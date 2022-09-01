@@ -138,8 +138,9 @@ GEM
     has_scope (0.8.0)
       actionpack (>= 5.2)
       activesupport (>= 5.2)
-    hashie (4.1.0)
+    hashie (5.0.0)
     hiredis (0.6.3)
+    hkdf (0.3.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     inherited_resources (1.13.0)
@@ -197,7 +198,7 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
-    omniauth (1.9.1)
+    omniauth (1.9.2)
       hashie (>= 3.4.6)
       rack (>= 1.6.2, < 3)
     omniauth-google-oauth2 (0.5.2)
@@ -214,7 +215,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.6.0)
-    rack (2.2.3.1)
+    rack (2.2.4)
     rack-proxy (0.7.0)
       rack
     rack-test (1.1.0)
@@ -280,6 +281,8 @@ GEM
       sprockets-rails
       tilt
     semantic_range (3.0.0)
+    serviceworker-rails (0.6.0)
+      railties (>= 3.1)
     sidekiq (6.4.1)
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
@@ -328,6 +331,9 @@ GEM
       rack-proxy (>= 0.6.1)
       railties (>= 5.2)
       semantic_range (>= 2.3.0)
+    webpush (0.3.2)
+      hkdf (~> 0.2)
+      jwt
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -361,6 +367,7 @@ DEPENDENCIES
   redis (~> 4.3.1)
   redis-namespace
   sass-rails (~> 5.0)
+  serviceworker-rails
   sidekiq (~> 6.3, >= 6.3.1)
   sidekiq-cron
   slim-rails
@@ -371,6 +378,7 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
   webpacker
+  webpush
 
 BUNDLED WITH
    2.3.19
