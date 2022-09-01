@@ -23,9 +23,9 @@
         </div>
         <div class="col-10 d-flex content-justified-start px-0" v-else>
           <label class="form-label mt-1">Start</label>
-          <DatePicker class="mx-1" type="datetime" v-model="startDate"></DatePicker>
+          <DatePicker class="mx-1" format="HH:mm" type="datetime" v-model="startDate"></DatePicker>
           <label class="form-label mt-1">End</label>
-          <DatePicker class="mx-1" type="datetime" v-model="endDate"></DatePicker>
+          <DatePicker class="mx-1" format="HH:mm" type="datetime" v-model="endDate"></DatePicker>
         </div>
         <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="allDayNotHidden" >
           <input type="checkbox" class="mr-2" v-model="allDay">
