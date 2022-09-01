@@ -5,7 +5,8 @@
         <i class="material-icons text-white">add</i>
       </div>
     </div>
-    <h3 class="f_smooth_auto">Add Event</h3>
+    <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
+    <h3 v-else class="f_smooth_auto">Add Event</h3>
     <div class="w-100">
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Title" v-model="title" :validateValues="validateValues"/>
@@ -33,13 +34,6 @@
       </div>
       <div v-if="" class="row">
         <span class="text-danger">{{errorMessage}}</span>
-      </div>
-      <div class="row w-25 py-2">
-        <select name="state" class="form-control" v-model="state">
-            <option disabled value="">Select option</option>
-            <option value="Busy">Busy</option>
-            <option value="Free">Free</option>
-          </select>
       </div>
     </div>    
     <div class="center_flex mt_2">
