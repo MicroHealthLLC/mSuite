@@ -72,7 +72,6 @@
         <div class="row mb-1 font-weight-medium h5">{{this.showEvent.title}}</div>
         <div class="row mb-4">{{this.formatshowEventDate()}}</div>
         <div class="row my-2">{{this.showEvent.body}}</div>
-        <div class="row flex-row-reverse mb-2 mt-4">{{this.showEvent.state}}</div>
       </div>
     </b-popover>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
