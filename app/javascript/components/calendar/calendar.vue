@@ -4,6 +4,7 @@
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
+      @sendLocals="sendLocals"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -11,6 +12,8 @@
       :exportId="'calendar'"
       :isEditing="isEditing"
       :saveElement="saveElement"
+      :temporaryUser="temporaryUser"
+      :userList="userList"
       ref="calendarNavigation">
     </navigation-bar>
     <div id="cal" class="row">
@@ -44,7 +47,7 @@
           <option value="day"> Day </option>
         </select>
       </div>
-      <div class="col-12 px-5" id="calendar"></div>
+      <div class="col-12 px-5" id="calendar" ></div>
     </div>
     <b-popover target="calendar" :show.sync="showEditEvent" class="editPopup" v-if="showEditEvent">
       <div class="w-100 mr-4">
@@ -100,26 +103,28 @@
   import 'tui-time-picker/dist/tui-time-picker.css';
   import Chance from 'chance'
   import Common from "../../mixins/common.js"
-
+  import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
-    mixins: [Common],
+    mixins: [Common, TemporaryUser],
     data() {
       return {
-        isReset: false,
-        isEditing: false,
-        saveElement: true,
-        calendar: null,
-        calendarTitle: null,
-        recurringEvents: null,
+        isReset:             false,
+        isEditing:           false,
+        saveElement:         true,
+        calendar:            null,
+        calendarTitle:       null,
+        recurringEvents:     null,
         recurringEventsDate: null,
-        fetchedEvents:[],
-        eventDates: null,
-        showEvent: null,
-        showEditEvent: false,
-        counter: 0,
-        createEventDate: null
+        fetchedEvents:       [],
+        eventDates:          null,
+        showEvent:           null,
+        showEditEvent:       false,
+        counter:             0,
+        createEventDate:     null,
+        userList          :  [],
+        temporaryUser:       ''
       }
     },
     components: {
@@ -151,6 +156,18 @@
           }
           else if( data.message === "Event Trigger" ) {
             this.eventNotifications(data.node.title)
+          }
+          else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
+            this.temporaryUser = data.content.userEdit
+            this.userList.push(data.content.userEdit)
+            localStorage.userList = JSON.stringify(this.userList);
+            this.isEditing = data.isEditing
+            if (!this.isEditing) {
+              this.saveElement = true
+              setTimeout(()=>{
+                this.saveElement = false
+              },1200)
+            }
           }
           else {
             this.calendar.store.getState().calendar.events.internalMap.clear()
@@ -264,6 +281,7 @@
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       saveEvents(eventObj){
+        this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
 
@@ -277,8 +295,10 @@
           mindmap_id: this.currentMindMap.id
           }
         http.post('/nodes.json', data)
+        this.sendLocals(false)
       },
       updateEvent(eventObj){
+        this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         let difference = this.getDateDifference(eventObj.start,eventObj.end)
@@ -293,10 +313,14 @@
           line_color: eventObj.state,
           }
         http.put(`/nodes/${eventObj.id}`, data)
+        this.sendLocals(false)
+
       },
       deleteEvents(){
+        this.sendLocals(true)
         this.showEditEvent = false
         http.delete(`/nodes/${this.showEvent.id}.json`)
+        this.sendLocals(false)
       },
       async fetchEvents(){
         this.counter = 0
@@ -364,14 +388,18 @@
       }
     },
     mounted() {
-      this.$cable.subscribe({ channel:"WebNotificationsChannel", room: this.currentMindMap.id })
+      this.subscribeCable(this.currentMindMap.id)
       this.createCalendar()
       this.getCalendarTitle()
       this.fetchEvents()
       var el = document.querySelector('#calendar');
         el.addEventListener("mouseleave", function( event ) {
           this.showEditEvent = false
-        });
+        })
+      if(localStorage.mindmap_id == this.currentMindMap.id){
+        this.userList = JSON.parse(localStorage.userList)
+        this.temporaryUser = localStorage.userEdit
+      }
     }
   }
 </script>
