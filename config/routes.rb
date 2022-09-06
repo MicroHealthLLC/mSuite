@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
   resources :mindmaps, path: 'msuite', except: [:edit] do
     member do
+      post :reset_password
       get :compute_child_nodes
       put :destroy_file
       get :reset_mindmap

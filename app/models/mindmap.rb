@@ -26,6 +26,7 @@ class Mindmap < ApplicationRecord
   validates :mm_type, presence: true
 
   enum status: { active: 0, archived: 1 }
+  enum is_save: { is_public: 0, is_private: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
   enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10}
 
@@ -86,6 +87,8 @@ class Mindmap < ApplicationRecord
 
   def hash_password
     self.password = Password.create(self.password) if self.password.present?
+    self.is_save = "is_private"
+    self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now if (self.will_delete_at == ENV['EXP_DAYS'].to_i.days.from_now.to_date)
   end
 
   private

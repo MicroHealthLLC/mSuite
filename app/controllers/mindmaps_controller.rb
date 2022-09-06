@@ -6,7 +6,7 @@ class MindmapsController < AuthenticatedController
 
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
-  before_action :set_mindmap, only: [:update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
+  before_action :set_mindmap, only: [:reset_password, :update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
   before_action :verify_password, only: :show
   before_action :check_password_update, only: :update
   include HistoryConcern
@@ -113,6 +113,12 @@ class MindmapsController < AuthenticatedController
         format.json { render json: { success: false } }
         format.html {}
       end
+    end
+  end
+
+  def reset_password
+    if @mindmap.update_columns(password: nil, is_save: 'is_public')
+      render json: { success: true, mindmap: @mindmap }
     end
   end
 
@@ -268,6 +274,7 @@ class MindmapsController < AuthenticatedController
         :image,
         :canvas,
         :title,
+        :is_save,
         :will_delete_at,
         node_files: []
       )
