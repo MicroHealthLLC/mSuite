@@ -106,29 +106,8 @@
       @nullify-attachment-modals="nullifyAttachmentModal"
     ></export-to-word-modal>
 
-    <make-private-modal
-      ref="make-private-modal"
-      @password-apply="passwordProtect"
-      @password_mismatched="$refs['passwordMismatched'].open()"
-      :password="currentMindMap.password"
-      :isSaveMSuite="isSaveMSuite"
-    ></make-private-modal>
-    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
-      Incorrect Password, Please Try Again!
-    </sweet-modal>
 
-    <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
-      Your Password and Confirm Password are Mismatched, Please Try Again!
-      <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
-      <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
-    </sweet-modal>
 
-    <sweet-modal ref="successModal" class="of_v" icon="success">
-      Password updated successfully!
-    </sweet-modal>
-    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
-    </delete-password-modal>
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
@@ -174,7 +153,6 @@
     data() {
       return {
         userList          : [],
-        isSaveMSuite      : false,
         selectedNode      : null,
         isMounted         : false,
         currentNodes      : [],
@@ -861,59 +839,6 @@
           .catch((err) => {
             consoel.log(err)
           })
-      },
-      openPrivacy(val) {
-        this.isSaveMSuite = val
-        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
-      },
-      passwordAgain(){
-        this.$refs['passwordMismatched'].close()
-        this.openPrivacy()
-      },
-      passwordProtect(new_password, old_password, is_mSuite){
-        http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
-        .then(res=>{
-          if (res.data.mindmap) {
-            this.currentMindMap.password = res.data.mindmap.password
-            if(!is_mSuite) window.open("/", "_self")
-            else location.reload()
-            this.$refs['successModal'].open()
-          }
-          else {
-            if (res.data.error) this.$refs['errorModal'].open()
-          }
-        })
-      },
-      confirmDeleteMindmap(){
-        if (this.currentMindMap.password){
-          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        }
-        else {
-          this.deleteMindmap()
-        }
-      },
-      deleteMindmapProtected(password){
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
-        .then(res=>{
-          if(res.data.success) window.open("/", "_self")
-          if (!res.data.success && this.currentMindMap.password)
-            this.$refs['errorModal'].open()
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      deleteMindmap(){
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}`)
-        .then(res=>{
-          window.open("/", "_self")
-        })
-        .catch(error=>{
-          console.log(error)
-        })
       },
       // =============== Map CRUD OPERATIONS =====================
 

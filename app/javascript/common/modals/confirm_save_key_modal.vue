@@ -27,10 +27,10 @@
           <span class="text-muted fs_18">You will need this key <code> {{ currentMindMap.unique_key }} </code> to view the document again!</span>
         </div>
       </div>
-      <div class="center_flex mt_2">
+      <div class="center_flex mt_2 row">
         <a
           href="javascript:;"
-          class="btn_2 bg-primary text-white mr_1"
+          class="btn_2 col-3 bg-primary text-white mr_1"
           @click.stop="goHome"
           :title="'Anyone with above Unique Key: ' + currentMindMap.unique_key + ' can access Public Map.'"
         >
@@ -38,16 +38,24 @@
         </a>
         <a
           href="javascript:;"
-          class="btn_2 bg-info text-white mr_1"
+          class="btn_2 col-3 bg-info text-white mr_1"
           @click.stop="openPrivacy"
           :title="'Private Map only accessable to those who had Unique key: '+ currentMindMap.unique_key + 'and Password().'"
         >
           Save Private
         </a>
         <a
+          v-if="isSaveMap == 'is_private'"
           href="javascript:;"
-          class="btn_2 bg-danger text-white mr_1"
-          @click.prevent="deleteMSuite"
+          class="btn_2 col-3 bg-warning text-white mr_1"
+          @click.stop="changePrivacy"
+        >
+          Change Password
+        </a>
+        <a
+          href="javascript:;"
+          class="btn_2 col-2 bg-danger text-white mr_1"
+          @click.prevent="deleteMap"
           title="Delete Permanently"
         >
           Delete
@@ -70,13 +78,20 @@
         deletedAtMSuite: JSON.parse(JSON.stringify(this.currentMindMap.will_delete_at))
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'expDays', 'deleteAfter', 'isSaveMSuite'],
+    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap', 'expDays', 'deleteAfter', 'isSaveMSuite'],
     computed: {
       getBaseUrl () {
         return window.location.href
       },
       expDeleteDays () {
         if(this.currentMindMap) return this.findTotalDaysBetweenDates()
+      }
+    },
+    watch: {
+      currentMindMap: {
+        handler(value){
+          this.isSaveMap = value.is_save
+        }, deep: true
       }
     },
     methods: {
@@ -96,22 +111,29 @@
       updateInActiveDate () {
         this.$emit("updateInActiveDate", this.currentMindMap)
       },
+      is_save () {
+        this.$emit("isSave")
+      },
       goHome () {
+        this.is_save()
         if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMSuite) this.closeModal()
         else window.open("/", "_self")
       },
+      changePrivacy () {
+        this.$emit("openPrivacy", this.isSaveMSuite)
+      },
       openPrivacy () {
         this.$emit("changeIsMsuitSaved")
-        if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
-        this.$emit("openPrivacy")
+        if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
+        else this.closeModal()
       },
       closeModal() {
         this.$refs.confirmSaveKeyModal.close()
       },
-      deleteMSuite () {
-        this.$emit("deleteMindmap")
+      deleteMap () {
+        this.$emit("deleteMap")
       },
       findTotalDaysBetweenDates() {
         let currentDate = new Date();

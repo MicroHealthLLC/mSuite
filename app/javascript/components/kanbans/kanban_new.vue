@@ -2,7 +2,6 @@
   <div v-if="!loading">
     <navigation-bar
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @openPrivacy="openPrivacy"
       @deleteMindmap="deleteMap"
       @exportToImage="exportImage"
       @resetMindmap="reset_stages"
@@ -83,41 +82,12 @@
         </div>
       </div>
     </div>
-
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect" @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
-    <delete-block-modal ref="delete-block-modal" @delete_task="deleteBlock(block)"></delete-block-modal>
-    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
-      Incorrect Password, Please Try Again!
-    </sweet-modal>
-
-    <sweet-modal ref="errorStageModal" class="of_v" icon="error" title="Stage Title Error">
-      Stage Title Cannot Be Empty
-    </sweet-modal>
-
-    <sweet-modal ref="duplicateStageModal" class="of_v" icon="error" title="Stage Title Duplicate Error">
-      Stage Title Cannot Be Duplicate
-    </sweet-modal>
-
-    <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
-      Your Password and Confirm Password are Mismatched, Please Try Again!
-      <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
-      <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
-    </sweet-modal>
-    <sweet-modal ref="successModal" class="of_v" icon="success">
-      Password updated successfully!
-    </sweet-modal>
-
-    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected"></delete-password-modal>
   </div>
 </template>
 
 <script>
   import http from "../../common/http"
   import vueKanban from 'vue-kanban'
-  import MakePrivateModal from "../../common/modals/make_private_modal"
-  import DeleteMapModal from '../../common/modals/delete_modal'
-  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import Sortable from 'sortablejs';
   import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
@@ -128,12 +98,6 @@
   Vue.use(vueKanban);
 
   export default {
-    components:{
-      MakePrivateModal,
-      DeleteMapModal,
-      DeletePasswordModal,
-      ColorPalette
-    },
     mixins: [Common, TemporaryUser],
     data() {
       return {
@@ -289,52 +253,6 @@
         this.getAllStages()
         this.getAllNodes()
       },
-      //=====================GETTING MINDMAP==============================//
-
-      //=====================MINDMAP DELETE ==============================//
-      deleteMindmapProtected(password){
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
-        .then(res=>{
-          if(res.data.success) window.open("/", "_self")
-          if (!res.data.success && this.currentMindMap.password)
-            this.$refs['errorModal'].open()
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      deleteMindmap(){
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}.json`)
-        .then(res=>{
-          window.open("/", "_self")
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      confirmDeleteMindmap(){
-        if (this.currentMindMap.password){
-          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        }
-        else{
-          this.deleteMindmap()
-        }
-      },
-      passwordCheck(password){
-        http.get(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
-        .then(res=>{
-          if (res.data.is_verified){
-            this.deleteMindmap()
-          }
-          else{
-            this.$refs['errorModal'].open()
-          }
-        })
-      },
-          //=====================MINDMAP DELETE ==============================//
-
       // =====================STAGES CRUD OPERATIONS==============================//
       updateStageRequest(obj){
         let data = {
@@ -475,9 +393,6 @@
         },50)
 
         this.sendLocals(false)
-      },
-      deleteMap(){
-        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       createNewStage(val){
         let index = this.allStages.findIndex(stg => stg.title === '')
@@ -755,31 +670,6 @@
       },
       //=====================NODE CRUD OPERATIONS==============================//
 
-      //=====================PASSWORD PROTECT==============================//
-      openPrivacy(val) {
-        this.isSaveMSuite = val
-        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
-      },
-      passwordAgain(){
-        this.$refs['passwordMismatched'].close()
-        this.openPrivacy()
-      },
-      passwordProtect(new_password, old_password, is_mSuite){
-        http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
-        .then(res => {
-          if (res.data.mindmap) {
-            this.currentMindMap.password = res.data.mindmap.password
-            if(!is_mSuite) window.open("/", "_self")
-            else location.reload()
-            this.$refs['successModal'].open()
-          }
-          else {
-            if (res.data.error) this.$refs['errorModal'].open()
-          }
-        })
-      },
-      //=====================PASSWORD PROTECT==============================//
       //=====================OTHER FUNCTIONS ==============================//
       blurEvent(val, e){
         if (e.target) e.target.blur()

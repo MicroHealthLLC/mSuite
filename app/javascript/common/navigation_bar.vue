@@ -34,7 +34,7 @@
             role="button"
             v-b-tooltip.hover title="Delete"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent="deleteMindmap"
+            @click.prevent="deleteMap"
           >
             <i class="fas fa-trash-alt icons d-flex center_flex"></i>
           </a>
@@ -251,11 +251,13 @@
     <confirm-save-key-modal
       @openPrivacy="openPrivacy"
       @updateInActiveDate="updateMsuite"
-      @deleteMindmap="deleteMindmap"
+      @deleteMap="deleteMap"
+      @isSave="isSave"
       @changeIsMsuitSaved="handleChangeIsMsuiteSaved"
       ref="confirm-save-key-modal"
       :current-mind-map="currentMindMap"
       :isSaveMSuite="isSaveMSuite"
+      :isSaveMap="isSaveMap"
       :defaultDeleteDays="defaultDeleteDays"
       :deleteAfter="deleteAfter"
       :expDays="expDays">
@@ -308,6 +310,29 @@
       ref="reset-map-modal"
       @reset-mindmap="resetMindmap"
     ></reset-map-modal>
+    <make-private-modal
+      ref="make-private-modal"
+      @password-apply="passwordProtect"
+      @password_mismatched="$refs['passwordMismatched'].open()"
+      :password="password"
+      :isSaveMSuite="isSaveMSuite"
+    ></make-private-modal>
+    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
+      Incorrect Password, Please Try Again!
+    </sweet-modal>
+
+    <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
+      Your Password and Confirm Password are Mismatched, Please Try Again!
+      <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
+      <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
+    </sweet-modal>
+
+    <sweet-modal ref="successModal" class="of_v" icon="success">
+      Password updated successfully!
+    </sweet-modal>
+    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
+    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
+    </delete-password-modal>
   </div>
 </template>
 
@@ -320,6 +345,9 @@
   import ResetMapModal from '../components/mindmaps/modals/reset_map_modal'
   import UserMapModal from "./modals/user_map_modal"
   import CommentMapModal from "./modals/comment_map_modal"
+  import MakePrivateModal from "./modals/make_private_modal"
+  import DeleteMapModal from './modals/delete_modal'
+  import DeletePasswordModal from './modals/delete_password_modal'
   export default{
     name:"NavigationBar",
     props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList","pollPin","pollEdit"],
@@ -330,6 +358,8 @@
         isSaveMSuite: true,
         isMsuiteSaved: true,
         poll_pin: null,
+        password: JSON.parse(JSON.stringify(this.currentMindMap.password)),
+        isSaveMap: JSON.parse(JSON.stringify(this.currentMindMap.is_save)),
         pollEditing: false,
         dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
       }
@@ -338,10 +368,13 @@
       window.addEventListener('beforeunload', this.isMsuiteEmpty)
     },
     components:{
+      DeletePasswordModal,
+      DeleteMapModal,
       ConfirmSaveKeyModal,
       ResetMapModal,
       CommentMapModal,
-      UserMapModal
+      UserMapModal,
+      MakePrivateModal
     },
     computed: {
       renderUserList () {
@@ -369,6 +402,70 @@
       }
     },
     methods:{
+      isSave () {
+        http.post(`/msuite/${this.currentMindMap.unique_key}/reset_password`)
+        .then((res) => {
+          this.currentMindMap = res.data.mindmap
+          this.password = JSON.parse(JSON.stringify(this.currentMindMap.password))
+          this.isSaveMap = JSON.parse(JSON.stringify(this.currentMindMap.is_save))
+        })
+      },
+      deleteMap(){
+        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
+      },
+      openPrivacy(val) {
+        this.isSaveMSuite = val
+        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
+      },
+      passwordProtect(new_password, old_password){
+        http
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap:{password: new_password, old_password: old_password}})
+        .then(res=>{
+          if (res.data.mindmap) {
+            this.currentMindMap.password = res.data.mindmap.password
+            if(!this.isSaveMSuite) window.open("/", "_self")
+            else location.reload()
+            this.$refs['successModal'].open()
+          }
+          else {
+            if (res.data.error) this.$refs['errorModal'].open()
+          }
+        })
+      },
+      passwordAgain(){
+        this.$refs['passwordMismatched'].close()
+        this.openPrivacy()
+      },
+      confirmDeleteMindmap(){
+        if (this.password){
+          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
+        }
+        else {
+          this.deleteMindmap()
+        }
+      },
+      deleteMindmapProtected(password){
+        http
+        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
+        .then(res=>{
+          if(res.data.success) window.open("/", "_self")
+          if (!res.data.success && this.currentMindMap.password)
+            this.$refs['errorModal'].open()
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
+      deleteMindmap(){
+        http
+        .delete(`/msuite/${this.currentMindMap.unique_key}`)
+        .then(res=>{
+          window.open("/", "_self")
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
       isMsuiteEmpty () {
         if (this.isMsuiteSaved){
           let data = new FormData()
@@ -412,12 +509,6 @@
       goHome () {
         this.isSaveMSuite = false
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
-      },
-      openPrivacy () {
-        this.$emit("openPrivacy", this.isSaveMSuite)
-      },
-      deleteMindmap () {
-        this.$emit("deleteMindmap")
       },
       resetMindmap () {
         this.pollEditing = false
