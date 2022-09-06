@@ -97,10 +97,13 @@
 <script>
   import DatePicker from 'vue2-datepicker';
   import 'vue2-datepicker/index.css';
+  import Common from "../../mixins/common.js"
+  
 
   export default {
     Name: "RecurringCalendarEventModal",
     props: ['recurringEventsDate'],
+    mixins: [Common],
     data () {
       return{
         repeatTime: 1,
@@ -118,6 +121,13 @@
       recurringEventsDate(newVal, oldVal){
         this.endOnDate = newVal
         this.showDay(newVal.getDay())
+        this.validateValues
+      },
+      endsOn(newVal, oldVal){
+        this.validateValues
+      },
+      endOnDate(newVal, oldVal){
+        this.validateValues
       }
     },
     methods: {
@@ -254,7 +264,8 @@
           }
         }
           if (this.recurringEventsDate){
-            if(this.recurringEventsDate.toLocaleDateString() > this.endOnDate.toLocaleDateString() && this.endsOn =="on" ){
+            let difference = this.getDateDifference(this.recurringEventsDate,this.endOnDate)
+            if( difference < 0 && this.endsOn =="on" ){
               this.disableRecurrence('.datePicker')
               }
           }
