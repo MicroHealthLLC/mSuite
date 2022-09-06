@@ -118,9 +118,12 @@
   import 'tui-date-picker/dist/tui-date-picker.css';
   import 'tui-time-picker/dist/tui-time-picker.css';
   import Chance from 'chance'
+  import Common from "../../mixins/common.js"
+
 
   export default {
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
+    mixins: [Common],
     data() {
       return {
         isReset: false,
@@ -353,20 +356,8 @@
       updateEvent(eventObj){
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
-        let dateTwoUTC = Date.UTC(
-          eventObj.end.getFullYear(),
-          eventObj.end.getMonth(),
-          eventObj.end.getDate()
-        )
-        let dateOneUTC = Date.UTC(
-          eventObj.start.getFullYear(),
-          eventObj.start.getMonth(),
-          eventObj.start.getDate()
-        )
-        let diffrence = dateTwoUTC - dateOneUTC
-        diffrence = diffrence/(1000 * 60 * 60 * 24)
-
-        if (diffrence > 0) eventObj.isAllday = true
+        let difference = this.getDateDifference(eventObj.start,eventObj.end)
+        if (difference > 0) eventObj.isAllday = true
         this.showEditEvent = false
         let data = {
           title: eventObj.title,

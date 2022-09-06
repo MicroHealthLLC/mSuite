@@ -71,10 +71,12 @@
 <script>
   import DatePicker from 'vue2-datepicker';
   import 'vue2-datepicker/index.css';
+  import Common from "../../mixins/common.js"
 
   export default {
     Name: "AddCalendarEventModal",
     props:['eventDates','showEvent'],
+    mixins: [Common],
     data () {
       return{
         title: '',
@@ -195,25 +197,14 @@
     computed: {
       toggleAllDay(){
         this.isValueInvalid = false
-        let dateTwoUTC = Date.UTC(
-          this.endDate.getFullYear(),
-          this.endDate.getMonth(),
-          this.endDate.getDate()
-        )
-        let dateOneUTC = Date.UTC(
-          this.startDate.getFullYear(),
-          this.startDate.getMonth(),
-          this.startDate.getDate()
-        )
-        let diffrence = dateTwoUTC - dateOneUTC
-        diffrence = diffrence/(1000 * 60 * 60 * 24)
-        if (diffrence > 0){
+        let difference = this.getDateDifference(this.startDate,this.endDate)
+        if (difference > 0){
           this.invalidMessage = false
           this.allDayNotHidden = false
           this.errorMessage = ''
           this.allDay = true
         }
-        else if(diffrence < 0){
+        else if(difference < 0){
           this.isValueInvalid = true
           this.errorMessage = 'End Date is Less Than Start Date'
           this.invalidMessage = true
