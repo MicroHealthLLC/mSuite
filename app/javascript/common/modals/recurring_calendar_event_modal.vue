@@ -160,7 +160,8 @@
           if (this.endOnDate.getTime() > eventDate.getTime()){
             while(12-i >=this.repeatTime){
               myDate = new Date(eventDate.setMonth(eventDate.getMonth() + parseInt(this.repeatTime)))
-              if (myDate.getTime() > this.endOnDate.getTime()){
+              let difference = this.getDateDifference(myDate,this.endOnDate)
+              if (difference < 0){
                 break
               }
               newEvents.push(myDate)
@@ -197,7 +198,8 @@
           if (this.endOnDate.getTime() > eventDate.getTime()){
             while(52-i >= this.repeatTime){
               myDate = new Date(eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime)*7 ))
-              if (myDate.getTime() > this.endOnDate.getTime()){
+              let difference = this.getDateDifference(myDate,this.endOnDate)
+              if (difference < 0){
                 break
               }
               newEvents.push(myDate)
