@@ -433,6 +433,7 @@
       doDrag(event) {
         if (this.dragging) {
           document.body.style.setProperty("cursor", "grabbing", "important");
+          if(!this.mousePos) this.mousePos = $("#map-canvas")[0].getBoundingClientRect();
           if (event.touches){
             this.currentPositionX = (event.touches[0].clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
             this.currentPositionY = (event.touches[0].clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
