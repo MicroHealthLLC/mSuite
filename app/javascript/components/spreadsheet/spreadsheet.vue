@@ -19,8 +19,14 @@
       :temporaryUser="temporaryUser"
       ref="spreadSheetNavigation">
     </navigation-bar>
+      <span v-if="showPiviotTable" class="px-2" @click="showTable">
+        <i class="table_icon fas fa-table fa-2x"></i>
+      </span>
+      <div id="tester" class="w-100">
+      </div>
     <div id="spreadSheet" class="overflow-auto">
-      <div id="mytable" class="w-100"></div>
+      <div id="mytable" class="w-100">
+      </div>
     </div>
   </div>
 </template>
@@ -32,7 +38,14 @@
   import "./styles/bossanova.css";
   import "./styles/jsuites.css";
   import TemporaryUser from "../../mixins/temporary_user.js"
-
+  import 'pivottable'
+  import 'pivottable/dist/pivot.min.js'
+  import 'pivottable/dist/pivot.min.css'
+  import $ from 'jquery'
+  import 'jquery-ui-bundle'
+  import 'jquery-ui-bundle/jquery-ui.css'
+  import '../../common/plotly.js'
+  import '../../common/plotly_renderers.min.js' 
   export default {
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
     data() {
@@ -52,8 +65,8 @@
         isEditing: false,
         saveElement: true,
         changeRequest: 1,
-        addColumnReq: false
-      }
+        addColumnReq: false,
+        showPiviotTable: false      }
     },
     components: {},
     mixins: [TemporaryUser],
@@ -156,6 +169,7 @@
         http.get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
       },
       createSheet(sheetData){
+        let _this = this
         if(this.currentMindMap.canvas != null) this.sheetData = JSON.parse(sheetData)
         let table = jexcel(document.getElementById('mytable'), {
           data: this.sheetData.data,
@@ -178,6 +192,13 @@
           ondeletecolumn: this.deleteColumn,
           csvFileName: `${this.currentMindMap.unique_key}`,
           toolbar:[
+            {
+              type: 'i',
+              content: 'table-pivot',
+              onclick: function() {
+                _this.createPivotTable()
+              }
+            },
             {
               type: 'i',
               content: 'undo',
@@ -382,6 +403,27 @@
         }
         this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
       },
+      createPivotTable(){
+        this.showPiviotTable = true
+        let pivotData        = this.table.getData()
+        let element          = ''
+        while(element == ''){
+          if(pivotData[0][pivotData[0].length - 1] == '') pivotData[0].pop()
+          element = pivotData[0][pivotData[0].length - 1]
+        }
+        this.table.destroy()
+        $('#tester').append( '<div id="pivot_table"></div>' )
+        var derivers = $.pivotUtilities.derivers;
+        var renderers = $.extend($.pivotUtilities.renderers,$.pivotUtilities.plotly_renderers);
+        $("#pivot_table").pivotUI(pivotData,{
+          renderers: renderers,
+          });       
+      },
+      showTable(){
+        this.showPiviotTable = false
+        $("#pivot_table").remove()
+        this.createSheet(this.currentMindMap.canvas)
+      }
     },
     created() {
       setTimeout(() => this.saveElement = false, 1200)
@@ -417,4 +459,20 @@
   .arrow-up{
     background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='none' d='M0 0h24v24H0V0z'/%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='gray'/%3E%3C/svg%3E") !important;
   }
+  .pvtUi{
+    width: 100% !important;
+  }
+  .pvtTable{
+    width: 100% !important;
+  }
+  .pvtAxisContainer.pvtRows.pvtUiCell.ui-sortable{
+    width: 25% !important;
+  }
+  .table_icon{
+    font-weight: 500 !important;
+    cursor: pointer;
+  }
+  
+
+  
 </style>
