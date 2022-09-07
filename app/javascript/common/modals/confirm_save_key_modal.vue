@@ -127,7 +127,8 @@
       openPrivacy () {
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
-        else this.closeModal()
+        else if(this.isSaveMSuite) this.closeModal()
+        else window.open("/", "_self")
       },
       closeModal() {
         this.$refs.confirmSaveKeyModal.close()
