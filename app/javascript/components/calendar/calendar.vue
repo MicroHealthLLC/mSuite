@@ -123,8 +123,9 @@
         showEditEvent:       false,
         counter:             0,
         createEventDate:     null,
-        userList          :  [],
-        temporaryUser:       ''
+        userList:            [],
+        temporaryUser:       '',
+        currentView:         'month'
       }
     },
     components: {
@@ -199,7 +200,7 @@
           })
         this.calendar.on('selectDateTime', (eventObj) => {
           this.showEditEvent = false
-          eventObj.end.setSeconds(1)
+          if(this.currentView =='month') eventObj.isAllday = false
           this.eventDates = eventObj
           this.createEventDate = eventObj.end
           this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
@@ -224,8 +225,8 @@
       },
 
       toggleCalendarView(){
-        let value = document.getElementById("calendarFormat").value;
-        this.calendar.changeView(value);
+        this.currentView = document.getElementById("calendarFormat").value;
+        this.calendar.changeView(this.currentView);
       },
       moveCalendar(value){
         this.showEditEvent = false

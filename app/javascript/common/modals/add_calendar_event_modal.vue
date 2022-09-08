@@ -72,7 +72,7 @@
   import DatePicker from 'vue2-datepicker';
   import 'vue2-datepicker/index.css';
   import Common from "../../mixins/common.js"
-
+  import moment from 'moment';
   export default {
     Name: "AddCalendarEventModal",
     props:['eventDates','showEvent'],
@@ -127,8 +127,18 @@
       },
       updateSelectedDate(){
         this.startDate = this.eventDates.start
-        this.endDate = this.eventDates.end
+        this.endDate   = this.eventDates.end
+        this.allDay    = this.eventDates.isAllday
         this.actionType = 'create'
+        let midnight = '12:00 am'
+        if (midnight == moment(this.startDate).format("hh:mm a") && midnight == moment(this.endDate).format("hh:mm a") && this.eventDates.isAllday == false){
+          let hours   = new Date().getHours()
+          let minutes = new Date().getMinutes()
+          this.startDate.setHours(hours)
+          this.startDate.setMinutes(minutes)
+          this.endDate.setHours(hours)
+          this.endDate.setMinutes(minutes + 15)
+        }
         this.disableEventCreation()
       },
       showSelectedEvent(actType){
