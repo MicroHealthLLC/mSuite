@@ -472,7 +472,8 @@
     font-weight: 500 !important;
     cursor: pointer;
   }
-  
+  thead > tr > th.pvtTotalLabel, .rowTotal, .pvtGrandTotal { display: none; }
+  tbody > tr > th.pvtTotalLabel, .colTotal, .pvtGrandTotal { display: none; }
 
   
 </style>
