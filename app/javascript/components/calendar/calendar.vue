@@ -41,8 +41,8 @@
         </span>
       </div>
       <div class="col-3 text-info d-flex justify-content-end pr-5" @click="showEditEvent = false">
-        <select id="calendarFormat" class="form-control w-50" @change="toggleCalendarView()">
-          <option selected value="month">Month</option>
+        <select id="calendarFormat" v-model="currentView" class="form-control w-50" @change="toggleCalendarView()">
+          <option value="month">Month</option>
           <option value="week"> Week </option>
           <option value="day"> Day </option>
         </select>
@@ -125,7 +125,7 @@
         createEventDate:     null,
         userList:            [],
         temporaryUser:       '',
-        currentView:         'month'
+        currentView:         'month',
       }
     },
     components: {
@@ -225,7 +225,8 @@
       },
 
       toggleCalendarView(){
-        this.currentView = document.getElementById("calendarFormat").value;
+        this.currentView = $("#calendarFormat").val();
+        $('#calendarFormat').find(":selected").attr("selected","true")
         this.calendar.changeView(this.currentView);
       },
       moveCalendar(value){
