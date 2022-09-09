@@ -15,7 +15,7 @@ class MindmapsController < AuthenticatedController
 
   def new
     @mindmap = Mindmap.new(name: "Central Idea")
-    if @mindmap.mm_type == "Notepad"
+    if @mindmap.mm_type == 'Notepad'
       @@documents[@mindmap.unique_key] = Document.new
     end
 
@@ -27,7 +27,7 @@ class MindmapsController < AuthenticatedController
 
   def create
     @mindmap = Mindmap.new(mindmap_params)
-    if @mindmap.mm_type == "Notepad"
+    if @mindmap.mm_type == 'Notepad'
       @@documents[@mindmap.unique_key] = Document.new
     end
 
@@ -39,7 +39,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if @mindmap && @mindmap.mm_type == "Notepad"
+    if @mindmap && @mindmap.mm_type == 'Notepad'
       ops = JSON.parse(mindmap_params["canvas"])
       document = @@documents[@mindmap.unique_key]
       for op in ops do
