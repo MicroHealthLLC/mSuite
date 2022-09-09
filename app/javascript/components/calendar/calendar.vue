@@ -121,7 +121,6 @@
         eventDates:          null,
         showEvent:           null,
         showEditEvent:       false,
-        counter:             0,
         createEventDate:     null,
         userList:            [],
         temporaryUser:       '',
@@ -217,10 +216,7 @@
             data.start = eventObj.changes.start.d.d
           }
           data.end = eventObj.changes.end.d.d
-            if (this.counter == 0){
-              this.updateEvent(data)
-            }
-            this.counter = this.counter + 1
+          this.updateEvent(data)
         });
       },
 
@@ -270,7 +266,6 @@
         this.recurringEvents = null
       },
       beforeEventCreate(data){
-        this.counter = 0
         this.saveEvents(data)
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
@@ -279,7 +274,6 @@
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       editEventModal(){
-        this.counter = 0
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       saveEvents(eventObj){
@@ -325,7 +319,6 @@
         this.sendLocals(false)
       },
       async fetchEvents(){
-        this.counter = 0
         let mindmap_key = window.location.pathname.split('/')[2]
         let response = await http.get(`/msuite/${mindmap_key}.json`)
         this.defaultDeleteDays = response.data.defaultDeleteDays
@@ -341,7 +334,6 @@
           this.createCalendar()
         }
         this.calendar.store.getState().calendar.events.internalMap.clear()
-        this.counter = 0
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           if (currentValue.is_disabled){
             currentValue.startdate = new Date(currentValue.startdate)
