@@ -30,6 +30,7 @@
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
           <a
+            v-if="currentMindMap.mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             v-b-tooltip.hover title="Delete"
@@ -48,6 +49,7 @@
             <i class="fas fa-user-edit icons d-flex center_flex"></i>
           </a>
           <a
+            v-if="currentMindMap.mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -57,6 +59,7 @@
             <i id="comment" class="fa fa-comment d-flex center_flex"></i>
           </a>
           <a
+            v-if="currentMindMap.mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
@@ -98,6 +101,17 @@
             <i class="fas fa-file-word icons d-flex center_flex"></i>
           </a>
           <a
+            v-if="currentMindMap.mm_type == 'pollvote'"
+            role="button"
+            href="javascript:;"
+            class="text-dark mt-2 mr-4 font-weight-bold"
+            v-b-tooltip.hover title="Poll Expires"
+          >
+            <span class="">
+              Poll Expires: {{pollExpDate}}
+            </span>
+          </a>
+          <a
             ref="exportBtn"
             role="button"
             href="javascript:;"
@@ -108,7 +122,7 @@
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type==='spreadsheet'"
+            v-if="currentMindMap.mm_type==='spreadsheet' || currentMindMap.mm_type==='poll' "
             ref="exportBtn"
             role="button"
             href="javascript:;"
@@ -119,17 +133,7 @@
             <i class="fas fa-file-excel icons d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type==='poll'"
-            ref="pollEditBtn"
-            role="button"
-            href="javascript:;"
-            class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3"
-            v-b-tooltip.hover title="Edit Poll"
-            @click.prevent.stop="editPollStatus "
-          >
-            <i class="fad fa-edit icons d-flex center_flex"></i>
-          </a>
-          <a
+            v-if="currentMindMap.mm_type != 'pollvote'"
             role="button"
             href="javascript:;"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -279,33 +283,6 @@
       <button slot="button" @click="exportXLS(2)" class="btn btn-info float-left">Export to csv</button>
       <button slot="button" @click="$refs['exportOptionCsv'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
-    <sweet-modal ref="editPoll" class="of_v" icon="info" title="Enter Pin">
-      Kindly Enter the Pin of Poll
-      <div class="">
-        <div class="form__group__parent field">
-          <input
-            id="pin"
-            type="input"
-            ref="pin"
-            v-model="poll_pin"
-            class="form__field"
-            :class="showError ? 'shake': ''"
-            placeholder="your pin please"
-            @blur="enterPin"
-            @keyup.enter="enterPin"
-            required />
-          <label
-            for="name"
-            class="form__label"
-            :class="showError ? 'shake': ''">
-            Pin is required
-          </label>
-        </div>
-      </div>
-    </sweet-modal>
-    <sweet-modal ref="pin_error" class="of_v" icon="error">
-      You entered wrong pin
-    </sweet-modal>
     <reset-map-modal
       ref="reset-map-modal"
       @reset-mindmap="resetMindmap"
@@ -350,7 +327,7 @@
   import DeletePasswordModal from './modals/delete_password_modal'
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList","pollPin","pollEdit"],
+    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList","pollPin","pollEdit","pollExpDate"],
     data() {
       return{
         mSuiteName: this.currentMindMap.title,
@@ -507,8 +484,10 @@
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       goHome () {
-        this.isSaveMSuite = false
-        this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
+        if(this.currentMindMap.mm_type != 'pollvote'){
+          this.isSaveMSuite = false
+          this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
+        }
       },
       resetMindmap () {
         this.pollEditing = false
@@ -552,12 +531,14 @@
         this.$emit("undoMindmap")
       },
       makeEditable () {
-        this.editable = true
-        setTimeout(() => {
-          document.getElementById('mSuiteTitle').focus()
-        }, 300)
-        this.$emit('updateWhiteBoard')
-        this.$emit('sendLocals', true)
+        if(this.currentMindMap.mm_type != 'pollvote'){
+          this.editable = true
+          setTimeout(() => {
+            document.getElementById('mSuiteTitle').focus()
+          }, 300)
+          this.$emit('updateWhiteBoard')
+          this.$emit('sendLocals', true)
+        }
       },
       mSuiteTitleUpdate () {
         this.editable = false
@@ -570,23 +551,6 @@
         if (e.target) {
           e.target.blur()
         };
-      },
-      editPollStatus(){
-        this.$refs['editPoll'].open()
-        this.pollEditing = true
-      },
-      enterPin(){
-        if (this.pollPin.pin == ''){
-          return
-        } else if( this.pollEditing && ( this.poll_pin == this.pollPin.pin ) ) {
-          this.$emit('pollEditData')
-          this.$refs['editPoll'].close()
-        } else if ( this.poll_pin == this.pollPin.pin ){
-          this.$emit('pollEditData')
-          this.$emit('resetMindmap')
-          this.$refs['editPoll'].close()
-        }
-        else this.$refs['pin_error'].open()
       },
       exportImage(option) {
         if (this.currentMindMap.mm_type === 'simple')
