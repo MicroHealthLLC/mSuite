@@ -1,0 +1,147 @@
+@import url(https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css);
+@import url('https://fonts.googleapis.com/css?family=Roboto:300');
+
+section {
+  padding: 10px 25px;
+  border-radius: 6px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: 5px solid purple;
+}
+
+h4 {
+  font-family: poiret-one, sans-serif;
+  text-transform: uppercase;
+  font-size: 16px;
+  letter-spacing: 0.7px;
+  margin-bottom: 30px;
+}
+hr {
+  border-width: 2px;
+  border-image: linear-gradient(to right, #486682, #386A9E);
+  border-image-slice: 1;
+
+}
+input.userCheck {
+  width: 8vw;
+  height: 3vh;
+}
+.graphs{
+  width: 80vw;
+  height: 70vh;
+}
+.cursor-disabled{
+  cursor: not-allowed;
+}
+.maxHeight{
+  height: 80vh;
+}
+.heading{
+  font-weight: 500;
+  font-size: 45px;
+}
+.shake {
+  animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform: translate3d(0, 0, 0);
+  color: #FC1B31 !important;
+}
+.shake:focus {
+  border-width: 3px;
+  border-image: linear-gradient(to right, #FC1B31, #A23E48);
+  border-image-slice: 1;
+}
+.btn-color{
+  background: #386A9E;
+  color: white;
+}
+.input-width{
+  width: 75vw;
+}
+
+.clearfix {
+  zoom: 1;
+}
+.clearfix:before, .clearfix:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+.clearfix:after {
+  clear: both;
+}
+.loader:before, .loader:after {
+  content: "";
+  top: 0;
+  display: block;
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  border-width: 0.5em;
+  border-style: double;
+  border-color: transparent;
+  box-sizing: border-box;
+  border-radius: 1em;
+  -webkit-animation: spin 1s infinite;
+          animation: spin 1s infinite;
+}
+.loader:after {
+  left: 0;
+  border-left-color: #19AAB2;
+}
+.loader:before {
+  right: 0;
+  border-right-color: #19AAB2;
+  -webkit-animation-delay: -0.25s;
+          animation-delay: -0.25s;
+}
+
+.loader {
+  width: 1em;
+  height: 1em;
+  font-size: 150px;
+  position: relative;
+  top: 22vh;
+}
+@media (max-width: 225px), (max-height: 225px) {
+  .loader {
+    font-size: 75px;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  from {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}

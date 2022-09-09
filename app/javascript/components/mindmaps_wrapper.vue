@@ -28,6 +28,7 @@
   import Notepad from "./notepad/notepad"
   import SpreadSheet from "./spreadsheet/spreadsheet"
   import Poll from "./poll/poll"
+  import VotingPoll from "./poll/polls/voting_poll"
   import Calendar from "./calendar/calendar"
   export default {
     components: {
@@ -42,6 +43,7 @@
       Notepad,
       SpreadSheet,
       Poll,
+      VotingPoll,
       Calendar
     },
     data() {
@@ -82,6 +84,8 @@
               return "SpreadSheet"
             case "poll":
               return "Poll"
+            case "pollvote":
+              return "VotingPoll"
             case "calendar":
               return "Calendar"
             default:

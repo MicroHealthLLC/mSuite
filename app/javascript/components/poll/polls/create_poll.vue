@@ -1,118 +1,204 @@
 <template>
   <div class="container">
-    <span class="heading d-block text-center">Your Dreams, With votes</span>
-    <span v-if="showError" class="shake d-block text-center">
-      All Fields are Required. Minimum Two answers are required
-    </span>
     <div class="overflow-auto maxHeight">
-      <div class="">
-        <div class="form__group__parent field">
-          <input
-            type="input"
-            v-model="poll.question"
-            class="form__field"
-            placeholder="Type Your Question Here..."
-            @keydown.enter="updateQuestion"
-            required />
-          <label for="name" class="form__label">Question Please!</label>
-        </div>
-      </div>
-      <div class="mt-5">
-        <div v-for="(answer, index) in answerFields">
-          <div class="row mt-4">
-            <div class="form__group field">
-              <input
-                :id="'answer' + index"
-                type="input"
-                v-model="answer.text"
-                class="form__field"
-                placeholder="Type Your answer Here..."
-                @keydown.enter="answers"
-                required />
-              <label for="name" class="form__label">Answer You Want</label>
+      <div class="text-danger">Required input*</div>
+      <h5 class="mt-2">Poll Title*</h5>
+      <input
+        type="text"
+        required
+        v-on:blur="poll_url"
+        v-model="poll.title"
+        placeholder="Input Poll Title"
+        class="w-100"
+        :class="poll.title == '' && showError ? 'shake d-block border-danger':''" />
+      <textarea
+        v-if="addDescription"
+        type="input"
+        v-model="poll.description"
+        class="mt-3 w-100"
+        placeholder="Input description text" />
+      <button
+        class="btn btn-color mt-4 py-0 px-3 rounded-0"
+        @click="descriptionDetail">
+        Add Description
+      </button>
+      <div v-for="(questions,index) in poll.Questions">
+        <div
+          draggable="true"
+          @dragstart="dragStartQuestion($event,index)"
+          @drop="dragDropQuestion($event,index)"
+          ondragover="event.preventDefault();" >
+          <hr />
+          <div class="d-flex mt-2 w-100">
+            <h5 class="input-width">Question*</h5>
+            <i class="fas fa-times text-danger" @click="deleteQuestion(index)"></i>
+          </div>
+            <textarea
+                  type="input"
+                  v-model="questions.question"
+                  class="w-100"
+                  :class="questions.question == '' && showError ? 'shake d-block border-danger':''"
+                  placeholder="Type Your Question Here..."
+                  required />
+            <h5>Answer Options*</h5>
+            <div class="text-danger">Atleast two options required</div>
+            <div v-for="(answer, index) in questions.answerField">
+              <div
+                draggable="true"
+                @dragstart="dragStartAns($event, questions, index)"
+                @drop="dragDropAns($event, questions, index)"
+                ondragover="event.preventDefault();">
+                <div class="row mt-4">
+                  <div class="w-100">
+                    <input
+                      :id="'answer' + index"
+                      type="input"
+                      v-model="answer.text"
+                      class="input-width"
+                      :class=" ( answer.text == '' || answer.text == undefined ) && showError ? 'shake d-block border-danger':''"
+                      placeholder="Type Your answer Here..."
+                      required />
+                      <i class="fas fa-times text-danger" @click="delAnswer(questions, answer, index)"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              class="btn btn-color mt-3 py-0 px-3 rounded-0"
+              @click="addAnswersOpt(questions)">
+              Add Option
+            </button>
+            <div class="d-flex">
+              <div>Allowable Selected Options</div>
+              <select v-model="questions.allowedAnswers" class="form-select">
+                <option
+                  v-for="(value, index) in questions.answerField"
+                  :value="index">
+                  {{ index + 1 }}
+                </option>
+              </select>
             </div>
           </div>
-        </div>
-        <div class="mt-2 ml-2">
-          <label class="toggle" for="uniqueID">
-            <input type="checkbox" v-model="poll.showResult" class="toggle__input" id="uniqueID" />
-            <span class="toggle-track">
-              <span class="toggle-indicator">
-                <!--  This check mark is optional  -->
-                <span class="checkMark">
-                  <svg viewBox="0 0 24 24" id="ghq-svg-check" role="presentation" aria-hidden="true">
-                    <path d="M9.86 18a1 1 0 01-.73-.32l-4.86-5.17a1.001 1.001 0 011.46-1.37l4.12 4.39 8.41-9.2a1 1 0 111.48 1.34l-9.14 10a1 1 0 01-.73.33h-.01z"></path>
-                  </svg>
-                </span>
-              </span>
-            </span>
-            Show Results
-          </label>
-        </div>
+      </div>
+      <hr />
+      <button
+        class="btn btn-color mt-2 py-0 px-3 rounded-0"
+        @click="addQuestion">
+        Add Question
+      </button>
+      <div class="mt-5 d-flex">
+        <span>
+          Poll End Date
+        </span>
+          <date-picker
+            id="input"
+            class="border-0 rounded-0 py-0 px-3"
+            v-model='poll.duedate'
+            :placeholder="poll.duedate ? duedate : 'DD MM YYYY'"
+            :format="format"
+            ref="datePicker"
+            >
+          </date-picker>
+          <i class="mt-2 fas fa-times text-danger" @click="poll.duedate = ''"></i>
       </div>
       <div>
-        <button
-          class="btn btn-info mt-5 mx-auto d-block"
-          @click="createPin">
-          Create Poll
-        </button>
-      </div>
-    </div>
-    <sweet-modal ref="set_pin">
-      <div class="">
-        <div class="form__group__parent field">
+        <span class="mb-2">
+          Require User Names
+        </span>
           <input
-            id="pin"
-            type="input"
-            ref="pin"
-            v-model="poll.pin"
-            class="form__field"
-            :class="showError ? 'shake': ''"
-            placeholder="your pin please"
-            @blur="savePoll"
-            @keyup.enter="savePoll"
-            required />
-          <label
-            for="name"
-            class="form__label"
-            :class="showError ? 'shake': ''">
-            Pin is required
-          </label>
-        </div>
+            id="input"
+            type="checkbox"
+            class="mt-2 userCheck"
+            v-model='poll.userNameRequire'
+            />
       </div>
+      <div>Poll URL*</div>
+      <div>
+        <span>
+          https://msuite.app/msuite/
+        </span>
+          <input
+            id="input"
+            type="text"
+            v-model="poll.url"
+            v-on:blur="poll_url"
+            />
+      </div>
+
+      <button
+        class="btn btn-success mt-2 py-0 px-3 rounded-0"
+        :class="showError ? 'shake d-block':''"
+        @click="createPin('save')">SAVE</button>
+      <button
+        class="btn btn-warning text-light mt-2 py-0 px-3 rounded-0"
+        @click="revertPoll">
+        CANCEL
+      </button>
+      <button
+        class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
+        :class="createPermit ? 'cursor-disabled':''"
+        :disabled = "createPermit"
+        @click="createPin('create')">
+        CREATE POLL
+      </button>
+    </div>
+    <sweet-modal ref="saved_success" class="of_v" icon="success">
+      Poll Saved Successfully
     </sweet-modal>
   </div>
 </template>
 
 <script>
   import http from "../../../common/http"
+  import DatePicker from 'vue2-datepicker';
+  import moment from 'moment'
 
   export default {
-    props:["pollData"],
+    props:["pollData", "currentMindMap"],
     data () {
       return {
         poll: {
-          question: '',
-          answerField: [
-            { value: 1, text: '', votes: null },
-            { value: 2, text: '', votes: null }
-          ],
-          pin: '',
-          voters: [],
-          showResult: false
+          title: '',
+          description: '',
+          Questions: [{
+            question: '',
+            answerField: [
+              { value: 1, text: '', votes: [] },
+              { value: 2, text: '', votes: [] }
+            ],
+            allowedAnswers: 0,
+            voters: [],
+          }],
+          showResult: false,
+          url: ''
         },
         showError: false,
+        format: 'DD MMM YYYY',
+        addDescription: false,
+        q_position: null,
+        a_position: null,
+        current_question: null,
+        result_data: [],
+        createPermit: true
       }
     },
+    components: {
+      DatePicker
+    },
     computed: {
-      answerFields(){
-        return this.poll.answerField
+      duedate(){
+        return moment(new Date(this.poll.duedate)).format('DD MMM YYYY')
       }
     },
     mounted() {
       if(this.pollData){
         this.poll = this.pollData
       }
+    },
+    updated(){
+      if (JSON.stringify(this.poll) != this.currentMindMap.canvas){
+        this.createPermit = true
+      } else this.createPermit = false
     },
     watch: {
       pollData: {
@@ -122,53 +208,129 @@
       }
     },
     methods: {
-      updateQuestion() {
-        document.getElementById( 'answer' + (this.poll.answerField.length -1) ).focus()
+      addAnswersOpt(questions) {
+        questions.answerField.push({
+          value: this.poll.Questions[0].answerField.length + 1,
+          text: '',
+          votes: null
+        })
       },
-      answers() {
-        if(this.poll.answerField.length >= 1){
-
-          this.poll.answerField.push({
-            value: this.poll.answerField.length + 1,
-            text: '',
-            votes: null
-          })
-          setTimeout(()=>{
-            document.getElementById( 'answer' + (this.poll.answerField.length -1) ).focus()
-          }, 250)
-        }
+      addQuestion(){
+        this.poll.Questions.push({
+          question: '',
+          answerField: [
+            { value: 1, text: '', votes: [] },
+            { value: 2, text: '', votes: [] }
+          ],
+          voters: [],
+          allowedAnswers: 0,
+        })
       },
-      createPin() {
+      createPin(request) {
         if(this.checkAllFields()){
           this.showError = true
+          this.result_data = []
           setTimeout(()=>{
             this.showError = false
           }, 2500)
           return
         }
-        this.$refs['set_pin'].open()
-        setTimeout(()=>{
-          document.getElementById("pin").focus()
-        }, 100)
+        this.savePoll(request)
       },
-      savePoll() {
-        if(this.checkPollPin()){
-          this.showError = true
-          setTimeout(()=>{
-            this.showError = false
-          }, 2500)
-          return
+      savePoll(request) {
+        this.$emit("updateVote" , this.poll, request)
+        if (request != 'create') this.$refs['saved_success'].open()
+        this.createPermit = false
+      },
+      revertPoll(){
+        let poll_data = JSON.parse(this.currentMindMap.canvas)
+        if(poll_data){
+          this.poll = poll_data
+        } else {
+            this.poll = {
+              title: '',
+              description: '',
+              Questions: [{
+                question: '',
+                answerField: [
+                  { value: 1, text: '', votes: null },
+                  { value: 2, text: '', votes: null }
+                ],
+                voters: [],
+                allowedAnswers: 0,
+              }],
+              pin: '',
+              showResult: false,
+              url: ''
+          }
         }
-        this.$emit("updateVote" , this.poll)
-        this.$refs['set_pin'].close()
+      },
+      delAnswer(questions, answer, index){
+        if ( questions.answerField.length > 2 ) {
+          questions.answerField.splice(index, 1)
+        }
+      },
+      deleteQuestion(index){
+        if ( this.poll.Questions.length > 1 ) {
+          this.poll.Questions.splice(index, 1)
+        }
+      },
+      descriptionDetail(){
+        this.addDescription = !this.addDescription
+        if(this.addDescription){
+          $('.btn-color')[0].innerHTML = 'Delete Description'
+          this.poll.description = ''
+        } else $('.btn-color')[0].innerHTML = 'Add Description'
+      },
+      dragStartQuestion(event,question_index){
+        this.q_position = question_index
+      },
+      dragDropQuestion(event,question_index){
+        const drag_question = this.poll.Questions.splice(this.q_position, 1)[0]
+        this.poll.Questions.splice(question_index, 0, drag_question)
+      },
+      dragStartAns(event, questions, answer_index){
+        this.a_position = answer_index
+        this.current_question = event.currentTarget.parentElement.parentElement
+      },
+      dragDropAns(event, questions, answer_index){
+        if ( this.current_question == event.currentTarget.parentElement.parentElement )
+        {
+          const drag_ans = questions.answerField.splice(this.a_position, 1)[0]
+          questions.answerField.splice(answer_index, 0, drag_ans)
+        }
+      },
+      poll_url(){
+        if(this.poll.url != ''){
+          this.poll.url = this.poll.url.replace(/\W+/g, " ")
+            .split(/ |\B(?=[A-Z])/)
+            .map(word => word.toLowerCase())
+            .join('_');
+        } else if(this.poll.title){
+          this.poll.url = this.poll.title.replace(/\W+/g, " ")
+            .split(/ |\B(?=[A-Z])/)
+            .map(word => word.toLowerCase())
+            .join('_');
+        }
       },
       checkAllFields(){
-        this.poll.answerField.forEach( (answer,index) => {
-          if ( this.answerFields.length > 2 ) {
-            if(answer.text == '') this.poll.answerField.splice(index, 100)
-          }
+        let _this = this
+        let result_value
+        _this.poll.Questions.forEach( (question, q_index) => {
+          _this.poll.Questions[q_index].answerField.forEach( (answer,index) => {
+            if ( _this.poll.Questions[q_index].answerField.length > 2 ) {
+              if(answer.text == '') _this.poll.Questions[q_index].answerField.splice(index, 100)
+            }
+          })
+          _this.result_data.push(_this.poll.title == '' || _this.poll.Questions[q_index].answerField.length < 2 || _this.poll.Questions[q_index].question == '' || _this.poll.Questions[q_index].question == undefined || _this.poll.Questions[q_index].answerField[0].text == '' || _this.poll.Questions[q_index].answerField[1].text == '')
         })
-        return this.poll.answerField.length < 2 || this.poll.question == '' || this.poll.question == undefined
+        _this.result_data.filter( value => {
+          if (value == true) {
+            result_value = value
+            return
+          }
+        });
+        return result_value
       },
       checkPollPin(){
         return this.poll.pin == undefined || this.poll.pin == ''
@@ -181,43 +343,5 @@
     @import "./check_box.scss";
 </style>
 <style>
-  .maxHeight{
-    height: 80vh;
-  }
-  .heading{
-    font-weight: 500;
-    font-size: 45px;
-  }
-  .shake {
-    animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-    transform: translate3d(0, 0, 0);
-    color: #FC1B31 !important;
-  }
-  .shake:focus {
-    border-width: 3px;
-    border-image: linear-gradient(to right, #FC1B31, #A23E48);
-    border-image-slice: 1;
-  }
-  @keyframes shake {
-    10%,
-    90% {
-      transform: translate3d(-1px, 0, 0);
-    }
-
-    20%,
-    80% {
-      transform: translate3d(2px, 0, 0);
-    }
-
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-4px, 0, 0);
-    }
-
-    40%,
-    60% {
-      transform: translate3d(4px, 0, 0);
-    }
-  }
+  @import './poll.css'
 </style>

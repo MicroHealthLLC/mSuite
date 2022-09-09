@@ -7,6 +7,7 @@
       @resetMindmap="resetMindmap"
       @exportToDocument="exportToDocument"
       @pollEditData="pollEditData"
+      @exportXLS="exportXLS"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -16,32 +17,37 @@
       :exportId="'poll'">
     </navigation-bar>
 
-    <vote-in-poll
-      v-if="pollData && pollData.showResult && !pollEdit"
-      :pollData="pollData">
-    </vote-in-poll>
+    <div id="poll">
+      <poll-view
+        class="mt-5"
+        v-if="!pollEdit && dataLoaded && pollData"
+        :pollData="pollData"
+        :graph_array="graph_array"
+        @pollEditData="pollEditData"
+        @updateVote="updateVote"></poll-view>
 
-    <poll-view
-      class="mt-5"
-      v-else-if="!pollEdit && dataLoaded && pollData && pollData.pin"
-      :pollData="pollData"
-      @updateVote="updateVote"></poll-view>
+      <create-poll
+        v-else
+        :pollData = "pollData"
+        :current-mind-map="currentMindMap"
+        @updateVote="updateVote">
+      </create-poll>
+      <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
+        Sorry, No Data Found
+      </sweet-modal>
+    </div>
 
-    <create-poll
-      v-else
-      :pollData = "pollData"
-      @updateVote="updateVote">
-    </create-poll>
   </div>
 </template>
 <script>
   import http from "../../common/http"
-  import domtoimage from "dom-to-image-more"
+  import DeleteMapModal from '../../common/modals/delete_modal'
+  import MakePrivateModal from "../../common/modals/make_private_modal"
+  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import createPoll from './polls/create_poll'
-  import voteInPoll from './polls/vote_in_poll'
   import pollView from './polls/poll_view'
   import TemporaryUser from "../../mixins/temporary_user.js"
-
+  import xlsExport from 'xlsexport'
   export default {
     props: ['currentMindMap'],
     data() {
@@ -53,8 +59,10 @@
       }
     },
     components: {
+      DeleteMapModal,
+      MakePrivateModal,
+      DeletePasswordModal,
       createPoll,
-      voteInPoll,
       pollView
     },
     mixins: [TemporaryUser],
@@ -81,45 +89,98 @@
     mounted(){
       if(this.currentMindMap){
         this.subscribeCable(this.currentMindMap.id)
-        this.dataLoaded = true
         this.pollData = JSON.parse(this.currentMindMap.canvas)
+        if (this.pollData && this.pollData.title != '') this.dataLoaded = true
+        if(this.pollData && this.pollData.url) this.getPollData()
+        this.exportXLS(0)
       }
     },
     methods: {
-      updateVote(data){
-        let mindmap = { mindmap: { canvas: JSON.stringify(data) } }
+      updateVote(data, request){
+        let mindmap = {
+          name: data.url,
+          mindmap: { canvas: JSON.stringify(data) }
+        }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap).then( res =>{
-          this.pollEdit = false
+          if (request != 'save') {
+            this.pollEdit = false
+            this.dataLoaded = true
+          }
         })
       },
       pollEditData() {
         this.pollEdit = true
-        setTimeout(()=>{
-          $('.btn-info')[2].innerHTML = 'Update Poll'
-        },300)
+      },
+      async getPollData(){
+        let _this = this
+        let response = await http.get(`/msuite/${this.pollData.url}.json`)
+        if(response && response.data.mindmap && response.data.mindmap.canvas){
+          _this.pollData = JSON.parse(response.data.mindmap.canvas)
+        }
+      },
+      exportXLS(option){
+        if(this.pollData){
+          let _this = this
+          let graph_data = {}
+          let graph_array = []
+          this.pollData.Questions.forEach( (q, q_index) => {
+            graph_array.push({ question : q.question })
+            var json = this.pollData.Questions[q_index].answerField
+            var fields = Object.keys(json[0])
+            var replacer = function(key, value) { return value === null ? '' : value }
+            var csv = json.map(function(row){
+              if (typeof(row['votes']) == 'object' && row['votes'] != null ){
+                row['votes'].map(function(fieldValue,index){
+                  graph_data = {
+                    vote: fieldValue,
+                    text: row['text']
+                  }
+                  graph_array.push(graph_data)
+                })
+              } else {
+                graph_data = {
+                    vote: row['votes'],
+                    text: row['text']
+                  }
+                graph_array.push(graph_data)
+              }
+            })
+            csv.unshift(fields.join(','))
+            csv = csv.join('\r\n');
+          } )
+          const xls = new xlsExport(graph_array, 'title');
+
+          if (option == 1) xls.exportToXLS(`${this.currentMindMap.unique_key}.xls`)
+          else if (option == 2) xls.exportToCSV(`${this.currentMindMap.unique_key}.csv`)
+        } else {
+          if ( option == 1 || option == 2 ) this.$refs['dataErrorModal'].open()
+        }
       },
       resetMindmap() {
-        if(!this.pollEdit && JSON.parse(this.currentMindMap.canvas).pin != ''){
-          this.$refs['navigationBar'].$refs['editPoll'].open()
-        } else {
-          let canvasData = {
+        let canvasData = {
+          title: '',
+          description: '',
+          Questions: [{
             question: '',
             answerField: [
-              { value: 1, text: '', votes: null },
-              { value: 2, text: '', votes: null }
+              { value: 1, text: '', votes: [] },
+              { value: 2, text: '', votes: [] }
             ],
-            pin: '',
+            allowedAnswers: 0,
             voters: [],
-            showResult: false
-          }
-          let mindmap = { mindmap: {
-            canvas: JSON.stringify(canvasData),
-            title: 'Title' }
-          }
-          let id = this.currentMindMap.unique_key
-          http.patch(`/msuite/${id}.json`,mindmap)
+          }],
+          showResult: false,
+          url: ''
         }
+        let mindmap = { mindmap: {
+          canvas: JSON.stringify(canvasData),
+          title: 'Title' }
+        }
+        let id = this.currentMindMap.unique_key
+        http.patch(`/msuite/${id}.json`,mindmap)
+        this.pollEdit = false
+        this.dataLoaded = false
       },
     },
   }

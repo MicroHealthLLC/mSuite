@@ -15,7 +15,7 @@ class MindmapsController < AuthenticatedController
 
   def new
     @mindmap = Mindmap.new(name: "Central Idea")
-    if @mindmap.mm_type == "Notepad"
+    if @mindmap.mm_type == 'Notepad'
       @@documents[@mindmap.unique_key] = Document.new
     end
 
@@ -27,7 +27,7 @@ class MindmapsController < AuthenticatedController
 
   def create
     @mindmap = Mindmap.new(mindmap_params)
-    if @mindmap.mm_type == "Notepad"
+    if @mindmap.mm_type == 'Notepad'
       @@documents[@mindmap.unique_key] = Document.new
     end
 
@@ -39,7 +39,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if @mindmap.mm_type == "Notepad"
+    if @mindmap && @mindmap.mm_type == 'Notepad'
       ops = JSON.parse(mindmap_params["canvas"])
       document = @@documents[@mindmap.unique_key]
       for op in ops do
@@ -149,7 +149,13 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
+    @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url'])
+
+    if @child_mind_map && @child_mind_map.destroy
+      ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
+    end
     if check_for_password && @mindmap.destroy
+
       ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
       respond_to do |format|
         format.json { render json: { success: true } }
