@@ -589,16 +589,16 @@
         else this.$refs['pin_error'].open()
       },
       exportImage(option) {
-        if (this.currentMindMap.mm_type === 'simple')
-        {
+        if (this.currentMindMap.mm_type === 'simple'){
           this.$emit('exportToImage',option)
-        } else if (this.currentMindMap.mm_type === 'Notepad') {
+        }
+        else if (this.currentMindMap.mm_type === 'Notepad') {
           this.$emit('exportToDocument',option)
-        } else {
+        } 
+        else {
           const _this = this
           let elm = document.getElementById(this.exportId)
-          if (this.currentMindMap.mm_type === 'kanban')
-          {
+          if (this.currentMindMap.mm_type === 'kanban'){
             let inner_list = document.getElementsByClassName('drag-inner-list')
             inner_list.forEach(i=>i.classList.add('mh-100'))
           }

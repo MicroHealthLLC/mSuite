@@ -9,7 +9,7 @@
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
-      :exportId="'calendar'"
+      :exportId="'cal'"
       :isEditing="isEditing"
       :saveElement="saveElement"
       :temporaryUser="temporaryUser"
