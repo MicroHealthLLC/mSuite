@@ -115,6 +115,5 @@
   }
 </script>
 <style scoped>
-  @import "https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css";
   @import '../poll.css'
 </style>
