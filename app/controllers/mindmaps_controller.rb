@@ -149,7 +149,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
-    @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)["url"])
+    @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url'])
 
     if @child_mind_map && @child_mind_map.destroy
       ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
