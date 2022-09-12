@@ -25,7 +25,7 @@
             class="d-flex text-info pointer mr-3"
             @click.prevent="moveCalendar(-1)"
           >
-            <i class="fa fa-solid fa-less-than d-flex"></i>
+            <i class="fas fa-less-than d-flex"></i>
           </a>
         </span>
         <span class="p-1 text-info">{{this.calendarTitle}}</span>
@@ -36,7 +36,7 @@
             class="d-flex text-info pointer mr-3"
             @click.prevent="moveCalendar(1)"
           >
-            <i class="fa fa-solid fa-greater-than d-flex"></i>
+            <i class="fas fa-greater-than d-flex"></i>
           </a>
         </span>
       </div>
@@ -104,6 +104,7 @@
   import Chance from 'chance'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import moment from 'moment';
 
   export default {
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
@@ -196,6 +197,16 @@
             taskView: false,
             eventView: true
           },
+          template: {
+            monthMoreClose(){
+              return '<i class="material-icons text-danger">close</i>';
+            },
+            monthMoreTitleDate(moreTitle) {
+              let {ymd} = moreTitle
+              ymd = moment(ymd).format("MMM D");
+              return `<span>${ymd}</span>`;
+            },
+          }
           })
         this.calendar.on('selectDateTime', (eventObj) => {
           this.showEditEvent = false
@@ -217,9 +228,8 @@
           }
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
-        });
+        })
       },
-
       toggleCalendarView(){
         this.currentView = $("#calendarFormat").val();
         $('#calendarFormat').find(":selected").attr("selected","true")
@@ -232,8 +242,7 @@
       },
       getCalendarTitle(){
         var calendarDate = new Date(this.calendar.getDate())
-        var getMonthName =  new Intl.DateTimeFormat("en-US", { month: "long" }).format
-        this.calendarTitle = getMonthName(calendarDate)+ ' ' + calendarDate.getFullYear()
+        this.calendarTitle = moment(calendarDate).format("MMMM YYYY");
       },
       openRecurringEventsModal(data){
         this.recurringEvents = null
@@ -355,8 +364,7 @@
       },
       formatshowEventDate(){
         var showDate = new Date(this.showEvent.start.d.d)
-        var getMonthName =  new Intl.DateTimeFormat("en-US", { month: "long" }).format
-        showDate = showDate.toLocaleDateString('en-us', { weekday: 'long' }) + ' ' + getMonthName(showDate)+ ' ' + showDate.getDate() + ' ' + showDate.getFullYear()
+        showDate = moment(showDate).format("dddd MMMM Do YYYY");
         return showDate
       },
       async eventNotifications(title){
