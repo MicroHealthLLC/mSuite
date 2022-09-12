@@ -22,12 +22,6 @@
     <div v-else class="container loader"></div>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
       No results found
-      <button
-        slot="button"
-        class="float-right btn btn-warning text-white mb-2 py-0 px-3 rounded-0"
-        @click="$emit('showPoll')">
-        Go Back
-      </button>
     </sweet-modal>
   </div>
 </template>
@@ -73,6 +67,10 @@
           _this.loaded = true
         } else {
           _this.$refs['errorModal'].open()
+          setTimeout(()=>{
+            _this.$refs['errorModal'].close()
+            _this.$emit('showPoll')
+          },3000)
         }
       },
       createResultData(q_index){

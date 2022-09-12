@@ -36,7 +36,7 @@
         <button
           class="btn btn-success mt-4 py-0 px-3 rounded-0"
           @click="createPollingMap">
-          FINALIZE
+          LAUNCH POLL
         </button>
         <button
           class="btn btn-info ml-4 mt-4 py-0 px-3 rounded-0"
@@ -45,7 +45,7 @@
         </button>
         <button
           class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
-          @click="$emit('pollEditData')">CANCEL</button>
+          @click="$emit('pollEditData')">EDIT</button>
       </div>
     </div>
     <poll-results
@@ -54,10 +54,11 @@
       v-else>
     </poll-results>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
-        {{ errorMsg }}
-        <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="updateMindMap()">Update Poll</button>
-        <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
-      </sweet-modal>
+      {{ errorMsg }}
+      <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="updateMindMap()">Update Poll</button>
+      <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
+      <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button>
+    </sweet-modal>
   </div>
 </template>
 
@@ -66,7 +67,7 @@
   import PollResults from "./poll_view_results/poll_results"
   export default {
     name: "Poll",
-    props: ["pollData"],
+    props: ["pollData","currentMindMap"],
     data() {
       return {
         dataLoaded: false,
@@ -93,9 +94,11 @@
     methods: {
       createPollingMap() {
         let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", mm_type: 'pollvote', canvas: JSON.stringify(this.pollData) } }).then((res) => {
+        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote', canvas: JSON.stringify(this.pollData) } }).then((res) => {
           if(res.data.mindmap.id !== null)
           {
+            this.pollData.url = res.data.mindmap.unique_key
+            this.$emit("updateVote" , this.pollData, 'create')
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
           }
         }).catch((error) => {
@@ -114,10 +117,15 @@
       updateMindMap(){
         http
         .patch(`/msuite/${this.pollData.url}.json`, {
-          mindmap: { canvas: JSON.stringify(this.pollData) } })
+          mindmap: { title: this.currentMindMap.title, canvas: JSON.stringify(this.pollData) } })
         window.open(`/msuite/${this.pollData.url}`)
         this.$refs['errorModal'].close()
-      }
+      },
+      generateRandomURL(){
+        this.pollData.url = "Central Idea"
+        this.createPollingMap()
+        this.$refs['errorModal'].close()
+      },
     }
   };
 </script>
