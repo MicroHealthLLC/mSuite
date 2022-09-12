@@ -1,8 +1,5 @@
 require 'json'
 class MindmapsController < AuthenticatedController
-  cattr_accessor :documents
-  self.documents ||= {counter: 0}
-
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
   before_action :set_mindmap, only: [:reset_password, :update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
