@@ -1,5 +1,4 @@
 require 'json'
-require 'document.rb'
 class MindmapsController < AuthenticatedController
   cattr_accessor :documents
   self.documents ||= {counter: 0}
