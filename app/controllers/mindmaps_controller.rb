@@ -15,10 +15,6 @@ class MindmapsController < AuthenticatedController
 
   def new
     @mindmap = Mindmap.new(name: "Central Idea")
-    if @mindmap.mm_type == 'Notepad'
-      @@documents[@mindmap.unique_key] = Document.new
-    end
-
     respond_to do |format|
       format.json { render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i } }
       format.html { render action: 'index' }
@@ -27,10 +23,6 @@ class MindmapsController < AuthenticatedController
 
   def create
     @mindmap = Mindmap.new(mindmap_params)
-    if @mindmap.mm_type == 'Notepad'
-      @@documents[@mindmap.unique_key] = Document.new
-    end
-
     if @mindmap.save
       render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
     else
@@ -39,23 +31,9 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if @mindmap && @mindmap.mm_type == 'Notepad'
-      ops = JSON.parse(mindmap_params["canvas"])
-      document = @@documents[@mindmap.unique_key]
-      for op in ops do
-        document.merge(op)
-      end
-      message = password_present?
-      @mindmap[:canvas] = ops.to_json
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
-      mindmap_params[:canvas] = document.text
-      p "\n\nCurrent text for #{@mindmap.unique_key}: #{document.text}"
-      @mindmap.update({canvas: document.operations.to_json})
-    else
-      @mindmap.update(mindmap_params)
-      message = password_present?
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
-    end
+    @mindmap.update(mindmap_params)
+    message = password_present?
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
     render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
   end
 
@@ -149,13 +127,11 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
-    @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url'])
-
+    @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url']) if @mindmap.mm_type == 'poll'
     if @child_mind_map && @child_mind_map.destroy
       ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
     end
     if check_for_password && @mindmap.destroy
-
       ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
       respond_to do |format|
         format.json { render json: { success: true } }
@@ -215,20 +191,7 @@ class MindmapsController < AuthenticatedController
     end
 
     def set_mindmap
-      @@documents[:counter] += 1
       @mindmap = Mindmap.find_by(unique_key: params[:id])
-      if @@documents[params[:id]].nil?
-        @@documents[params[:id]] = Document.new
-        if !@mindmap.nil?
-          if !@mindmap[:canvas].nil?
-            document = @@documents[params[:id]]
-            ops = JSON.parse(@mindmap[:canvas])
-            for op in ops do
-              document.merge(op)
-            end
-          end
-        end
-      end
       updateMindmap if @mindmap
     end
 
