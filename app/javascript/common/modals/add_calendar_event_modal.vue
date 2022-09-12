@@ -212,7 +212,6 @@
           this.invalidMessage = false
           this.allDayNotHidden = false
           this.errorMessage = ''
-          this.allDay = true
         }
         else if(difference < 0){
           this.isValueInvalid = true

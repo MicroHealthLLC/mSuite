@@ -226,6 +226,16 @@
           if (eventObj.changes.start){
             data.start = eventObj.changes.start.d.d
           }
+          let difference = this.getDateDifference(data.start,eventObj.changes.end.d.d)
+          if (difference == 0){
+            if ((eventObj.changes.end.d.d - data.start) <= 0 && data.isAllday == false ){
+              eventObj.changes.end.d.d.setHours(0)
+              eventObj.changes.end.d.d.setMinutes(0)
+              data.start.setHours(0)
+              data.start.setMinutes(0)
+              data.isAllday = true
+            }
+          }
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         })
@@ -234,6 +244,10 @@
         this.currentView = $("#calendarFormat").val();
         $('#calendarFormat').find(":selected").attr("selected","true")
         this.calendar.changeView(this.currentView);
+        if (this.currentView == 'week' || this.currentView == 'day'){
+          this.calendar.store.getState().calendar.events.internalMap.clear()
+          this.fetchEvents()
+        }
       },
       moveCalendar(value){
         this.showEditEvent = false
@@ -289,7 +303,6 @@
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
-
         let data = {
           title: eventObj.title,
           description: eventObj.body,
@@ -306,8 +319,6 @@
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
-        let difference = this.getDateDifference(eventObj.start,eventObj.end)
-        if (difference > 0) eventObj.isAllday = true
         this.showEditEvent = false
         let data = {
           title: eventObj.title,
@@ -344,10 +355,8 @@
         }
         this.calendar.store.getState().calendar.events.internalMap.clear()
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
-          if (currentValue.is_disabled){
-            currentValue.startdate = new Date(currentValue.startdate)
-            currentValue.duedate = new Date(currentValue.duedate)
-          }
+          currentValue.duedate = new Date(currentValue.duedate)
+          currentValue.startdate = new Date(currentValue.startdate)
           this.calendar.createEvents([
             {
               id: currentValue.id,
