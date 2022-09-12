@@ -365,7 +365,7 @@
         return x.toDateString();
       },
       checkMSuiteTypes () {
-        return this.currentMindMap.mm_type==='kanban' || this.currentMindMap.mm_type==='tree_chart' || this.currentMindMap.mm_type==='flowmap' || this.currentMindMap.mm_type==='todo' || this.currentMindMap.mm_type==='tree_map'
+        return this.currentMindMap.mm_type==='kanban' || this.currentMindMap.mm_type==='tree_chart' || this.currentMindMap.mm_type==='flowmap' || this.currentMindMap.mm_type==='todo' || this.currentMindMap.mm_type==='tree_map' || this.currentMindMap.mm_type==='calendar'
       }
     },
     filters: {

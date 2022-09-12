@@ -45,6 +45,7 @@ class NodesController < AuthenticatedController
   def destroy
     if @node.destroy
       delNodes = delete_child_nodes Node.where(parent_node: @node.id)
+      delNodes = @node if @node.mindmap.mm_type == 'calendar'
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar'
