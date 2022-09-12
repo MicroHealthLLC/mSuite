@@ -2,7 +2,6 @@
 <template>
   <div class="todo-app">
     <navigation-bar
-      v-if="isMounted"
       ref="navigationBar"
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @deleteMindmap="deleteMap"
@@ -19,39 +18,66 @@
       :userList="userList"
       :exportId="'notepad'">
     </navigation-bar>
-    <div id="notepad"></div>
+    <div class="m-2">
+     <quill-editor
+        v-model="content"
+        ref="contentEditor"
+        :options="editorOption"
+        v-debounce:1000ms="blurEvent"
+        @change="changeNotepad"
+      >
+     </quill-editor>
+   </div>
   </div>
 </template>
 <script>
   import http from "../../common/http"
   import domtoimage from "dom-to-image-more"
-  import Quill from 'quill'
-  import Delta from 'quill-delta'
-  import katex from 'katex'
-  import 'katex/dist/katex.min.css'
-  import Document from 'poseidon-crdt'
-  import _ from 'lodash'
+  import { quillEditor } from "vue-quill-editor"
+  import "quill/dist/quill.core.css"
+  import "quill/dist/quill.snow.css"
+  import "quill/dist/quill.bubble.css"
   import TemporaryUser from "../../mixins/temporary_user.js"
-  
+  Vue.config.errorHandler = function(msg, vm, info) {}
+
   export default {
     props: ['currentMindMap'],
     data() {
       return {
-        isMounted: false,
-        editor: null,
+        content: this.currentMindMap.canvas,
         isReset: false,
-        savingStatus: null,
-        saveText: null,
-        toolbar: null,
-        qeditor: null,
         userList: [],
         temporaryUser: '',
+        isSaveNotepad: true,
+        X: null,
         saveElement: false,
-        document: new Document(),
-        oldText: ""
+        editorOption      : {
+          modules : {
+            toolbar : [
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+              ['blockquote', 'code-block'],
+              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+              [{ 'direction': 'rtl' }],                         // text direction
+
+              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+              [{ 'font': [] }],
+              [{ 'align': [] }],
+              ['clean']
+            ],
+            syntax : {
+              highlight: text => hljs.highlightAuto(text).value
+            }
+          }
+        },
       }
     },
-    components: {},
+    components: { quillEditor },
     mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
@@ -72,176 +98,33 @@
             this.temporaryUser = data.content.userEdit
             this.userList.push(data.content.userEdit)
             localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
-            if (this.qeditor.hasFocus() && data.content.user != localStorage.user) {
-              this.qeditor.blur()
-            }
+
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+            this.error = '';
             this.currentMindMap = data.mindmap
-            let ops = JSON.parse(data.mindmap.canvas) || []
-
-            if(ops == null){
-              this.qeditor.setContents([
-                { insert: '' },
-              ])
-            } else {
-             let range = this.qeditor.getSelection() || {length: 0, index: 0};
-
-             this.document.locations = [range.index, (range.index + range.length)]
-             let before = this.document.operationsCount
-             for (let op of ops) {
-               this.document.merge(op)
-             }
-             if (this.document.operationsCount > before) {
-               console.log("received operations", ops)
-             }
-             range.index = this.document.locations[0]
-             range.length = this.document.locations[1] - this.document.locations[0]
-
-
-              this.oldText = this.document.text
-              this.qeditor.setContents([{ insert: this.document.text }])
-              this.qeditor.setSelection(range)
-            }
+            this.changeNotepad = false
+            let range = this.$refs.contentEditor.quill.getSelection()
+            this.$refs.contentEditor.quill.setSelection(range.index, 0, 'api')
+            this.content = this.currentMindMap.canvas
+            this.$refs.contentEditor.quill.update()
+            this.sendLocals(false)
           }
         }
       }
     },
     methods: {
-      async getMindmap(id) {
-        await http
-        .get(`/msuite/${id}.json`)
-        .then((res) => {
-          this.expDays = res.data.expDays
-          this.defaultDeleteDays = res.data.defaultDeleteDays
-          this.deleteAfter = res.data.deleteAfter
-          this.currentMindMap = res.data.mindmap
-          this.isMounted = true
-          this.subscribeCable(this.currentMindMap.id)
-        })
+      changeNotepad() {
+        this.sendLocals(true)
+        this.isSaveNotepad = true
+      },
+      blurEvent(val, event){
+        this.currentMindMap.canvas = this.content
       },
       updateDocument() {
-        let _this = this
-        let range = this.qeditor.getSelection()
-        if(range && (range.length == 0 || range.index == 0)) {
-          let currentDelta = this.qeditor.getContents()
-          let diff = Document.getDiff(this.oldText, currentDelta.ops[0].insert, (range.index + range.length))
-          let ops = this.document.diffToOps(diff)
-          if (!ops.length) {
-            return
-          }
-          for (let op of ops) {
-            this.document.merge(op, false)
-          }
-          console.log("sent operations", ops)
-
-          this.oldText = this.document.text
-          let stringOps = JSON.stringify(ops)
-          let mindmap = { mindmap: { canvas: stringOps } }
-          let id = this.currentMindMap.unique_key
-          if(!this.isReset){
-            http.patch(`/msuite/${id}.json`,mindmap).then(res => {
-              this.sendLocals(false)
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            })
-          }
-          else this.isReset = false
-        }
-      },
-      createEditor(){
-        this.qeditor = new Quill('#notepad', {
-          modules:{
-            toolbar: [
-             ['bold','italic','underline','strike'],
-             ['blockquote','code-block'],
-             ['formula'],
-             [{ 'header': 1 },{'header': 2}],
-             [{'list':'ordered'}, {'list':'bullet' }],
-             [{'indent':'-1'}, {'indent':'+1' }],
-             [{'size': ['small', false,'large','huge'] }],
-             [{'header': [1, 2, 3, 4, 5, 6, false] }],
-             [{'color': [] }, {'background': [] }],
-             [{'font': [] }],
-             ['align', {'align': 'center'},{'align': 'right'},{'align': 'justify'}] ]
-          },
-          theme: 'snow'
-        });
-
-        this.editorStyle = document.querySelectorAll('.ql-editor')[0].style
-        this.editorStyle.height = '82.5vh'
-        this.editorStyle.border = '20px'
-        this.editorStyle.padding = "3% 8% 0% 8%"
-        this.editorStyle.border = "20px solid #ccc"
-
-        document.querySelectorAll('.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button').forEach(function (editorToolbar) {
-          editorToolbar.classList.add('ml-2');
-        });
-        this.toolbar = $(".ql-toolbar")[0]
-        this.savingStatus = document.createElement("span");
-        this.toolbar.appendChild(this.savingStatus);
-        setTimeout(()=>{
-          this.strongTagStyleBold()
-        },100)
-      },
-      editorEvents() {
-        let _this = this
-        let change = new Delta();
-        let myDelta = this.qeditor.getContents();
-        let onChange = _.debounce((delta) => {
-          let lists = document.getElementsByTagName('li')
-
-          lists.forEach( list => {
-            if(list.firstChild.tagName && list.firstChild.style.color != ''){
-              list.style.color = list.firstChild.style.color
-            }
-            if (list.firstChild.className == 'ql-size-small'){
-              list.classList.add('ql-size-small')
-              list.classList.remove('ql-size-huge')
-              list.classList.remove('ql-size-large')
-            } else if (list.firstChild.className == 'ql-size-large'){
-              list.classList.add('ql-size-large')
-              list.classList.remove('ql-size-huge')
-            } else if (list.firstChild.className == 'ql-size-huge'){
-              list.classList.add('ql-size-huge')
-              list.classList.remove('ql-size-large')
-            } else {
-              list.classList.remove('ql-size-small')
-              list.classList.remove('ql-size-large')
-              list.classList.remove('ql-size-huge')
-            }
-          })
-          change = change.compose(delta);
-          this.updateDocument()
-        }, 500)
-        this.qeditor.on('text-change', (delta, old, source ) => {
-          if (source == 'api') {
-            return
-          }
-          onChange(delta)
-        });
-        /*
-        setInterval(function() {
-          if (change.length() > 0) {
-            _this.updateDocument()
-            change = new Delta();
-          }
-        }, 500);
-        */
-        window.onbeforeunload = function() {
-          if (change.length() > 0) {
-            return 'There are unsaved changes. Are you sure you want to leave?';
-          }
-        }
+        if(!this.isSaveNotepad) return
+        let id = this.currentMindMap.unique_key
+        http.patch(`/msuite/${id}.json`,this.currentMindMap)
       },
       resetMindmap() {
         this.isReset = true
@@ -251,7 +134,6 @@
         this.qeditor.focus()
       },
       exportToDocument(option) {
-
        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
         var postHtml = "</body></html>"
 
@@ -281,51 +163,28 @@
           downloadLink.click()
         }
         document.body.removeChild(downloadLink);
-        this.$refs['navigationBar'].$refs['exportOption'].close()
-      },
-      strongTagStyleBold(){
-        var strong_list = document.querySelectorAll('strong');
-        var strong_array = [...strong_list];
-        strong_array.forEach(el => {
-          el.style.fontWeight = 'bold'
-        });
-      },
-    },
-    updated() {
-      this.savingStatus.style.fontWeight = '450';
-      if (JSON.stringify(this.qeditor.getContents()) === this.currentMindMap.canvas ||
-          JSON.stringify(this.qeditor.getContents()) === '{"ops":[{"insert":"\\n"}]}') {
-        this.savingStatus.innerHTML = 'Saved';
-        this.savingStatus.style.color = 'green';
-      } else {
-        this.savingStatus.innerHTML = 'Editing...';
-        this.savingStatus.style.color = 'blue';
+        this.$refs['navigationBar'].$refs['exportOption'].close();
       }
-      this.strongTagStyleBold()
     },
     mounted() {
-      if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-        window.katex = katex
-      }
-      if (this.currentMindMap.canvas) {
-        let ops = JSON.parse(this.currentMindMap.canvas)
-        for (let op of ops) {
-          this.document.merge(op)
-        }
-      }
-
-      this.createEditor()
-      this.editorEvents()
-      this.qeditor.focus()
-
-      this.oldText = this.document.text
-      this.qeditor.setContents([{ insert: this.document.text }])
+      this.subscribeCable(this.currentMindMap.id)
       if(localStorage.mindmap_id == this.currentMindMap.id){
         this.userList = JSON.parse(localStorage.userList)
         this.temporaryUser = localStorage.userEdit
       }
+      $(".ql-container")[0].style.height = '75vh'
     },
+    watch: {
+      content:{
+        handler(value) {
+          this.currentMindMap.canvas = value
+          clearTimeout(this.X)
+          this.X = setTimeout(() => {
+            this.updateDocument()
+          },1000)
+        }
+      },
+    }
   }
 </script>
 <style scoped>
