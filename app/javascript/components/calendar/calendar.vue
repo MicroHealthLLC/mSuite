@@ -5,6 +5,8 @@
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @sendLocals="sendLocals"
+      @undoMindmap="undoEvent"
+      @redoMindmap="redoEvent"
       :current-mind-map="currentMindMap"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -126,6 +128,9 @@
         userList:            [],
         temporaryUser:       '',
         currentView:         'month',
+        undoNodes:           [],
+        redoNodes:           [],
+        undoDone:            false
       }
     },
     components: {
@@ -181,6 +186,8 @@
       resetMindmap() {
         this.isReset = true
         http.get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
+        this.undoNodes = []
+        this.redoNodes = []
       },
       createCalendar(){
         const container = document.getElementById('calendar');
@@ -313,10 +320,11 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           is_disabled: eventObj.isAllday,
-          line_color: eventObj.state,
           mindmap_id: this.currentMindMap.id
           }
-        http.post('/nodes.json', data)
+        http.post('/nodes.json', data).then((result) => {
+          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+        })
         this.sendLocals(false)
       },
       updateEvent(eventObj){
@@ -330,16 +338,63 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           is_disabled: eventObj.isAllday,
-          line_color: eventObj.state,
           }
+          if(this.undoNodes.length > 0) {
+            this.undoNodes.forEach((element, index) => {
+            if(element['receivedData']){
+              if(element['receivedData'].id === eventObj.id) {
+                this.undoNodes[index]['receivedData'].title = data.title
+                this.undoNodes[index]['receivedData'].description = data.description
+                this.undoNodes[index]['receivedData'].startdate = data.startdate
+                this.undoNodes[index]['receivedData'].duedate = data.duedate
+                this.undoNodes[index]['receivedData'].is_disabled = data.is_disabled
+              }
+            } 
+            else {
+                if(element['node'].id === eventObj.id) {
+                  this.undoNodes[index]['node'].title = data.title
+                  this.undoNodes[index]['node'].description = data.description
+                  this.undoNodes[index]['node'].startdate = data.startdate
+                  this.undoNodes[index]['node'].duedate = data.duedate
+                  this.undoNodes[index]['node'].is_disabled = data.isAllday
+                }
+            }
+          });
+        }
+        else {
+          let dataObj = {
+            id:eventObj.id,
+            ...data
+          }
+          this.undoNodes.push({'req': 'addNode', node: dataObj})
+        }
         http.put(`/nodes/${eventObj.id}`, data)
         this.sendLocals(false)
 
       },
       deleteEvents(){
+        this.undoDone = false
         this.sendLocals(true)
         this.showEditEvent = false
-        http.delete(`/nodes/${this.showEvent.id}.json`)
+        http.delete(`/nodes/${this.showEvent.id}.json`).then((res)=>{
+          let receivedNodes = res.data.node
+          if(receivedNodes && receivedNodes.length > 0){
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
+          }
+          if (!this.undoDone){
+            let data = {
+              title: this.showEvent.title,
+              description: this.showEvent.body,
+              startdate: this.showEvent.start.d.d,
+              duedate: this.showEvent.end.d.d,
+              is_disabled: this.showEvent.isAllday,
+              mindmap_id: this.currentMindMap.id
+            }
+            this.undoNodes.push({'req': 'deleteNode', node: data})
+          }
+          }).catch((err) => {
+            console.error(err);
+          });
         this.sendLocals(false)
       },
       async fetchEvents(){
@@ -368,7 +423,6 @@
               start: currentValue.startdate,
               end: currentValue.duedate,
               body: currentValue.description,
-              state: currentValue.line_color,
               isAllday: currentValue.is_disabled
             }
           ])
@@ -400,6 +454,33 @@
             );
           }
         });
+      },
+      undoEvent(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
+          .then((res) => {
+            this.undoNodes.pop()
+            let node = res.data.node.node
+            let req = res.data.node.req
+            this.redoNodes.push({req, node})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoEvent(){
+        http
+          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
+          .then((res) => {
+            this.redoNodes.pop()
+            let receivedData = res.data.node.node
+            let req = res.data.node.req
+            this.undoNodes.push({req, receivedData})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       }
     },
     mounted() {
