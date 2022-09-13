@@ -106,6 +106,16 @@ input.userCheck {
   position: relative;
   top: 22vh;
 }
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @media (max-width: 225px), (max-height: 225px) {
   .loader {
     font-size: 75px;

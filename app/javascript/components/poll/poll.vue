@@ -23,6 +23,7 @@
         v-if="!pollEdit && dataLoaded && pollData"
         :pollData="pollData"
         :graph_array="graph_array"
+        :current-mind-map="currentMindMap"
         @pollEditData="pollEditData"
         @updateVote="updateVote"></poll-view>
 
@@ -96,17 +97,15 @@
       }
     },
     methods: {
-      updateVote(data, request){
+      updateVote(data){
         let mindmap = {
           name: data.url,
           mindmap: { canvas: JSON.stringify(data) }
         }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap).then( res =>{
-          if (request != 'save') {
-            this.pollEdit = false
-            this.dataLoaded = true
-          }
+          this.pollEdit = false
+          this.dataLoaded = true
         })
       },
       pollEditData() {

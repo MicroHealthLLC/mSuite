@@ -123,10 +123,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
-    @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url']) if @mindmap.mm_type == 'poll'
-    if @child_mind_map && @child_mind_map.destroy
-      ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
-    end
+    del_child_mindmap()
     if check_for_password && @mindmap.destroy
       ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
       respond_to do |format|
@@ -137,6 +134,15 @@ class MindmapsController < AuthenticatedController
       respond_to do |format|
         format.json { render json: { success: false } }
         format.html {}
+      end
+    end
+  end
+
+  def del_child_mindmap
+    if  @mindmap.mm_type == 'poll' && @mindmap.canvas && JSON.parse(@mindmap.canvas)['url']
+      @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url'])
+      if @child_mind_map && @child_mind_map.destroy
+        ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
       end
     end
   end

@@ -1,27 +1,14 @@
 <template>
-  <div class="container">
-    <div class="overflow-auto maxHeight">
-      <div class="text-danger">Required input*</div>
-      <h5 class="mt-2">Poll Title*</h5>
-      <input
-        type="text"
-        required
-        v-on:blur="poll_url"
-        v-model="poll.title"
-        placeholder="Input Poll Title"
-        class="w-100"
-        :class="poll.title == '' && showError ? 'shake d-block border-danger':''" />
+  <div class="overflow-auto maxHeight">
+    <div class="container">
+      <div class="d-flex mt-2">
+        <h5>Description&nbsp;</h5><span>(optional)</span>
+      </div>
       <textarea
-        v-if="addDescription"
         type="input"
         v-model="poll.description"
         class="mt-3 w-100"
         placeholder="Input description text" />
-      <button
-        class="btn btn-color mt-4 py-0 px-3 rounded-0"
-        @click="descriptionDetail">
-        Add Description
-      </button>
       <div v-for="(questions,index) in poll.Questions">
         <div
           draggable="true"
@@ -124,22 +111,12 @@
             v-on:blur="poll_url"
             />
       </div>
-
-      <button
-        class="btn btn-success mt-2 py-0 px-3 rounded-0"
-        :class="showError ? 'shake d-block':''"
-        @click="createPin('save')">SAVE</button>
-      <button
-        class="btn btn-warning text-light mt-2 py-0 px-3 rounded-0"
-        @click="revertPoll">
-        CANCEL
-      </button>
       <button
         class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
         :class="createPermit ? 'cursor-disabled':''"
         :disabled = "createPermit"
-        @click="createPin('create')">
-        CREATE POLL
+        @click="createPin()">
+        PREVIEW
       </button>
     </div>
     <sweet-modal ref="saved_success" class="of_v" icon="success">
@@ -174,12 +151,10 @@
         },
         showError: false,
         format: 'DD MMM YYYY',
-        addDescription: false,
         q_position: null,
         a_position: null,
         current_question: null,
         result_data: [],
-        createPermit: true
       }
     },
     components: {
@@ -194,11 +169,6 @@
       if(this.pollData){
         this.poll = this.pollData
       }
-    },
-    updated(){
-      if (JSON.stringify(this.poll) != this.currentMindMap.canvas){
-        this.createPermit = true
-      } else this.createPermit = false
     },
     watch: {
       pollData: {
@@ -226,7 +196,7 @@
           allowedAnswers: 0,
         })
       },
-      createPin(request) {
+      createPin() {
         if(this.checkAllFields()){
           this.showError = true
           this.result_data = []
@@ -235,35 +205,10 @@
           }, 2500)
           return
         }
-        this.savePoll(request)
+        this.savePoll()
       },
       savePoll(request) {
-        this.$emit("updateVote" , this.poll, request)
-        if (request != 'create') this.$refs['saved_success'].open()
-        this.createPermit = false
-      },
-      revertPoll(){
-        let poll_data = JSON.parse(this.currentMindMap.canvas)
-        if(poll_data){
-          this.poll = poll_data
-        } else {
-            this.poll = {
-              title: '',
-              description: '',
-              Questions: [{
-                question: '',
-                answerField: [
-                  { value: 1, text: '', votes: null },
-                  { value: 2, text: '', votes: null }
-                ],
-                voters: [],
-                allowedAnswers: 0,
-              }],
-              pin: '',
-              showResult: false,
-              url: ''
-          }
-        }
+        this.$emit("updateVote" , this.poll )
       },
       delAnswer(questions, answer, index){
         if ( questions.answerField.length > 2 ) {
@@ -274,13 +219,6 @@
         if ( this.poll.Questions.length > 1 ) {
           this.poll.Questions.splice(index, 1)
         }
-      },
-      descriptionDetail(){
-        this.addDescription = !this.addDescription
-        if(this.addDescription){
-          $('.btn-color')[0].innerHTML = 'Delete Description'
-          this.poll.description = ''
-        } else $('.btn-color')[0].innerHTML = 'Add Description'
       },
       dragStartQuestion(event,question_index){
         this.q_position = question_index
@@ -306,8 +244,8 @@
             .split(/ |\B(?=[A-Z])/)
             .map(word => word.toLowerCase())
             .join('_');
-        } else if(this.poll.title){
-          this.poll.url = this.poll.title.replace(/\W+/g, " ")
+        } else if(this.currentMindMap.title){
+          this.poll.url = this.currentMindMap.title.replace(/\W+/g, " ")
             .split(/ |\B(?=[A-Z])/)
             .map(word => word.toLowerCase())
             .join('_');
@@ -322,7 +260,7 @@
               if(answer.text == '') _this.poll.Questions[q_index].answerField.splice(index, 100)
             }
           })
-          _this.result_data.push(_this.poll.title == '' || _this.poll.Questions[q_index].answerField.length < 2 || _this.poll.Questions[q_index].question == '' || _this.poll.Questions[q_index].question == undefined || _this.poll.Questions[q_index].answerField[0].text == '' || _this.poll.Questions[q_index].answerField[1].text == '')
+          _this.result_data.push(_this.poll.Questions[q_index].answerField.length < 2 || _this.poll.Questions[q_index].question == '' || _this.poll.Questions[q_index].question == undefined || _this.poll.Questions[q_index].answerField[0].text == '' || _this.poll.Questions[q_index].answerField[1].text == '')
         })
         _this.result_data.filter( value => {
           if (value == true) {

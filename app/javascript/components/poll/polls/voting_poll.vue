@@ -18,7 +18,6 @@
     </navigation-bar>
 
     <div class="container overflow-auto maxHeight" v-if="validForVote && !returnFun">
-      <h3><strong>{{ pollData.title }}</strong></h3>
       <span>{{ pollData.description }}</span>
       <div>
         <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
