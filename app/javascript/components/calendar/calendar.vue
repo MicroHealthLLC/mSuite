@@ -244,8 +244,9 @@
         this.currentView = $("#calendarFormat").val();
         $('#calendarFormat').find(":selected").attr("selected","true")
         this.calendar.changeView(this.currentView);
-        if (this.currentView == 'week' || this.currentView == 'day'){
-          this.calendar.store.getState().calendar.events.internalMap.clear()
+        let calendarStore = this.calendar.store.getState().calendar.events.internalMap
+        if ((this.currentView == 'week' || this.currentView == 'day') && calendarStore.size !=0 ){
+          calendarStore.clear()
           this.fetchEvents()
         }
       },
