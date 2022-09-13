@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <div class="overflow-auto maxHeight scroll">
+  <div class="overflow-auto maxHeight">
+    <div class="container">
       <div class="d-flex mt-2">
         <h5>Description&nbsp;</h5><span>(optional)</span>
       </div>
