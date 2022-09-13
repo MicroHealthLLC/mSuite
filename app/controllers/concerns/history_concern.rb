@@ -106,6 +106,9 @@ module HistoryConcern
           else
             stageID = nil
           end
+          if paramNode[:startdate]
+            duedate = paramNode[:duedate]
+          end
           createdNode = Node.create([
             id: paramNode[:id],
             title:  paramNode[:title],
