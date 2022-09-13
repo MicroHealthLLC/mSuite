@@ -70,9 +70,6 @@
               [{ 'align': [] }],
               ['clean']
             ],
-            syntax : {
-              highlight: text => hljs.highlightAuto(text).value
-            }
           }
         },
       }
