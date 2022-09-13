@@ -241,8 +241,12 @@
         })
       },
       toggleCalendarView(){
+        let selectElement = document.getElementById('calendarFormat')
+        selectElement.forEach((currentValue)=>{
+          currentValue.removeAttribute('selected')
+        })
         this.currentView = $("#calendarFormat").val();
-        $('#calendarFormat').find(":selected").attr("selected","true")
+        $('#calendarFormat option:selected').attr("selected","true")
         this.calendar.changeView(this.currentView);
         if (this.currentView == 'week' || this.currentView == 'day'){
           this.calendar.store.getState().calendar.events.internalMap.clear()
