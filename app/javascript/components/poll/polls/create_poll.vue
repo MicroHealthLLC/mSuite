@@ -342,6 +342,6 @@
 <style lang="scss">
     @import "./check_box.scss";
 </style>
-<style>
+<style scoped>
   @import './poll.css'
 </style>
