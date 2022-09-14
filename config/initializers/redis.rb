@@ -7,5 +7,3 @@ else
   cable_config = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(yaml_config) : YAML.load(yaml_config)
   $redis =   Redis.new( url: cable_config[Rails.env.to_s ]['url'] ||  cable_config['redis']['url'] )
 end
-
-
