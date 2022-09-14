@@ -124,7 +124,7 @@
         this.pollData.Questions.forEach( question => {
           question.checked = []
         })
-        if (this.pollData.duedate == '') this.validForVote = true
+        if (this.pollData.duedate == '' || this.pollData.duedate == undefined) this.validForVote = true
         else if (new Date() < new Date(this.pollData.duedate)) this.validForVote = true
         else this.validForVote = false
         this.pollExpDate = moment(new Date(this.pollData.duedate)).format('DD MMM YYYY')

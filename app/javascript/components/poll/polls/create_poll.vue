@@ -107,9 +107,8 @@
           <input
             id="input"
             type="text"
-            v-model="poll.url"
-            v-on:blur="poll_url"
-            />
+            disabled
+            v-model="poll.url" />
       </div>
       <button
         class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
@@ -169,6 +168,7 @@
       if(this.pollData){
         this.poll = this.pollData
       }
+      this.poll_url()
     },
     watch: {
       pollData: {
@@ -239,16 +239,12 @@
         }
       },
       poll_url(){
-        if(this.poll.url != ''){
-          this.poll.url = this.poll.url.replace(/\W+/g, " ")
-            .split(/ |\B(?=[A-Z])/)
-            .map(word => word.toLowerCase())
-            .join('_');
-        } else if(this.currentMindMap.title){
-          this.poll.url = this.currentMindMap.title.replace(/\W+/g, " ")
-            .split(/ |\B(?=[A-Z])/)
-            .map(word => word.toLowerCase())
-            .join('_');
+        if(this.poll.url == ''){
+          var url = "";
+          var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+          for (var i = 0; i < 19; i++)
+            url += possible.charAt(Math.floor(Math.random() * possible.length));
+          this.poll.url = url
         }
       },
       checkAllFields(){
