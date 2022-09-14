@@ -10,7 +10,7 @@
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
       :deleteAfter="deleteAfter"
-      :whiteboard-image="currentMindMap.canvas"
+      :whiteboard-image="currentMindMap.mm_type == 'whiteboard' ? currentMindMap.canvas : ''"
     />
   </div>
 </template>
