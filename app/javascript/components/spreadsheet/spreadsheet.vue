@@ -1,7 +1,6 @@
 <template>
-  <div>
+  <div class="overflow-auto maxHeight">
     <navigation-bar
-      v-if="isMounted"
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
@@ -14,19 +13,16 @@
       :exportId="'spreadSheet'"
       :isEditing="isEditing"
       :saveElement="saveElement"
-      :excel_data="sheetData.data"
       :userList="userList"
       :temporaryUser="temporaryUser"
       ref="spreadSheetNavigation">
     </navigation-bar>
-      <span v-if="showPiviotTable" class="px-2" @click="showTable">
-        <i class="table_icon fas fa-table fa-2x"></i>
-      </span>
-      <div id="tester" class="w-100">
-      </div>
-    <div id="spreadSheet" class="overflow-auto">
-      <div id="mytable" class="w-100">
-      </div>
+    <span v-if="showPiviotTable" class="px-2" @click="showTable">
+      <i class="table_icon fas fa-table fa-2x"></i>
+    </span>
+    <div id="graphs" class="w-100"></div>
+    <div id="spreadSheet" class="">
+      <div id="mytable" class="w-100"></div>
     </div>
   </div>
 </template>
@@ -50,7 +46,6 @@
     props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
     data() {
       return {
-        isMounted: false,
         formula: '',
         sheetData: {
           data: [[]],
@@ -66,7 +61,8 @@
         saveElement: true,
         changeRequest: 1,
         addColumnReq: false,
-        showPiviotTable: false      }
+        showPiviotTable: false
+      }
     },
     components: {},
     mixins: [TemporaryUser],
@@ -92,7 +88,6 @@
             this.sheetData = JSON.parse(data.mindmap.canvas)
             this.table.setData(this.sheetData.data)
             if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
-
             this.table.destroy()
             this.createSheet(data.mindmap.canvas)
             $(".jexcel_content").addClass('h-100 w-100')
@@ -125,39 +120,36 @@
             data.message === "Mindmap Updated"      &&
             this.currentMindMap.id === data.mindmap.id
           ) {
-            this.currentMindMap = data.mindmap
-            if(this.currentMindMap.canvas)
+            let _this = this
+            _this.currentMindMap = data.mindmap
+            if(_this.currentMindMap.canvas)
             {
-              this.sheetData = JSON.parse(data.mindmap.canvas)
-              if(this.sheetData && this.sheetData.data != undefined) this.table.setData(JSON.parse(data.mindmap.canvas).data)
-              if(this.sheetData && this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
-              this.changeRequest = this.changeRequest + 1
-              if(this.sheetData && this.sheetData.column != undefined) {
-                if(this.sheetData.columns.length != this.table.options.columns.length){
-
-                  if(this.sheetData.column.addCol){
-                    this.table.insertColumn({
-                      insertBefore: this.sheetData.column.insertBefore,
-                      numOfColumns: this.sheetData.column.numOfColumns,
-                      columnNumber: this.sheetData.column.columnNumber,
-                    })
-                  } else if(this.sheetData.column.delCol){
-                    this.table.deleteColumn(this.sheetData.column.columnNumber, this.sheetData.column.numOfColumns)
-                    this.sheetData.columns.pop()
-                  }
-
-                  this.sheetData.column = null
-
-                  let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-                  let id = this.currentMindMap.unique_key
-                  if(!this.isReset){
-                    http.patch(`/msuite/${id}.json`,mindmap)
-                    this.saveElement = true
-                    this.sendLocals(false)
-                  }
+              _this.sheetData = JSON.parse(data.mindmap.canvas)
+              if (
+                _this.sheetData &&
+                JSON.stringify(_this.table.options.columns) != JSON.stringify(_this.sheetData.columns)
+              ) {
+                if (_this.sheetData.data != undefined) {
+                  _this.table.destroy()
+                  _this.createSheet(data.mindmap.canvas)
                 }
               }
+              if (
+                _this.sheetData &&
+                JSON.stringify(_this.table.getData()) != JSON.stringify(_this.sheetData.data)
+              ) {
+                if (_this.sheetData.data != undefined) {
+                  _this.table.destroy()
+                  _this.createSheet(data.mindmap.canvas)
+                }
+              }
+              if (
+                _this.sheetData && JSON.stringify(_this.table.getStyle()) != JSON.stringify(_this.sheetData.style) && _this.sheetData.style != undefined ) {
+                _this.table.destroy()
+                _this.createSheet(data.mindmap.canvas)
+              }
             }
+            _this.changeRequest = _this.changeRequest + 1
           }
           else {}
         }
@@ -170,27 +162,29 @@
       },
       createSheet(sheetData){
         let _this = this
-        if(this.currentMindMap.canvas != null) this.sheetData = JSON.parse(sheetData)
+        if(_this.currentMindMap.canvas != null) _this.sheetData = JSON.parse(sheetData)
         let table = jexcel(document.getElementById('mytable'), {
-          data: this.sheetData.data,
-          style: this.sheetData.style,
-          colWidths: this.sheetData.width,
+          data: _this.sheetData.data,
+          columns: _this.sheetData.columns,
+          style: _this.sheetData.style,
+          colWidths: _this.sheetData.width,
           formula: true,
           tableOverflow: true,
           tableHeight: '100vh',
           minDimensions:[32,32],
-          allowRenameColumn: false,
-          onchange: this.dataChange,
-          onchangestyle: this.changeStyle,
-          onresizecolumn: this.changeSizeColmun,
-          onselection: this.selectionCreated,
-          oneditionstart: this.editStart,
-          oneditionend: this.editEnd,
-          oninsertrow: this.dataChange,
-          ondeleterow: this.dataChange,
-          oninsertcolumn: this.insertColumn,
-          ondeletecolumn: this.deleteColumn,
-          csvFileName: `${this.currentMindMap.unique_key}`,
+          allowRenameColumn: true,
+          onchange: _this.dataChange,
+          onchangestyle: _this.changeStyle,
+          onresizecolumn: _this.changeSizeColmun,
+          onselection: _this.selectionCreated,
+          oneditionstart: _this.editStart,
+          oneditionend: _this.editEnd,
+          oninsertrow: _this.dataChange,
+          ondeleterow: _this.dataChange,
+          oninsertcolumn: _this.dataChange,
+          ondeletecolumn: _this.dataChange,
+          onchangeheader: _this.dataChange,
+          csvFileName: `${_this.currentMindMap.unique_key}`,
           toolbar:[
             {
               type: 'i',
@@ -259,18 +253,20 @@
             },
           ],
         });
-        this.table = table
+        _this.table = table
       },
       async dataChange(){
-        this.sheetData.data = this.table.getData()
-        if(this.table.getStyle()) this.sheetData.style = this.table.getStyle()
-        let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-        let id = this.currentMindMap.unique_key
-        if(!this.isReset){
+        let _this = this
+        _this.sheetData.data    = _this.table.getData()
+        _this.sheetData.columns = _this.table.options.columns
+        if(_this.table.getStyle()) _this.sheetData.style = _this.table.getStyle()
+        let mindmap = { mindmap: { canvas: JSON.stringify(_this.sheetData) } }
+        let id = _this.currentMindMap.unique_key
+        if(!_this.isReset){
           let response = await http.patch(`/msuite/${id}.json`,mindmap)
           if (response) {
-            this.saveElement = true
-            this.sendLocals(false)
+            _this.saveElement = true
+            _this.sendLocals(false)
           }
         }
         else this.isReset = false
@@ -283,7 +279,7 @@
       },
       changeSizeColmun(){
         this.sheetData.width = this.table.getWidth().map(function (x) {
-          return parseInt(x, 10);
+          return parseInt(x, 30);
         });
           this.changeStyle()
       },
@@ -305,59 +301,6 @@
       selectionCreated(){
         this.changeRequest = 0
       },
-      insertRow(el, rowNumber, numOfRows, historyRecords, insertBefore){
-        this.sheetData.row = {
-          rowNumber      : rowNumber,
-          numOfRows      : numOfRows,
-          historyRecords : historyRecords,
-          insertBefore   : insertBefore
-        }
-        let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-        let id = this.currentMindMap.unique_key
-        if(!this.isReset){
-          http.patch(`/msuite/${id}.json`,mindmap)
-          this.saveElement = true
-          this.sendLocals(false)
-        }
-      },
-      insertColumn(worksheet, columnNumber, numOfColumns, historyRecords, insertBefore){
-        this.table.resetSelection(true)
-        this.sheetData.column = {
-          columnNumber   : columnNumber,
-          numOfColumns   : numOfColumns,
-          historyRecords : historyRecords,
-          insertBefore   : insertBefore,
-          addCol         : true
-        }
-        this.sheetData.columns = this.table.options.columns
-
-          let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-          let id = this.currentMindMap.unique_key
-          if(!this.isReset){
-            http.patch(`/msuite/${id}.json`,mindmap)
-            this.saveElement = true
-            this.sendLocals(false)
-          }
-      },
-      deleteColumn(worksheet, columnNumber, numOfColumns, affectedDOMElements, historyProperties, cellAttributes){
-        this.table.resetSelection(true)
-        this.sheetData.column = {
-            columnNumber        : columnNumber,
-            numOfColumns        : numOfColumns,
-            affectedDOMElements : affectedDOMElements,
-            historyProperties   : historyProperties,
-            cellAttributes      : cellAttributes,
-            delCol              : true
-          }
-        this.sheetData.columns = this.table.options.columns
-          let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-          let id = this.currentMindMap.unique_key
-          if(!this.isReset){
-            http.patch(`/msuite/${id}.json`,mindmap)
-            this.saveElement = true
-            this.sendLocals(false)
-          }
-      },
       exportXLS(option){
         if(option === 1){
 
@@ -367,8 +310,8 @@
 
           for(j = 1 ; j < tab.rows.length ; j++)
           {
-              tab_text = tab_text+tab.rows[j].innerHTML+"</tr>";
-              tab_text = tab_text.replace(`<td data-y="${j-1}" class="jexcel_row">${j}</td>`,"")
+            tab_text = tab_text+tab.rows[j].innerHTML+"</tr>";
+            tab_text = tab_text.replace(`<td data-y="${j-1}" class="jexcel_row">${j}</td>`,"")
           }
           tab_text = tab_text.replace(`<td data-y="0" class="jexcel_row">${tab.rows.length}</td>`,"")
 
@@ -387,14 +330,14 @@
             txtArea1.focus();
             sa=txtArea1.document.execCommand("SaveAs",true,"Say Thanks to Sumit.xls");
           } else {
-              this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
-              let myDocument = 'data:application/vnd.ms-excel,' + encodeURIComponent(tab_text);
-              let link = document.createElement("a");
-              document.body.appendChild(link);
-              link.download = `${this.currentMindMap.unique_key}.xls`;
-              link.href = myDocument;
-              link.click();
-              document.body.removeChild(link);
+            this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
+            let myDocument = 'data:application/vnd.ms-excel,' + encodeURIComponent(tab_text);
+            let link = document.createElement("a");
+            document.body.appendChild(link);
+            link.download = `${this.currentMindMap.unique_key}.xls`;
+            link.href = myDocument;
+            link.click();
+            document.body.removeChild(link);
             }
           return (sa);
         }
@@ -412,7 +355,7 @@
           element = pivotData[0][pivotData[0].length - 1]
         }
         this.table.destroy()
-        $('#tester').append( '<div id="pivot_table"></div>' )
+        $('#graphs').append( '<div id="pivot_table"></div>' )
         var derivers = $.pivotUtilities.derivers;
         var renderers = $.extend($.pivotUtilities.renderers,$.pivotUtilities.plotly_renderers);
         $("#pivot_table").pivotUI(pivotData,{
@@ -448,7 +391,6 @@
         this.userList = JSON.parse(localStorage.userList)
         this.temporaryUser = localStorage.userEdit
       }
-      this.isMounted = true
     },
   }
 </script>
