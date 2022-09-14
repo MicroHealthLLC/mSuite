@@ -1,9 +1,9 @@
 <template>
   <div v-if="dataLoaded" class="container">
     <div class="overflow-auto maxHeight" v-if="!showResult">
-      <h3><strong>{{ pollData.title }}</strong></h3>
+      <h5><strong>{{ pollData.description }}</strong></h5>
       <div>
-        <span class="text-danger">
+        <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
           All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowable selected options indicated.
         </span>
       </div>
@@ -13,7 +13,7 @@
         </h5>
         <span
           v-if="questions.allowedAnswers + 1 > 1"
-          class="ml-4">
+          class="ml-4" :class="errorTriggered ? 'shake d-block border-danger':''">
           Allowable selected options: {{ questions.allowedAnswers + 1 }}
         </span>
         <div class="mt-2 ml-4" v-for="answers in questions.answerField">
@@ -21,13 +21,15 @@
             v-if="questions.allowedAnswers > 0"
             type="checkbox"
             :value="answers"
-            v-model="questions.checked" />
+            v-model="questions.preview_checked"
+            @change="checkAnswers(questions.preview_checked)" />
           <input
             v-else
             type="radio"
             :value="answers"
-            v-model="questions.checked"/>
-          <span>
+            v-model="questions.preview_checked"
+            @change="checkAnswers(questions.preview_checked)" />
+          <span :class="errorTriggered ? 'shake d-block border-danger':''">
             {{ answers.text }}
           </span>
         </div>
@@ -45,7 +47,9 @@
         </button>
         <button
           class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
-          @click="$emit('pollEditData')">EDIT</button>
+          @click="$emit('pollEditData')">
+          EDIT
+        </button>
       </div>
     </div>
     <poll-results
@@ -77,7 +81,9 @@
         uniqueKey: null,
         oldMSuiteName: null,
         mindmapName: '',
-        mindmapExists: false
+        mindmapExists: false,
+        errorTriggered: false,
+        loopBreaked: false
       };
     },
     components: {
@@ -88,28 +94,49 @@
         this.dataLoaded = true
         this.pollData.Questions.forEach( question => {
           question.checked = []
+          question.preview_checked = []
         })
       }
     },
     methods: {
       createPollingMap() {
         let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote', canvas: JSON.stringify(this.pollData) } }).then((res) => {
-          if(res.data.mindmap.id !== null)
-          {
-            this.pollData.url = res.data.mindmap.unique_key
-            this.$emit("updateVote" , this.pollData, 'create')
-            window.open(`/msuite/${res.data.mindmap.unique_key}`)
+        this.pollData.Questions.some( question => {
+
+          if (question.preview_checked.length > question.allowedAnswers + 1 || question.preview_checked.length < 1){
+            this.errorTriggered = true
+            this.loopBreaked = true
+            setTimeout(()=>{
+              this.errorTriggered = false
+            },1500)
+             return
           }
-        }).catch((error) => {
-            if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
-            _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
-            _this.selectedType = error.response.data.mindmap.mm_type
-            _this.uniqueKey = error.response.data.mindmap.unique_key
-            _this.oldMSuiteName = error.response.data.mindmap.name
-            _this.mindmapName = ''
-            _this.$refs['errorModal'].open()
         })
+        if ( !this.loopBreaked ) {
+          http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote', canvas: JSON.stringify(this.pollData) } }).then((res) => {
+            if(res.data.mindmap.id !== null)
+            {
+              this.pollData.url = res.data.mindmap.unique_key
+              this.$emit("updateVote" , this.pollData, 'create')
+              window.open(`/msuite/${res.data.mindmap.unique_key}`)
+            }
+          }).catch((error) => {
+              if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
+              _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
+              _this.selectedType = error.response.data.mindmap.mm_type
+              _this.uniqueKey = error.response.data.mindmap.unique_key
+              _this.oldMSuiteName = error.response.data.mindmap.name
+              _this.mindmapName = ''
+              _this.$refs['errorModal'].open()
+          })
+        }
+      },
+      checkAnswers(check){
+        this.pollData.Questions.forEach( data => {
+          if ( (check[0] && check[0].text) || check.text){
+            this.loopBreaked = false
+          } else this.loopBreaked = true
+        } )
       },
       tryAgain(){
         this.$refs['errorModal'].close()
