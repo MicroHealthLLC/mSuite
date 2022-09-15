@@ -461,6 +461,7 @@
         http
           .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
           .then((res) => {
+            this.toggleCalendarView()
             this.undoNodes.pop()
             let node = res.data.node.node
             let req = res.data.node.req
