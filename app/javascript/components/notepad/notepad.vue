@@ -1,4 +1,3 @@
-
 <template>
   <div class="todo-app">
     <navigation-bar
@@ -18,124 +17,172 @@
       :userList="userList"
       :exportId="'notepad'">
     </navigation-bar>
-    <div class="m-2">
-     <quill-editor
-        v-model="content"
-        ref="contentEditor"
-        :options="editorOption"
-        v-debounce:1000ms="blurEvent"
-        @change="changeNotepad"
-      >
-     </quill-editor>
-   </div>
+    <div id="notepad"></div>
   </div>
 </template>
 <script>
   import http from "../../common/http"
-  import domtoimage from "dom-to-image-more"
-  import { quillEditor } from "vue-quill-editor"
-  import "quill/dist/quill.core.css"
-  import "quill/dist/quill.snow.css"
-  import "quill/dist/quill.bubble.css"
+  import Quill from 'quill'
+  import Delta from 'quill-delta'
+  import katex from 'katex'
+  import 'katex/dist/katex.min.css'
   import TemporaryUser from "../../mixins/temporary_user.js"
-  Vue.config.errorHandler = function(msg, vm, info) {}
 
   export default {
     props: ['currentMindMap'],
     data() {
       return {
-        content: this.currentMindMap.canvas,
+        isMounted: false,
+        content: '',
+        editor: null,
         isReset: false,
-        userList: [],
+        savingStatus: null,
+        saveText: null,
+        toolbar: null,
+        qeditor: null,
+        editorCursor:null,
         temporaryUser: '',
-        isSaveNotepad: true,
-        X: null,
-        saveElement: false,
-        editorOption      : {
-          modules : {
-            toolbar : [
-              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-              ['blockquote', 'code-block'],
-              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-              [{ 'direction': 'rtl' }],                         // text direction
-
-              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-              [{ 'font': [] }],
-              [{ 'align': [] }],
-              ['clean']
-            ],
-          }
-        },
+        userList:[],
       }
     },
-    components: { quillEditor },
     mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
-          {
+          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id){
             window.open('/','_self')
           } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
               location.reload()
             }, 500)
-          } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+          }
+          else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
-          } else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
-          {
+          }
+          else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id){
             localStorage.nodeNumber = data.content.nodeNumber
             localStorage.userNumber = data.content.userNumber
             this.temporaryUser = data.content.userEdit
             this.userList.push(data.content.userEdit)
             localStorage.userList = JSON.stringify(this.userList);
-
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.error = '';
             this.currentMindMap = data.mindmap
-            this.changeNotepad = false
-            let range = this.$refs.contentEditor.quill.getSelection()
-            this.$refs.contentEditor.quill.setSelection(range.index, 0, 'api')
-            this.content = this.currentMindMap.canvas
-            this.$refs.contentEditor.quill.update()
-            this.sendLocals(false)
+            this.content = JSON.parse(data.mindmap.canvas)
+            if(this.content == null){
+              this.qeditor.setContents([
+                { insert: '' },
+              ])
+            }
+            else {
+              if(this.temporaryUser !=localStorage.user){
+                  this.qeditor.blur()
+                  this.qeditor.setContents(this.content)
+              }
+            }
           }
         }
       }
     },
     methods: {
-      changeNotepad() {
-        this.sendLocals(true)
-        this.isSaveNotepad = true
-      },
-      blurEvent(val, event){
-        this.currentMindMap.canvas = this.content
-      },
       updateDocument() {
-        if(!this.isSaveNotepad) return
+        let mindmap = { mindmap: { canvas: JSON.stringify(this.qeditor.getContents())}}
         let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,this.currentMindMap)
+        http.patch(`/msuite/${id}.json`,mindmap)
+      },
+      createEditor(){
+        this.qeditor = new Quill('#notepad', {
+          modules:{
+            
+            toolbar: [
+              ['bold','italic','underline','strike'],
+              ['blockquote','code-block'],
+              ['formula'],
+              [{ 'header': 1 },{'header': 2}],
+              [{'list':'ordered'}, {'list':'bullet' }],
+              [{'indent':'-1'}, {'indent':'+1' }],
+              [{'size': ['small', false,'large','huge'] }],
+              [{'header': [1, 2, 3, 4, 5, 6, false] }],
+              [{'color': [] }, {'background': [] }],
+              [{'font': [] }],
+              ['align', {'align': 'center'},{'align': 'right'},{'align': 'justify'}] ]
+          },
+          theme: 'snow'
+        });
+        this.editorStyle = document.querySelectorAll('.ql-editor')[0].style
+        this.editorStyle.height = '82.5vh'
+        this.editorStyle.border = '20px'
+        this.editorStyle.padding = "3% 8% 0% 8%"
+        this.editorStyle.border = "20px solid #ccc"
+        document.querySelectorAll('.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button').forEach(function (editorToolbar) {
+          editorToolbar.classList.add('ml-2');
+        });
+        this.toolbar = $(".ql-toolbar")[0]
+        this.savingStatus = document.createElement("span");
+        this.toolbar.appendChild(this.savingStatus);
+        setTimeout(()=>{
+          this.strongTagStyleBold()
+        },100)
+      },
+      editorEvents() {
+        let _this = this
+        let change = new Delta();
+        let myDelta = this.qeditor.getContents();
+        let editSource = ''
+        this.qeditor.on('text-change', function(delta, oldContents, source) {
+          let lists = document.getElementsByTagName('li')
+          lists.forEach( list => {
+            if(list.firstChild.tagName && list.firstChild.style.color != ''){
+              list.style.color = list.firstChild.style.color
+            }
+            if (list.firstChild.className == 'ql-size-small'){
+              list.classList.add('ql-size-small')
+              list.classList.remove('ql-size-huge')
+              list.classList.remove('ql-size-large')
+            } else if (list.firstChild.className == 'ql-size-large'){
+              list.classList.add('ql-size-large')
+              list.classList.remove('ql-size-huge')
+            } else if (list.firstChild.className == 'ql-size-huge'){
+              list.classList.add('ql-size-huge')
+            } else {
+              list.classList.remove('ql-size-small')
+              list.classList.remove('ql-size-large')
+              list.classList.remove('ql-size-huge')
+            }
+          })
+          if (source == 'user') {
+            setTimeout(() => {
+              change = change.compose(delta)
+              if (change.length() > 0) {
+                _this.sendLocals(true)
+                _this.updateDocument()
+                change = new Delta();
+              }
+              else{
+                _this.sendLocals(false)
+              }
+            },500);
+          }
+          else{
+              change = change.compose(delta);
+          }
+        });
+        window.onbeforeunload = function() {
+          if (change.length() > 0) {
+            return 'There are unsaved changes. Are you sure you want to leave?';
+          }
+        }
       },
       resetMindmap() {
         this.isReset = true
         let mindmap = { mindmap: { canvas: null, title: 'Title' } }
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
-        this.qeditor.focus()
       },
       exportToDocument(option) {
-       var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
+        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
         var postHtml = "</body></html>"
-
         let htmlContent = document.querySelector('#notepad').innerHTML
-
         var html = preHtml + htmlContent + postHtml ;
         if(option === 1){
           var blob = new Blob(['\ufeff', html], {
@@ -160,28 +207,30 @@
           downloadLink.click()
         }
         document.body.removeChild(downloadLink);
-        this.$refs['navigationBar'].$refs['exportOption'].close();
-      }
+        this.$refs['navigationBar'].$refs['exportOption'].close()
+      },
+      strongTagStyleBold(){
+        var strong_list = document.querySelectorAll('strong');
+        var strong_array = [...strong_list];
+        strong_array.forEach(el => {
+          el.style.fontWeight = 'bold'
+        });
+      },
     },
     mounted() {
-      this.subscribeCable(this.currentMindMap.id)
+      if (this.$route.params.key) {
+        this.subscribeCable(this.currentMindMap.id)
+        window.katex = katex
+      }
+      this.content = JSON.parse(this.currentMindMap.canvas)
+      this.createEditor()
+      this.editorEvents()
+      this.qeditor.setContents(this.content)
       if(localStorage.mindmap_id == this.currentMindMap.id){
         this.userList = JSON.parse(localStorage.userList)
         this.temporaryUser = localStorage.userEdit
       }
-      $(".ql-container")[0].style.height = '75vh'
     },
-    watch: {
-      content:{
-        handler(value) {
-          this.currentMindMap.canvas = value
-          clearTimeout(this.X)
-          this.X = setTimeout(() => {
-            this.updateDocument()
-          },1000)
-        }
-      },
-    }
   }
 </script>
 <style scoped>
