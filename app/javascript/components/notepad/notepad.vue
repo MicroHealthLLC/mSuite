@@ -75,9 +75,12 @@
               ])
             }
             else {
+              let element = $('.ql-editor')[0]
+              let notepadHeight = element.scrollTop
               if(this.temporaryUser !=localStorage.user){
                   this.qeditor.blur()
-                  this.qeditor.setContents(this.content)
+                  this.qeditor.setContents(new Delta(this.content))
+                  element.scrollTop = notepadHeight
               }
             }
           }
