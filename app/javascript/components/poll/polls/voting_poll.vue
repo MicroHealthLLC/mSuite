@@ -34,16 +34,19 @@
           :class="errorTriggered ? 'shake d-block border-danger':''">
           Allowable selected options: {{ questions.allowedAnswers + 1 }}
         </span>
-        <div class="mt-2 ml-4" v-for="answers in questions.answerField">
+        <div class="mt-2 ml-4" v-for="(answers, index) in questions.answerField">
           <input
             v-if="questions.allowedAnswers > 0"
             type="checkbox"
+            :name="questions.question"
             :value="answers"
             v-model="questions.checked"
+            :disabled="questions.checked.length > questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
             @change="checkAnswers(questions.checked)"/>
           <input
             v-else
             type="radio"
+            :name="questions.question"
             :value="answers"
             v-model="questions.checked"
             @change="checkAnswers(questions.checked)"/>
