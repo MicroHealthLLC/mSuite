@@ -236,5 +236,11 @@
     }
   }
 </script>
-<style scoped>
+<style>
+  .ql-editor .ql-size-huge::before {
+    font-size: 2.5em;
+  }
+  .ql-editor .ql-size-large::before {
+    font-size: 1.5em;
+  }
 </style>
