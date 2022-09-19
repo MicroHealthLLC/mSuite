@@ -165,13 +165,13 @@
         return data
       },
       createEvent(){
-          if (this.title && this.description && !this.isValueInvalid ){
+          if (this.title && !this.isValueInvalid ){
             this.$emit('createEvent', this.generateDataObj())
             this.closeMapModal()
           }
       },
       updateEvent(){
-          if (this.title && this.description && !this.isValueInvalid){
+          if (this.title && !this.isValueInvalid){
             this.$emit('updateEvent', this.generateDataObj())
             this.closeMapModal()
           }
@@ -233,7 +233,7 @@
         }
       },
       validateValues(){
-        if (this.title && this.description && !this.isValueInvalid){
+        if (this.title && !this.isValueInvalid){
           this.enableEventCreation()
         }
         else{
