@@ -231,6 +231,9 @@
         this.temporaryUser = localStorage.userEdit
       }
     },
+    updated() {
+      this.strongTagStyleBold()
+    }
   }
 </script>
 <style scoped>
