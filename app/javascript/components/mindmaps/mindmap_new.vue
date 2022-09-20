@@ -501,7 +501,7 @@
           }
           this.selectedNode = { id: ''}
           this.createNode(node)
-
+          this.sendLocals(false)
           // this.currentMindMap.nodes.push(node);
           this.currentPositionX = this.currentPositionY = 0
           this.nodeParent       = null
@@ -513,10 +513,9 @@
           this.saveNode(this.selectedNode)
           this.removeLines()
           this.drawLines()
+          this.sendLocals(false)
         }
 
-
-        this.sendLocals(false)
       },
       // =============== DRAGGING OPERATIONS =====================
 
