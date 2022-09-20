@@ -218,6 +218,9 @@
         this.calendar.on('selectDateTime', (eventObj) => {
           this.showEditEvent = false
           if(this.currentView =='month') eventObj.isAllday = false
+          else if(this.findDateTimeMinutes(eventObj.start, eventObj.end) == 30){
+            eventObj.end.setMinutes(eventObj.end.getMinutes() + 30)
+          }
           this.eventDates = eventObj
           this.createEventDate = eventObj.end
           this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
@@ -246,6 +249,11 @@
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         })
+      },
+      findDateTimeMinutes(start, end){
+        var startTime = moment(start, 'DD-MM-YYYY hh:mm:ss');
+        var endTime = moment(end, 'DD-MM-YYYY hh:mm:ss');
+        return endTime.diff(startTime, 'minutes');
       },
       toggleCalendarView(){
         let selectElement = document.getElementById('calendarFormat')
