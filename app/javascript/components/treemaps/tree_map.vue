@@ -510,7 +510,6 @@
       textEdit(eventElement, value){
         if(this.oldEventElement) this.oldEventElement.target.style.backgroundColor = ""
         let _this = this
-        _this.sendLocals(true)
         _this.hiddenNode = true
         if(value.label == 'Enter Node Title Here') return this.saveNodeElement(eventElement,value);
         var keyUpTimeOut
@@ -520,7 +519,6 @@
         eventElement.target.style.backgroundColor = "white"
         eventElement.target.style.color = "black"
         _this.colorSelected = false
-        _this.sendLocals(false)
         _this.oldEventElement = eventElement
         eventElement.target.addEventListener('blur', function(){
           if(_this.oldEventElement) _this.oldEventElement.target.style.backgroundColor = ""
@@ -531,6 +529,7 @@
           if (event.keyCode === 13) {
             if (newTitle) {
               _this.node_title = newTitle
+              _this.sendLocals(true)
               _this.putData()
             }
             else {
@@ -542,6 +541,7 @@
           else if (newTitle && newTitle !== oldTitle) {
             keyUpTimeOut = setTimeout(() => {
               _this.node_title = newTitle
+              _this.sendLocals(true)
               _this.putData()
             }, 2000)
           }

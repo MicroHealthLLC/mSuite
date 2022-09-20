@@ -328,7 +328,6 @@
         this.$refs.refTree.collapseEnabled = false
         this.selectedNode = node
         this.selectedNodeTitle = JSON.parse(JSON.stringify(node.name))
-        this.sendLocals(true)
         setTimeout(() => {
           document.getElementById('textArea'+ _this.selectedNode.id).focus()
         }, 300)
