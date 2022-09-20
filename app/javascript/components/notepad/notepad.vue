@@ -144,9 +144,11 @@
               list.classList.remove('ql-size-large')
             } else if (list.firstChild.className == 'ql-size-large'){
               list.classList.add('ql-size-large')
+              list.firstChild.classList.remove('ql-size-huge')
               list.classList.remove('ql-size-huge')
             } else if (list.firstChild.className == 'ql-size-huge'){
               list.classList.add('ql-size-huge')
+              list.firstChild.classList.remove('ql-size-large')
             } else {
               list.classList.remove('ql-size-small')
               list.classList.remove('ql-size-large')
@@ -241,7 +243,7 @@
 </script>
 <style>
   .ql-editor .ql-size-huge::before {
-    font-size: 2.5em;
+    font-size: 2.5em !important;
   }
   .ql-editor .ql-size-large::before {
     font-size: 1.5em;
