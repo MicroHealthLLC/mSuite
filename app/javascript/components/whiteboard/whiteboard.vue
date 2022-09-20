@@ -506,8 +506,6 @@
             }
           }
           localStorage.canvas = JSON.stringify(this.canvas.toJSON())
-          this.sendLocals(false)
-
           if (this.drawLine) {
             const mousePos = canvas.getBoundingClientRect();
             let x1 , y1
@@ -545,7 +543,6 @@
             this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
           }
           localStorage.canvas = JSON.stringify(this.canvas.toJSON())
-          this.sendLocals(false)
         })
         this.canvas.on('selection:created', (event) => {
           this.drawLine = false
@@ -568,7 +565,6 @@
           this.sendLocals(false)
         })
         this.canvas.on('selection:updated', (event) => {
-
           this.drawLine = false
           if(!this.eraser) this.createSelection = true
           if(this.isDrawing && !this.eraser) this.canvas.isDrawingMode = false
@@ -580,7 +576,6 @@
           this.canvas.renderAll();
           if(this.saveData && !_this.addObj) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
           else if(!this.colorSelected) this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()));
-
           localStorage.canvas = JSON.stringify(this.canvas.toJSON())
           this.sendLocals(true)
         })
@@ -595,7 +590,6 @@
           http.patch(`/msuite/${id}.json`,mindmap)
           this.newObj = false
           localStorage.canvas = JSON.stringify(this.canvas.toJSON())
-          this.sendLocals(false)
         }
         else this.isRest = false
       },
@@ -609,7 +603,6 @@
         localStorage.canvas = mindmap.mindmap.canvas
       },
       resetMindmap() {
-        
         this.isRest = true
         this.createSelection = false
         this.isDrawing = false

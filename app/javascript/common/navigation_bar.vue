@@ -472,6 +472,7 @@
           _this.expDays = res.data.expDays
           _this.deleteAfter = res.data.deleteAfter
         })
+        this.$emit('sendLocals', false)
       },
       openUserModal () {
         this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
@@ -537,14 +538,15 @@
             document.getElementById('mSuiteTitle').focus()
           }, 300)
           this.$emit('updateWhiteBoard')
-          this.$emit('sendLocals', true)
         }
       },
       mSuiteTitleUpdate () {
         this.editable = false
-        this.$emit('sendLocals', false)
         this.mSuiteName = this.mSuiteName.trim()
-        if(this.mSuiteName) this.putMSuite(this.mSuiteName)
+        if(this.mSuiteName){
+          this.$emit('sendLocals', true)
+          this.putMSuite(this.mSuiteName)
+        }
         else this.mSuiteName = this.currentMindMap.title
       },
       blurEvent (val, e) {
