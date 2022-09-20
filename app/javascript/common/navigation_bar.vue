@@ -544,8 +544,10 @@
         this.editable = false
         this.mSuiteName = this.mSuiteName.trim()
         if(this.mSuiteName){
-          this.$emit('sendLocals', true)
-          this.putMSuite(this.mSuiteName)
+          if(this.mSuiteName != 'Title'){
+            this.$emit('sendLocals', true)
+            this.putMSuite(this.mSuiteName)
+          }
         }
         else this.mSuiteName = this.currentMindMap.title
       },

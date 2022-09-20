@@ -278,6 +278,7 @@
         if (e.target) e.target.blur()
       },
       saveNodeTreeChart(){
+        this.sendLocals(true)
         this.$refs.refTree.collapseEnabled = false
         this.node.mindmap_id = this.currentMindMap.id
         var objNode = {title: ''}
@@ -325,9 +326,6 @@
         setTimeout(() => {
           document.getElementById('textArea'+ _this.selectedNode.id).focus()
         }, 300)
-
-        this.isEditing = true
-        this.sendLocals(true)
       },
       collapseNode(node){
         this.getColorNode('.rich-media-node')
