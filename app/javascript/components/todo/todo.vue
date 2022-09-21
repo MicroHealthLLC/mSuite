@@ -1,9 +1,6 @@
 <template>
   <div class="todo-app">
     <navigation-bar
-      v-if="isMounted"
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
@@ -149,7 +146,6 @@
     props: ['currentMindMap'],
     data() {
       return {
-        isMounted: false,
         todos: [],
         todo: {},
         userList: [],
@@ -235,18 +231,6 @@
         this.showChildModalTodo = false
         this.clearTodoObj()
       },
-      async getMindmap(id) {
-        await http
-        .get(`/msuite/${id}.json`)
-        .then((res) => {
-          this.expDays = res.data.expDays
-          this.defaultDeleteDays = res.data.defaultDeleteDays
-          this.deleteAfter = res.data.deleteAfter
-          this.currentMindMap = res.data.mindmap
-          this.isMounted = true
-          this.subscribeCable(this.currentMindMap.id)
-        })
-      },
       toggleChildModal(todo) {
         this.todo = todo
         this.todo_parent = todo.id
@@ -267,6 +251,7 @@
         this.expDays = response.data.expDays
         this.currentMindMap = response.data.mindmap
         this.todos = response.data.mindmap.nodes
+        localStorage.userEdit = response.data.mindmap.canvas
         this.renderTodos()
       },
       renderTodos(){
@@ -320,6 +305,11 @@
         }
         this.myTodos = parent_nodes
       },
+      async updateTodoUser(){
+        await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+           canvas: localStorage.userEdit
+          });
+      },
       async addTodo() {
         if(this.todoData.title == null || this.todoData.title.trim().length === 0){
           this.$refs['errTitle'].open()
@@ -333,6 +323,7 @@
         let data = {
           node: {title: this.todoData.title, mindmap_id: this.currentMindMap.id, duedate: this.todoData.date, is_disabled: false}
         }
+        this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
           this.myTodos.push(result.data.node)
           this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
@@ -356,6 +347,7 @@
         let data = {
           node: {title: this.todoChildData.title, duedate: this.todoChildData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
         }
+        this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
           this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
           this.showChildModalTodo = false
@@ -400,7 +392,7 @@
         } else {
           this.undoNodes.push({'req': 'addNode', node: todo})
         }
-
+        this.updateTodoUser()
         http.put(`/nodes/${todo.id}`, todo)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
@@ -409,6 +401,7 @@
       async deleteTodo() {
         let todo = this.selectedTodoDelete
         this.index = this.myTodos.findIndex(e => e.id == todo.id)
+        this.updateTodoUser()
         await  http.delete(`/nodes/${todo.id}.json`)
           .then((res) => {
             let receivedNodes = res.data.node
@@ -507,19 +500,17 @@
         }
       }
     },
-    mounted() {
-      if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-        this.todos = this.currentMindMap.nodes
-        this.renderTodos()
-      }
+    mounted: async function() {
+      this.subscribeCable(this.currentMindMap.id)
+      this.todos = this.currentMindMap.nodes
+      this.sendLocals(false)
+      await this.fetchToDos()
+
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
 
       $(".v-switch-label, .v-right").css({"color": "#212529"})
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
-        this.temporaryUser = localStorage.userEdit
-      }
+
+      this.getUserOnMount()
     },
   }
 </script>

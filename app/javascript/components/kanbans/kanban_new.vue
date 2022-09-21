@@ -1,8 +1,6 @@
 <template>
   <div v-if="!loading">
     <navigation-bar
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
       @exportToImage="exportImage"
       @resetMindmap="reset_stages"
       @undoMindmap="undoObj"
@@ -184,16 +182,15 @@
         }
       }
     },
-    mounted() {
+    mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
+      this.sendLocals(false)
       if (this.$route.params.key) {
         this.getMindmap()
+        localStorage.userEdit = this.currentMindMap.canvas
       }
       this.mountKanBan()
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
-        this.temporaryUser = localStorage.userEdit
-      }
+      this.getUserOnMount()
     },
     computed: {
       computedStages() {
@@ -248,6 +245,11 @@
           }, 1500)
         })
       },
+      async updateKanbanUser(){
+        await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+           canvas: localStorage.userEdit
+          });
+      },
       //=====================GETTING MINDMAP==============================//
       getMindmap(){
         this.getAllStages()
@@ -266,6 +268,7 @@
         this.colorSelected = false
         if (obj.line_color) this.selectedStage = null
         this.sendLocals(false)
+        this.updateKanbanUser()
         return http.patch(`/stages/${obj.id}.json`,data)
       },
       updateBackgroundColors(){
@@ -413,6 +416,7 @@
             stage_color: this.allStages[index].stage_color
           }
         }
+        this.updateKanbanUser()
         http
         .post(`/stages.json`, data)
         .then((res) => {
@@ -448,7 +452,7 @@
             status: stage,
           }
         }
-
+        this.updateKanbanUser()
         http
         .post(`/nodes.json`, data)
         .then((res) => {
@@ -474,6 +478,7 @@
             id: id
           }
         }
+        this.updateKanbanUser()
         http
         .delete(`/stages/${id}.json`,data)
         .then(response =>
@@ -586,6 +591,7 @@
             stage_id: obj.stage_id
           }
         }
+        this.updateKanbanUser()
         return http.patch(`/nodes/${obj.id}.json`,data)
       },
       getAllNodes(){
@@ -639,6 +645,7 @@
       deleteBlock(block){
         let id = this.block.id
         let data = {node: {id}}
+        this.updateKanbanUser()
         http
         .delete(`/nodes/${id}.json`,data)
         .then(response => {

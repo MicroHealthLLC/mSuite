@@ -1,6 +1,7 @@
 <template>
   <div>
     <navigation-bar
+      ref="navigationBar"
       @openPrivacy="openPrivacy"
       :current-mind-map="currentMindMap"
       @resetZoomScale="resetZoomScale"
@@ -79,31 +80,6 @@
     <!-- tree chart end -->
 
     <!-- import modals here -->
-    <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
-
-    <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"  @password_mismatched="$refs['passwordMismatched'].open()" :password="currentMindMap.password" :isSaveMSuite="isSaveMSuite"></make-private-modal>
-
-    <sweet-modal ref="passwordMismatched" class="of_v" icon="error" title="Password Mismatch">
-      Your Password and Confirm Password are Mismatched, Please Try Again!
-      <button slot="button" @click="passwordAgain" class="btn btn-warning mr-2">Try Again</button>
-      <button slot="button" @click="$refs['passwordMismatched'].close()" class="btn btn-secondary">Cancel</button>
-    </sweet-modal>
-
-    <sweet-modal ref="errorNodeModal" class="of_v" icon="error" title="Node Title Error">
-      Nodes Title Cannot Be Empty
-    </sweet-modal>
-
-    <sweet-modal ref="successModal" class="of_v" icon="success">
-      Password updated successfully!
-    </sweet-modal>
-
-    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
-      Incorrect Password, Please Try Again!
-    </sweet-modal>
-
-    <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
-    </delete-password-modal>
-
     <section v-if="exportLoading" class="export-loading-tab">
       <div class="loader-wrap">
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
@@ -182,11 +158,9 @@
     props:['currentMindMap','defaultDeleteDays', 'deleteAfter','expDays'],
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
+      this.sendLocals(false)
       this.mountMap()
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
-        this.temporaryUser = localStorage.userEdit
-      }
+      this.getUserOnMount()
     },
     components: {
       DeleteMapModal,
@@ -374,6 +348,7 @@
         this.selectedNode = {id: ''}
         this.treeChartObj.name = this.currentMindMap.name
         this.nodes = this.currentMindMap.nodes
+        localStorage.userEdit = this.currentMindMap.canvas
         this.addNodeTree = false
         this.getColorNode('.rich-media-node')
         this.mapColors = []
@@ -471,6 +446,7 @@
         } else {
           data = { node }
         }
+        this.updatedTreeChart()
         http.post(`/nodes.json`, data).then((res) => {
           if (!this.undoDone) {
             let receivedData = res.data.node
@@ -503,11 +479,12 @@
         } else {
           this.undoNodes.push({'req': 'addNode', node: obj})
         }
-        this.sendLocals(true)
+        this.updatedTreeChart()
         await http.put(`/nodes/${obj.id}`, obj);
         this.sendLocals(false)
       },
       async deleteSelectedNode(obj){
+        this.updatedTreeChart()
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
@@ -528,57 +505,13 @@
       },
       async updatedTreeChart(obj){
         this.colorSelected = false
-        this.sendLocals(true)
-        await http.put(`/msuite/${obj.unique_key}`, obj);
+        if(obj == undefined){
+          obj = {
+            canvas: localStorage.userEdit
+          }
+        } else obj.canvas = localStorage.userEdit
+        await http.put(`/msuite/${this.currentMindMap.unique_key}`, obj);
         this.sendLocals(false)
-      },
-      openPrivacy(val) {
-        this.isSaveMSuite = val
-        this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
-      },
-      passwordAgain(){
-        this.$refs['passwordMismatched'].close()
-        this.openPrivacy()
-      },
-      passwordProtect(new_password, old_password, is_mSuite){
-        http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`,{mindmap: {password: new_password, old_password: old_password}})
-        .then(res=>{
-          if (res.data.mindmap) {
-            this.expDays = res.data.expDays
-            this.defaultDeleteDays = res.data.defaultDeleteDays
-            this.deleteAfter= res.data.deleteAfter
-            this.currentMindMap.password = res.data.mindmap.password
-            this.$refs['successModal'].open()
-            if(!is_mSuite) window.open("/", "_self")
-            else location.reload()
-          }
-          else {
-            if (res.data.error) this.$refs['errorModal'].open()
-          }
-        })
-      },
-      confirmDeleteMindmap(){
-        if (this.currentMindMap.password){
-          this.$refs['delete-password-modal'].$refs['DeletePasswordModal'].open()
-        }
-        else{
-          this.deleteTreeChart()
-        }
-      },
-      deleteMindmapProtected(password){
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
-        .then(res=>{
-          if (!res.data.success && this.currentMindMap.password)
-            this.$refs['errorModal'].open()
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-      },
-      deleteMSuite(){
-        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       deleteMap(node){
         if(this.addNodeTree && node.name == "Enter title here"){
@@ -586,7 +519,7 @@
           this.renderTreeChart()
           this.addNodeTree = false
         }else{
-          if(this.currentMindMap.name == node.name) this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
+          if(this.currentMindMap.name == node.name) this.$refs['navigationBar'].$refs['delete-map-modal'].$refs['deleteMapModal'].open()
           else
           {
             node.mindmap_id = this.currentMindMap.id

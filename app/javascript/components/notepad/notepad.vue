@@ -32,15 +32,11 @@
     props: ['currentMindMap'],
     data() {
       return {
-        isMounted: false,
         content: '',
-        editor: null,
         isReset: false,
         savingStatus: null,
-        saveText: null,
         toolbar: null,
         qeditor: null,
-        editorCursor:null,
         temporaryUser: '',
         userList:[],
       }
@@ -68,7 +64,7 @@
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.currentMindMap = data.mindmap
-            this.content = JSON.parse(data.mindmap.canvas)
+            this.content = JSON.parse(JSON.parse(data.mindmap.canvas).notepad)
             if(this.content == null){
               this.qeditor.setContents([
                 { insert: '' },
@@ -89,7 +85,11 @@
     },
     methods: {
       updateDocument() {
-        let mindmap = { mindmap: { canvas: JSON.stringify(this.qeditor.getContents())}}
+        let mycanvas = {
+          notepad : JSON.stringify(this.qeditor.getContents()),
+          user    : localStorage.user
+        }
+        let mindmap = { mindmap: { canvas: JSON.stringify(mycanvas)}}
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
       },
@@ -227,12 +227,16 @@
         this.subscribeCable(this.currentMindMap.id)
         window.katex = katex
       }
-      this.content = JSON.parse(this.currentMindMap.canvas)
+      this.content = JSON.parse(JSON.parse(this.currentMindMap.canvas).notepad)
       this.createEditor()
       this.editorEvents()
       this.qeditor.setContents(this.content)
+      this.sendLocals(false)
+      if (JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
+      else localStorage.userEdit = ''
       if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
+        if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
+        else this.userList.push(localStorage.userEdit)
         this.temporaryUser = localStorage.userEdit
       }
     },

@@ -2,9 +2,6 @@
   <div class="map-container">
     <navigation-bar
       ref="navigationBar"
-      v-if="isMounted"
-      @openPrivacy="openPrivacy"
-      @deleteMindmap="deleteMap"
       @exportToImage="exportImage($event)"
       @exportToWord="exportToWord"
       @resetZoomScale="resetZoomScale"
@@ -128,9 +125,6 @@
   import AttachmentModal from "./modals/attachment_modal"
   import CentralAttachmentModal from "./modals/central_attachment_modal"
   import ExportToWordModal from "./modals/export_to_word_modal"
-  import MakePrivateModal from "../../common/modals/make_private_modal"
-  import DeleteMapModal from '../../common/modals/delete_modal'
-  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import http from "../../common/http"
   import TemporaryUser from "../../mixins/temporary_user.js"
 
@@ -142,9 +136,6 @@
       AttachmentModal,
       CentralAttachmentModal,
       ExportToWordModal,
-      MakePrivateModal,
-      DeleteMapModal,
-      DeletePasswordModal,
     },
 
     props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays','expDays'],
@@ -154,7 +145,6 @@
       return {
         userList          : [],
         selectedNode      : null,
-        isMounted         : false,
         currentNodes      : [],
         nodeParent        : null,
         nodeColor         : null,
@@ -300,10 +290,10 @@
 
     methods: {
       mountMap() {
-        this.stopWatch      = true
-        this.isMounted      = true
-        this.centralIdea = this.currentMindMap.name
-        this.currentNodes   = this.currentMindMap.nodes
+        this.stopWatch        = true
+        this.centralIdea      = this.currentMindMap.name
+        this.currentNodes     = this.currentMindMap.nodes
+        localStorage.userEdit = this.currentMindMap.canvas
         setTimeout(() => { this.drawLines() }, 1000)
         this.loading = false
       },
@@ -313,7 +303,6 @@
           .get(`/msuite/${id}.json`)
           .then((res) => {
             this.stopWatch      = true
-            this.isMounted = true
             this.expDays = res.data.expDays
             this.defaultDeleteDays = res.data.defaultDeleteDays
             this.deleteAfter = res.data.deleteAfter
@@ -676,7 +665,7 @@
         this.copiedNode             = this.selectedNode
         this.copiedNode.is_disabled = true
         this.cutFlag                = true
-
+        this.saveCurrentMap()
         http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
           this.selectedNode = { id: ''}
         }).catch((error) => {
@@ -712,6 +701,7 @@
 
         this.drawNewLine(dupNode)
         this.copiedNode = null
+        this.saveCurrentMap()
 
         if (this.cutFlag) {
           dupNode.is_disabled = false
@@ -744,6 +734,7 @@
         this.nodeUpdatedFlag = false
         let index = this.currentMindMap.nodes.findIndex((nod) => nod.id == node.id)
         if (index != -1) {
+          this.saveCurrentMap()
           let formData = { node: node }
           http.put(`/nodes/${node.id}.json`, formData).then((res) => {
             this.currentMindMap.nodes.splice(index, 1, res.data.node)
@@ -758,6 +749,7 @@
       createNode(node) {
         this.drawNewLine(node)
         node['mindmap_id'] = this.currentMindMap.id
+        this.saveCurrentMap()
         http.post('/nodes.json', {node: node}).then((res) => {
           this.getMindmap(this.currentMindMap.unique_key)
           this.selectedNode = res.data.node
@@ -776,7 +768,7 @@
       ),
       deleteSelectedNode(is_cut=false) {
         if (!this.selectedNode || !this.selectedNode.id) { return; }
-
+        this.saveCurrentMap()
         http.delete(`/nodes/${this.selectedNode.id}.json`).then((res) => {
           if (res.data.success) {
             this.selectedNode = { id: ''}
@@ -799,6 +791,7 @@
       saveCurrentMap(files = null) {
         this.currentMindMap.name = this.centralIdea
         if (this.currentMindMap.id) {
+          this.currentMindMap.canvas = localStorage.userEdit
           let formData = { mindmap: this.currentMindMap }
           http.put(`/msuite/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
             this.stopWatch      = true
@@ -821,9 +814,6 @@
             console.log(error)
           })
         }
-      },
-      deleteMap(){
-        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       resetMindmap() {
         http
@@ -1097,22 +1087,21 @@
 
         this.sendLocals(true)
       },
-      addFileToCentralNode(files) {
-        this.uploadFiles = files
-        this.fileLoading  = true
-        this.saveCurrentMap(this.uploadFiles)
-        this.uploadFiles = []
-      },
+
+      // As Files Not Required
+
+      // addFileToCentralNode(files) {
+      //   this.uploadFiles = files
+      //   this.fileLoading  = true
+      //   this.saveCurrentMap(this.uploadFiles)
+      //   this.uploadFiles = []
+      // },
 
       // export word functions
       exportToWord() {
         this.openVModal = true
         this.$refs['export-to-word-modal'].$refs.exportToWordModal.open()
       },
-      // Taken from navigation bar.  Delete if no required in this file as it holds native method and may not need emit function
-      // openPrivacy () {
-      //   this.$emit("openPrivacy")
-      // },
       getExportCanvasSize() {
         const nodes = this.currentNodes
         let ASPECT_MARGIN = 150
@@ -1141,6 +1130,7 @@
 
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
+      this.sendLocals(false)
       if (this.$route.params.key) {
         this.mountMap()
         // this.getMindmap(this.$route.params.key)
@@ -1148,10 +1138,12 @@
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('touchend', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
-        this.temporaryUser = localStorage.userEdit
-      }
+
+      this.getUserOnMount()
+      // if(localStorage.mindmap_id == this.currentMindMap.id){
+      //   this.userList = JSON.parse(localStorage.userList)
+      //   this.temporaryUser = localStorage.userEdit
+      // }
     },
 
     created(){
