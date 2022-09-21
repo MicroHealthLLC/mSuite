@@ -61,19 +61,19 @@
         </template>
       </vue-tree>
       <div v-if="colorSelected">
-         <div class="card-position p-0 border-none z-index mt-5">
-            <color-palette
-              :treeNode="treeNode"
-              :nodes="this.nodes"
-              :currentMindMap="this.currentMindMap"
-              :customPallete="customPallete"
-              :uniqueColors="uniqueColors"
-              @updateColorNode="updateColorNode"
-              @saveNodeColor="saveNodeColor"
-              @closeModelPicker="closeModelPicker"
-              @updatedTreeChart="updatedTreeChart"
-              @updateTreeChartNode="updateTreeChartNode"
-            ></color-palette>
+        <div class="card-position p-0 border-none z-index mt-5">
+          <color-palette
+            :treeNode="treeNode"
+            :nodes="this.nodes"
+            :currentMindMap="this.currentMindMap"
+            :customPallete="customPallete"
+            :uniqueColors="uniqueColors"
+            @updateColorNode="updateColorNode"
+            @saveNodeColor="saveNodeColor"
+            @closeModelPicker="closeModelPicker"
+            @updatedTreeChart="updatedTreeChart"
+            @updateTreeChartNode="updateTreeChartNode"
+          ></color-palette>
         </div>
       </div>
     </section>
@@ -231,7 +231,6 @@
       },
       showColorPicker(nodeObj){
         this.addNodeTree = false
-        this.sendLocals(true)
         this.selectedNodeTitle = JSON.parse(JSON.stringify(nodeObj.name))
         this.treeNode = Object.assign({}, nodeObj)
         this.$refs.refTree.collapseEnabled = false
@@ -244,7 +243,6 @@
       },
       updateColorNode(){
         this.palleteUpdate = false
-        this.sendLocals(true)
         let element = document.getElementById('treeChart'+this.treeNode.id)
         element.style.backgroundColor = this.treeNode.line_color.hex
         this.treeNode.line_color = this.treeNode.line_color.hex
@@ -256,11 +254,9 @@
         else element.style.backgroundColor = this.currentMindMap.line_color
         this.colorSelected = false
         this.getColorNode('.rich-media-node')
-        this.sendLocals(false)
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
-        this.sendLocals(true)
         if(this.selectedNodeTitle == this.currentMindMap.name)
         {
           this.currentMindMap.line_color = this.treeNode.line_color
@@ -282,16 +278,19 @@
         if (e.target) e.target.blur()
       },
       saveNodeTreeChart(){
-        this.sendLocals(true)
         this.$refs.refTree.collapseEnabled = false
         this.node.mindmap_id = this.currentMindMap.id
         var objNode = {title: ''}
         objNode.title = this.selectedNode.name.split('\n').join('')
-        if(this.currentMindMap.name == this.selectedNodeTitle)
-        {
+        if(this.currentMindMap.name == this.selectedNodeTitle){
           this.currentMindMap.name = this.selectedNode.name.split('\n').join('')
           if(this.currentMindMap.name) {
-            this.updatedTreeChart(this.currentMindMap)
+            if(this.currentMindMap.name != this.selectedNodeTitle){
+              this.updatedTreeChart(this.currentMindMap)
+            }
+            else{
+              this.fetchTreeChart()
+            }
           }else if(this.currentMindMap.name.replace(/\s/g, '') == '') {
             this.selectedNode.name = this.selectedNodeTitle
             this.$refs['errorNodeModal'].open()
@@ -315,7 +314,12 @@
           } else {
             objNode.id = this.selectedNode.id
             if(objNode.title) {
-              this.updateTreeChartNode(objNode)
+              if (this.selectedNode.name != this.selectedNodeTitle){
+                this.updateTreeChartNode(objNode)
+              }
+              else{
+                this.fetchTreeChart()
+              } 
             }else if(objNode.title.replace(/\s/g, '') == '') {
               this.selectedNode.name = this.selectedNodeTitle
               this.$refs['errorNodeModal'].open()
@@ -378,7 +382,7 @@
         this.addNodeTree = false
         this.getColorNode('.rich-media-node')
         this.mapColors = []
-         this.uniqueColors = []
+        this.uniqueColors = []
         this.mapColors.push(this.currentMindMap.line_color);
         Object.values(this.nodes).forEach(node => {
           this.mapColors.push(node.line_color);
@@ -495,6 +499,7 @@
         } else {
           this.undoNodes.push({'req': 'addNode', node: obj})
         }
+        this.sendLocals(true)
         await http.put(`/nodes/${obj.id}`, obj);
         this.sendLocals(false)
         this.colorSelected = false
@@ -519,6 +524,7 @@
         this.sendLocals(false)
       },
       async updatedTreeChart(obj){
+        this.sendLocals(true)
         await http.put(`/msuite/${obj.unique_key}`, obj);
         this.sendLocals(false)
       },
