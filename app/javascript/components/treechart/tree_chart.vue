@@ -248,7 +248,6 @@
         if (e.target) e.target.blur()
       },
       saveNodeTreeChart(){
-        this.sendLocals(true)
         this.$refs.refTree.collapseEnabled = false
         this.node.mindmap_id = this.currentMindMap.id
         var objNode = {title: ''}

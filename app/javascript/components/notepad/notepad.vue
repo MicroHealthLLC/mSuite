@@ -223,22 +223,16 @@
       },
     },
     mounted() {
-      if (this.$route.params.key) {
-        this.subscribeCable(this.currentMindMap.id)
-        window.katex = katex
-      }
-      this.content = JSON.parse(JSON.parse(this.currentMindMap.canvas).notepad)
+      this.subscribeCable(this.currentMindMap.id)
+      this.sendLocals(false)
+      window.katex = katex
+      if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).notepad) this.content = JSON.parse(JSON.parse(this.currentMindMap.canvas).notepad)
+      if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
+      else localStorage.userEdit = 'null'
       this.createEditor()
       this.editorEvents()
       this.qeditor.setContents(this.content)
-      this.sendLocals(false)
-      if (JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
-      else localStorage.userEdit = ''
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
-        else this.userList.push(localStorage.userEdit)
-        this.temporaryUser = localStorage.userEdit
-      }
+      this.getUserOnMount()
     },
     updated() {
       this.strongTagStyleBold()

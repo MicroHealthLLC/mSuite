@@ -150,11 +150,7 @@
       this.subscribeCable(this.currentMindMap.id)
       this.sendLocals(false)
       this.mountMap()
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
-        else this.userList.push(localStorage.userEdit)
-        this.temporaryUser = localStorage.userEdit
-      }
+      this.getUserOnMount()
     },
     channels: {
       WebNotificationsChannel: {
