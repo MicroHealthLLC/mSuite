@@ -20,9 +20,10 @@
           <input
             v-if="questions.allowedAnswers > 0"
             type="checkbox"
-            :value="index"
+            :value="answers"
+            :name="questions.question"
             v-model="questions.preview_checked"
-            :disabled="questions.preview_checked.length > questions.allowedAnswers && questions.preview_checked.indexOf(index) == -1 ? true:false"
+            :disabled="questions.preview_checked.length > questions.allowedAnswers && questions.preview_checked.indexOf(answers) == -1 ? true:false"
             @change="checkAnswers(questions.preview_checked)" />
 
           <input

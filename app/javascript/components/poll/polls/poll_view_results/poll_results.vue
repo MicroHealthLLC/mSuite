@@ -56,7 +56,8 @@
     },
     mounted: async function(){
       await this.getVoteData()
-      this.expirationDate = moment(new Date(this.pollData.duedate)).format('DD MMM YYYY')
+      if (this.pollData.duedate) this.expirationDate = moment(new Date(this.pollData.duedate)).format('DD MMM YYYY')
+      else this.expirationDate = 'None'
       setTimeout(()=>{
         this.createResultData()
       }, 500)
@@ -85,18 +86,22 @@
           var csv = json.map(function(row){
             if (typeof(row['votes']) == 'object' && row['votes'] != null ){
               row['votes'].map(function(fieldValue,index){
-                _this.graph_data = {
-                  answer: row['text'],
-                  voter: fieldValue
+                if(fieldValue != null){
+                  _this.graph_data = {
+                    answer: row['text'],
+                    voter: fieldValue
+                  }
+                  _this.graph_array.push(_this.graph_data)
                 }
-                _this.graph_array.push(_this.graph_data)
               })
             } else {
-              _this.graph_data = {
-                  answer: row['text'],
-                  voter: row['votes']
-                }
-              _this.graph_array.push(_this.graph_data)
+              if ( row['votes'] != null ){
+                _this.graph_data = {
+                    answer: row['text'],
+                    voter: row['votes']
+                  }
+                _this.graph_array.push(_this.graph_data)
+              }
             }
           })
           csv.unshift(fields.join(','))
