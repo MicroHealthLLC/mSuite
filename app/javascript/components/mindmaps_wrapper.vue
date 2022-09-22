@@ -1,18 +1,5 @@
 <template>
-  <div>
-    <div v-if="loading">
-      <sync-loader :loading="loading" color="#FFF" size="15px"></sync-loader>
-    </div>
-    <component
-      v-else
-      :is="viewIs"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :whiteboard-image="currentMindMap.mm_type == 'whiteboard' ? currentMindMap.canvas : ''"
-    />
-  </div>
+  <component :is="viewIs" />
 </template>
 
 <script>
@@ -49,70 +36,44 @@
     data() {
       return {
         loading: true,
-        currentMindMap: {},
-        defaultDeleteDays: '',
-        expDays: '',
-        deleteAfter: '',
         is_verified: false
       }
     },
     mounted() {
-      if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-        this.checkNotifs('event')
-      }
+      this.checkNotifs('event')
     },
     computed: {
       viewIs() {
-        if (this.is_verified) {
-          switch (this.currentMindMap.mm_type) {
-            case "kanban":
-              return "KanbanView"
-            case "tree_map":
-              return "TreeMap"
-            case "whiteboard":
-              return "Whiteboard"
-            case "tree_chart":
-              return "TreeChart"
-            case "flowmap":
-              return "Flowmap"
-            case "todo":
-              return "ToDo"
-            case "Notepad":
-              return "Notepad"
-            case "spreadsheet":
-              return "SpreadSheet"
-            case "poll":
-              return "Poll"
-            case "pollvote":
-              return "VotingPoll"
-            case "calendar":
-              return "Calendar"
-            default:
-              return "MindmapView"
-          }
-        }
-        else {
-          return "PasswordView"
+        switch (this.$store.state.mSuite.mm_type) {
+          case "kanban":
+            return "KanbanView"
+          case "tree_map":
+            return "TreeMap"
+          case "whiteboard":
+            return "Whiteboard"
+          case "tree_chart":
+            return "TreeChart"
+          case "flowmap":
+            return "Flowmap"
+          case "todo":
+            return "ToDo"
+          case "Notepad":
+            return "Notepad"
+          case "spreadsheet":
+            return "SpreadSheet"
+          case "poll":
+            return "Poll"
+          case "pollvote":
+            return "VotingPoll"
+          case "calendar":
+            return "Calendar"
+          default:
+            return "MindmapView"
         }
       }
     },
     methods: {
-      getMindmap(id) {
-        http
-          .get(`/msuite/${id}.json`)
-          .then((res) => {
-            if(res.data.mindmap == undefined) window.open('/', "_self");
-            this.currentMindMap = res.data.mindmap
-            this.defaultDeleteDays = res.data.defaultDeleteDays
-            this.expDays = res.data.expDays
-            this.deleteAfter = res.data.deleteAfter
-            this.is_verified = res.data.is_verified
-            this.loading = false
-          })
-      },
       checkNotifs(obj){
-
         if (!("Notification" in window)) {
         }
         else if (Notification.permission === "granted") {

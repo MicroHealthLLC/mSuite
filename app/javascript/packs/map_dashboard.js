@@ -8,7 +8,7 @@ import { SweetModal, SweetModalTab } from "sweet-modal-vue"
 import { Chrome, Sketch } from 'vue-color'
 import Vuex from 'vuex'
 import VueTree from '@ssthouse/vue-tree-chart'
-import store from '../store/TreeMap'
+import store from '../store/index.js'
 import vueDebounce from 'vue-debounce'
 import VueTextareaAutosize from 'vue-textarea-autosize'
 import VueCookies from 'vue-cookies';

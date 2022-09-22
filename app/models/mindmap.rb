@@ -103,13 +103,7 @@ class Mindmap < ApplicationRecord
   end
 
   def generate_random_key
-    if self.name == "Central Idea"
-      o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
-      self.unique_key = (0...15).map { o[rand(o.length)] }.join
-    else
-      self.name = self.name.rstrip
-      self.name = self.name.strip
-      self.unique_key = self.name.squeeze(" ").gsub(/[[:space:]]/, '-')
-    end
+    o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
+    self.unique_key = (0...15).map { o[rand(o.length)] }.join
   end
 end

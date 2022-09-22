@@ -143,9 +143,10 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
-    props: ['currentMindMap'],
     data() {
       return {
+        currentMindMap: null,
+        isMounted: false,
         todos: [],
         todo: {},
         userList: [],
@@ -249,7 +250,7 @@
         this.defaultDeleteDays = response.data.defaultDeleteDays
         this.deleteAfter = response.data.deleteAfter
         this.expDays = response.data.expDays
-        this.currentMindMap = response.data.mindmap
+        this.$store.commit('SET_MSUITE', response.data.mindmap)
         this.todos = response.data.mindmap.nodes
         localStorage.userEdit = response.data.mindmap.canvas
         this.renderTodos()
@@ -500,16 +501,14 @@
         }
       }
     },
-    mounted: async function() {
+    mounted() {
+      this.currentMindMap = this.$store.state.mSuite
+      this.isMounted = true
       this.subscribeCable(this.currentMindMap.id)
       this.todos = this.currentMindMap.nodes
-      this.sendLocals(false)
-      await this.fetchToDos()
-
+      this.renderTodos()
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
-
       $(".v-switch-label, .v-right").css({"color": "#212529"})
-
       this.getUserOnMount()
     },
   }

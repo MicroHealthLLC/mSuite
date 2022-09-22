@@ -7,9 +7,6 @@
       @undoMindmap="undoEvent"
       @redoMindmap="redoEvent"
       :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
       :exportId="'cal'"
       :isEditing="isEditing"
       :saveElement="saveElement"
@@ -107,10 +104,10 @@
   import moment from 'moment';
 
   export default {
-    props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
     mixins: [Common, TemporaryUser],
     data() {
       return {
+        currentMindMap: this.$store.state.mSuite,
         isReset:             false,
         isEditing:           false,
         saveElement:         true,
