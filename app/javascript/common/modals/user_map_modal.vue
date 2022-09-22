@@ -27,16 +27,17 @@
       }
     },
     mounted(){
-      if(localStorage.user) this.user = localStorage.user
-      else {
-        this.user = this.genRandomName()
-        localStorage.user = this.user
-      }
-      if(localStorage.user_id) this.user_id = localStorage.user_id
-      else {
-        this.user_id = this.genRandomId()
-        localStorage.user_id = this.user_id
-      }
+      this.$store.commit('setMindMap', {mindmap_id: 23})
+      // if(localStorage.user) this.user = localStorage.user
+      // else {
+      //   this.user = this.genRandomName()
+      //   localStorage.user = this.user
+      // }
+      // if(localStorage.user_id) this.user_id = localStorage.user_id
+      // else {
+      //   this.user_id = this.genRandomId()
+      //   localStorage.user_id = this.user_id
+      // }
     },
     watch:{
       user(newName) {
