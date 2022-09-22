@@ -14,72 +14,73 @@
       :pollPin="pollData"
       :pollEdit="pollEdit"
       :pollExpDate="pollExpDate"
-      :exportId="'poll'">
+      :exportId="'poll-vote'">
     </navigation-bar>
-
-    <div class="container overflow-auto maxHeight" v-if="validForVote && !returnFun">
-      <span>{{ pollData.description }}</span>
-      <div>
-        <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
-          All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowable selected options indicated.
-        </span>
-      </div>
-      <div class="mt-3" v-for="(questions,index) in pollData.Questions">
-        <h5>
-          {{ index + 1 }}. {{ questions.question }}
-        </h5>
-        <span
-          v-if="questions.allowedAnswers + 1 > 1"
-          class="ml-4"
-          :class="errorTriggered ? 'shake d-block border-danger':''">
-          Allowable selected options: {{ questions.allowedAnswers + 1 }}
-        </span>
-        <div class="mt-2 ml-4" v-for="(answers, index) in questions.answerField">
-          <input
-            v-if="questions.allowedAnswers > 0"
-            type="checkbox"
-            :name="questions.question"
-            :value="answers"
-            v-model="questions.checked"
-            :disabled="questions.checked.length > questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
-            @change="checkAnswers(questions.checked)"/>
-          <input
-            v-else
-            type="radio"
-            :name="questions.question"
-            :value="answers"
-            v-model="questions.checked"
-            @change="checkAnswers(questions.checked)"/>
-          <span>
-            {{ answers.text }}
+    <div id="poll-vote">
+      <div class="container overflow-auto maxHeight" v-if="validForVote && !returnFun">
+        <span>{{ pollData.description }}</span>
+        <div>
+          <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
+            All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowable selected options indicated.
           </span>
         </div>
+        <div class="mt-3" v-for="(questions,index) in pollData.Questions">
+          <h5>
+            {{ index + 1 }}. {{ questions.question }}
+          </h5>
+          <span
+            v-if="questions.allowedAnswers + 1 > 1"
+            class="ml-4"
+            :class="errorTriggered ? 'shake d-block border-danger':''">
+            Allowable selected options: {{ questions.allowedAnswers + 1 }}
+          </span>
+          <div class="mt-2 ml-4" v-for="(answers, index) in questions.answerField">
+            <input
+              v-if="questions.allowedAnswers > 0"
+              type="checkbox"
+              :name="questions.question"
+              :value="answers"
+              v-model="questions.checked"
+              :disabled="questions.checked.length > questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
+              @change="checkAnswers(questions.checked)"/>
+            <input
+              v-else
+              type="radio"
+              :name="questions.question"
+              :value="answers"
+              v-model="questions.checked"
+              @change="checkAnswers(questions.checked)"/>
+            <span>
+              {{ answers.text }}
+            </span>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button
+            class="btn btn-success mt-4 py-0 px-3 rounded-0"
+            @click="submitVote">
+            SUBMIT
+          </button>
+          <button
+            class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
+            @click="resetData">RESET</button>
+        </div>
       </div>
-      <div class="mt-4">
-        <button
-          class="btn btn-success mt-4 py-0 px-3 rounded-0"
-          @click="submitVote">
-          SUBMIT
-        </button>
-        <button
-          class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
-          @click="resetData">RESET</button>
-      </div>
+      <section v-else-if="!validForVote" class="container">
+          <h4 class="text-center">
+            <strong>
+              Time For Votes is Up !!!
+            </strong>
+          </h4>
+      </section>
+      <section v-else class="container">
+          <h4>
+            <strong>
+              Your response has been recorded, Thanks for your Time.
+            </strong>
+          </h4>
+      </section>
     </div>
-    <section v-else-if="!validForVote" class="container">
-        <h4 class="text-center">
-          <strong>
-            Time For Votes is Up !!!
-          </strong>
-        </h4>
-    </section>
-    <section v-else class="container">
-        <h4>
-          <strong>
-            Your response has been recorded, Thanks for your Time.
-          </strong>
-        </h4>
-    </section>
   </div>
 </template>
 
