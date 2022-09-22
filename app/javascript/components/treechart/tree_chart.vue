@@ -239,14 +239,12 @@
         setTimeout(()=>{
           $('.vc-sketch-presets')[0].style.maxHeight = '10vh'
         },10)
-        this.sendLocals(true)
       },
       updateColorNode(){
         let element = document.getElementById('treeChart'+this.treeNode.id)
         element.style.backgroundColor = this.treeNode.line_color.hex
         this.treeNode.line_color = this.treeNode.line_color.hex
         this.getColorNode('.rich-media-node')
-        this.sendLocals(true)
       },
       closeModelPicker(){
         let element = document.getElementById('treeChart'+this.treeNode.id)
@@ -255,7 +253,6 @@
         this.colorSelected = false
         this.getColorNode('.rich-media-node')
         this.saveElement = true
-        this.sendLocals(false)
       },
       saveNodeColor(){
         this.node.mindmap_id = this.currentMindMap.id
@@ -272,7 +269,6 @@
             this.updateTreeChartNode(objNode)
           }
         this.colorSelected = false
-        this.sendLocals(false)
       },
       blurEvent(val, e){
         if (e.target) e.target.blur()
@@ -283,11 +279,15 @@
         this.node.mindmap_id = this.currentMindMap.id
         var objNode = {title: ''}
         objNode.title = this.selectedNode.name.split('\n').join('')
-        if(this.currentMindMap.name == this.selectedNodeTitle)
-        {
+        if(this.currentMindMap.name == this.selectedNodeTitle){
           this.currentMindMap.name = this.selectedNode.name.split('\n').join('')
           if(this.currentMindMap.name) {
-            this.updatedTreeChart(this.currentMindMap)
+            if(this.currentMindMap.name != this.selectedNodeTitle){
+              this.updatedTreeChart(this.currentMindMap)
+            }
+            else{
+              this.fetchTreeChart()
+            }
           }else if(this.currentMindMap.name.replace(/\s/g, '') == '') {
             this.selectedNode.name = this.selectedNodeTitle
             this.$refs['errorNodeModal'].open()
@@ -310,7 +310,12 @@
           } else {
             objNode.id = this.selectedNode.id
             if(objNode.title) {
-              this.updateTreeChartNode(objNode)
+              if (this.selectedNode.name != this.selectedNodeTitle){
+                this.updateTreeChartNode(objNode)
+              }
+              else{
+                this.fetchTreeChart()
+              } 
             }else if(objNode.title.replace(/\s/g, '') == '') {
               this.selectedNode.name = this.selectedNodeTitle
               this.$refs['errorNodeModal'].open()
@@ -405,9 +410,9 @@
             object[item] += 1;
         })
         for (let prop in object) {
-           if(object[prop] != undefined) {
-               this.uniqueColors.push(prop);
-           }
+          if(object[prop] != undefined) {
+            this.uniqueColors.push(prop);
+          }
         }
         this.renderTreeChart()
       },
@@ -498,6 +503,7 @@
         } else {
           this.undoNodes.push({'req': 'addNode', node: obj})
         }
+        this.sendLocals(true)
         await http.put(`/nodes/${obj.id}`, obj);
         this.sendLocals(false)
       },
@@ -522,6 +528,7 @@
       },
       async updatedTreeChart(obj){
         this.colorSelected = false
+        this.sendLocals(true)
         await http.put(`/msuite/${obj.unique_key}`, obj);
         this.sendLocals(false)
       },

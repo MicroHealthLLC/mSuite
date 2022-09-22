@@ -613,20 +613,18 @@
         }
       this.colorSelected = false
       this.selectedNodeColor = null
-      this.sendLocals(false)
+      this.sendLocals(true)
       },
       closeModelPicker(){
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
         this.colorSelected = false
         this.getColorNode('.jqx-treemap-rectangle')
-        this.sendLocals(false)
       },
       colorChange(value, elementObject){
         if(this.addChildTreeMap) return
         this.currentElementObj = elementObject
         this.setNodeSelected(value)
         this.colorSelected = true
-        this.sendLocals(true)
         this.oldElementColor = JSON.parse(JSON.stringify(this.currentElementObj[0].style.backgroundColor))
 
         if(this.parent_node){
