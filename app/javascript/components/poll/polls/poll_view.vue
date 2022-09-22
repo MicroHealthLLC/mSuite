@@ -49,6 +49,7 @@
           SHOW RESULTS
         </button>
         <button
+          v-if="!child_mindmap"
           class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
           @click="$emit('pollEditData')">
           EDIT
@@ -74,7 +75,7 @@
   import PollResults from "./poll_view_results/poll_results"
   export default {
     name: "Poll",
-    props: ["pollData","currentMindMap"],
+    props: ["pollData","currentMindMap", "child_mindmap"],
     data() {
       return {
         dataLoaded: false,
@@ -108,6 +109,7 @@
           if(res.data.mindmap.id !== null)
           {
             this.pollData.url = res.data.mindmap.unique_key
+            this.pollData.child_id = res.data.mindmap.id
             this.$emit("updateVote" , this.pollData, 'create')
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
           }

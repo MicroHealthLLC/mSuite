@@ -24,6 +24,7 @@
         :pollData="pollData"
         :graph_array="graph_array"
         :current-mind-map="currentMindMap"
+        :child_mindmap="child_mindmap"
         @pollEditData="pollEditData"
         @updateVote="updateVote"></poll-view>
 
@@ -56,7 +57,8 @@
         dataLoaded: false,
         isReset: false,
         pollData: null,
-        pollEdit: false
+        pollEdit: false,
+        child_mindmap: false
       }
     },
     components: {
@@ -91,8 +93,11 @@
       if(this.currentMindMap){
         this.subscribeCable(this.currentMindMap.id)
         this.pollData = JSON.parse(this.currentMindMap.canvas)
-        if (this.pollData && this.pollData.title != '') this.dataLoaded = true
-        if(this.pollData && this.pollData.url) this.getPollData()
+        if (this.pollData){
+          if (this.pollData.Questions[0].question != '') this.dataLoaded = true
+          if (this.pollData.url) this.getPollData()
+          if (this.pollData.child_id) this.child_mindmap = true
+        }
         this.exportXLS(0)
       }
     },
@@ -106,6 +111,7 @@
         http.patch(`/msuite/${id}.json`,mindmap).then( res =>{
           this.pollEdit = false
           this.dataLoaded = true
+          if (JSON.parse(res.data.mindmap.canvas).child_id) this.child_mindmap = true
         })
       },
       pollEditData() {
@@ -116,6 +122,7 @@
         let response = await http.get(`/msuite/${this.pollData.url}.json`)
         if(response && response.data.mindmap && response.data.mindmap.canvas){
           _this.pollData = JSON.parse(response.data.mindmap.canvas)
+          _this.child_mindmap = true
         }
       },
       exportXLS(option){
