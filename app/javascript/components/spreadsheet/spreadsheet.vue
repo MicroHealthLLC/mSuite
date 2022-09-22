@@ -148,8 +148,8 @@
                 _this.table.destroy()
                 _this.createSheet(data.mindmap.canvas)
               }
+              _this.changeRequest = _this.changeRequest + 1
             }
-            _this.changeRequest = _this.changeRequest + 1
           }
           else {}
         }
@@ -260,6 +260,7 @@
         _this.sheetData.data    = _this.table.getData()
         _this.sheetData.columns = _this.table.options.columns
         if(_this.table.getStyle()) _this.sheetData.style = _this.table.getStyle()
+        _this.sheetData.user = localStorage.user
         let mindmap = { mindmap: { canvas: JSON.stringify(_this.sheetData) } }
         let id = _this.currentMindMap.unique_key
         if(!_this.isReset){
@@ -287,6 +288,7 @@
         if(this.changeRequest < 1){
           setTimeout(()=>{
             if(this.table.getStyle()) this.sheetData.style = this.table.getStyle()
+            this.sheetData.user = localStorage.user
             let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
             let id = this.currentMindMap.unique_key
             if(!this.isReset){
@@ -387,8 +389,12 @@
         let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
         $('#mytable')[0].style.height = heightVal
       },200)
+      this.sendLocals(false)
+      if (JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
+      else localStorage.userEdit = ''
       if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
+        if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
+        else this.userList.push(localStorage.userEdit)
         this.temporaryUser = localStorage.userEdit
       }
     },

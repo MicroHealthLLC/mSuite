@@ -33,5 +33,14 @@ export default {
         this.saveElement = false
       },1200)
     },
+    getUserOnMount(){
+      if(localStorage.mindmap_id == this.mindmap_id){
+        if(localStorage.userEdit != 'null'){
+          if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
+          else this.userList.push(localStorage.userEdit)
+          this.temporaryUser = localStorage.userEdit
+        }
+      }
+    }
   }
 }

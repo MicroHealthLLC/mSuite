@@ -1,8 +1,7 @@
 <template>
   <div>
     <navigation-bar
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
+      ref="navigationBar"
       @resetMindmap="resetMindmap"
       @sendLocals="sendLocals"
       @undoMindmap="undoEvent"
@@ -15,8 +14,7 @@
       :isEditing="isEditing"
       :saveElement="saveElement"
       :temporaryUser="temporaryUser"
-      :userList="userList"
-      ref="calendarNavigation">
+      :userList="userList">
     </navigation-bar>
     <div id="cal" class="row">
       <div class="col-9 d-flex px-5" @click="showEditEvent = false">
@@ -319,6 +317,11 @@
       editEventModal(){
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
+      async updateCalendarUser(){
+        await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+           canvas: localStorage.userEdit
+          });
+      },
       saveEvents(eventObj){
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
@@ -331,6 +334,7 @@
           is_disabled: eventObj.isAllday,
           mindmap_id: this.currentMindMap.id
           }
+        this.updateCalendarUser()
         http.post('/nodes.json', data).then((result) => {
           this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
         })
@@ -377,6 +381,7 @@
           }
           this.undoNodes.push({'req': 'addNode', node: dataObj})
         }
+        this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
         this.sendLocals(false)
 
@@ -385,6 +390,7 @@
         this.undoDone = false
         this.sendLocals(true)
         this.showEditEvent = false
+        this.updateCalendarUser()
         http.delete(`/nodes/${this.showEvent.id}.json`).then((res)=>{
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
@@ -414,6 +420,7 @@
         this.expDays = response.data.expDays
         this.currentMindMap = response.data.mindmap
         this.fetchedEvents = response.data.mindmap.nodes
+        localStorage.userEdit = this.currentMindMap.canvas
         this.renderEvents()
       },
       renderEvents(){
@@ -493,19 +500,17 @@
           })
       }
     },
-    mounted() {
+    mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
+      this.sendLocals(false)
       this.createCalendar()
       this.getCalendarTitle()
-      this.fetchEvents()
+      await this.fetchEvents()
+      this.getUserOnMount()
       var el = document.querySelector('#calendar');
         el.addEventListener("mouseleave", function( event ) {
           this.showEditEvent = false
         })
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
-        this.temporaryUser = localStorage.userEdit
-      }
     }
   }
 </script>

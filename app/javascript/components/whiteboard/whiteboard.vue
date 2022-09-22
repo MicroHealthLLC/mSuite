@@ -1,7 +1,6 @@
 <template>
   <div>
     <navigation-bar
-      v-if="isMounted"
       @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @updateWhiteBoard="updateWhiteBoard"
       @sendLocals="sendLocals"
@@ -138,11 +137,10 @@
   import 'fabric-history';
 
   export default {
-    props: ['whiteboardImage'],
+    props: ['currentMindMap','whiteboardImage'],
     mixins: [Common, TemporaryUser],
     data() {
       return {
-        isMounted: false,
         line: 5,
         color: "#AADDCC",
         mapColors: [],
@@ -156,7 +154,6 @@
         decreaseIcon: false,
         mousePressed: false,
         isDrawing: false,
-        currentMindMap: {},
         initialImage: [],
         eraser: false,
         keyUpTimeOut: null,
@@ -222,12 +219,12 @@
             this.initialImage = data.mindmap.canvas
             this.mapColors = []
             this.color = "#AADDCC"
-            JSON.parse(this.initialImage).objects.forEach((x, i) => {
+            JSON.parse(JSON.parse(this.initialImage).whiteboardImage).objects.forEach((x, i) => {
               if(x.stroke == null) this.mapColors.push(x.fill)
               else this.mapColors.push(x.stroke)
             })
             this.colorSelected = false
-            this.canvas.loadFromJSON(this.initialImage);
+            this.canvas.loadFromJSON(JSON.parse(JSON.parse(this.initialImage).whiteboardImage));
             this.canvas.renderAll();
             this.createSelection = false
           }
@@ -240,18 +237,6 @@
       }
     },
     methods: {
-      getMindmap(id) {
-        http
-        .get(`/msuite/${id}.json`)
-        .then((res) => {
-          this.expDays = res.data.expDays
-          this.defaultDeleteDays = res.data.defaultDeleteDays
-          this.deleteAfter = res.data.deleteAfter
-          this.currentMindMap = res.data.mindmap
-          this.isMounted = true
-          this.subscribeCable(this.currentMindMap.id)
-        })
-      },
       addRectToCanvas() {
         this.toggleResetDraw();
         this.createSelection = true;
@@ -584,7 +569,12 @@
         if(obj == undefined){
           obj = JSON.stringify(this.canvas.toJSON())
         }
-        let mindmap = { mindmap: { canvas: obj } }
+        let mycanvas = {
+          whiteboardImage : obj,
+          user            : localStorage.user
+        }
+        mycanvas = JSON.stringify(mycanvas)
+        let mindmap = { mindmap: { canvas: mycanvas } }
         let id = this.currentMindMap.unique_key
         if(!this.isRest){
           http.patch(`/msuite/${id}.json`,mindmap)
@@ -610,8 +600,8 @@
         this.canvas.isDrawingMode = false
         this.drawLine = false
         let mindmap = { mindmap: {
-            canvas: '{"version":"4.6.0","objects":[]}',
-            title: 'Title'
+            canvas :'{"version":"4.6.0","objects":[]}',
+            title  :'Title'
           }
         }
         localStorage.canvas = mindmap.mindmap.canvas
@@ -621,30 +611,32 @@
       },
     },
     mounted() {
-      if (this.$route.params.key) {
-        this.getMindmap(this.$route.params.key)
-        var canvas2 = document.getElementsByTagName('canvas')[0];
-        canvas2.width = $(document).width() - 140;
-        canvas2.height = $(document).height() - 75;
-      }
+      this.subscribeCable(this.currentMindMap.id)
+      var canvas2 = document.getElementsByTagName('canvas')[0];
+      canvas2.width = $(document).width() - 140;
+      canvas2.height = $(document).height() - 75;
       this.canvas = new fabric.Canvas('canvas',{
         selection: false
       });
       this.mouseEvents();
       this.canvas.renderAll();
       this.initialImage = this.whiteboardImage
-      if(JSON.parse(this.initialImage)){
-        JSON.parse(this.initialImage).objects.forEach((x, i) => {
+      if(JSON.parse(JSON.parse(this.initialImage).whiteboardImage)){
+        JSON.parse(JSON.parse(this.initialImage).whiteboardImage).objects.forEach((x, i) => {
           if(x.stroke == null) this.mapColors.push(x.fill)
           else this.mapColors.push(x.stroke)
         })
       }
       if (this.initialImage) {
-        this.canvas.loadFromJSON(this.initialImage);
+        this.canvas.loadFromJSON(JSON.parse(this.initialImage).whiteboardImage);
         this.canvas.renderAll();
       }
+      this.sendLocals(false)
+      if (JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
+      else localStorage.userEdit = ''
       if(localStorage.mindmap_id == this.currentMindMap.id){
-        this.userList = JSON.parse(localStorage.userList)
+        if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
+        else this.userList.push(localStorage.userEdit)
         this.temporaryUser = localStorage.userEdit
       }
     },
