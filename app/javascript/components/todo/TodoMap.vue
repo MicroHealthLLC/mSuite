@@ -1,6 +1,10 @@
 <template>
   <div>
-    <b-list-group-item class="mb-0">
+    <b-list-group-item
+      :id="'todo' + node.id"
+      tabindex="0"
+      @click="myTodo(node)"
+      class="mb-0">
       <div class="flex" v-if="selectedTodo.id != node.id" @drop="dragDrop($event,node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart($event,node.id)">
         <div class="col-8 d-flex flex-row">
           <div class="flex-auto">
@@ -34,7 +38,6 @@
                 <b-col cols="5" sm="5">
                   <b-form-input
                     v-model="selectedTodo.name"
-                    :class="fieldDisabled ? 'shake': ''"
                     ref="title"
                     type="text"
                     placeholder="Your Todo"
@@ -100,7 +103,6 @@
                   <b-col sm="5" cols="5">
                     <b-form-input 
                       v-model="selectedTodo.name"
-                      :class="fieldDisabled ? 'shake': ''"
                       ref="title"
                       type="text"
                       placeholder="Your Todo"
@@ -190,6 +192,14 @@
       updateTodo(todo, title, completed) {
         if(this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
         this.$emit("updateTodo",todo,title,completed)
+      },
+      myTodo(todo){
+        if(this.selectedTodo.id && todo.id != this.selectedTodo.id){
+          this.updateTodo(this.selectedTodo, this.selectedTodo.name, this.selectedTodo.completed)
+          setTimeout(()=>{
+            this.showInputFieldToggle(todo)
+          }, 300)
+        }
       },
       toggleChildModal(todo) {
         this.$emit("toggleChildModal",todo)
