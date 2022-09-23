@@ -32,7 +32,7 @@
           <label class="form-label mt-2" for="checkbox">All Day</label>
         </div>
       </div>
-      <div v-if="" class="row">
+      <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
       </div>
     </div>    
@@ -91,6 +91,7 @@
         errorMessage:      '',
         invalidMessage:    false,
         datePickerMinutes: [0,15,30,45]
+
       }
     },
     components: { DatePicker },
@@ -148,7 +149,6 @@
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
-        this.state = this.showEvent.state
         this.actionType = actType
       },
       generateDataObj(){
@@ -158,7 +158,7 @@
             start: this.startDate,
             end: this.endDate,
             isAllday: this.allDay,
-            state: this.state,
+            backgroundColor:'#18A2B8',
             id: null
           }
         if(this.actionType == 'update') data.id = this.showEvent.id
@@ -182,12 +182,11 @@
         this.startDate = null
         this.endDate = null
         this.allDay = false
-        this.state = 'Busy'
         this.actionType = ''
         this.allDayNotHidden = true
       },
       openRecurringEventModal(){
-        if (this.title && this.description && this.state && !this.isValueInvalid){
+        if (this.title && !this.isValueInvalid){
           let data = {
             start: this.startDate,
             end: this.endDate

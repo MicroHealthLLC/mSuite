@@ -548,9 +548,9 @@
         } else {
           this.updateSelectedNode(this.selectedNodeColor)
         }
-      this.colorSelected = false
-      this.selectedNodeColor = null
-      this.sendLocals(true)
+        this.colorSelected = false
+        this.selectedNodeColor = null
+        this.sendLocals(true)
       },
       closeModelPicker(){
         this.currentElementObj[0].style.backgroundColor = this.oldElementColor
