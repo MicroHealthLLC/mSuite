@@ -18,7 +18,7 @@
     </navigation-bar>
     <div id="todo">
       <div>
-        <div class="h-75">
+        <div class="parentGroup overflow-auto">
           <div class="">
             <div class="container max-w-lg mx-auto">
                 <h1 class=" font-bold text-center text-blue-600">ToDo</h1>
@@ -35,7 +35,7 @@
               v-model="completedTasks" 
               width = "115"
               height = "28"/>
-            <div class="parentGroup">
+            <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 

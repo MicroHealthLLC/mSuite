@@ -39,9 +39,7 @@
     left: 150%;
   }
   .parentGroup{
-    max-height:65vh;
-    overflow: auto;
-    margin-right:7%;
+    max-height:85vh;
   }
   /* Hide scrollbar for Chrome, Safari and Opera */
   .parentGroup::-webkit-scrollbar-x {
