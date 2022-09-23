@@ -67,11 +67,11 @@
           <span
             @click="deleteEvents"
             role="button"
-            class="material-icons col-2"
+            class="material-icons col-2 pl-2"
             >
             delete</span>
           <span  
-            class="fas fa-eye-dropper color-picker mt-1 icon-opacity"
+            class="fas fa-eye-dropper m-1 font-18"
             @click="colorSelected = true" 
             >
           </span>
