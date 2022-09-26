@@ -246,4 +246,7 @@
   .ql-editor .ql-size-large::before {
     font-size: 1.5em;
   }
+  .ql-editor .ql-size-small::before {
+    font-size: 0.75em;
+  }
 </style>
