@@ -10,11 +10,8 @@
       :expDays="expDays"
       :deleteAfter="deleteAfter"
       :exportId="'todo'"
-      :isEditing="isEditing"
       :temporaryUser="temporaryUser"
-      :userList="userList"
-      :saveElement="saveElement"
-      ref="todoNavigation">
+      :userList="userList">
     </navigation-bar>
     <div id="todo">
       <div>

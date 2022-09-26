@@ -23,25 +23,27 @@
     data(){
       return {
         user: '',
-        user_id: uuid.v1()
+        user_id: uuid.v1(),
+        storage: JSON.parse(localStorage.mSuite)
       }
     },
     mounted(){
-      if(localStorage.user) this.user = localStorage.user
+
+      if(this.storage.user) this.user = this.storage.user
       else {
         this.user = this.genRandomName()
-        localStorage.user = this.user
+        this.$store.dispatch('setUser', this.user)
       }
-      if(localStorage.user_id) this.user_id = localStorage.user_id
+      if(this.storage.user_id) this.user_id = this.storage.user_id
       else {
         this.user_id = this.genRandomId()
-        localStorage.user_id = this.user_id
+        this.$store.dispatch('setUserId', this.user_id)
       }
     },
     watch:{
       user(newName) {
         if (newName.trim() == '') newName = this.genRandomName()
-        localStorage.user = newName;
+        this.$store.dispatch('setUser', newName)
         this.user = newName
       }
     },

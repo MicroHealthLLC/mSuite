@@ -21,8 +21,6 @@
       :scaleFactor="scaleFactor"
       :selected-node="selectedNode"
       :temporaryUser="temporaryUser"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
       :copied-node="copiedNode">
     </navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit"  @touchstart.stop="slideInit" @touchmove.prevent="slideTheCanvas" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false" @touchend="isSlideDown = false">

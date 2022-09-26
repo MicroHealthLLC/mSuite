@@ -1,7 +1,9 @@
 export default {
+
   data(){
     return{
       mindmap_id: 0,
+      storage: JSON.parse(localStorage.mSuite)
     }
   },
   methods: {
@@ -13,6 +15,16 @@ export default {
       });
     },
     cableSend(editing){
+      let unique_userList = [... new Set(JSON.parse(localStorage.mSuite).userList)]
+      let storage_data = {
+        user_id       : this.storage.user_id,
+        user          : this.storage.user,
+        userEdit      : this.storage.userEdit,
+        temporaryUser : this.storage.temporaryUser,
+        userList      : unique_userList,
+        mindmap_id    : this.storage.mindmap_id
+      }
+
       this.$cable.perform({
         channel: 'WebNotificationsChannel',
         room: this.mindmap_id,
@@ -20,13 +32,13 @@ export default {
         data: {
           message: 'storage updated',
           isEditing: editing,
-          content: localStorage
+          content: storage_data
         }
       });
     },
     sendLocals(isEditing){
-      localStorage.userEdit = localStorage.user
-      localStorage.mindmap_id = this.mindmap_id
+      this.$store.dispatch('setUserEdit', JSON.parse(localStorage.mSuite).user)
+      this.$store.dispatch('mindmapId', this.mindmap_id)
       this.cableSend(isEditing)
 
       setTimeout(()=>{
@@ -34,11 +46,11 @@ export default {
       },1200)
     },
     getUserOnMount(){
-      if(localStorage.mindmap_id == this.mindmap_id){
-        if(localStorage.userEdit != 'null'){
-          if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
-          else this.userList.push(localStorage.userEdit)
-          this.temporaryUser = localStorage.userEdit
+      if(this.storage.mindmap_id == this.mindmap_id){
+        if(this.storage.userEdit != 'null'){
+          if(this.storage.userList) this.userList = this.storage.userList
+          else this.$store.dispatch('setUserList', this.storage.userEdit)
+          this.$store.dispatch('setTemporaryUser', this.storage.userEdit)
         }
       }
     }

@@ -21,14 +21,14 @@ export default {
         setTimeout(()=>{
           $(myNodeClass).each((index, color) => {
             if(this.rgbToHex(color.style.backgroundColor)){
-              if(this.currentMindMap.mm_type == 'kanban'){
+              if(this.$store.state.mSuite.mm_type == 'kanban'){
                 $('.stage-title')[index].style.color = '#000'
                 let kanbanElement = color.children[0].children[0].children[0].children[0].children[0].children[1]
                 kanbanElement.children[2].children[0].style.color = "#C14E57"
                 kanbanElement.children[1].children[0].style.color = "dodgerblue"
                 kanbanElement.children[0].children[0].style.color = "#474748"
               }
-              if (this.currentMindMap.mm_type == 'flowmap' || this.currentMindMap.mm_type == 'tree_chart'){
+              if (this.$store.state.mSuite.mm_type == 'flowmap' || this.$store.state.mSuite.mm_type == 'tree_chart'){
                 let nodeElement = color.children[0]
                 nodeElement.children.forEach(node => {
                   node.style.filter = "invert(0%)"
@@ -37,13 +37,13 @@ export default {
             color.style.color = '#000'
             } else {
               color.style.color = '#fff'
-              if(this.currentMindMap.mm_type == 'kanban'){
+              if(this.$store.state.mSuite.mm_type == 'kanban'){
                 let kanbanElement = color.children[0].children[0].children[0].children[0].children[0].children[1]
                 $('.stage-title')[index].style.color = '#fff'
                 kanbanElement.children[0].children[0].style.color = "#948A85"
                 kanbanElement.children[1].children[0].style.color = "#BE7917"
                 kanbanElement.children[2].children[0].style.color = "#168C80"
-              } else if (this.currentMindMap.mm_type == 'tree_map'){
+              } else if (this.$store.state.mSuite.mm_type == 'tree_map'){
                 if(color.children[4] == undefined){
                   color.children[1].style.filter = "invert(100%)"
                   color.children[2].style.filter = "invert(100%)"
@@ -54,7 +54,7 @@ export default {
                   color.children[parentElementIndex + 1].style.filter = "invert(100%)"
                   color.children[parentElementIndex + 2].style.filter = "invert(100%)"
                 }
-              } else if (this.currentMindMap.mm_type == 'flowmap' || this.currentMindMap.mm_type == 'tree_chart'){
+              } else if (this.$store.state.mSuite.mm_type == 'flowmap' || this.$store.state.mSuite.mm_type == 'tree_chart'){
                 let nodeElement = color.children[0]
                 nodeElement.children.forEach(node => {
                   node.style.filter = "invert(100%)"

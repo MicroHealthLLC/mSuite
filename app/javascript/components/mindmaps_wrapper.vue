@@ -1,5 +1,26 @@
 <template>
-  <component :is="viewIs" />
+    <!-- <navigation-bar
+      ref="navigationBar"
+      @openPrivacy="openPrivacy"
+      :current-mind-map="$store.getters.GET_MSUITE"
+      @resetZoomScale="resetZoomScale"
+      @deleteMindmap="deleteMSuite"
+      @zoomInScale="zoomInScale"
+      @undoMindmap="undoObj"
+      @redoMindmap="redoObj"
+      @sendLocals="sendLocals"
+      :scaleFactor="scaleFactor"
+      :userList="userList"
+      :exportId="'treeChartObj'"
+      :defaultDeleteDays="defaultDeleteDays"
+      :expDays="expDays"
+      :deleteAfter="deleteAfter"
+      :temporaryUser="temporaryUser"
+      :saveElement="saveElement"
+      :isEditing="isEditing"
+      @resetMindmap="resetMindmap"
+      @zoomOutScale="zoomOutScale"> -->
+  <component v-if="dataLoaded" :is="viewIs" />
 </template>
 
 <script>
@@ -36,15 +57,21 @@
     data() {
       return {
         loading: true,
-        is_verified: false
+        is_verified: false,
+        dataLoaded: false
       }
     },
-    mounted() {
+    beforeCreate: async function() {
+      await this.$store.dispatch('getMSuite').then(res => {
+        this.dataLoaded = true
+      })
+    },
+    mounted: async function() {
       this.checkNotifs('event')
     },
     computed: {
       viewIs() {
-        switch (this.$store.state.mSuite.mm_type) {
+        switch (this.$store.getters.getMsuite.mm_type) {
           case "kanban":
             return "KanbanView"
           case "tree_map":
