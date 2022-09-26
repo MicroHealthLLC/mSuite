@@ -192,6 +192,9 @@
       this.mountKanBan()
       this.getUserOnMount()
     },
+    components:{
+      ColorPalette
+    },
     computed: {
       computedStages() {
         return this.allStages.map(stage => stage.title.length > 0 ? stage.title : '')
@@ -247,7 +250,7 @@
       },
       async updateKanbanUser(){
         await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-           canvas: localStorage.userEdit
+          canvas: localStorage.userEdit
           });
       },
       //=====================GETTING MINDMAP==============================//
