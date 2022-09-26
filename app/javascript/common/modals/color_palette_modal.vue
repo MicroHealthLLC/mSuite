@@ -37,8 +37,10 @@
       }
     },
     props:['treeNode', 'currentMindMap', 'nodes', 'uniqueColors'],
+    created() {
+    },
     mounted() {
-      this.createPalette()
+      if(this.currentMindMap.mm_type != 'calendar') this.createPalette()
     },
     methods: {
       saveNodeColor(){
@@ -60,7 +62,11 @@
             let element = document.getElementsByClassName('drag-column')[index]
             element.style.backgroundColor = stage.stage_color
           });
-        } else {
+        } else if (this.currentMindMap.mm_type == 'calendar'){
+          this.$emit("closeModelPicker")
+          return
+        }
+        else {
           let parentElement = document.getElementById('treeChart'+undefined)
           parentElement.style.backgroundColor = this.currentMindMap.line_color
 
@@ -76,7 +82,7 @@
         this.$emit("closeModelPicker")
       },
       updateColorNode(){
-       this.$emit("updateColorNode")
+        this.$emit("updateColorNode")
       },
       paletteUpdateColor(){
         if (this.currentMindMap.mm_type == 'tree_map' || this.currentMindMap.mm_type == 'kanban'){
@@ -98,7 +104,6 @@
         else {
           let element = document.getElementById('treeChart' + undefined)
           element.style.backgroundColor = this.customPallete[0]
-
           Object.values(this.nodes).forEach((node, index) => {
             var objNode = {id: '', line_color: ''}
             objNode.id = node.id

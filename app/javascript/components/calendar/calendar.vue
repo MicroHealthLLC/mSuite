@@ -67,9 +67,14 @@
           <span
             @click="deleteEvents"
             role="button"
-            class="material-icons col-2"
+            class="material-icons col-2 pl-2"
             >
             delete</span>
+          <span  
+            class="fas fa-eye-dropper m-1 font-18"
+            @click="colorSelected = true" 
+            >
+          </span>
         </div>
         <div class="row mb-1 font-weight-medium h5">{{showEvent.title}}</div>
         <div class="row mb-4">{{formatshowEventDate()}}</div>
@@ -90,6 +95,19 @@
       @continue="getRecurringEventsDate" 
       ref="recurring-calendar-event-modal">
     </recurring-calendar-event-modal>
+    <div v-if="colorSelected">
+      <div class="card card-position p-0 border-none mt-5">
+        <color-palette
+          :treeNode="eventNode"
+          :uniqueColors="uniqueColors"
+          :currentMindMap="currentMindMap"
+          @updateColorNode="updateColorNode"
+          @saveNodeColor="saveNodeColor"
+          @closeModelPicker="closeModelPicker"
+          >
+        </color-palette>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -97,6 +115,7 @@
   import domtoimage from "dom-to-image-more"
   import RecurringCalendarEventModal from '../../common/modals/recurring_calendar_event_modal';
   import AddCalendarEventModal from '../../common/modals/add_calendar_event_modal';
+  import ColorPalette from '../../common/modals/color_palette_modal'
   import Calendar from '@toast-ui/calendar';
   import '@toast-ui/calendar/dist/toastui-calendar.min.css';
   import 'tui-date-picker/dist/tui-date-picker.css';
@@ -128,12 +147,16 @@
         currentView:         'month',
         undoNodes:           [],
         redoNodes:           [],
-        undoDone:            false
+        undoDone:            false,
+        colorSelected:       false,
+        uniqueColors:        [],
+        selectedEvent:       null
       }
     },
     components: {
       RecurringCalendarEventModal,
-      AddCalendarEventModal
+      AddCalendarEventModal,
+      ColorPalette
     },
     channels: {
       WebNotificationsChannel: {
@@ -211,6 +234,7 @@
               ymd = moment(ymd).format("MMM D");
               return `<span>${ymd}</span>`;
             },
+
           }
           })
         this.calendar.on('selectDateTime', (eventObj) => {
@@ -226,6 +250,7 @@
           this.calendar.clearGridSelections()
         })
         this.calendar.on('clickEvent', (eventObj) => {
+          this.eventNode = this.currentMindMap.nodes.find(o => o.id === eventObj.event.id)
           this.showEvent = eventObj.event
           this.showEditEvent = true
         })
@@ -262,7 +287,7 @@
         $('#calendarFormat option:selected').attr("selected","true")
         this.calendar.changeView(this.currentView);
         let calendarStore = this.calendar.store.getState().calendar.events.internalMap
-        if ((this.currentView == 'week' || this.currentView == 'day') && calendarStore.size !=0 ){
+        if (calendarStore.size !=0 ){
           calendarStore.clear()
           this.fetchEvents()
         }
@@ -271,6 +296,7 @@
         this.showEditEvent = false
         this.calendar.move(value)
         this.getCalendarTitle()
+        this.fetchEvents()
       },
       getCalendarTitle(){
         var calendarDate = new Date(this.calendar.getDate())
@@ -319,11 +345,10 @@
       },
       async updateCalendarUser(){
         await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-           canvas: localStorage.userEdit
+          canvas: localStorage.userEdit
           });
       },
       saveEvents(eventObj){
-        this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         let data = {
@@ -332,13 +357,14 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           is_disabled: eventObj.isAllday,
+          line_color: eventObj.backgroundColor,
           mindmap_id: this.currentMindMap.id
           }
+        this.sendLocals(true)
         this.updateCalendarUser()
         http.post('/nodes.json', data).then((result) => {
           this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
         })
-        this.sendLocals(false)
       },
       updateEvent(eventObj){
         this.sendLocals(true)
@@ -351,6 +377,7 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           is_disabled: eventObj.isAllday,
+          line_color: eventObj.backgroundColor,
           }
           if(this.undoNodes.length > 0) {
             this.undoNodes.forEach((element, index) => {
@@ -403,6 +430,7 @@
               startdate: this.showEvent.start.d.d,
               duedate: this.showEvent.end.d.d,
               is_disabled: this.showEvent.isAllday,
+              line_color: this.showEvent.backgroundColor,
               mindmap_id: this.currentMindMap.id
             }
             this.undoNodes.push({'req': 'deleteNode', node: data})
@@ -428,10 +456,16 @@
           this.calendar.destroy()
           this.createCalendar()
         }
+        this.mapColors = []
+        this.uniqueColors = []
         this.calendar.store.getState().calendar.events.internalMap.clear()
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           currentValue.duedate = new Date(currentValue.duedate)
           currentValue.startdate = new Date(currentValue.startdate)
+          let colorType = this.lightOrDark(currentValue.line_color)
+          let textColor = '#F8F8F8'
+          if (colorType != 'dark') textColor = '#020101'
+          this.mapColors.push(currentValue.line_color)
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -439,10 +473,27 @@
               start: currentValue.startdate,
               end: currentValue.duedate,
               body: currentValue.description,
-              isAllday: currentValue.is_disabled
+              isAllday: currentValue.is_disabled,
+              backgroundColor: currentValue.line_color,
+              dragBackgroundColor:currentValue.line_color,
+              color:textColor,
             }
           ])
         })
+        this.uniqueColors = this.getUniqueColors(this.mapColors);
+        let _this = this
+        
+        setTimeout(()=>{
+          $(".toastui-calendar-weekday-event-title").click(function () {
+            _this.selectedEvent = this.parentElement
+          })
+          $(".toastui-calendar-event-time-content").click(function () {
+            _this.selectedEvent = this.parentElement
+          })
+          $(".toastui-calendar-weekday-event-dot").click(function () {
+            _this.selectedEvent = this
+          })
+        },50)
         this.fetchedEvents = []
       },
       formatshowEventDate(){
@@ -498,6 +549,45 @@
           .catch((err) => {
             console.log(err)
           })
+      },
+      closeModelPicker(){
+        this.colorSelected = false
+        this.selectedEvent.style.backgroundColor = this.showEvent.backgroundColor
+        this.selectedEvent.style.color = this.showEvent.color
+      },
+      saveNodeColor(){
+        let data = {
+          id:this.showEvent.id,
+          title:this.showEvent.title,
+          body: this.showEvent.body,
+          start:this.showEvent.start.d.d,
+          end:this.showEvent.end.d.d,
+          isAllday:this.showEvent.isAllday,
+          backgroundColor:this.eventNode.line_color.hex
+        }
+        this.updateEvent(data)
+        this.colorSelected = false
+      },
+      updateColorNode(){
+        if (this.selectedEvent.children.length == 3) this.selectedEvent = this.selectedEvent.children[0]
+        let colorType = this.lightOrDark(this.eventNode.line_color.hex)
+        let textColor = '#F8F8F8'
+        if (colorType != 'dark') textColor = '#020101'
+        this.selectedEvent.style.backgroundColor = this.eventNode.line_color.hex
+        this.selectedEvent.style.color = textColor
+      },
+      lightOrDark(color) {
+        color = +("0x" + color.slice(1).replace(color.length < 5 && /./g, '$&$&'));
+        let r = color >> 16;
+        let g = color >> 8 & 255;
+        let b = color & 255;
+        let hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+        if (hsp>127.5) {
+          return 'light';
+        } 
+        else {
+          return 'dark';
+        }
       }
     },
     mounted: async function() {
@@ -514,6 +604,6 @@
     }
   }
 </script>
-<style>
+<style scoped>
   @import "./calendar.scss";
 </style>
