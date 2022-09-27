@@ -8,13 +8,9 @@
       @exportToDocument="exportToDocument"
       @pollEditData="pollEditData"
       @exportXLS="exportXLS"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
       :pollPin="pollData"
       :pollEdit="pollEdit"
-      :exportId="'poll'">
+      >
     </navigation-bar>
 
     <div id="poll">
@@ -51,9 +47,9 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
   import xlsExport from 'xlsexport'
   export default {
-    props: ['currentMindMap'],
     data() {
       return {
+        currentMindMap: this.$store.state.mSuite,
         dataLoaded: false,
         isReset: false,
         pollData: null,
@@ -62,9 +58,6 @@
       }
     },
     components: {
-      DeleteMapModal,
-      MakePrivateModal,
-      DeletePasswordModal,
       createPoll,
       pollView
     },
@@ -92,6 +85,7 @@
     mounted(){
       if(this.currentMindMap){
         this.subscribeCable(this.currentMindMap.id)
+        this.$store.dispatch('setExportId', 'poll')
         this.pollData = JSON.parse(this.currentMindMap.canvas)
         if (this.pollData){
           if (this.pollData.Questions[0].question != '') this.dataLoaded = true

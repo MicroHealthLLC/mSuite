@@ -54,6 +54,9 @@ const store = new Vuex.Store({
     },
     setNodeNumber (state, payload) {
       state.nodeNumber = payload
+    },
+    setExportId(state , payload){
+      state.exportId = payload
     }
   },
   getters: {
@@ -125,6 +128,9 @@ const store = new Vuex.Store({
     },
     setNodeNumber({ commit }, number){
       commit('setNodeNumber', number)
+    },
+    setExportId({ commit }, exportID){
+      commit('setExportId', exportID)
     }
   },
   plugins: [vuexLocal.plugin]

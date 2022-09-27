@@ -6,7 +6,6 @@
       @sendLocals="sendLocals"
       @undoMindmap="undoEvent"
       @redoMindmap="redoEvent"
-      :exportId="'cal'"
       :isEditing="isEditing"
       :saveElement="saveElement"
       :temporaryUser="temporaryUser"
@@ -498,6 +497,7 @@
     },
     mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'cal')
       this.sendLocals(false)
       this.createCalendar()
       this.getCalendarTitle()

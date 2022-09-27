@@ -326,8 +326,8 @@
   import DeleteMapModal from './modals/delete_modal'
   import DeletePasswordModal from './modals/delete_password_modal'
   export default{
-    name:"NavigationBar",
-    props:["scaleFactor", "selectedNode", "copiedNode", "exportId","pollEdit","pollExpDate"],
+    name: "NavigationBar",
+    props: ["scaleFactor", "selectedNode", "copiedNode","pollEdit","pollExpDate"],
     data() {
       return{
         currentMindMap: this.$store.getters.getMsuite,
@@ -579,7 +579,7 @@
         } 
         else {
           const _this = this
-          let elm = document.getElementById(this.exportId)
+          let elm = document.getElementById(this.$store.getters.getExportId)
           if (this.mm_type === 'kanban'){
             let inner_list = document.getElementsByClassName('drag-inner-list')
             inner_list.forEach(i=>i.classList.add('mh-100'))

@@ -8,10 +8,6 @@
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
-      :exportId="'treeChartObj'"
-      :userList="userList"
-      :temporaryUser="temporaryUser"
-      :isEditing="isEditing"
       :saveElement="saveElement"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
@@ -112,7 +108,6 @@
         selectedNode      : {id: null},
         selectedNodeTitle : '',
         nodeColor         : { hex: '' },
-        userList          : [],
         treeNode          : null,
         treeConfig        : { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
         nodeChildTreeMaps : [],
@@ -125,8 +120,6 @@
         nodeNumber        : 0,
         undoDone          : false,
         redoDone          : false,
-        temporaryUser     : '',
-        isEditing         : false,
         saveElement       : false,
         treeChartObj: {
           name: '',
@@ -151,6 +144,7 @@
     mixins: [Common, TemporaryUser],
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'treeChartObj')
       this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
@@ -328,10 +322,10 @@
         this.addNodeTree = true
 
         localStorage.mindmap_id = this.currentMindMap.id
-        if(this.nodes.length > 1 && localStorage.nodeNumber != 'NaN'){
-          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
+          this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
-          localStorage.nodeNumber = this.nodeNumber + 1
+          this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
         }
         this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
         this.sendLocals(false)
@@ -492,9 +486,9 @@
       async updatedTreeChart(obj){
         if(obj == undefined){
           obj = {
-            canvas: localStorage.userEdit
+            canvas: this.$store.state.userEdit
           }
-        } else obj.canvas = localStorage.userEdit
+        } else obj.canvas =  this.$store.state.userEdit
         await http.put(`/msuite/${this.currentMindMap.unique_key}`, obj);
         this.sendLocals(false)
       },
@@ -581,18 +575,9 @@
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
           {

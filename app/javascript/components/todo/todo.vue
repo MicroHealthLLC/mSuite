@@ -5,11 +5,6 @@
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :exportId="'todo'"
       :temporaryUser="temporaryUser"
       :userList="userList">
     </navigation-bar>
@@ -142,7 +137,7 @@
   export default {
     data() {
       return {
-        currentMindMap: null,
+        currentMindMap: this.$store.state.mSuite,
         isMounted: false,
         todos: [],
         todo: {},
@@ -500,6 +495,7 @@
     },
     mounted() {
       this.currentMindMap = this.$store.state.mSuite
+      this.$store.dispatch('setExportId', 'todo')
       this.isMounted = true
       this.subscribeCable(this.currentMindMap.id)
       this.todos = this.currentMindMap.nodes

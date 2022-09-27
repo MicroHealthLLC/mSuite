@@ -16,7 +16,7 @@
       @sendLocals="sendLocals"
       :isEditing="isEditing"
       :userList="userList"
-      :exportId="'treeMapGraph'">
+      >
     </navigation-bar>
     <div class="row mt-1 main_body">
       <div class="col-12 mt-4 font-serif" id="treeMapGraph">
@@ -77,10 +77,10 @@
       ColorPalette
     },
     mixins: [Common, TemporaryUser],
-    props:['currentMindMap','defaultDeleteDays','deleteAfter','expDays'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
+        currentMindMap: this.$store.state.mSuite,
         nodeColor: { hex: '#194d33' },
         mapColors: [],
         uniqueColors: [],
@@ -148,6 +148,7 @@
     },
     mounted: async function () {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'treeMapGraph')
       this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()

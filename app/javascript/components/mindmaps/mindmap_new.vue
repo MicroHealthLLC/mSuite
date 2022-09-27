@@ -13,10 +13,6 @@
       @pasteCopiedNode="pasteCopiedNode"
       @cutSelectedNode="cutSelectedNode"
       @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
       :userList="userList"
       :scaleFactor="scaleFactor"
       :selected-node="selectedNode"
@@ -136,11 +132,11 @@
       ExportToWordModal,
     },
 
-    props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays','expDays'],
     mixins: [TemporaryUser],
 
     data() {
       return {
+        currentMindMap    : this.$store.state.mSuite,
         userList          : [],
         selectedNode      : null,
         currentNodes      : [],
@@ -429,7 +425,6 @@
             this.currentPositionX = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
             this.currentPositionY = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
           }
-
           let c = document.getElementById(this.parent_x + "")
           let ctx = c.getContext("2d");
 

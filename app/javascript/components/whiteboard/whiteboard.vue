@@ -10,7 +10,6 @@
       :expDays="expDays"
       :deleteAfter="deleteAfter"
       @resetMindmap="resetMindmap"
-      :exportId="'vue_canvas'"
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
@@ -137,10 +136,11 @@
   import 'fabric-history';
 
   export default {
-    props: ['currentMindMap','whiteboardImage'],
+    props: ['whiteboardImage'],
     mixins: [Common, TemporaryUser],
     data() {
       return {
+        currentMindMap: this.$store.state.mSuite,
         line: 5,
         color: "#AADDCC",
         mapColors: [],
@@ -612,6 +612,7 @@
     },
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'vue_canvas')
       var canvas2 = document.getElementsByTagName('canvas')[0];
       canvas2.width = $(document).width() - 140;
       canvas2.height = $(document).height() - 75;

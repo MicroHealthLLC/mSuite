@@ -7,9 +7,6 @@
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
       ref="kanbanNavigation"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
@@ -132,7 +129,7 @@
         }
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'expDays', 'deleteAfter'],
+    props: ['expDays'],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -183,6 +180,7 @@
     },
     mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'kanban-board')
       this.sendLocals(false)
       if (this.$route.params.key) {
         this.getMindmap()

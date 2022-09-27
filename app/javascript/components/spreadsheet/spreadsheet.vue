@@ -1,16 +1,10 @@
 <template>
   <div class="overflow-auto maxHeight">
     <navigation-bar
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
       @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @exportXLS="exportXLS($event)"
       @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :exportId="'spreadSheet'"
       :isEditing="isEditing"
       :saveElement="saveElement"
       :userList="userList"
@@ -43,9 +37,9 @@
   import '../../common/plotly.js'
   import '../../common/plotly_renderers.min.js' 
   export default {
-    props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
     data() {
       return {
+        currentMindMap: this.$store.state.mSuite,
         formula: '',
         sheetData: {
           data: [[]],
@@ -378,6 +372,7 @@
     },
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'spreadSheet')
       this.createSheet(this.currentMindMap.canvas)
       $(".jexcel_content").addClass('h-100 w-100')
       $(".jexcel").addClass('w-100 h-100')

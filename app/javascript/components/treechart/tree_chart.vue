@@ -6,7 +6,6 @@
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
-      :exportId="'treeChartObj'"
       :saveElement="saveElement"
       @resetMindmap="resetMindmap"
       @zoomOutScale="zoomOutScale">
@@ -141,6 +140,7 @@
     mixins: [Common, TemporaryUser],
     mounted: async function(){
       this.subscribeCable(this.$store.getters.getMsuite.id)
+      this.$store.dispatch('setExportId', 'treeChartObj')
       this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()

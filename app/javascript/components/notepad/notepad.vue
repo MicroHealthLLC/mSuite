@@ -8,7 +8,7 @@
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :userList="userList"
-      :exportId="'notepad'">
+      >
     </navigation-bar>
     <div id="notepad"></div>
   </div>
