@@ -6,7 +6,6 @@
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
       ref="kanbanNavigation"
       :defaultDeleteDays="defaultDeleteDays"
       :expDays="expDays"
@@ -99,8 +98,8 @@
     mixins: [Common, TemporaryUser],
     data() {
       return {
+        currentMindMap: this.$store.state.mSuite,
         loading: true,
-        currentMindMap: {},
         new_stage: false,
         color: {hex: ''},
         allStages: [],

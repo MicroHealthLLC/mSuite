@@ -6,7 +6,6 @@
       @sendLocals="sendLocals"
       @undoMindmap="undoEvent"
       @redoMindmap="redoEvent"
-      :current-mind-map="currentMindMap"
       :exportId="'cal'"
       :isEditing="isEditing"
       :saveElement="saveElement"
@@ -107,25 +106,25 @@
     mixins: [Common, TemporaryUser],
     data() {
       return {
-        currentMindMap: this.$store.state.mSuite,
-        isReset:             false,
-        isEditing:           false,
-        saveElement:         true,
-        calendar:            null,
-        calendarTitle:       null,
-        recurringEvents:     null,
-        recurringEventsDate: null,
-        fetchedEvents:       [],
-        eventDates:          null,
-        showEvent:           null,
-        showEditEvent:       false,
-        createEventDate:     null,
-        userList:            [],
-        temporaryUser:       '',
-        currentView:         'month',
-        undoNodes:           [],
-        redoNodes:           [],
-        undoDone:            false
+        currentMindMap      : this.$store.state.mSuite,
+        isReset             : false,
+        isEditing           : false,
+        saveElement         : true,
+        calendar            : null,
+        calendarTitle       : null,
+        recurringEvents     : null,
+        recurringEventsDate : null,
+        fetchedEvents       : [],
+        eventDates          : null,
+        showEvent           : null,
+        showEditEvent       : false,
+        createEventDate     : null,
+        userList            : [],
+        temporaryUser       : '',
+        currentView         : 'month',
+        undoNodes           : [],
+        redoNodes           : [],
+        undoDone            : false
       }
     },
     components: {

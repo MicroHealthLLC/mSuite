@@ -2,19 +2,14 @@
   <div>
     <navigation-bar
       ref="navigationBar"
-      :current-mind-map="currentMindMap"
       @resetZoomScale="resetZoomScale"
       @zoomInScale="zoomInScale"
       @resetMindmap="resetMindmap"
       @undoMindmap="undoObj"
       @redoMindmap="redoObj"
       @sendLocals="sendLocals"
-      :scaleFactor="scaleFactor"
       :exportId="'treeChartObj'"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
       :userList="userList"
-      :deleteAfter="deleteAfter"
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
       :saveElement="saveElement"
@@ -105,18 +100,34 @@
     name: 'TreeChart',
     data(){
       return{
-        dragElement: null,
-        mapColors: [],
-        uniqueColors: [],
-        colorSelected: false,
-        exportLoading: false,
-        scaleFactor: 1,
-        collapsed: false,
-        prevNode: null,
-        selectedNode: {id: null},
-        selectedNodeTitle: '',
-        nodeColor: { hex: '' },
-        userList: [],
+        currentMindMap    : this.$store.state.mSuite,
+        dragElement       : null,
+        mapColors         : [],
+        uniqueColors      : [],
+        colorSelected     : false,
+        exportLoading     : false,
+        scaleFactor       : 1,
+        collapsed         : false,
+        prevNode          : null,
+        selectedNode      : {id: null},
+        selectedNodeTitle : '',
+        nodeColor         : { hex: '' },
+        userList          : [],
+        treeNode          : null,
+        treeConfig        : { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
+        nodeChildTreeMaps : [],
+        nodes             : [],
+        undoNodes         : [],
+        redoNodes         : [],
+        addNodeTree       : false,
+        isSaveMSuite      : false,
+        customPallete     : [],
+        nodeNumber        : 0,
+        undoDone          : false,
+        redoDone          : false,
+        temporaryUser     : '',
+        isEditing         : false,
+        saveElement       : false,
         treeChartObj: {
           name: '',
           children: []
@@ -130,30 +141,14 @@
         nodeTemp: {
           id: 0,
           line_color: "##EBECF0",
-          mindmap_id: this.currentMindMap.id,
+          mindmap_id: this.$store.state.mSuite.id,
           parent: null,
           parent_node: null,
           title: "Enter title here"
         },
-        treeNode: null,
-        treeConfig: { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
-        nodeChildTreeMaps: [],
-        nodes: [],
-        undoNodes: [],
-        redoNodes: [],
-        addNodeTree: false,
-        isSaveMSuite: false,
-        customPallete: [],
-        nodeNumber: 0,
-        undoDone: false,
-        redoDone: false,
-        temporaryUser: '',
-        isEditing: false,
-        saveElement: false,
       }
     },
     mixins: [Common, TemporaryUser],
-    props:['currentMindMap','defaultDeleteDays', 'deleteAfter','expDays'],
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
       this.sendLocals(false)

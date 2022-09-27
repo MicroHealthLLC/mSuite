@@ -2,18 +2,11 @@
   <div class="todo-app">
     <navigation-bar
       ref="navigationBar"
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
       @resetMindmap="resetMindmap"
       @exportToDocument="exportToDocument"
       @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
       :temporaryUser="temporaryUser"
       :isEditing="isEditing"
-      :saveElement="saveElement"
       :userList="userList"
       :exportId="'notepad'">
     </navigation-bar>
@@ -29,16 +22,16 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
-    props: ['currentMindMap'],
     data() {
       return {
-        content: '',
-        isReset: false,
-        savingStatus: null,
-        toolbar: null,
-        qeditor: null,
-        temporaryUser: '',
-        userList:[],
+        currentMindMap : this.$store.state.mSuite,
+        content        : '',
+        isReset        : false,
+        savingStatus   : null,
+        toolbar        : null,
+        qeditor        : null,
+        temporaryUser  : '',
+        userList       : [],
       }
     },
     mixins: [TemporaryUser],
@@ -222,7 +215,7 @@
         });
       },
     },
-    mounted() {
+    mounted: async function()  {
       this.subscribeCable(this.currentMindMap.id)
       this.sendLocals(false)
       window.katex = katex
