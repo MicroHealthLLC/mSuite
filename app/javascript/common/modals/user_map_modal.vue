@@ -24,7 +24,7 @@
       return {
         user: '',
         user_id: uuid.v1(),
-        storage: JSON.parse(localStorage.mSuite)
+        storage: this.$store.state
       }
     },
     mounted(){

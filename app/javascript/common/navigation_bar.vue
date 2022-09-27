@@ -327,7 +327,7 @@
   import DeletePasswordModal from './modals/delete_password_modal'
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "selectedNode", "copiedNode", "exportId","deleteAfter","userList","pollEdit","pollExpDate"],
+    props:["scaleFactor", "selectedNode", "copiedNode", "exportId","pollEdit","pollExpDate"],
     data() {
       return{
         currentMindMap: this.$store.getters.getMsuite,
@@ -336,7 +336,6 @@
         defaultDeleteDays: this.$store.getters.getMsuite.defaultDeleteDays,
         deleteAfter: this.$store.getters.getMsuite.deleteAfter,
         expDays: this.$store.getters.getMsuite.deleteAfter,
-        userList: JSON.parse(localStorage.mSuite).userList,
         editable: false,
         isSaveMSuite: true,
         isMsuiteSaved: true,
@@ -361,7 +360,7 @@
     },
     computed: {
       renderUserList () {
-        if(this.userList) return [... new Set(JSON.parse(localStorage.mSuite).userList)]
+        if(this.$store.state.userList.length > 0) return this.$store.state.userList
       },
       mSuiteTitle () {
         return this.mSuiteName
@@ -374,7 +373,7 @@
         return this.mm_type==='kanban' || this.mm_type==='tree_chart' || this.mm_type==='flowmap' || this.mm_type==='todo' || this.mm_type==='tree_map' || this.mm_type==='calendar'
       },
       renderTemporaryUser () {
-        return JSON.parse(localStorage.mSuite).temporaryUser
+        if (this.$store.state.temporaryUser) return this.$store.state.temporaryUser
       }
     },
     filters: {

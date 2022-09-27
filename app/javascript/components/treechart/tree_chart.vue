@@ -8,7 +8,6 @@
       @sendLocals="sendLocals"
       :exportId="'treeChartObj'"
       :saveElement="saveElement"
-      :isEditing="isEditing"
       @resetMindmap="resetMindmap"
       @zoomOutScale="zoomOutScale">
     </navigation-bar>
@@ -137,7 +136,6 @@
         undoDone: false,
         temporaryUser: '',
         saveElement: false,
-        isEditing: false,
       }
     },
     mixins: [Common, TemporaryUser],
@@ -305,12 +303,13 @@
         this.nodes.push(this.nodeTemp)
         this.addNodeTree = true
         localStorage.mindmap_id = this.$store.getters.getMsuite.id
-        if(this.nodes.length > 1 && localStorage.nodeNumber != 'NaN'){
-          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+
+        if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
+          this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
-          localStorage.nodeNumber = this.nodeNumber + 1
+          this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
         }
-        this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
+        this.selectedNode.name = 'Enter Node Title for node ' + this.$store.state.nodeNumber
         this.sendLocals(false)
         this.saveNodeTreeChart()
         this.renderTreeChart()
@@ -476,13 +475,12 @@
         this.colorSelected = false
         if(obj == undefined){
           obj = {
-            canvas: localStorage.userEdit
+            canvas: this.$store.state.userEdit
           }
-        } else obj.canvas = localStorage.userEdit
+        } else obj.canvas = this.$store.state.userEdit
 
         this.$store.dispatch('updateMSuite', obj)
 
-        // await http.put(`/msuite/${this.$store.getters.getMsuite.unique_key}`, obj);
         this.sendLocals(false)
       },
       deleteMap(node){
@@ -571,23 +569,9 @@
           }
           else if(data.message === "storage updated" && this.$store.getters.getMsuite.id == data.content.mindmap_id)
           {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            // this.temporaryUser = data.content.userEdit
-
-
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
-            this.$store.dispatch('setUserList', data.content.userEdit)
-
-            // this.userList.push(data.content.userEdit)
-            // localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else if (data.message === "Reset mindmap" && this.$store.getters.getMsuite.id === data.mindmap.id) {
             this.fetchTreeChart()

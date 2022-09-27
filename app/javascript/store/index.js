@@ -12,6 +12,7 @@ const vuexLocal = new VuexPersistence({
     mindmap_id        : state.mSuite.id,
     userList          : state.userList,
     temporaryUser     : state.temporaryUser,
+    nodeNumber        : state.nodeNumber
     // getRidOfThisModule: state.getRidOfThisModule (No one likes it.)
   })
 })
@@ -25,7 +26,8 @@ const store = new Vuex.Store({
     userList       : new Array(),
     scaleFactor    : 1,
     temporaryUser  : null,
-    exportId       : null
+    exportId       : null,
+    nodeNumber     : 0
   },
   mutations:{
     setMSuite (state, payload){
@@ -35,8 +37,8 @@ const store = new Vuex.Store({
       state.scaleFactor = payload
     },
     setUserList (state, payload){
-      if(state.userList.length < 0) state.userList = new Array()
       state.userList.push(payload)
+      state.userList = [... new Set(state.userList)]
     },
     setTemporaryUser (state, payload){
       state.temporaryUser = payload
@@ -49,6 +51,9 @@ const store = new Vuex.Store({
     },
     setUser (state, payload) {
       state.user = payload
+    },
+    setNodeNumber (state, payload) {
+      state.nodeNumber = payload
     }
   },
   getters: {
@@ -117,6 +122,9 @@ const store = new Vuex.Store({
     },
     setUserEdit({ commit }, user){
       commit('setUserEdit', user)
+    },
+    setNodeNumber({ commit }, number){
+      commit('setNodeNumber', number)
     }
   },
   plugins: [vuexLocal.plugin]

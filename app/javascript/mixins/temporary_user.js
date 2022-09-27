@@ -3,7 +3,7 @@ export default {
   data(){
     return{
       mindmap_id: 0,
-      storage: JSON.parse(localStorage.mSuite)
+      storage: this.$store.state
     }
   },
   methods: {
@@ -15,16 +15,6 @@ export default {
       });
     },
     cableSend(editing){
-      let unique_userList = [... new Set(JSON.parse(localStorage.mSuite).userList)]
-      let storage_data = {
-        user_id       : this.storage.user_id,
-        user          : this.storage.user,
-        userEdit      : this.storage.userEdit,
-        temporaryUser : this.storage.temporaryUser,
-        userList      : unique_userList,
-        mindmap_id    : this.storage.mindmap_id
-      }
-
       this.$cable.perform({
         channel: 'WebNotificationsChannel',
         room: this.mindmap_id,
@@ -32,12 +22,12 @@ export default {
         data: {
           message: 'storage updated',
           isEditing: editing,
-          content: storage_data
+          content: this.storage
         }
       });
     },
     sendLocals(isEditing){
-      this.$store.dispatch('setUserEdit', JSON.parse(localStorage.mSuite).user)
+      this.$store.dispatch('setUserEdit', this.storage.user)
       this.$store.dispatch('mindmapId', this.mindmap_id)
       this.cableSend(isEditing)
 
