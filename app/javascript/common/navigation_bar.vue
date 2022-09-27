@@ -24,8 +24,7 @@
           class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
-        >
-        </input>
+        />
       </span>
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
@@ -268,7 +267,7 @@
     </confirm-save-key-modal>
     <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
-      Kindly Choose the Format of Export
+      Please choose the format of export
       <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
       <button slot="button" v-else @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
 
@@ -277,7 +276,7 @@
       <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
     <sweet-modal ref="exportOptionCsv" class="of_v" icon="info" title="Export Format">
-      Kindly Choose the Format of Export
+      Please choose the format of export
       <button slot="button" @click="exportXLS(1)" class="btn btn-warning float-left mr-2">Export to Excel</button>
 
       <button slot="button" @click="exportXLS(2)" class="btn btn-info float-left">Export to csv</button>
