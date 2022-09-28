@@ -5,12 +5,13 @@ ul.drag-list, ul.drag-inner-list {
 }
 
 .drag-container {
-  margin: 20px;
+  margin: 20px auto;
 }
 
 .drag-list {
   display: flex;
   align-items: flex-start;
+  height: 75vh;
 }
 
 .drag-column {
@@ -20,7 +21,8 @@ ul.drag-list, ul.drag-inner-list {
   border-radius: 0.25rem !important;
   margin-right: 15px;;
   flex-direction: column;
-  max-height: 100%;
+  max-height: max-content;
+  min-height: 400px;
   position: relative;
   white-space: normal;
   background-color: #ebecf0;
@@ -48,8 +50,6 @@ ul.drag-inner-list {
   color: white;
   min-height: 10px;
   max-height: 70vh;
-  overflow-y: scroll;
-  overflow-x: scroll;
 }
 
 .drag-item {
