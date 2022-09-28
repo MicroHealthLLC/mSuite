@@ -30,43 +30,11 @@
         </section>
       </template>
     </sweet-modal-tab>
-    <!-- <sweet-modal-tab title="Files" id="files-tab">
-      <section v-if="fileLoading" class="loading-tab">
-        <sync-loader :loading="fileLoading" color="#31A1DF" size="20px"></sync-loader>
-      </section>
-      <section v-else class="row node-files-tab">
-        <div class="col" v-if="editable">
-          <attachment-input
-            :show-label="true"
-            @input="addFileToNode"
-          >
-          </attachment-input>
-        </div>
-        <div class="col node-files-list">
-          <div v-if="attachFiles && attachFiles.length > 0">
-            <div class="files-list p-2" v-for="file in attachFiles">
-              <file-box
-                :file="file"
-                :key="file.id"
-                :central="false"
-                :node="editedNode"
-                @remove-file="removeFile"
-                :editable="editable"
-              ></file-box>
-            </div>
-          </div>
-          <div v-else class="empty-file-list text-secondary">
-            No files attached...
-          </div>
-        </div>
-      </section>
-    </sweet-modal-tab> -->
   </sweet-modal>
 </template>
 
 <script>
 import AttachmentInput from '../../shared/attachment_input'
-import FileBox from '../../shared/file_box'
 import { quillEditor } from "vue-quill-editor"
 import "quill/dist/quill.core.css"
 import "quill/dist/quill.snow.css"
@@ -78,13 +46,10 @@ export default {
   components: {
     quillEditor,
     AttachmentInput,
-    FileBox
   },
   data() {
     return {
-      fileLoading: false,
       nodeNotes: "",
-      attachFiles: [],
       statusBtn: "Saved",
       editedNode: this.selectedNode
     }
@@ -93,7 +58,6 @@ export default {
     if (this.selectedNode?.id) {
       this.editedNode = this.selectedNode
       this.nodeNotes = this.editedNode.description
-      this.attachFiles = this.editedNode.attach_files
     }
   },
   methods: {
@@ -107,15 +71,6 @@ export default {
     updateNodeDescription() {
       this.$emit('update-node-description', this.nodeNotes)
     },
-    async addFileToNode(files) {
-      this.fileLoading = true
-      await this.$emit('add-file-to-node', files)
-      this.fileLoading = false
-    },
-    removeFile(file) {
-      _.remove(this.editedNode.attach_files, f => f.id === file.id)
-      this.$forceUpdate()
-    }
   },
   updated(){
     if(this.nodeNotes === this.editedNode.description) this.statusBtn = 'Saved';
@@ -133,7 +88,6 @@ export default {
       handler(value) {
         if (value) {
           this.nodeNotes = value.description
-          this.attachFiles = value.attach_files
         }
       }, deep: true
     }
@@ -160,12 +114,6 @@ export default {
     display: none;
   }
 
-  .node-files-tab {
-    height: 40vh;
-    max-height: 40vh;
-    font-size: 78%;
-  }
-
   .edit-icon {
     position: absolute;
     top: 88px;
@@ -185,24 +133,6 @@ export default {
   .edit-icon:hover {
     i {
       font-size: 22px;
-    }
-  }
-
-  .node-files-list {
-    height: 100%;
-    border: 1px solid #ccc;
-    overflow: auto;
-
-    .files-list {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      word-break: break-word;
-    }
-    .empty-file-list {
-      font-size: 15px;
-      font-style: italic;
-      padding: 1em;
     }
   }
 

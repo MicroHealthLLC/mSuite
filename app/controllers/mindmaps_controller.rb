@@ -2,7 +2,7 @@ require 'json'
 class MindmapsController < AuthenticatedController
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
-  before_action :set_mindmap, only: [:reset_password, :update, :show, :destroy_file, :compute_child_nodes, :reset_mindmap, :destroy]
+  before_action :set_mindmap, only: [:reset_password, :update, :show, :compute_child_nodes, :reset_mindmap, :destroy]
   before_action :verify_password, only: :show
   before_action :check_password_update, only: :update
   include HistoryConcern
@@ -71,22 +71,6 @@ class MindmapsController < AuthenticatedController
     respond_to do |format|
       format.json { render json: { success: true, mindmaps: @mindmaps, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i } }
       format.html {}
-    end
-  end
-
-  def destroy_file
-    if file = @mindmap.node_files.find_by(id: file_params[:id]) and file.present?
-      file.purge
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", { message: "Central Node file deleted", file: file }
-      respond_to do |format|
-        format.json { render json: { success: true } }
-        format.html {}
-      end
-    else
-      respond_to do |format|
-        format.json { render json: { success: false } }
-        format.html {}
-      end
     end
   end
 
@@ -247,12 +231,7 @@ class MindmapsController < AuthenticatedController
         :title,
         :is_save,
         :will_delete_at,
-        node_files: []
       )
-    end
-
-    def file_params
-      params.require(:file).permit(:id, :uri)
     end
 
     def check_password_update

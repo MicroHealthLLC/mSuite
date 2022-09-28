@@ -32,10 +32,6 @@
             <div class="col-12 px-0">
               <span class="central_notes_bar float-right">
                 <span style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="central-description-tab" class="mr-2" :class="C_hasDescription ? 'text-info' : ''"><i class="fa fa-comment"></i></span>
-                <span v-if="C_centralFileCount > 0" style="font-size: 14px;" @click.stop="openCentralAttachModal" data-tab="files-tab">
-                  <i class="far fa-file-alt" data-tab="files-tab"></i>
-                  <sup style="color: black;" data-tab="files-tab">{{C_centralFileCount}}</sup>
-                </span>
               </span>
             </div>
           </div>
@@ -84,7 +80,6 @@
       :editable="currentMindMap.editable"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-node-description="updateNodeDescription"
-      @add-file-to-node="addFileToNode"
     ></attachment-modal>
 
     <central-attachment-modal
@@ -93,7 +88,6 @@
       :current-mind-map="currentMindMap"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-map-notes="updateMapNotes"
-      @add-file-to-central-node="addFileToCentralNode"
     ></central-attachment-modal>
 
     <export-to-word-modal
@@ -183,9 +177,6 @@
         openVModal        : false,
         centralNotes      : "",
         nodeNotes         : "",
-        uploadFiles       : [],
-        attachFiles       : [],
-        fileLoading       : false,
         descEditMode      : false,
         temporaryUser: '',
         saveElement: false,
@@ -228,9 +219,7 @@
           ) {
             this.selectedNode = data.node
           }
-          else if ( data.message === "storage updated"             &&
-                    this.currentMindMap.id == data.content.mindmap_id
-          ) {
+          else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
             this.temporaryUser = data.content.userEdit
             this.userList.push(data.content.userEdit)
             localStorage.userList = JSON.stringify(this.userList);
@@ -279,9 +268,6 @@
           height   : this.centralIdeaHeight,
           minHeight: "3em"
         }
-      },
-      C_centralFileCount() {
-        return this.currentMindMap.attach_files.length
       },
       C_hasDescription() {
         return !!this.currentMindMap.description
@@ -727,7 +713,7 @@
             })
         }
       },
-      saveNode(node, files=null) {
+      saveNode(node) {
         if (this.nodeUpdatedFlag == false) { return; }
         if (!node || !node.id) { console.log("Unable to update node"); return; }
 
@@ -738,10 +724,7 @@
           let formData = { node: node }
           http.put(`/nodes/${node.id}.json`, formData).then((res) => {
             this.currentMindMap.nodes.splice(index, 1, res.data.node)
-            this.attachFiles = res.data.node.attach_files
-            this.fileLoading = false
           }).catch((error) => {
-            this.fileLoading = false
             console.log(error)
           })
         }
@@ -788,7 +771,7 @@
       // =============== Node CRUD OPERATIONS =====================
 
       // =============== Map CRUD OPERATIONS =====================
-      saveCurrentMap(files = null) {
+      saveCurrentMap() {
         this.currentMindMap.name = this.centralIdea
         if (this.currentMindMap.id) {
           this.currentMindMap.canvas = localStorage.userEdit
@@ -796,13 +779,10 @@
           http.put(`/msuite/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
             this.stopWatch      = true
             this.currentMindMap = res.data.mindmap
-            this.attachFiles    = res.data.mindmap.attach_files
             this.selectedNode   = null
-            this.fileLoading    = false
             this.updateQuery()
           }).catch((error) => {
             console.log(error)
-            this.fileLoading = false
           })
         } else {
           http.post(`/msuite.json`, { mindmap: this.currentMindMap }).then((res) => {
@@ -1050,7 +1030,6 @@
         if (!this.selectedNode) { return; }
         this.openVModal = true
         this.nodeNotes = this.selectedNode.description
-        this.attachFiles = this.selectedNode.attach_files
         this.$refs['attachment-modal'].$refs.attachmentModal.open(tab)
       },
       updateNodeDescription(notes) {
@@ -1060,21 +1039,11 @@
         this.$forceUpdate()
         this.saveNode(this.selectedNode)
         this.descEditMode = false
-        // this.$refs["attachment-modal"].$refs.attachmentModal.close()
 
         this.sendLocals(true)
       },
-      addFileToNode(files) {
-        this.uploadFiles = files
-        this.fileLoading  = true
-        this.nodeUpdatedFlag = true
-        this.saveNode(this.selectedNode, this.uploadFiles)
-        this.uploadFiles = []
-      },
-
       // central Idea Attachments
       openCentralAttachModal(e) {
-        this.attachFiles = this.currentMindMap.attach_files
         this.openVModal = true
         this.centralNotes = this.currentMindMap.description
         this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.open(e.target.dataset.tab)
@@ -1083,20 +1052,8 @@
         this.currentMindMap.description = notes
         this.saveCurrentMap()
         this.descEditMode = false
-        // this.$refs["central-attachment-modal"].$refs.centralAttachmentModal.close()
-
         this.sendLocals(true)
       },
-
-      // As Files Not Required
-
-      // addFileToCentralNode(files) {
-      //   this.uploadFiles = files
-      //   this.fileLoading  = true
-      //   this.saveCurrentMap(this.uploadFiles)
-      //   this.uploadFiles = []
-      // },
-
       // export word functions
       exportToWord() {
         this.openVModal = true
@@ -1175,14 +1132,6 @@
         },
         deep: true
       },
-      "currentMindMap.attach_files": {
-        handler: function() {
-          if (!this.selectedNode) {
-            this.attachFiles = this.currentMindMap.attach_files
-          }
-        },
-        deep: true
-      },
       "currentMindMap.nodes": {
         handler: function() {
           this.currentNodes = this.currentMindMap.nodes
@@ -1193,14 +1142,6 @@
         handler: function() {
           if (this.selectedNode) {
             this.nodeNotes = this.selectedNode.description
-          }
-        },
-        deep: true
-      },
-      "selectedNode.attach_files": {
-        handler: function() {
-          if (this.selectedNode) {
-            this.attachFiles = this.selectedNode.attach_files
           }
         },
         deep: true

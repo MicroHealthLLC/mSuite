@@ -25,7 +25,6 @@ Rails.application.routes.draw do
     member do
       post :reset_password
       get :compute_child_nodes
-      put :destroy_file
       get :reset_mindmap
       post :undo_mindmap
       post :sendkeys
@@ -42,7 +41,6 @@ Rails.application.routes.draw do
   resources :nodes, except: [:new, :edit, :show] do
     member do
       put :update_export_order
-      put :destroy_file
     end
   end
 
