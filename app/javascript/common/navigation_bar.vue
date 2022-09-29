@@ -12,7 +12,7 @@
         </a>
       </span>
       <span class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-center px-0">
-        <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
+        <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper h3" data-toggle="tooltip" :title="mSuiteTitle" style="textDecoration: underline">{{ mSuiteTitle | truncate(30) }}</span>
         <input
           v-show="editable"
           :rows="1"
@@ -21,11 +21,11 @@
           type="text"
           v-debounce:3000ms="blurEvent"
           v-model="mSuiteName"
-          class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
+          class="h3 my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
-        >
-        </input>
+          style="textDecoration: underline"
+          />
       </span>
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
