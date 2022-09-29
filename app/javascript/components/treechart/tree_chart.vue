@@ -161,6 +161,7 @@
       this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
+      window.addEventListener('wheel', this.transformScale)
     },
     components: {
       DeleteMapModal,
@@ -197,6 +198,14 @@
           this.scaleFactor = this.scaleFactor - 0.05
         }
         this.$refs.refTree.zoomOut()
+      },
+      transformScale(event) {
+        if (event.deltaY < 0) {
+          this.zoomInScale()
+        }
+        else if (event.deltaY > 0) {
+          this.zoomOutScale()
+        }
       },
       resetZoomScale(){
         this.scaleFactor = 1

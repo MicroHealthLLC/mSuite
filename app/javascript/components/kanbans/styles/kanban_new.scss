@@ -22,7 +22,7 @@ ul.drag-list, ul.drag-inner-list {
   margin-right: 15px;;
   flex-direction: column;
   max-height: max-content;
-  min-height: 100%;
+  min-height: 218px;
   position: relative;
   white-space: normal;
   background-color: #ebecf0;
@@ -48,7 +48,7 @@ ul.drag-list, ul.drag-inner-list {
 
 ul.drag-inner-list {
   color: gray;
-  min-height: 100%;
+  min-height: 130px;
 }
 
 .drag-item {
