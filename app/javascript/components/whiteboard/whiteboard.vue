@@ -622,7 +622,7 @@
       this.mouseEvents();
       this.canvas.renderAll();
       this.initialImage = this.whiteboardImage
-      if(this.currentMindMap.canvas && JSON.parse(JSON.parse(this.initialImage).whiteboardImage)){
+      if(this.currentMindMap.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}'){
         JSON.parse(JSON.parse(this.initialImage).whiteboardImage).objects.forEach((x, i) => {
           if(x.stroke == null) this.mapColors.push(x.fill)
           else this.mapColors.push(x.stroke)
