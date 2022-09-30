@@ -35,6 +35,7 @@
     "scss-tokenizer": "^0.4.3",
     "sortablejs": "^1.14.0",
     "sweet-modal-vue": "^2.0.0",
+    "tar": "^4.4.18",
     "url-parse": "^1.5.10",
     "vue": "^2.6.10",
     "vue-color": "^2.8.1",
@@ -63,7 +64,8 @@
     "url-parse": "^1.5.10",
     "json-schema": "^0.4.0",
     "ansi-html": "^0.0.8",
-    "scss-tokenizer": "^0.4.3"
+    "scss-tokenizer": "^0.4.3",
+    "tar": "^4.4.18"
   },
   "devDependencies": {
     "sass": "^1.55.0",
