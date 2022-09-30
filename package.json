@@ -13,6 +13,7 @@
     "bootstrap-vue": "^2.21.2",
     "chance": "^1.1.8",
     "convert-array-to-csv": "^2.0.0",
+    "d3-color": "^3.1.0",
     "dom-autoscroller": "^2.3.4",
     "dom-to-image-more": "^2.8.0",
     "fabric": "^4.6.0",
@@ -65,7 +66,8 @@
     "json-schema": "^0.4.0",
     "ansi-html": "^0.0.8",
     "scss-tokenizer": "^0.4.3",
-    "tar": "^4.4.18"
+    "tar": "^4.4.18",
+    "d3-color": "^3.1.0"
   },
   "devDependencies": {
     "sass": "^1.55.0",
