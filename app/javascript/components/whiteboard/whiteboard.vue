@@ -212,6 +212,12 @@
                 this.saveElement = false
               },1200)
             }
+          }else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id)
+          {
+            this.currentMindMap  = data.mindmap
+            this.canvas.loadFromJSON('{"version":"4.6.0","objects":[]}')
+            this.canvas.renderAll();
+            this.createSelection = false
           } else if( data.message  === "Mindmap Updated" &&
             this.currentMindMap.id ===      data.mindmap.id
           ) {
@@ -599,14 +605,9 @@
         this.eraser = false
         this.canvas.isDrawingMode = false
         this.drawLine = false
-        let mindmap = { mindmap: {
-            canvas :'{"version":"4.6.0","objects":[]}',
-            title  :'Title'
-          }
-        }
-        localStorage.canvas = mindmap.mindmap.canvas
+        localStorage.canvas = this.currentMindMap.canvas
         let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,mindmap)
+        http.get(`/msuite/${id}/reset_mindmap.json`)
         localStorage.canvas = null
       },
     },
@@ -621,7 +622,7 @@
       this.mouseEvents();
       this.canvas.renderAll();
       this.initialImage = this.whiteboardImage
-      if(JSON.parse(JSON.parse(this.initialImage).whiteboardImage)){
+      if(this.currentMindMap.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}'){
         JSON.parse(JSON.parse(this.initialImage).whiteboardImage).objects.forEach((x, i) => {
           if(x.stroke == null) this.mapColors.push(x.fill)
           else this.mapColors.push(x.stroke)
@@ -632,7 +633,7 @@
         this.canvas.renderAll();
       }
       this.sendLocals(false)
-      if (JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
+      if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
       else localStorage.userEdit = ''
       if(localStorage.mindmap_id == this.currentMindMap.id){
         if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
