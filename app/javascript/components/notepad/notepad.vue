@@ -54,6 +54,9 @@
           }
           else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
+            this.qeditor.setContents([
+              { insert: '' },
+            ])
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id){
             localStorage.nodeNumber = data.content.nodeNumber
@@ -182,7 +185,7 @@
         this.isReset = true
         let mindmap = { mindmap: { canvas: null, title: 'Title' } }
         let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,mindmap)
+        http.get(`/msuite/${id}/reset_mindmap.json`)
       },
       exportToDocument(option) {
         var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
