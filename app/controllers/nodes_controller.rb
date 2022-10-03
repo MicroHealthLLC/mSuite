@@ -1,8 +1,9 @@
 class NodesController < AuthenticatedController
-  before_action :set_node, only: [:update, :destroy, :hide_children, :destroy_file, :update_export_order]
+  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order]
   before_action :set_nodes, only:[:index]
   include NodeConcern
   $deleted_child_nodes = []
+
   def create
     # get nested children
     @node = Node.create(node_params)
@@ -63,29 +64,13 @@ class NodesController < AuthenticatedController
     end
   end
 
-  def destroy_file
-    if file = @node.node_files.find_by(id: file_params[:id]) and file.present?
-      file.purge
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node file deleted", node: @node.id, file: file }
-      respond_to do |format|
-        format.json { render json: {success: true}}
-        format.html { }
-      end
-    else
-      respond_to do |format|
-        format.json { render json: {success: false}}
-        format.html { }
-      end
-    end
-  end
-
   def hide_children
     @flag = params[:flag]
     @node.update_column('hide_children', @flag)
     hide_show_nested_children(Node.where(parent_node: @node.id))
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated"
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated", node: @node, mindmap: @mindmap
     respond_to do |format|
-      format.json { render json: {success: true}}
+      format.json { render json: {success: true, node: @node}}
       format.html { }
     end
   end
@@ -124,12 +109,16 @@ class NodesController < AuthenticatedController
 
   def set_node
     @node = Node.find_by_id(params[:id])
+    set_mindmap if @node
   end
 
   def set_nodes
     @nodes = Node.where(mindmap_id: params[:mindmap_id])
   end
 
+  def set_mindmap
+    @mindmap = @node.mindmap
+  end
   def update_node_params
     params.require(:node).permit(
       :id,
@@ -169,7 +158,4 @@ class NodesController < AuthenticatedController
     )
   end
 
-  def file_params
-    params.require(:file).permit(:id, :uri)
-  end
 end
