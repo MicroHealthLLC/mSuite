@@ -252,6 +252,12 @@
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         })
+        this.calendar.on('clickMoreEventsBtn',(eventObj)=>{
+          let pos = $(eventObj.target).position()
+          if(pos.top > 500){
+            $(eventObj.target).css({top: 300, left: pos.left});
+          }
+        })
       },
       findDateTimeMinutes(start, end){
         var startTime = moment(start, 'DD-MM-YYYY hh:mm:ss');
