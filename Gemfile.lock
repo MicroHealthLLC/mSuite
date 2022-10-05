@@ -1,9 +1,8 @@
-GIT
-  remote: https://github.com/jcarbo/omniauth-office365.git
-  revision: 9260c66cb125cb0685ee4c65c8be2fe917f892a5
+PATH
+  remote: lib/omniauth-office365
   specs:
     omniauth-office365 (1.0.0)
-      omniauth-oauth2 (~> 1.3.1)
+      omniauth-oauth2 (~> 1.8.0)
 
 GEM
   remote: https://rubygems.org/
@@ -218,17 +217,20 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
-    omniauth (1.9.2)
+    omniauth (2.1.0)
       hashie (>= 3.4.6)
-      rack (>= 1.6.2, < 3)
-    omniauth-google-oauth2 (0.5.2)
-      jwt (~> 1.5)
-      multi_json (~> 1.3)
+      rack (>= 2.2.3)
+      rack-protection
+    omniauth-google-oauth2 (0.5.4)
+      jwt (>= 1.5)
       omniauth (>= 1.1.1)
-      omniauth-oauth2 (>= 1.3.1)
-    omniauth-oauth2 (1.3.1)
-      oauth2 (~> 1.0)
-      omniauth (~> 1.2)
+      omniauth-oauth2 (>= 1.5)
+    omniauth-oauth2 (1.8.0)
+      oauth2 (>= 1.4, < 3)
+      omniauth (~> 2.0)
+    omniauth-rails_csrf_protection (1.0.1)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
     orm_adapter (0.5.0)
     parallel (1.22.1)
     parser (3.1.2.1)
@@ -239,6 +241,8 @@ GEM
     raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.4)
+    rack-protection (3.0.2)
+      rack
     rack-proxy (0.7.0)
       rack
     rack-test (2.0.2)
@@ -413,6 +417,7 @@ DEPENDENCIES
   mysql2
   omniauth-google-oauth2
   omniauth-office365!
+  omniauth-rails_csrf_protection (= 1.0.1)
   puma (~> 5.6.4)
   rails (~> 6.1.5.1)
   redis (~> 4.3.1)
