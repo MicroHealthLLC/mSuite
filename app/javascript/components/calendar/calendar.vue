@@ -299,7 +299,9 @@
         this.fetchEvents()
       },
       getCalendarTitle(){
+        //console.log(this.calendar.getDate())
         var calendarDate = new Date(this.calendar.getDate())
+        //console.log(calendarDate)
         this.calendarTitle = moment(calendarDate).format("MMMM YYYY");
       },
       openRecurringEventsModal(data){
@@ -452,12 +454,14 @@
         this.renderEvents()
       },
       renderEvents(){
-        if(this.fetchedEvents.length == 0){
+        //console.log(this.fetchedEvents)
+        /* if(this.fetchedEvents.length == 0){
           this.calendar.destroy()
           this.createCalendar()
-        }
+        } */
         this.mapColors = []
         this.uniqueColors = []
+        //console.log(this.calendar.getDate())
         this.calendar.store.getState().calendar.events.internalMap.clear()
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           currentValue.duedate = new Date(currentValue.duedate)
