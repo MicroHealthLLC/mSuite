@@ -1,23 +1,5 @@
 <template>
   <div v-if="!loading">
-    <navigation-bar
-      @exportToImage="exportImage"
-      @resetMindmap="reset_stages"
-      @undoMindmap="undoObj"
-      @redoMindmap="redoObj"
-      @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      ref="kanbanNavigation"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :temporaryUser="temporaryUser"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
-      :userList="userList"
-      :exportId="'kanban-board'">
-    </navigation-bar>
-
     <div class="row kanban_board" id="kanban-board">
       <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
         <div v-for="stage, index in computedStages" :slot="stage" :key="index" class="w-100 font-serif" >
@@ -67,7 +49,7 @@
       <div v-if="colorSelected">
         <div class="card p-0 border-none color-picker-placement">
           <color-palette
-            :treeNode="selectedStage"
+            :selected-node="selectedStage"
             :nodes="allStages"
             :currentMindMap="currentMindMap"
             :customPallete="customPallete"
@@ -99,8 +81,8 @@
     mixins: [Common, TemporaryUser],
     data() {
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         loading: true,
-        currentMindMap: {},
         new_stage: false,
         color: {hex: ''},
         allStages: [],
@@ -123,9 +105,6 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
-        temporaryUser: '',
-        saveElement: false,
-        userList: [],
         config: {
           accepts(block, target, source){
             return target.dataset.status !== ''
@@ -133,7 +112,7 @@
         }
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'expDays', 'deleteAfter'],
+    props: ['undoMap','redoMap'],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -151,23 +130,17 @@
           {
             Vue.set(this.currentMindMap, 'title', data.mindmap.title)
           }
-          else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
+          else if(data.message === "storage updated" && 
+              (this.currentMindMap.id == data.content.mindmap_id ||
+              this.currentMindMap.id == data.content.mSuite.id))
           {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else if(data.message === "Stage Reset"){
-            this.currentMindMap = data.mindmap
+            this.$store.commit('setMSuite', data.mindmap)
+            this.currentMindMap = this.$store.getters.getMsuite,
             this.getMindmap()
             this.mountKanBan()
           }
@@ -184,10 +157,21 @@
     },
     mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'kanban-board')
+      this.undoMap(this.undoObj)
+      this.redoMap(this.redoObj)
       this.sendLocals(false)
       if (this.$route.params.key) {
         this.getMindmap()
-        localStorage.userEdit = this.currentMindMap.canvas
+      if (this.currentMindMap.canvas !=null){
+        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+      }
+      else{
+        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)        
+        this.$store.dispatch('emptyUserList')
+      } 
       }
       this.mountKanBan()
       this.getUserOnMount()
@@ -250,7 +234,7 @@
       },
       async updateKanbanUser(){
         await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-          canvas: localStorage.userEdit
+          canvas: this.$store.state.userEdit
           });
       },
       //=====================GETTING MINDMAP==============================//
@@ -295,10 +279,9 @@
         this.previousColor = this.selectedStage.stage_color
         this.selectedElement = document.getElementsByClassName('drag-column-' + stage)[0]
         this.colorSelected = true
-
-        this.sendLocals(true)
       },
       saveNodeColor(){
+        this.sendLocals(true)
         this.selectedStage.stage_color = this.selectedStage.stage_color.hex
         const response = this.updateStageRequest(this.selectedStage)
         response.then((res) => {
@@ -336,11 +319,6 @@
         this.colorSelected = false
         this.getColorNode('.drag-column')
       },
-      reset_stages() {
-        let _this = this
-        let data = { mindmap_id: this.currentMindMap.id }
-        http.post('/stages/reset_stages', data)
-      },
       getAllStages() {
         http
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
@@ -350,7 +328,7 @@
               this.allStages[0].title == 'TO DO' &&
               this.allStages[1].title == 'IN PROGRESS' &&
               this.allStages[2].title == 'DONE'){
-            localStorage.nodeNumber = 0
+            this.$store.dispatch('setNodeNumber', 0)
           }
           this.mapColors = []
           this.uniqueColors = []
@@ -376,24 +354,13 @@
         this.new_stage = true
         this.new_index = stage_index + 1
 
-        localStorage.mindmap_id = this.currentMindMap.id
-        if(this.allStages.length > 2 && localStorage.nodeNumber != 'NaN'){
-          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        this.$store.dispatch('setMindMapId', this.currentMindMap.id)
+        if(this.allStages.length > 2 && this.$store.state.nodeNumber != 'NaN'){
+          this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
-          localStorage.nodeNumber = this.nodeNumber + 1
+          this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
         }
-
-        this.$cable.perform({
-            channel: 'WebNotificationsChannel',
-            room: this.currentMindMap.id,
-
-            data: {
-              message: 'storage updated',
-              content: localStorage
-            }
-        });
-
-        this.createNewStage('STAGE ' + localStorage.nodeNumber)
+        this.createNewStage('STAGE ' + this.$store.state.nodeNumber)
         setTimeout(()=>{
           this.getColorNode('.drag-column')
         },50)
@@ -401,6 +368,7 @@
         this.sendLocals(false)
       },
       createNewStage(val){
+        this.sendLocals(true)
         let index = this.allStages.findIndex(stg => stg.title === '')
         if(this.checkDuplicate(val))
         {
@@ -612,13 +580,13 @@
 
       updateBlockPosition(id, status, position) {
         let stage_id = this.allStages.find(stg => stg.title === status).id
-
         let block = this.blocks.find(blk => blk.id === Number(id))
         block.position = position
         block.stage_id = stage_id
         const response = this.updateBlockRequest(block)
         response
         .then((res)=>{
+          this.sendLocals(true)
           let block_id = this.blocks.findIndex(b => b.id === Number(id))
           this.blocks[block_id].index = res.data.node.position
           this.blocks[block_id].status = status
@@ -636,9 +604,9 @@
         const response = this.updateBlockRequest(block)
         response
         .then((res)=>{
+          this.sendLocals(true)
           let index = this.blocks.findIndex(b => b.id === res.data.node.id)
           Vue.set(this.blocks, index, res.data.node)
-          this.sendLocals(false)
         })
         .catch(err => {
           console.log(err)
@@ -653,6 +621,7 @@
         .delete(`/nodes/${id}.json`,data)
         .then(response => {
           if (response.data.success === true){
+            this.sendLocals(true)
             this.blocks = this.blocks.filter(blk => blk.id !== block.id)
             let receivedNodes = response.data.node
             if(receivedNodes && receivedNodes.length > 0){

@@ -1,21 +1,5 @@
 <template>
   <div class="todo-app">
-    <navigation-bar
-      @resetMindmap="resetMindmap"
-      @undoMindmap="undoObj"
-      @redoMindmap="redoObj"
-      @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :exportId="'todo'"
-      :isEditing="isEditing"
-      :temporaryUser="temporaryUser"
-      :userList="userList"
-      :saveElement="saveElement"
-      ref="todoNavigation">
-    </navigation-bar>
     <div id="todo">
       <div>
         <div class="parentGroup overflow-auto">
@@ -143,9 +127,13 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
-    props: ['currentMindMap'],
+    props: {
+      undoMap: Function,
+      redoMap: Function
+    },
     data() {
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         todos: [],
         todo: {},
         userList: [],
@@ -173,8 +161,6 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
-        isEditing: false,
-        saveElement: false
       }
     },
     components: {
@@ -195,28 +181,17 @@
             }, 500)
           } else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.temporaryUser = data.content.userEdit
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.currentMindMap = data.mindmap
+            this.undoNodes = []
+            this.redoNodes = []
             this.fetchToDos()
           }
           else {
             this.fetchToDos()
-            this.saveElement = true
-            setTimeout(()=>{
-              this.saveElement = false
-            },1200)
           }
         }
       }
@@ -244,14 +219,14 @@
         this.sendLocals(false)
       },
       async fetchToDos(){
-        let mindmap_key = window.location.pathname.split('/')[2]
-        let response = await http.get(`/msuite/${mindmap_key}.json`)
-        this.defaultDeleteDays = response.data.defaultDeleteDays
-        this.deleteAfter = response.data.deleteAfter
-        this.expDays = response.data.expDays
-        this.currentMindMap = response.data.mindmap
-        this.todos = response.data.mindmap.nodes
-        localStorage.userEdit = response.data.mindmap.canvas
+        let res = await this.$store.dispatch('getMSuite')
+        let response = this.$store.getters.getMsuite
+        this.$store.dispatch('setMindMapId', response.id)
+        this.defaultDeleteDays = response.defaultDeleteDays
+        this.deleteAfter = response.deleteAfter
+        this.expDays = response.expDays
+        this.$store.commit('SET_MSUITE', response)
+        this.todos = response.nodes
         this.renderTodos()
       },
       renderTodos(){
@@ -306,9 +281,9 @@
         this.myTodos = parent_nodes
       },
       async updateTodoUser(){
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-           canvas: localStorage.userEdit
-          });
+        await this.$store.dispatch('updateMSuite',  {
+           canvas: this.$store.state.userEdit
+          })
       },
       async addTodo() {
         if(this.todoData.title == null || this.todoData.title.trim().length === 0){
@@ -500,17 +475,24 @@
         }
       }
     },
-    mounted: async function() {
+    mounted() {
+      this.currentMindMap = this.$store.state.mSuite
+      this.$store.dispatch('setExportId', 'todo')
       this.subscribeCable(this.currentMindMap.id)
       this.todos = this.currentMindMap.nodes
-      this.sendLocals(false)
-      await this.fetchToDos()
+
+      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+
+      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+      this.renderTodos()
 
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
-
       $(".v-switch-label, .v-right").css({"color": "#212529"})
 
       this.getUserOnMount()
+
+      this.undoMap(this.undoObj)
+      this.redoMap(this.redoObj)
     },
   }
 </script>

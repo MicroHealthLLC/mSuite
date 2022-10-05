@@ -16,9 +16,9 @@ class NodesController < AuthenticatedController
       dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
       Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
     end
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node.to_json }
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is created", node: @node }
     respond_to do |format|
-      format.json { render json: {node: @node.to_json}}
+      format.json { render json: {node: @node}}
       format.html { }
     end
   end

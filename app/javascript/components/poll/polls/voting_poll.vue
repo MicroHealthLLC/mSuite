@@ -1,21 +1,5 @@
 <template>
   <div>
-    <navigation-bar
-      ref="navigationBar"
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @openPrivacy="openPrivacy"
-      @resetMindmap="resetMindmap"
-      @exportToDocument="exportToDocument"
-      @pollEditData="pollEditData"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :pollPin="pollData"
-      :pollEdit="pollEdit"
-      :pollExpDate="pollExpDate"
-      :exportId="'poll-vote'">
-    </navigation-bar>
     <div id="poll-vote">
       <div class="container overflow-auto maxHeight" v-if="validForVote && !returnFun">
         <span>{{ pollData.description }}</span>
@@ -86,17 +70,15 @@
 
 <script>
   import http from "../../../common/http"
-  import MakePrivateModal from "../../../common/modals/make_private_modal"
-  import DeletePasswordModal from '../../../common/modals/delete_password_modal';
   import TemporaryUser from "../../../mixins/temporary_user.js"
   import moment from 'moment'
 
   export default {
     name: "Poll",
-    props: ["currentMindMap"],
     mixins: [TemporaryUser],
     data() {
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         pollData: {},
         returnFun: false,
         checkDisable: false,
@@ -114,7 +96,7 @@
             window.open('/','_self')
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.currentMindMap = data.mindmap
+            this.$store.commit('setMSuite', data.mindmap)
             this.pollData = JSON.parse(data.mindmap.canvas)
           }
         }
@@ -194,7 +176,7 @@
           mindmap: { canvas: JSON.stringify(this.pollData) }
           }
           let id = this.currentMindMap.unique_key
-          http.patch(`/msuite/${id}.json`,mindmap).then(res=>{
+          this.$store.dispatch('updateMSuite', mindmap).then(res => {
             _this.voted()
           })
         } else {

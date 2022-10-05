@@ -140,15 +140,25 @@ class MindmapsController < AuthenticatedController
 
   def delete_empty_msuite
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
-    if fetched_mindmap.nodes.empty? && fetched_mindmap.comments.empty?  && fetched_mindmap.title == "Title" && fetched_mindmap.name == "Central Idea" && fetched_mindmap.will_delete_at == Date.today+ENV['EXP_DAYS'].to_i.day && fetched_mindmap.password.nil? && (fetched_mindmap.canvas.nil? || fetched_mindmap.canvas == '{"version":"4.6.0","data":[], "style":{}, "width": []}'|| fetched_mindmap.canvas == '{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":null},{\"value\":2,\"text\":\"\",\"votes\":null}],\"pin\":\"\",\"voters\":[],\"showResult\":false}' || fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"objects\":[]}")
+    if fetched_mindmap.nodes.empty?          &&
+      fetched_mindmap.comments.empty?        &&
+      fetched_mindmap.title == "Title"       &&
+      fetched_mindmap.name == "Central Idea" &&
+      fetched_mindmap.will_delete_at == Date.today+ENV['EXP_DAYS'].to_i.day &&
+      fetched_mindmap.password.nil? &&
+      (fetched_mindmap.canvas.nil?  ||
+        fetched_mindmap.canvas == '{"version":"4.6.0","data":[], "style":{}, "width": []}'||
+        fetched_mindmap.canvas == '{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":null},{\"value\":2,\"text\":\"\",\"votes\":null}],\"pin\":\"\",\"voters\":[],\"showResult\":false}' ||
+        fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"objects\":[]}" ||
+        fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"columns\":[], \"data\":[], \"style\":{}, \"width\": []}")
       if fetched_mindmap.mm_type =="kanban" &&
         fetched_mindmap.stages.count == 3 && 
-        fetched_mindmap.stages[0][:title] == "TO DO" &&
-        fetched_mindmap.stages[0][:stage_color] == "#ebecf0" &&
-        fetched_mindmap.stages[1][:title] == "IN PROGRESS" &&  
-        fetched_mindmap.stages[1][:stage_color] == "#ebecf0" &&
-        fetched_mindmap.stages[2][:title] == "DONE"
-        fetched_mindmap.stages[2][:stage_color] == "#ebecf0" &&
+        fetched_mindmap.stages[0][:title]       == "TO DO"       &&
+        fetched_mindmap.stages[0][:stage_color] == "#ebecf0"     &&
+        fetched_mindmap.stages[1][:title]       == "IN PROGRESS" &&
+        fetched_mindmap.stages[1][:stage_color] == "#ebecf0"     &&
+        fetched_mindmap.stages[2][:title]       == "DONE"        &&
+        fetched_mindmap.stages[2][:stage_color] == "#ebecf0"
 
         fetched_mindmap.destroy
         ActionCable.server.broadcast "web_notifications_channel#{fetched_mindmap.id}", message: "Mindmap Deleted", mindmap: fetched_mindmap

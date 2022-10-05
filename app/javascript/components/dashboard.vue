@@ -4,7 +4,6 @@
     <router-view v-else></router-view>
     <Beta v-if="beta_status" />
     <cookie-law theme="dark-lime"></cookie-law>
-
   </div>
 </template>
 <script>
@@ -23,12 +22,11 @@
     mounted(){
       if(this.$cookies.get('verifiedCaptcha') == null) this.fromCaptcha = false
       if(Vue.prototype.$google_recaptcha_site_key == "") this.is_config = false
-
-        if(this.beta_status === 'true') {
-          this.beta_status = true
-        } else {
-          this.beta_status = false
-        }
+      if(this.beta_status === 'true') {
+        this.beta_status = true
+      } else {
+        this.beta_status = false
+      }
     },
   }
 </script>

@@ -30,7 +30,7 @@
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
           <a
-            v-if="currentMindMap.mm_type != 'pollvote'"
+            v-if="mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             v-b-tooltip.hover title="Delete"
@@ -49,7 +49,7 @@
             <i class="fas fa-user-edit icons d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type != 'pollvote'"
+            v-if="mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -59,7 +59,7 @@
             <i id="comment" class="fa fa-comment d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type != 'pollvote'"
+            v-if="mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
@@ -91,7 +91,7 @@
         </span>
         <span class="d-flex">  
           <a
-            v-if="currentMindMap.mm_type==='simple'"
+            v-if="mm_type==='simple'"
             ref="exportWordBtn"
             role="button"
             v-b-tooltip.hover title="Export Word"
@@ -101,7 +101,7 @@
             <i class="fas fa-file-word icons d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type == 'pollvote'"
+            v-if="mm_type == 'pollvote'"
             role="button"
             href="javascript:;"
             class="text-dark mt-2 mr-4 font-weight-bold"
@@ -122,7 +122,7 @@
             <i class="material-icons export_icon icons d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type==='spreadsheet' || currentMindMap.mm_type==='poll' "
+            v-if="mm_type==='spreadsheet' || mm_type==='poll' "
             ref="exportBtn"
             role="button"
             href="javascript:;"
@@ -133,7 +133,7 @@
             <i class="fas fa-file-excel icons d-flex center_flex"></i>
           </a>
           <a
-            v-if="currentMindMap.mm_type != 'pollvote'"
+            v-if="mm_type != 'pollvote'"
             role="button"
             href="javascript:;"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -143,9 +143,9 @@
             <i class="material-icons save_btn icons d-flex center_flex"></i>
           </a>
         </span>
-        <span v-if="currentMindMap.mm_type === 'simple' || currentMindMap.mm_type === 'tree_chart' || currentMindMap.mm_type === 'flowmap'" class="d-flex">
+        <span v-if="mm_type === 'simple' || mm_type === 'tree_chart' || mm_type === 'flowmap'" class="d-flex">
             <a
-              v-if="scaleFactor != 1"
+              v-if="$store.getters.getScaleFactor != 1"
               href="javascript:;"
               role="button"
               v-b-tooltip.hover title="100%"
@@ -173,13 +173,13 @@
               <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
             </a>
         </span>  
-        <span v-if="currentMindMap.editable && currentMindMap.mm_type === 'simple'" class="d-flex flex-row-reverse">
+        <span v-if="$store.getters.getMsuite.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
           <span v-b-tooltip.hover title="Delete">
             <a
               href="javascript:;"
               role="button"
-              :disabled="!selectedNode"
-              :class="{button_disabled: !selectedNode}"
+              :disabled="!$store.getters.getSelectedNode"
+              :class="{button_disabled: !$store.getters.getSelectedNode}"
               class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
               @click.stop="deleteSelectedNode"
             >
@@ -190,8 +190,8 @@
               <a
                 href="javascript:;"
                 role="button"
-                :disabled="!selectedNode"
-                :class="{button_disabled: !copiedNode}"
+                :disabled="!$store.getters.getSelectedNode"
+                :class="{button_disabled: !$store.getters.getCopiedNode}"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
                 @click.stop="pasteCopiedNode"
               >
@@ -202,8 +202,8 @@
             <a
               href="javascript:;"
               role="button"
-              :disabled="!selectedNode"
-              :class="{button_disabled: !selectedNode}"
+              :disabled="!$store.getters.getSelectedNode"
+              :class="{button_disabled: !$store.getters.getSelectedNode}"
               class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
               @click.stop="cutSelectedNode"
             >
@@ -214,8 +214,8 @@
             <a
               href="javascript:;"
               role="button"
-              :disabled="!selectedNode"
-              :class="{button_disabled: !selectedNode}"
+              :disabled="!$store.getters.getSelectedNode"
+              :class="{button_disabled: !$store.getters.getSelectedNode}"
               class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
               @click.stop="copySelectedNode"
             >
@@ -243,9 +243,9 @@
           role="button"
           class="navbar_button d-flex text-info pointer mr-3 center_flex"
           v-b-tooltip.hover title="Status"
-          v-if="temporaryUser"
+          v-if="renderTemporaryUser"
         >
-            <span> Last Edited By {{temporaryUser}}</span>
+            <span> Last Edited By {{renderTemporaryUser}}</span>
         </a>
       </span>
     </div>
@@ -269,10 +269,10 @@
     <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
-      <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
+      <button slot="button" v-if="mm_type === 'Notepad'" @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Document</button>
       <button slot="button" v-else @click="exportImage(1)" class="btn btn-warning float-left mr-2">Export to Image</button>
 
-      <button slot="button" v-if="currentMindMap.mm_type === 'Notepad'" @click="exportImage(2)" class="btn btn-info float-left">Export to rtf</button>
+      <button slot="button" v-if="mm_type === 'Notepad'" @click="exportImage(2)" class="btn btn-info float-left">Export to rtf</button>
       <button slot="button" v-else @click="exportImage(2)" class="btn btn-info float-left">Export to Pdf</button>
       <button slot="button" @click="$refs['exportOption'].close()" class="btn btn-secondary">Cancel</button>
     </sweet-modal>
@@ -325,24 +325,34 @@
   import MakePrivateModal from "./modals/make_private_modal"
   import DeleteMapModal from './modals/delete_modal'
   import DeletePasswordModal from './modals/delete_password_modal'
+  import TemporaryUser from "../mixins/temporary_user.js"
+  import { mapState } from 'vuex'
+
   export default{
     name:"NavigationBar",
-    props:["scaleFactor", "currentMindMap", "selectedNode", "copiedNode", "exportId", "defaultDeleteDays","deleteAfter","isEditing","saveElement", "expDays","temporaryUser","userList","pollPin","pollEdit","pollExpDate"],
+    mixins: [TemporaryUser],
+    props:["delMap"],
     data() {
       return{
-        mSuiteName: this.currentMindMap.title,
+        mSuiteName: this.$store.getters.getMsuite.title,
+        mm_type: this.$store.getters.getmmType,
+        defaultDeleteDays: this.$store.getters.getMsuite.defaultDeleteDays,
+        deleteAfter: this.$store.getters.getMsuite.deleteAfter,
+        expDays: this.$store.getters.getMsuite.deleteAfter,
         editable: false,
         isSaveMSuite: true,
         isMsuiteSaved: true,
         poll_pin: null,
-        password: JSON.parse(JSON.stringify(this.currentMindMap.password)),
-        isSaveMap: JSON.parse(JSON.stringify(this.currentMindMap.is_save)),
-        pollEditing: false,
+        password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
+        isSaveMap: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.is_save)),
         dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
       }
     },
     created(){
       window.addEventListener('beforeunload', this.isMsuiteEmpty)
+    },
+    mounted(){
+      if(this.delMap) this.delMap(this.deleteMap)
     },
     components:{
       DeletePasswordModal,
@@ -354,18 +364,30 @@
       MakePrivateModal
     },
     computed: {
+      currentMindMap () {
+        return this.$store.getters.getMsuite
+      },
       renderUserList () {
-        if(this.userList) return this.userList.filter((v, i, a) => a.indexOf(v) === i)
+        if(this.$store.state.userList.length > 0) return this.$store.state.userList
       },
       mSuiteTitle () {
         return this.mSuiteName
       },
+      pollExpDate () {
+        let duedate = JSON.parse(this.currentMindMap.canvas).duedate
+        let pollDuedate = moment(new Date(duedate)).format('DD MMM YYYY')
+        if (pollDuedate == 'Invalid date') pollDuedate = "Never"
+        return pollDuedate
+      },
       expireDateTime () {
-        let x = new Date(this.currentMindMap.will_delete_at)
+        let x = new Date(this.$store.getters.getMsuite.will_delete_at)
         return x.toDateString();
       },
       checkMSuiteTypes () {
-        return this.currentMindMap.mm_type==='kanban' || this.currentMindMap.mm_type==='tree_chart' || this.currentMindMap.mm_type==='flowmap' || this.currentMindMap.mm_type==='todo' || this.currentMindMap.mm_type==='tree_map' || this.currentMindMap.mm_type==='calendar'
+        return this.mm_type==='kanban' || this.mm_type==='tree_chart' || this.mm_type==='flowmap' || this.mm_type==='todo' || this.mm_type==='tree_map' || this.mm_type==='calendar'
+      },
+      renderTemporaryUser () {
+        if (this.$store.state.temporaryUser) return this.$store.state.temporaryUser
       }
     },
     filters: {
@@ -382,6 +404,7 @@
       isSave () {
         http.post(`/msuite/${this.currentMindMap.unique_key}/reset_password`)
         .then((res) => {
+          this.$store.commit('setMSuite', res.data.mindmap)
           this.currentMindMap = res.data.mindmap
           this.password = JSON.parse(JSON.stringify(this.currentMindMap.password))
           this.isSaveMap = JSON.parse(JSON.stringify(this.currentMindMap.is_save))
@@ -456,23 +479,11 @@
         this.isMsuiteSaved = false
       },
       updateMsuite(obj) {
-        let _this = this
-        http.put(`/msuite/${this.currentMindMap.unique_key}.json`, obj)
-        .then((res) => {
-          _this.currentMindMap = res.data.mindmap
-        })
+        this.$store.dispatch('updateMSuite', obj)
       },
       putMSuite (value) {
-        let _this = this
-        http.patch(`/msuite/${ this.currentMindMap.unique_key }.json`,{ mindmap: { title: value }})
-        .then((res) => {
-          _this.currentMindMap = res.data.mindmap
-          _this.mSuiteName = res.data.mindmap.title
-          _this.defaultDeleteDays = res.data.defaultDeleteDays
-          _this.expDays = res.data.expDays
-          _this.deleteAfter = res.data.deleteAfter
-        })
-        this.$emit('sendLocals', false)
+        this.$store.dispatch('updateMSuite', { mindmap: { title: value }})
+        this.sendLocals(false)
       },
       openUserModal () {
         this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
@@ -485,14 +496,14 @@
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       },
       goHome () {
-        if(this.currentMindMap.mm_type != 'pollvote'){
+        if(this.mm_type != 'pollvote'){
           this.isSaveMSuite = false
           this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
         }
       },
       resetMindmap () {
-        this.pollEditing = false
-        this.$emit("resetMindmap")
+        this.$store.commit('setSelectedNode' , { id: ''})
+        this.$store.dispatch('resetMindmap')
       },
       exportToWord () {
         this.$emit("exportToWord")
@@ -500,7 +511,8 @@
       exportXLS (option) {
         this.$emit("exportXLS",option)
       },
-      resetZoomScale () {
+      resetZoomScale(){
+        this.$store.dispatch('setScaleFactor', 1)
         this.$emit("resetZoomScale")
       },
       zoomInScale () {
@@ -522,7 +534,7 @@
         this.$emit("cutSelectedNode")
       },
       resetMap () {
-        this.$emit("beforeReset")
+        this.$emit("before-reset")
         this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
       },
       redoMindmap() {
@@ -532,12 +544,11 @@
         this.$emit("undoMindmap")
       },
       makeEditable () {
-        if(this.currentMindMap.mm_type != 'pollvote'){
+        if(this.mm_type != 'pollvote'){
           this.editable = true
           setTimeout(() => {
             document.getElementById('mSuiteTitle').focus()
           }, 300)
-          this.$emit('updateWhiteBoard')
         }
       },
       mSuiteTitleUpdate () {
@@ -545,7 +556,7 @@
         this.mSuiteName = this.mSuiteName.trim()
         if(this.mSuiteName){
           if(this.mSuiteName != 'Title'){
-            this.$emit('sendLocals', true)
+            this.sendLocals(true)
             this.putMSuite(this.mSuiteName)
           }
         }
@@ -557,20 +568,22 @@
         };
       },
       exportImage(option) {
-        if (this.currentMindMap.mm_type === 'simple'){
+        if (this.mm_type === 'simple'){
           this.$emit('exportToImage',option)
+          this.$refs.exportBtn.blur()
+          this.$refs['exportOption'].close()
         }
-        else if (this.currentMindMap.mm_type === 'Notepad') {
-          this.$emit('exportToDocument',option)
+        else if (this.mm_type === 'Notepad') {
+          this.$emit('export-to-document',option)
         } 
         else {
           const _this = this
-          let elm = document.getElementById(this.exportId)
-          if (this.currentMindMap.mm_type === 'kanban'){
+          let elm = document.getElementById(this.$store.getters.getExportId)
+          if (this.mm_type === 'kanban'){
             let inner_list = document.getElementsByClassName('drag-inner-list')
             inner_list.forEach(i=>i.classList.add('mh-100'))
           }
-          if (this.currentMindMap.mm_type === 'spreadsheet'){
+          if (this.mm_type === 'spreadsheet'){
             elm = document.getElementsByClassName('jexcel_content')[0]
           }
           elm.style.transform = "scale(1)"
@@ -594,7 +607,7 @@
                 pdf.save(map_key + '.pdf');
               });
             }
-            _this.currentMindMap.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
+            _this.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
             _this.$refs['exportOption'].close()
           })
           .catch((err) => {

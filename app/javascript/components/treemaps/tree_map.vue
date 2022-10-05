@@ -1,23 +1,5 @@
 <template>
   <div>
-    <navigation-bar
-      ref="navigationBar"
-      @openPrivacy="openPrivacy"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :deleteAfter="deleteAfter"
-      :expDays="expDays"
-      :temporaryUser="temporaryUser"
-      :saveElement="saveElement"
-      @deleteMindmap="deleteMap"
-      @resetMindmap="resetMindmap"
-      @undoMindmap="undoObj"
-      @redoMindmap="redoObj"
-      @sendLocals="sendLocals"
-      :isEditing="isEditing"
-      :userList="userList"
-      :exportId="'treeMapGraph'">
-    </navigation-bar>
     <div class="row mt-1 main_body">
       <div class="col-12 mt-4 font-serif" id="treeMapGraph">
         <JqxTreeMap
@@ -29,15 +11,13 @@
       <div v-if="colorSelected">
         <div class="card card-position p-0 border-none mt-5">
           <color-palette
-            :treeNode="selectedNodeColor"
+            :selected-node="selectedNodeColor"
             :nodes="nodes"
-            :currentMindMap="currentMindMap"
             :customPallete="customPallete"
             :uniqueColors="uniqueColors"
             @updateColorNode="updateColorNode"
             @saveNodeColor="saveNodeColor"
             @closeModelPicker="closeModelPicker"
-            @updatedTreeChart="updateTreeMaps"
             @updateTreeChartNode="updateSelectedNode"
           ></color-palette>
         </div>
@@ -55,15 +35,9 @@
 
 <script>
   // Import the components that will be used
-  import domtoimage from "dom-to-image-more"
-  import { jsPDF } from "jspdf";
-  import html2canvas from "html2canvas"
   import http from '../../common/http'
   import JqxTreeMap from 'jqwidgets-scripts/jqwidgets-vue/vue_jqxtreemap.vue';
-  import DeleteMapModal from '../../common/modals/delete_modal'
-  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import ColorPalette from '../../common/modals/color_palette_modal'
-  import MakePrivateModal from "../../common/modals/make_private_modal"
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
 
@@ -71,16 +45,17 @@
     components: {
     // Adding imported widgets here
       JqxTreeMap,
-      MakePrivateModal,
-      DeleteMapModal,
-      DeletePasswordModal,
-      ColorPalette
+      ColorPalette,
+    },
+    props: {
+      undoMap: Function,
+      redoMap: Function
     },
     mixins: [Common, TemporaryUser],
-    props:['currentMindMap','defaultDeleteDays','deleteAfter','expDays'], //Props to be used in the widget
     data: function () {
       // Define properties which will use in the widget
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         nodeColor: { hex: '#194d33' },
         mapColors: [],
         uniqueColors: [],
@@ -148,9 +123,12 @@
     },
     mounted: async function () {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'treeMapGraph')
       this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
+      this.undoMap(this.undoObj)
+      this.redoMap(this.redoObj)
     },
     channels: {
       WebNotificationsChannel: {
@@ -168,21 +146,15 @@
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+            this.$store.commit('setMSuite', data.mindmap)
             this.currentMindMap = data.mindmap
+            this.undoNodes = []
+            this.redoNodes = []
             this.getTreeMap()
           } 
           else {
@@ -232,9 +204,9 @@
       },
       bindDragAndDrop(event){
         event.setAttribute("draggable", true)
-        event.addEventListener('dragstart', this.dragStart)
-        event.addEventListener('drop', this.dropNode)
-        event.addEventListener('dragover', this.allowdrop)
+        event.addEventListener('dragstart' , this.dragStart)
+        event.addEventListener('drop'      , this.dropNode )
+        event.addEventListener('dragover'  , this.allowdrop)
       },
       allowdrop(ev){
         ev.preventDefault()
@@ -268,17 +240,22 @@
       },
       updateTreeMaps: async function (obj) {
         let data = {}
-        if (obj){
+
+        if (obj == undefined){
+          data = {
+            canvas: this.$store.state.userEdit
+          }
+        } else {
           data = {
             name: obj.name,
             mm_type: 'tree_map',
             line_color: obj.line_color,
-            canvas: localStorage.user
+            canvas: this.$store.state.userEdit
           }
-        } else data = {
-            canvas: localStorage.user
-          }
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, data);
+        }
+
+        await this.$store.dispatch('updateMSuite', data)
+        // await http.put(`/msuite/${this.currentMindMap.unique_key}`, data);
         this.parent_node = null
         this.hiddenNode = false
         this.addChildTreeMap = false
@@ -338,21 +315,21 @@
       submitChildNode: async function (obj) {
 
         let _this = this
-
-        localStorage.mindmap_id = _this.currentMindMap.id
-        if(_this.nodes.length > 0 && localStorage.nodeNumber != 'NaN'){
-          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        // localStorage.mindmap_id = _this.currentMindMap.id
+        if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
+          this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
-          localStorage.nodeNumber = this.nodeNumber + 1
+          this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
         }
+
         this.sendLocals(false)
         let data = {
           node: {
-            title: obj.label + ' ' + localStorage.nodeNumber,
+            title: obj.label + ' ' + _this.$store.state.nodeNumber,
             line_color: obj.color,
             node_width: 50,//obj.node_width,
             parent_node: ((obj.parent_label != null) ? obj.parent_label : 0),
-            mindmap_id: this.currentMindMap.id,
+            mindmap_id: _this.currentMindMap.id,
           }
         }
         this.updateTreeMaps()
@@ -379,12 +356,11 @@
       },
       mountMap: async function() {
         this.parent_nodes.label = this.currentMindMap.name
-        this.currentMindMap.id = this.currentMindMap.id
-        this.currentMindMap.name = this.currentMindMap.name
-        this.currentMindMap.line_color = this.currentMindMap.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
-        localStorage.userEdit = this.currentMindMap.canvas
+        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+
+        this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
         this.getColorNode('.jqx-treemap-rectangle')
         this.mapColors = []
         this.uniqueColors = []
@@ -396,18 +372,19 @@
         this.buildMap()
       },
       getTreeMap: async function(){
-        this.currentMindMap.unique_key = this.$route.fullPath.replace('/','');
-        let response = await http.get(`/msuite/${this.currentMindMap.unique_key}.json`);
-        this.parent_nodes.label = response.data.mindmap.name
-        this.currentMindMap.id = response.data.mindmap.id
-        this.currentMindMap.name = response.data.mindmap.name
-        this.currentMindMap.title = response.data.mindmap.title
-        this.defaultDeleteDays = response.data.defaultDeleteDays
-        this.deleteAfter = response.data.deleteAfter
-        this.expDays = response.data.expDays
-        this.currentMindMap.line_color = response.data.mindmap.line_color
+        let res = await this.$store.dispatch('getMSuite')
+        let response = this.$store.getters.getMsuite
+        this.$store.dispatch('setMindMapId', response.id)
+        this.parent_nodes.label = response.name
+        this.currentMindMap.id = response.id
+        this.currentMindMap.name = response.name
+        this.currentMindMap.title = response.title
+        this.defaultDeleteDays = response.defaultDeleteDays
+        this.deleteAfter = response.deleteAfter
+        this.expDays = response.expDays
+        this.currentMindMap.line_color = response.line_color
         this.parent_nodes.color = this.currentMindMap.line_color
-        this.nodes = response.data.mindmap.nodes
+        this.nodes = response.nodes
         this.getColorNode('.jqx-treemap-rectangle')
         this.mapColors = []
         this.uniqueColors = []
@@ -583,16 +560,12 @@
           return this.$refs.myTreeMap.source = this.treemap_data
         }
         this.setNodeSelected(value)
-        if(this.parent_node){
-          this.$refs['navigationBar'].$refs['delete-map-modal'].$refs['deleteMapModal'].open()
-        } else {
+        if (this.parent_node) this.$emit("deleteMindMap")
+        else {
           this.child_node.mindmap_id = this.currentMindMap.id
           this.undoDone = false
           this.deleteSelectedNode(this.child_node)
         }
-      },
-      deleteMap(){
-        this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
       },
       addNodeToTreeMap(value, event){
         if(this.addChildTreeMap) return
@@ -602,18 +575,6 @@
         this.submitChildNode(this.nodeSample)
         this.addChildTreeMap = true
 
-      },
-      resetMindmap() {
-        http
-          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-          .then((res) => {
-            this.currentMindMap.nodes = []
-            this.undoNodes = []
-            this.redoNodes = []
-          })
-          .catch((err) => {
-            console.log(err)
-          })
       },
       undoObj(){
         this.undoDone = true

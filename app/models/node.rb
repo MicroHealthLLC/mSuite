@@ -32,17 +32,7 @@ class Node < ApplicationRecord
     else
       parent = Node.find_by_id(self.parent_node)&.title
     end
-    attach_files = []
-    if self.node_files.attached?
-      attach_files = self.node_files.map do |file|
-        {
-          id: file.id,
-          uri: Rails.application.routes.url_helpers.rails_blob_path(file, only_path: true)
-        }
-      end
-    end
     self.as_json.merge(
-                       attach_files: attach_files,
                        status: stage.try(:title),
                        parent: parent
                        ).as_json
