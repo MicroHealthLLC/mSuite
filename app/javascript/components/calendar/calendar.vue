@@ -158,12 +158,10 @@
             }, 500)
           }
           else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id){
+            this.$store.dispatch('updateMSuite', data.mindmap)
             this.currentMindMap = data.mindmap
             this.calendar.destroy()
             this.createCalendar()
-          }
-          else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.currentMindMap = data.mindmap
           }
           else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
               this.calendar.store.getState().calendar.events.internalMap.clear()
@@ -182,6 +180,11 @@
           }
         }
       }
+    },
+    computed: {
+      mSuite () {
+        return this.$store.getters.getMsuite
+      },
     },
     methods: {
       resetMindmap() {
@@ -323,10 +326,10 @@
       editEventModal(){
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
-      async updateCalendarUser(){
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+      updateCalendarUser(){
+        this.$store.dispatch('updateMSuite',  {
           canvas: this.$store.state.userEdit
-          });
+        })
       },
       saveEvents(eventObj){
         eventObj.start = new Date(eventObj.start)
@@ -336,7 +339,7 @@
           description: eventObj.body,
           startdate: eventObj.start,
           duedate: eventObj.end,
-          is_disabled: eventObj.isAllday,
+          hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
           mindmap_id: this.currentMindMap.id
           }
@@ -356,7 +359,7 @@
           description: eventObj.body,
           startdate: eventObj.start,
           duedate: eventObj.end,
-          is_disabled: eventObj.isAllday,
+          hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
           }
           if(this.undoNodes.length > 0) {
@@ -367,7 +370,7 @@
                 this.undoNodes[index]['receivedData'].description = data.description
                 this.undoNodes[index]['receivedData'].startdate = data.startdate
                 this.undoNodes[index]['receivedData'].duedate = data.duedate
-                this.undoNodes[index]['receivedData'].is_disabled = data.is_disabled
+                this.undoNodes[index]['receivedData'].hide_children = data.hide_children
               }
             } 
             else {
@@ -376,7 +379,7 @@
                   this.undoNodes[index]['node'].description = data.description
                   this.undoNodes[index]['node'].startdate = data.startdate
                   this.undoNodes[index]['node'].duedate = data.duedate
-                  this.undoNodes[index]['node'].is_disabled = data.isAllday
+                  this.undoNodes[index]['node'].hide_children = data.isAllday
                 }
             }
           });
@@ -409,7 +412,7 @@
               description: this.showEvent.body,
               startdate: this.showEvent.start.d.d,
               duedate: this.showEvent.end.d.d,
-              is_disabled: this.showEvent.isAllday,
+              hide_children: this.showEvent.isAllday,
               line_color: this.showEvent.backgroundColor,
               mindmap_id: this.currentMindMap.id
             }
@@ -418,7 +421,6 @@
           }).catch((err) => {
             console.error(err);
           });
-        this.sendLocals(false)
       },
       async fetchEvents(){
         let res = await this.$store.dispatch('getMSuite')
@@ -450,7 +452,7 @@
               start: currentValue.startdate,
               end: currentValue.duedate,
               body: currentValue.description,
-              isAllday: currentValue.is_disabled,
+              isAllday: currentValue.hide_children,
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
@@ -553,16 +555,18 @@
         this.selectedEvent.style.color = textColor
       },
       lightOrDark(color) {
-        color = +("0x" + color.slice(1).replace(color.length < 5 && /./g, '$&$&'));
-        let r = color >> 16;
-        let g = color >> 8 & 255;
-        let b = color & 255;
-        let hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
-        if (hsp>127.5) {
-          return 'light';
-        }
-        else {
-          return 'dark';
+        if(color){
+          color = +("0x" + color.slice(1).replace(color.length < 5 && /./g, '$&$&'));
+          let r = color >> 16;
+          let g = color >> 8 & 255;
+          let b = color & 255;
+          let hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+          if (hsp>127.5) {
+            return 'light';
+          }
+          else {
+            return 'dark';
+          }
         }
       }
     },
@@ -580,6 +584,13 @@
         })
       this.undoMap(this.undoEvent)
       this.redoMap(this.redoEvent)
+    },
+    watch: {
+      mSuite: {
+        handler(value) {
+          this.currentMindMap = value
+        },
+      },
     }
   }
 </script>

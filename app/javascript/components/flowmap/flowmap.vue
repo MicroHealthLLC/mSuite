@@ -549,6 +549,7 @@
           {
             window.open('/','_self')
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+            this.$store.dispatch('updateMSuite', data.mindmap)
             this.undoNodes = []
             this.redoNodes = []
             this.fetchTreeChart()

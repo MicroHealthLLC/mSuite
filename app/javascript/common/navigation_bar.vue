@@ -112,6 +112,20 @@
             </span>
           </a>
           <a
+            v-if="mm_type == 'todo' || mm_type =='calendar'"
+            ref="changeView"
+            role="button"
+            href="javascript:;"
+            v-b-tooltip.hover :title="mm_type == 'todo' ? 'Switch to Calendar':'Switch to Todo'"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent.stop="changeView"
+          >
+            <i
+              class="icons d-flex center_flex"
+              :class="mm_type == 'todo' ? 'fad fa-calendar-alt' : 'fas fa-tasks'">
+            </i>
+          </a>
+          <a
             ref="exportBtn"
             role="button"
             href="javascript:;"
@@ -373,6 +387,9 @@
       mSuiteTitle () {
         return this.mSuiteName
       },
+      mm_type () {
+        return this.$store.getters.getmmType
+      },
       pollExpDate () {
         let duedate = JSON.parse(this.currentMindMap.canvas).duedate
         let pollDuedate = moment(new Date(duedate)).format('DD MMM YYYY')
@@ -482,8 +499,7 @@
         this.$store.dispatch('updateMSuite', obj)
       },
       putMSuite (value) {
-        this.$store.dispatch('updateMSuite', { mindmap: { title: value }})
-        this.sendLocals(false)
+        this.updateMsuite({ mindmap: { title: value }})
       },
       openUserModal () {
         this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
@@ -555,8 +571,7 @@
         this.editable = false
         this.mSuiteName = this.mSuiteName.trim()
         if(this.mSuiteName){
-          if(this.mSuiteName != 'Title'){
-            this.sendLocals(true)
+          if(this.mSuiteName != 'Title' && this.mSuiteName != this.currentMindMap.title){
             this.putMSuite(this.mSuiteName)
           }
         }
@@ -566,6 +581,20 @@
         if (e.target) {
           e.target.blur()
         };
+      },
+      async changeView(){
+        let data = {}
+        if(this.mm_type == 'todo'){
+          data = {
+            mm_type: 'calendar'
+          }
+          this.updateMsuite(data)
+        } else if (this.mm_type == 'calendar') {
+          data = {
+            mm_type: 'todo'
+          }
+          this.updateMsuite(data)
+        }
       },
       exportImage(option) {
         if (this.mm_type === 'simple'){
@@ -620,6 +649,7 @@
       currentMindMap: {
         handler(value) {
           this.mSuiteName = value.title
+          this.mm_type  = value.mm_type
         }, deep: true
       },
     }
