@@ -102,13 +102,8 @@
       <div>Poll URL*</div>
       <div>
         <span>
-          https://msuite.app/msuite/
+          https://msuite.app/msuite/{{poll.url}}
         </span>
-          <input
-            id="input"
-            type="text"
-            disabled
-            v-model="poll.url" />
       </div>
       <button
         class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
