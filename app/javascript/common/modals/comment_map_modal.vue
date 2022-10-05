@@ -165,9 +165,9 @@
 
   export default {
     name: 'commentBoxModal',
-    props: ['MindMap'],
     data () {
       return {
+        MindMap: this.$store.getters.getMsuite,
         nodeNotes: '',
         replyNotes:'',
         comments: [],

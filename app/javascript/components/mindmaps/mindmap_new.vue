@@ -1,30 +1,5 @@
 <template>
   <div class="map-container">
-    <navigation-bar
-      ref="navigationBar"
-      @exportToImage="exportImage($event)"
-      @exportToWord="exportToWord"
-      @resetZoomScale="resetZoomScale"
-      @zoomInScale="zoomInScale"
-      @zoomOutScale="zoomOutScale"
-      @resetMindmap="resetMindmap"
-      @copySelectedNode="copySelectedNode"
-      @deleteSelectedNode="deleteSelectedNode"
-      @pasteCopiedNode="pasteCopiedNode"
-      @cutSelectedNode="cutSelectedNode"
-      @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :userList="userList"
-      :scaleFactor="scaleFactor"
-      :selected-node="selectedNode"
-      :temporaryUser="temporaryUser"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
-      :copied-node="copiedNode">
-    </navigation-bar>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit"  @touchstart.stop="slideInit" @touchmove.prevent="slideTheCanvas" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false" @touchend="isSlideDown = false">
       <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" @touchmove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
@@ -132,13 +107,21 @@
       ExportToWordModal,
     },
 
-    props: ['currentMindMap', 'deleteAfter', 'defaultDeleteDays','expDays'],
     mixins: [TemporaryUser],
+    props: {
+      zmInScale: Function,
+      zmOutScale: Function,
+      resetZmScale: Function,
+      exportImg: Function,
+      exportWord: Function,
+      delSelectedNode: Function,
+      cutSelNode: Function
+    },
 
     data() {
       return {
+        currentMindMap    : this.$store.getters.getMsuite,
         userList          : [],
-        selectedNode      : null,
         currentNodes      : [],
         nodeParent        : null,
         nodeColor         : null,
@@ -161,7 +144,6 @@
         windowHeight      : 900 * 3,
         stopWatch         : false,
         nodeUpdatedFlag   : false,
-        copiedNode        : null,
         cutFlag           : false,
         scaleFactor       : 1,
         centralIdeaWidth  : '10em',
@@ -178,7 +160,6 @@
         centralNotes      : "",
         nodeNotes         : "",
         descEditMode      : false,
-        temporaryUser: '',
         saveElement: false,
         editorOption      : {
           modules : {
@@ -212,24 +193,12 @@
               location.reload()
             }, 500)
           }
-          else if (
-            this.selectedNode !== null         &&
-            data.message === "Node is updated" &&
-            this.selectedNode.id === data.node.id
-          ) {
-            this.selectedNode = data.node
+          else if (this.$store.getters.getSelectedNode !== null && data.message === "Node is updated" && this.$store.getters.getSelectedNode.id === data.node.id) {
+            this.$store.commit('setSelectedNode' , data.node)
           }
-          else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+          else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else {
             this.getMindmap(this.currentMindMap.unique_key)
@@ -250,14 +219,14 @@
         }
       },
       C_selectedNodeId() {
-        return this.selectedNode ? this.selectedNode.id : 0
+        return this.$store.getters.getSelectedNode ? this.$store.getters.getSelectedNode.id : 0
       },
       C_editNodeId() {
         return this.editingNode ? this.editingNode.id : 0
       },
       C_scaleFactor() {
         return {
-          transform : "scale(" + this.scaleFactor + ")",
+          transform : "scale(" + this.$store.getters.getScaleFactor + ")",
           minWidth  : this.windowWidth+ "px",
           minHeight : this.windowHeight+ "px"
         }
@@ -279,30 +248,26 @@
         this.stopWatch        = true
         this.centralIdea      = this.currentMindMap.name
         this.currentNodes     = this.currentMindMap.nodes
-        localStorage.userEdit = this.currentMindMap.canvas
+        this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
         setTimeout(() => { this.drawLines() }, 1000)
         this.loading = false
       },
       // =============== GETTING MAP =====================
-      getMindmap(id) {
-        http
-          .get(`/msuite/${id}.json`)
-          .then((res) => {
-            this.stopWatch      = true
-            this.expDays = res.data.expDays
-            this.defaultDeleteDays = res.data.defaultDeleteDays
-            this.deleteAfter = res.data.deleteAfter
-            this.currentMindMap = res.data.mindmap
-            this.currentNodes   = res.data.mindmap.nodes
+      getMindmap: async function(id) {
+        await this.$store.dispatch('getMSuite')
+        let res = await this.$store.getters.getDataMsuite
 
-            setTimeout(this.drawLines, 100)
-            this.updateQuery()
-            this.loading = false
-          }).catch((error) => {
-            alert(`Mind map with id ${id} not found`)
-            console.log(error)
-            window.open('/', '_self')
-          })
+        this.stopWatch      = true
+        this.expDays = res.expDays
+        this.defaultDeleteDays = res.defaultDeleteDays
+        this.deleteAfter = res.deleteAfter
+
+        this.currentMindMap = res.mindmap
+        this.currentNodes   = res.mindmap.nodes
+
+        setTimeout(this.drawLines, 100)
+        this.updateQuery()
+        this.loading = false
       },
       getNewMindmap() {
         http
@@ -310,7 +275,7 @@
           .then((res) => {
             this.expDays = this.expDays
             this.loading        = false
-            this.currentMindMap = res.data.mindmap
+            this.$store.commit('setMSuite', res.data.mindmap)
             this.defaultDeleteDays = res.data.defaultDeleteDays
             this.deleteAfter = res.data.deleteAfter
             this.currentNodes   = res.data.mindmap.nodes
@@ -322,11 +287,11 @@
       },
       nullifySlider() {
         this.isSlideDown  = false
-        this.selectedNode = { id: ''}
+        this.$store.commit('setSelectedNode' , { id: ''})
       },
       editNode(event, node) {
         this.editingNode  = node
-        this.selectedNode = { id: ''}
+        this.$store.commit('setSelectedNode' , { id: ''})
         this.dragging     = false
         this.draggingNode = false
         this.sendLocals(true)
@@ -391,7 +356,7 @@
         this.sendLocals(true)
       },
       startDragNode(event, node) {
-        this.selectedNode = node
+        this.$store.commit('setSelectedNode' , node)
         if (!this.currentMindMap.editable) return false
         if (event.touches){
           this.nodeOffsetX  = event.touches[0].clientX - node.position_x
@@ -417,22 +382,24 @@
             this.currentPositionX = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
             this.currentPositionY = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
           }
-
           let c = document.getElementById(this.parent_x + "")
-          let ctx = c.getContext("2d");
+          let ctx = null
+          if (c) {
+            ctx = c.getContext("2d");
 
-          ctx.clearRect(0, 0, c.width, c.height)
-          ctx.beginPath()
+            ctx.clearRect(0, 0, c.width, c.height)
+            ctx.beginPath()
 
-          ctx.lineWidth = "8";
-          ctx.lineCap = "round";
-          ctx.strokeStyle = this.nodeColor;
-          ctx.moveTo(this.parent_x, this.parent_y);
-          ctx.quadraticCurveTo(this.parent_x, (this.parent_y + this.currentPositionY)/2, this.currentPositionX, this.currentPositionY);
-          ctx.stroke();
+            ctx.lineWidth = "8";
+            ctx.lineCap = "round";
+            ctx.strokeStyle = this.nodeColor;
+            ctx.moveTo(this.parent_x, this.parent_y);
+            ctx.quadraticCurveTo(this.parent_x, (this.parent_y + this.currentPositionY)/2, this.currentPositionX, this.currentPositionY);
+            ctx.stroke();
+          }
         } else if (this.draggingNode) {
           this.nodeUpdatedFlag = true
-          let node = this.currentMindMap.nodes.findIndex((nod) => nod.id == this.selectedNode.id)
+          let node = this.currentMindMap.nodes.findIndex((nod) => nod.id == this.$store.getters.getSelectedNode.id)
           if (event.touches){
             this.currentMindMap.nodes[node].position_x = event.touches[0].clientX - this.nodeOffsetX
             this.currentMindMap.nodes[node].position_y = event.touches[0].clientY - this.nodeOffsetY
@@ -474,7 +441,7 @@
             line_color : this.nodeColor,
             parent_node: this.nodeParent ? this.nodeParent.id : 0
           }
-          this.selectedNode = { id: ''}
+          this.$store.commit('setSelectedNode' , { id: ''})
           this.createNode(node)
           this.sendLocals(false)
           // this.currentMindMap.nodes.push(node);
@@ -485,7 +452,7 @@
         if (this.draggingNode) {
           this.dragging     = false
           this.draggingNode = false
-          this.saveNode(this.selectedNode)
+          this.saveNode(this.$store.getters.getSelectedNode)
           this.removeLines()
           this.drawLines()
           this.sendLocals(false)
@@ -637,43 +604,43 @@
         this.sendLocals(true)
       },
       nullifyFlags() {
-        this.selectedNode = { id: ''}
+        this.$store.commit('setSelectedNode' , { id: ''})
         this.dragging     = false
         this.draggingNode = false
-        this.copiedNode   = null
+        this.$store.commit('setCopiedNode' , null)
         this.editingNode  = null
       },
       // =============== STYLING OPERATIONS =====================
 
       // =============== Node CRUD OPERATIONS =====================
       cutSelectedNode() {
-        if (!this.selectedNode) { return; }
-        this.copiedNode             = this.selectedNode
-        this.copiedNode.is_disabled = true
+        if (!this.$store.getters.getSelectedNode) { return; }
+        this.$store.commit('setCopiedNode' , this.$store.getters.getSelectedNode)
+        this.$store.commit('setCopiedNodeDisabled' , true)
         this.cutFlag                = true
         this.saveCurrentMap()
-        http.put(`/nodes/${this.copiedNode.id}.json`, {node: this.copiedNode}).then((res) => {
-          this.selectedNode = { id: ''}
+        http.put(`/nodes/${this.$store.getters.getCopiedNode.id}.json`, {node: this.$store.getters.getCopiedNode}).then((res) => {
+          this.$store.commit('setSelectedNode' , { id: ''})
         }).catch((error) => {
           console.log(error)
         })
       },
       copySelectedNode() {
-        if (!this.selectedNode) { return; }
-        this.copiedNode   = this.selectedNode
-        this.selectedNode = { id: ''}
+        if (!this.$store.getters.getSelectedNode) { return; }
+        this.$store.commit('setCopiedNode' , this.$store.getters.getSelectedNode)
+        this.$store.commit('setSelectedNode' , { id: ''})
       },
       pasteCopiedNode() {
-        if (!this.copiedNode) { return; }
+        if (!this.$store.getters.getCopiedNode) { return; }
         let new_parent = 0
 
-        if (this.selectedNode) {
-          new_parent = this.selectedNode.id
+        if (this.$store.getters.getSelectedNode) {
+          new_parent = this.$store.getters.getSelectedNode.id
         }
 
         // clone copied node
         const dupNode = {}
-        Object.assign(dupNode, this.copiedNode)
+        Object.assign(dupNode, this.$store.getters.getCopiedNode)
 
         if (dupNode.parent_node != 0 || !this.cutFlag) {
           dupNode.line_color = this.getRandomColor()
@@ -683,10 +650,10 @@
         dupNode.parent_node = new_parent
         dupNode.position_x  = location[0]
         dupNode.position_y  = location[1]
-        if (!!new_parent) dupNode.line_color = this.selectedNode.line_color
+        if (!!new_parent) dupNode.line_color = this.$store.getters.getSelectedNode.line_color
 
         this.drawNewLine(dupNode)
-        this.copiedNode = null
+        this.$store.commit('setCopiedNode' , null)
         this.saveCurrentMap()
 
         if (this.cutFlag) {
@@ -697,7 +664,7 @@
             .then((res) => {
               this.getMindmap(this.currentMindMap.unique_key)
               this.cutFlag      = false
-              this.selectedNode = res.data.node
+              this.$store.commit('setSelectedNode' , res.data.node)
             }).catch((error) => {
               console.log(error)
             })
@@ -707,7 +674,7 @@
             .post('/nodes.json', {node: dupNode, duplicate_child_nodes: dupNode.id})
             .then((res) => {
               this.getMindmap(this.currentMindMap.unique_key)
-              this.selectedNode = { id: ''}
+              this.$store.commit('setSelectedNode' , { id: ''})
             }).catch((error) => {
               console.log(error)
             })
@@ -735,7 +702,7 @@
         this.saveCurrentMap()
         http.post('/nodes.json', {node: node}).then((res) => {
           this.getMindmap(this.currentMindMap.unique_key)
-          this.selectedNode = res.data.node
+          this.$store.commit('setSelectedNode' , res.data.node)
         }).catch((error) => {
           console.log(error)
         })
@@ -750,11 +717,12 @@
         2000
       ),
       deleteSelectedNode(is_cut=false) {
-        if (!this.selectedNode || !this.selectedNode.id) { return; }
+        if (!this.$store.getters.getSelectedNode || !this.$store.getters.getSelectedNode.id) { return; }
+        let node_id = this.$store.getters.getSelectedNode.id
         this.saveCurrentMap()
-        http.delete(`/nodes/${this.selectedNode.id}.json`).then((res) => {
+        http.delete(`/nodes/${node_id}.json`).then((res) => {
           if (res.data.success) {
-            this.selectedNode = { id: ''}
+            this.$store.commit('setSelectedNode' , { id: ''})
             this.getMindmap(this.currentMindMap.unique_key)
           } else {
             console.log("Unable to delete node")
@@ -774,41 +742,25 @@
       saveCurrentMap() {
         this.currentMindMap.name = this.centralIdea
         if (this.currentMindMap.id) {
-          this.currentMindMap.canvas = localStorage.userEdit
+          this.currentMindMap.canvas = this.$store.state.userEdit
           let formData = { mindmap: this.currentMindMap }
-          http.put(`/msuite/${this.currentMindMap.unique_key}.json`, formData).then((res) => {
-            this.stopWatch      = true
-            this.currentMindMap = res.data.mindmap
-            this.selectedNode   = null
-            this.updateQuery()
-          }).catch((error) => {
-            console.log(error)
-          })
+          this.$store.dispatch('updateMSuite', formData)
+          this.stopWatch      = true
+          this.currentMindMap = this.$store.getters.getMsuite
+          this.$store.commit('setSelectedNode' , null)
+          this.updateQuery()
         } else {
           http.post(`/msuite.json`, { mindmap: this.currentMindMap }).then((res) => {
             this.stopWatch      = true
-            this.currentMindMap = res.data.mindmap
-            this.selectedNode   = null
+            this.$store.commit('setMSuite', res.data.mindmap)
+
+            this.currentMindMap = this.$store.getters.getMsuite
+            this.$store.commit('setSelectedNode' , null)
             this.updateQuery()
           }).catch((error) => {
             console.log(error)
           })
         }
-      },
-      resetMindmap() {
-        http
-          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-          .then((res) => {
-            this.currentNodes = null
-            this.selectedNode = { id: ''}
-            this.stopWatch    = true
-            this.currentMindMap.nodes = []
-            this.removeLines()
-            this.scrollToCenter()
-          })
-          .catch((err) => {
-            consoel.log(err)
-          })
       },
       // =============== Map CRUD OPERATIONS =====================
 
@@ -890,13 +842,13 @@
       transformScale(event) {
         if (this.openVModal) { return; }
         if (event.deltaY < 0) {
-          if (this.scaleFactor < 1.50) {
-            this.scaleFactor = this.scaleFactor + 0.03
+          if (this.$store.getters.getScaleFactor < 1.50) {
+            this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor + 0.03)
           }
         }
         else if (event.deltaY > 0) {
-          if (this.scaleFactor > 0.50) {
-            this.scaleFactor = this.scaleFactor - 0.03
+          if (this.$store.getters.getScaleFactor > 0.50) {
+            this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor - 0.03)
           }
         }
 
@@ -935,36 +887,32 @@
                     });
                     _this.exportLoading = false
                   }
-                  this.$refs['navigationBar'].$refs['exportOption'].close()
                 })
               );
             }).catch((err) => {
               _this.exportLoading = false
               console.error('oops, something went wrong!', err)
-              this.$refs['navigationBar'].$refs['exportOption'].close()
             })
           })
           .catch((err) => {
             _this.exportLoading = false
             console.error('oops, something went wrong!', err)
-            this.$refs['navigationBar'].$refs['exportOption'].close()
           })
 
-        elm.style.transform = "scale(" + this.scaleFactor +")"
-        _this.$refs.navigationBar.$refs.exportBtn.blur()
+        elm.style.transform = "scale(" + this.$store.getters.getScaleFactor +")"
       },
       zoomInScale() {
-        if (this.scaleFactor < 1.50) {
-          this.scaleFactor = this.scaleFactor + 0.05
+        if (this.$store.getters.getScaleFactor < 1.50) {
+          this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor + 0.03)
         }
       },
       zoomOutScale() {
-        if (this.scaleFactor > 0.50) {
-          this.scaleFactor = this.scaleFactor - 0.05
+        if (this.$store.getters.getScaleFactor > 0.50) {
+          this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor - 0.03)
         }
       },
       resetZoomScale() {
-        this.scaleFactor = 1
+        this.$store.dispatch('setScaleFactor', 1)
         this.$forceUpdate()
       },
 
@@ -975,7 +923,7 @@
           document.getElementById("slideSection").scrollTop = cal_height
 
           let cal_width = this.windowWidth/2 - window.innerWidth/2
-          document.getElementById("slideSection").scrollLeft = cal_width + (1 - this.scaleFactor) * cal_width/2
+          document.getElementById("slideSection").scrollLeft = cal_width + (1 - this.$store.getters.getScaleFactor) * cal_width/2
         }, 200)
       },
       slideInit(e) {
@@ -1007,14 +955,14 @@
         let walkX = x - this.slideStartX
         walkX     = this.slideScrollLeft - walkX
 
-        if (walkX > (this.windowWidth * (1-this.scaleFactor)/2)) {
+        if (walkX > (this.windowWidth * (1-this.$store.getters.getScaleFactor)/2)) {
           slider.scrollLeft = walkX
         }
 
         let walkY = y - this.slideStartY
         walkY     = this.slideScrollTop - walkY
 
-        if (walkY > (this.windowHeight * (1-this.scaleFactor)/2)) {
+        if (walkY > (this.windowHeight * (1-this.$store.getters.getScaleFactor)/2)) {
           slider.scrollTop = walkY
         }
       },
@@ -1027,17 +975,17 @@
         this.descEditMode = false
       },
       openAttachments(tab="description-tab") {
-        if (!this.selectedNode) { return; }
+        if (!this.$store.getters.getSelectedNode) { return; }
         this.openVModal = true
-        this.nodeNotes = this.selectedNode.description
+        this.nodeNotes = this.$store.getters.getSelectedNode.description
         this.$refs['attachment-modal'].$refs.attachmentModal.open(tab)
       },
       updateNodeDescription(notes) {
-        if (!this.selectedNode) { return; }
+        if (!this.$store.getters.getSelectedNode) { return; }
         this.nodeUpdatedFlag = true
-        this.selectedNode.description = notes
+        this.$store.getters.getSelectedNode.description = notes
         this.$forceUpdate()
-        this.saveNode(this.selectedNode)
+        this.saveNode(this.$store.getters.getSelectedNode)
         this.descEditMode = false
 
         this.sendLocals(true)
@@ -1087,20 +1035,24 @@
 
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+
       this.sendLocals(false)
       if (this.$route.params.key) {
         this.mountMap()
-        // this.getMindmap(this.$route.params.key)
       }
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('touchend', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)
 
       this.getUserOnMount()
-      // if(localStorage.mindmap_id == this.currentMindMap.id){
-      //   this.userList = JSON.parse(localStorage.userList)
-      //   this.temporaryUser = localStorage.userEdit
-      // }
+      this.zmInScale(this.zoomInScale)
+      this.zmOutScale(this.zoomOutScale)
+      this.resetZmScale(this.resetZoomScale)
+      this.exportImg(this.exportImage)
+      this.exportWord(this.exportToWord)
+      this.delSelectedNode(this.deleteSelectedNode)
+      this.cutSelNode(this.cutSelectedNode)
     },
 
     created(){
@@ -1140,8 +1092,8 @@
       },
       "selectedNode.description": {
         handler: function() {
-          if (this.selectedNode) {
-            this.nodeNotes = this.selectedNode.description
+          if (this.$store.getters.getSelectedNode) {
+            this.nodeNotes = this.$store.getters.getSelectedNode.description
           }
         },
         deep: true

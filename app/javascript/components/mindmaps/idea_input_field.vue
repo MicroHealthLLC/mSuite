@@ -23,7 +23,6 @@
       </div>
       <div class="node_attachment text-secondary px-2 col-12 px-0">
         <span class="notes_bar" :class="{'top_bar': !isSelected}">
-          <span v-if="fileCount > 0" data-tab="files-tab" @click.stop="addAttachModal" class="clickable"><i data-tab="files-tab" class="far fa-file-alt"></i> <sup data-tab="files-tab" style="color: black;">{{fileCount}} </sup></span>
         </span>
       </div>
       <div class="col-12 px-0">
@@ -58,7 +57,6 @@
         newIdeaWidth   : '11em',
         newIdeaHeight  : '3em',
         isEditing      : false,
-        fileCount      : this.nodeAttr.attach_files.length,
         hasDescription : !!this.nodeAttr.description
       }
     },
@@ -120,7 +118,6 @@
     watch: {
       nodeAttr: {
         handler() {
-          this.fileCount      = this.nodeAttr.attach_files.length
           this.hasDescription = !!this.nodeAttr.description
         }, deep: true
       },

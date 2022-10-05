@@ -1,25 +1,5 @@
 <template>
   <div>
-    <navigation-bar
-      ref="navigationBar"
-      :current-mind-map="currentMindMap"
-      @resetZoomScale="resetZoomScale"
-      @zoomInScale="zoomInScale"
-      @resetMindmap="resetMindmap"
-      @undoMindmap="undoObj"
-      @redoMindmap="redoObj"
-      @sendLocals="sendLocals"
-      :scaleFactor="scaleFactor"
-      :exportId="'treeChartObj'"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :userList="userList"
-      :deleteAfter="deleteAfter"
-      :temporaryUser="temporaryUser"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
-      @zoomOutScale="zoomOutScale">
-    </navigation-bar>
     <!-- tree chart -->
     <section id="treeChartObj" class="main_body font-serif d-flex align-items-center">
       <vue-tree
@@ -62,15 +42,13 @@
       <div v-if="colorSelected">
         <div class="card-position p-0 border-none z-index mt-5">
           <color-palette
-            :treeNode="treeNode"
-            :nodes="this.nodes"
-            :currentMindMap="this.currentMindMap"
+            :selected-node="treeNode"
+            :nodes="nodes"
             :customPallete="customPallete"
             :uniqueColors="uniqueColors"
             @updateColorNode="updateColorNode"
             @saveNodeColor="saveNodeColor"
             @closeModelPicker="closeModelPicker"
-            @updatedTreeChart="updatedTreeChart"
             @updateTreeChartNode="updateTreeChartNode"
           ></color-palette>
         </div>
@@ -89,34 +67,48 @@
 </template>
 <script type="text/javascript">
   // Import the components that will be used
-  import Jimp from 'jimp'
-  import { jsPDF } from "jspdf";
-  import html2canvas from "html2canvas"
   import http from '../../common/http'
-  import DeletePasswordModal from '../../common/modals/delete_password_modal'
   import ColorPalette from '../../common/modals/color_palette_modal'
-  import domtoimage from "dom-to-image-more"
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
-
 
   Vue.config.warnHandler = function(msg, vm, info) {}
   export default {
     name: 'TreeChart',
+    props: {
+      undoMap: Function,
+      redoMap: Function,
+      zmInScale: Function,
+      zmOutScale: Function,
+      resetZmScale: Function
+    },
     data(){
       return{
-        dragElement: null,
-        mapColors: [],
-        uniqueColors: [],
-        colorSelected: false,
-        exportLoading: false,
-        scaleFactor: 1,
-        collapsed: false,
-        prevNode: null,
-        selectedNode: {id: null},
-        selectedNodeTitle: '',
-        nodeColor: { hex: '' },
-        userList: [],
+        currentMindMap    : this.$store.getters.getMsuite,
+        dragElement       : null,
+        mapColors         : [],
+        uniqueColors      : [],
+        colorSelected     : false,
+        exportLoading     : false,
+        scaleFactor       : this.$store.getters.getScaleFactor,
+        collapsed         : false,
+        prevNode          : null,
+        selectedNode      : {id: null},
+        selectedNodeTitle : '',
+        nodeColor         : { hex: '' },
+        treeNode          : null,
+        treeConfig        : { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
+        nodeChildTreeMaps : [],
+        nodes             : [],
+        undoNodes         : [],
+        redoNodes         : [],
+        addNodeTree       : false,
+        isSaveMSuite      : false,
+        customPallete     : [],
+        nodeNumber        : 0,
+        undoDone          : false,
+        redoDone          : false,
+        saveElement       : false,
         treeChartObj: {
           name: '',
           children: []
@@ -130,35 +122,25 @@
         nodeTemp: {
           id: 0,
           line_color: "##EBECF0",
-          mindmap_id: this.currentMindMap.id,
+          mindmap_id: this.$store.getters.getMindmapId,
           parent: null,
           parent_node: null,
           title: "Enter title here"
         },
-        treeNode: null,
-        treeConfig: { nodeWidth: 180, nodeHeight: 80, levelHeight: 200 },
-        nodeChildTreeMaps: [],
-        nodes: [],
-        undoNodes: [],
-        redoNodes: [],
-        addNodeTree: false,
-        isSaveMSuite: false,
-        customPallete: [],
-        nodeNumber: 0,
-        undoDone: false,
-        redoDone: false,
-        temporaryUser: '',
-        isEditing: false,
-        saveElement: false,
       }
     },
     mixins: [Common, TemporaryUser],
-    props:['currentMindMap','defaultDeleteDays', 'deleteAfter','expDays'],
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'treeChartObj')
       this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
+      this.undoMap(this.undoObj)
+      this.redoMap(this.redoObj)
+      this.zmInScale(this.zoomInScale)
+      this.zmOutScale(this.zoomOutScale)
+      this.resetZmScale(this.resetZoomScale)
     },
     components: {
       ColorPalette
@@ -182,19 +164,18 @@
         }
       },
       zoomInScale(){
-        if (this.scaleFactor < 1.50) {
-          this.scaleFactor = this.scaleFactor + 0.05
+        if (this.$store.getters.getScaleFactor < 1.50) {
+          this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor + 0.05)
         }
         this.$refs.refTree.zoomIn()
       },
       zoomOutScale(){
-        if (this.scaleFactor > 0.50) {
-          this.scaleFactor = this.scaleFactor - 0.05
+        if (this.$store.getters.getScaleFactor > 0.50) {
+          this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor - 0.05)
         }
         this.$refs.refTree.zoomOut()
       },
       resetZoomScale(){
-        this.scaleFactor = 1
         this.$refs.refTree.restoreScale()
       },
       showColorPicker(nodeObj){
@@ -332,13 +313,13 @@
         this.nodes.push(this.nodeTemp)
         this.addNodeTree = true
 
-        localStorage.mindmap_id = this.currentMindMap.id
-        if(this.nodes.length > 1 && localStorage.nodeNumber != 'NaN'){
-          localStorage.nodeNumber = parseInt(localStorage.nodeNumber) + 1
+        this.$store.dispatch('setMindMapId', this.currentMindMap.id)
+        if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
+          this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
-          localStorage.nodeNumber = this.nodeNumber + 1
+          this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
         }
-        this.selectedNode.name = 'Enter Node Title for node ' + localStorage.nodeNumber
+        this.selectedNode.name = 'Enter Node Title for node ' + this.$store.state.nodeNumber
         this.sendLocals(false)
         this.saveNodeTreeChart()
         this.renderTreeChart()
@@ -347,7 +328,8 @@
         this.selectedNode = {id: ''}
         this.treeChartObj.name = this.currentMindMap.name
         this.nodes = this.currentMindMap.nodes
-        localStorage.userEdit = this.currentMindMap.canvas
+        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+        this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
         this.addNodeTree = false
         this.getColorNode('.rich-media-node')
         this.mapColors = []
@@ -360,15 +342,12 @@
         this.renderTreeChart()
       },
       async fetchTreeChart(){
-        let mindmap_key = window.location.pathname.split('/')[2]
-        let response = await http.get(`/msuite/${mindmap_key}.json`)
+        let res = await this.$store.dispatch('getMSuite')
+        this.currentMindMap = this.$store.getters.getMsuite
+        this.$store.dispatch('setMindMapId', this.currentMindMap.id)
         this.selectedNode = {id: ''}
-        this.expDays = response.data.expDays
-        this.defaultDeleteDays = response.data.defaultDeleteDays
-        this.deleteAfter= response.data.deleteAfter
-        this.currentMindMap = response.data.mindmap
-        this.treeChartObj.name = response.data.mindmap.name
-        this.nodes = response.data.mindmap.nodes
+        this.treeChartObj.name = this.currentMindMap.name
+        this.nodes = this.currentMindMap.nodes
         this.addNodeTree = false
         this.getColorNode('.rich-media-node')
         this.mapColors = []
@@ -497,10 +476,10 @@
       async updatedTreeChart(obj){
         if(obj == undefined){
           obj = {
-            canvas: localStorage.userEdit
+            canvas: this.$store.state.userEdit
           }
-        } else obj.canvas = localStorage.userEdit
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, obj);
+        } else obj.canvas =  this.$store.state.userEdit
+        this.$store.dispatch('updateMSuite', obj)
         this.sendLocals(false)
       },
       deleteMap(node){
@@ -509,7 +488,7 @@
           this.renderTreeChart()
           this.addNodeTree = false
         }else{
-          if(this.currentMindMap.name == node.name) this.$refs['navigationBar'].$refs['delete-map-modal'].$refs['deleteMapModal'].open()
+          if (this.currentMindMap.name == node.name) this.$emit("deleteMindMap")
           else
           {
             node.mindmap_id = this.currentMindMap.id
@@ -519,16 +498,6 @@
         }
         this.$refs.refTree.collapseEnabled = false
         this.getColorNode('.rich-media-node')
-      },
-      deleteTreeChart(){
-        http
-        .delete(`/msuite/${this.currentMindMap.unique_key}`)
-        .then(res => {
-          window.open("/", "_self")
-        })
-        .catch(error => {
-          console.log(error)
-        })
       },
       resetMindmap() {
         http
@@ -580,24 +549,15 @@
           {
             window.open('/','_self')
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
-            this.currentMindMap = data.mindmap
-            this.currentMindMap.nodes = []
+            this.undoNodes = []
+            this.redoNodes = []
             this.fetchTreeChart()
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else if(data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id)
           {

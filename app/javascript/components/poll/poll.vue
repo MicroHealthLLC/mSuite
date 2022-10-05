@@ -1,22 +1,5 @@
 <template>
   <div class="poll-app">
-    <navigation-bar
-      ref="navigationBar"
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
-      @resetMindmap="resetMindmap"
-      @exportToDocument="exportToDocument"
-      @pollEditData="pollEditData"
-      @exportXLS="exportXLS"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :pollPin="pollData"
-      :pollEdit="pollEdit"
-      :exportId="'poll'">
-    </navigation-bar>
-
     <div id="poll">
       <poll-view
         class="mt-5"
@@ -51,9 +34,12 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
   import xlsExport from 'xlsexport'
   export default {
-    props: ['currentMindMap'],
+    props: {
+      exportDef : Function
+    },
     data() {
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         isReset: false,
         pollData: null,
@@ -62,9 +48,6 @@
       }
     },
     components: {
-      DeleteMapModal,
-      MakePrivateModal,
-      DeletePasswordModal,
       createPoll,
       pollView
     },
@@ -80,10 +63,26 @@
               location.reload()
             }, 500)
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
-            this.currentMindMap = data.mindmap
+            this.$store.commit('setMSuite', data.mindmap)
+            this.pollEdit = true
+            this.pollData = {
+              title: '',
+              description: '',
+              Questions: [{
+                question: '',
+                answerField: [
+                  { value: 1, text: '', votes: [] },
+                  { value: 2, text: '', votes: [] }
+                ],
+                allowedAnswers: 0,
+                voters: [],
+              }],
+              showResult: false,
+              url: ''
+            }
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.currentMindMap = data.mindmap
+            this.$store.commit('setMSuite', data.mindmap)
             this.pollData = JSON.parse(data.mindmap.canvas)
           }
         }
@@ -92,6 +91,7 @@
     mounted(){
       if(this.currentMindMap){
         this.subscribeCable(this.currentMindMap.id)
+        this.$store.dispatch('setExportId', 'poll')
         this.pollData = JSON.parse(this.currentMindMap.canvas)
         if (this.pollData){
           if (this.pollData.Questions[0].question != '') this.dataLoaded = true
@@ -100,6 +100,7 @@
         }
         this.exportXLS(0)
       }
+      this.exportDef(this.exportXLS)
     },
     methods: {
       updateVote(data){
@@ -183,8 +184,7 @@
           canvas: JSON.stringify(canvasData),
           title: 'Title' }
         }
-        let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,mindmap)
+        this.$store.dispatch('updateMSuite', mindmap)
         this.pollEdit = false
         this.dataLoaded = false
       },

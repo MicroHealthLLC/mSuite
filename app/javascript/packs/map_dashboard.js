@@ -8,7 +8,7 @@ import { SweetModal, SweetModalTab } from "sweet-modal-vue"
 import { Chrome, Sketch } from 'vue-color'
 import Vuex from 'vuex'
 import VueTree from '@ssthouse/vue-tree-chart'
-import store from '../store/TreeMap'
+import store from '../store/index.js'
 import vueDebounce from 'vue-debounce'
 import VueTextareaAutosize from 'vue-textarea-autosize'
 import VueCookies from 'vue-cookies';
@@ -23,6 +23,7 @@ Vue.use(ActionCableVue, {
 Vue.use(Vuex);
 Vue.use(VueTextareaAutosize)
 Vue.use(VueCookies);
+Vue.use(router)
 Vue.component('vue-tree', VueTree)
 Vue.component('navigation-bar', NavigationBar)
 Vue.component('sync-loader', SyncLoader)

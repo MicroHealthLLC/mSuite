@@ -1,22 +1,5 @@
 <template>
   <div class="todo-app">
-    <navigation-bar
-      ref="navigationBar"
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
-      @resetMindmap="resetMindmap"
-      @exportToDocument="exportToDocument"
-      @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :temporaryUser="temporaryUser"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
-      :userList="userList"
-      :exportId="'notepad'">
-    </navigation-bar>
     <div id="notepad"></div>
   </div>
 </template>
@@ -29,18 +12,18 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
 
   export default {
-    props: ['currentMindMap'],
     data() {
       return {
-        content: '',
-        isReset: false,
-        savingStatus: null,
-        toolbar: null,
-        qeditor: null,
-        temporaryUser: '',
-        userList:[],
+        currentMindMap : this.$store.getters.getMsuite,
+        content        : '',
+        isReset        : false,
+        savingStatus   : null,
+        toolbar        : null,
+        qeditor        : null,
+        temporaryUser  : '',
       }
     },
+    props:['exportDoc'],
     mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
@@ -59,11 +42,9 @@
             ])
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id){
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
             this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.currentMindMap = data.mindmap
@@ -76,7 +57,7 @@
             else {
               let element = $('.ql-editor')[0]
               let notepadHeight = element.scrollTop
-              if(this.temporaryUser !=localStorage.user){
+              if(this.temporaryUser !=this.$store.getters.getUser){
                   this.qeditor.blur()
                   this.qeditor.setContents(new Delta(this.content))
                   element.scrollTop = notepadHeight
@@ -88,9 +69,10 @@
     },
     methods: {
       updateDocument() {
+        let _this = this
         let mycanvas = {
           notepad : JSON.stringify(this.qeditor.getContents()),
-          user    : localStorage.user
+          user    : _this.$store.getters.getUser
         }
         let mindmap = { mindmap: { canvas: JSON.stringify(mycanvas)}}
         let id = this.currentMindMap.unique_key
@@ -215,7 +197,6 @@
           downloadLink.click()
         }
         document.body.removeChild(downloadLink);
-        this.$refs['navigationBar'].$refs['exportOption'].close()
       },
       strongTagStyleBold(){
         var strong_list = document.querySelectorAll('strong');
@@ -225,17 +206,19 @@
         });
       },
     },
-    mounted() {
+    mounted: async function()  {
       this.subscribeCable(this.currentMindMap.id)
       this.sendLocals(false)
       window.katex = katex
       if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).notepad) this.content = JSON.parse(JSON.parse(this.currentMindMap.canvas).notepad)
-      if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
-      else localStorage.userEdit = 'null'
+      if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.currentMindMap.canvas).user)
+      else this.$store.dispatch('setUserEdit', null)
+      this.$store.dispatch('setMindMapId', this.currentMindMap.id)
       this.createEditor()
       this.editorEvents()
       this.qeditor.setContents(this.content)
-      this.getUserOnMount()
+      this.getUserOnMount(),
+      this.exportDoc(this.exportToDocument)
     },
     updated() {
       this.strongTagStyleBold()

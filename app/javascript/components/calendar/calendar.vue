@@ -1,21 +1,5 @@
 <template>
   <div>
-    <navigation-bar
-      ref="navigationBar"
-      @resetMindmap="resetMindmap"
-      @sendLocals="sendLocals"
-      @undoMindmap="undoEvent"
-      @redoMindmap="redoEvent"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :exportId="'cal'"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
-      :temporaryUser="temporaryUser"
-      :userList="userList">
-    </navigation-bar>
     <div id="cal" class="row">
       <div class="col-9 d-flex px-5" @click="showEditEvent = false">
         <span class="py-2 pl-2">
@@ -70,9 +54,9 @@
             class="material-icons col-2 pl-2"
             >
             delete</span>
-          <span  
-            class="fas fa-eye-dropper m-1 font-18"
-            @click="colorSelected = true" 
+          <span
+            class="fas fa-eye-dropper color-picker mt-1 icon-opacity"
+            @click="colorSelected = true"
             >
           </span>
         </div>
@@ -98,9 +82,8 @@
     <div v-if="colorSelected">
       <div class="card card-position p-0 border-none mt-5">
         <color-palette
-          :treeNode="eventNode"
+          :selected-node="eventNode"
           :uniqueColors="uniqueColors"
-          :currentMindMap="currentMindMap"
           @updateColorNode="updateColorNode"
           @saveNodeColor="saveNodeColor"
           @closeModelPicker="closeModelPicker"
@@ -126,32 +109,37 @@
   import moment from 'moment';
 
   export default {
-    props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
     mixins: [Common, TemporaryUser],
     data() {
       return {
-        isReset:             false,
-        isEditing:           false,
-        saveElement:         true,
-        calendar:            null,
-        calendarTitle:       null,
-        recurringEvents:     null,
-        recurringEventsDate: null,
-        fetchedEvents:       [],
-        eventDates:          null,
-        showEvent:           null,
-        showEditEvent:       false,
-        createEventDate:     null,
-        userList:            [],
-        temporaryUser:       '',
-        currentView:         'month',
-        undoNodes:           [],
-        redoNodes:           [],
-        undoDone:            false,
-        colorSelected:       false,
-        uniqueColors:        [],
-        selectedEvent:       null
+        currentMindMap      : this.$store.getters.getMsuite,
+        isReset             : false,
+        isEditing           : false,
+        saveElement         : true,
+        calendar            : null,
+        calendarTitle       : null,
+        recurringEvents     : null,
+        recurringEventsDate : null,
+        fetchedEvents       : [],
+        eventDates          : null,
+        showEvent           : null,
+        showEditEvent       : false,
+        createEventDate     : null,
+        userList            : [],
+        temporaryUser       : '',
+        currentView         : 'month',
+        undoNodes           : [],
+        redoNodes           : [],
+        undoDone            : false,
+        colorSelected       : false,
+        uniqueColors        : [],
+        selectedEvent       : null
+
       }
+    },
+    props: {
+      undoMap: Function,
+      redoMap: Function,
     },
     components: {
       RecurringCalendarEventModal,
@@ -185,16 +173,8 @@
             this.eventNotifications(data.node.title)
           }
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else {
             this.calendar.store.getState().calendar.events.internalMap.clear()
@@ -345,7 +325,7 @@
       },
       async updateCalendarUser(){
         await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-          canvas: localStorage.userEdit
+          canvas: this.$store.state.userEdit
           });
       },
       saveEvents(eventObj){
@@ -441,14 +421,11 @@
         this.sendLocals(false)
       },
       async fetchEvents(){
-        let mindmap_key = window.location.pathname.split('/')[2]
-        let response = await http.get(`/msuite/${mindmap_key}.json`)
-        this.defaultDeleteDays = response.data.defaultDeleteDays
-        this.deleteAfter = response.data.deleteAfter
-        this.expDays = response.data.expDays
-        this.currentMindMap = response.data.mindmap
-        this.fetchedEvents = response.data.mindmap.nodes
-        localStorage.userEdit = this.currentMindMap.canvas
+        let res = await this.$store.dispatch('getMSuite')
+        this.currentMindMap = this.$store.getters.getMsuite
+        this.$store.dispatch('setMindMapId', this.currentMindMap.id)
+        this.fetchedEvents = this.currentMindMap.nodes
+        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
         this.renderEvents()
       },
       renderEvents(){
@@ -482,7 +459,6 @@
         })
         this.uniqueColors = this.getUniqueColors(this.mapColors);
         let _this = this
-        
         setTimeout(()=>{
           $(".toastui-calendar-weekday-event-title").click(function () {
             _this.selectedEvent = this.parentElement
@@ -584,7 +560,7 @@
         let hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
         if (hsp>127.5) {
           return 'light';
-        } 
+        }
         else {
           return 'dark';
         }
@@ -592,15 +568,18 @@
     },
     mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'cal')
       this.sendLocals(false)
       this.createCalendar()
       this.getCalendarTitle()
       await this.fetchEvents()
       this.getUserOnMount()
       var el = document.querySelector('#calendar');
-        el.addEventListener("mouseleave", function( event ) {
+        el.addEventListener("mouseleave", function( event ){
           this.showEditEvent = false
         })
+      this.undoMap(this.undoEvent)
+      this.redoMap(this.redoEvent)
     }
   }
 </script>

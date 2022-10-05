@@ -1,7 +1,9 @@
 export default {
+
   data(){
     return{
       mindmap_id: 0,
+      storage: this.$store.state
     }
   },
   methods: {
@@ -20,13 +22,13 @@ export default {
         data: {
           message: 'storage updated',
           isEditing: editing,
-          content: localStorage
+          content: this.storage
         }
       });
     },
     sendLocals(isEditing){
-      localStorage.userEdit = localStorage.user
-      localStorage.mindmap_id = this.mindmap_id
+      this.$store.dispatch('setUserEdit', this.storage.user)
+      this.$store.dispatch('mindmapId', this.mindmap_id)
       this.cableSend(isEditing)
 
       setTimeout(()=>{
@@ -34,11 +36,18 @@ export default {
       },1200)
     },
     getUserOnMount(){
-      if(localStorage.mindmap_id == this.mindmap_id){
-        if(localStorage.userEdit != 'null'){
-          if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
-          else this.userList.push(localStorage.userEdit)
-          this.temporaryUser = localStorage.userEdit
+      if(this.storage.mindmap_id == this.mindmap_id){
+        if(this.storage.userEdit != null){
+          if(this.storage.userList) this.userList = this.storage.userList
+          else this.$store.dispatch('setUserList', this.storage.userEdit)
+          this.$store.dispatch('setTemporaryUser', this.storage.userEdit)
+          if (this.$store.getters.getmmType == 'spreadsheet' && this.storage.userList.length < 0){
+            this.$store.dispatch('setUserList', null)
+            this.$store.dispatch('setTemporaryUser', null)
+          }
+        } else {
+          this.$store.dispatch('setUserList', null)
+          this.$store.dispatch('setTemporaryUser', null)
         }
       }
     }

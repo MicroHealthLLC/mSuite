@@ -15,41 +15,29 @@
          </div>
           </div>
           <!-- Row for wrapper containing grid-layout mindmap items -->
-        <div class="row mm-icon-row pl-5">
-          <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
-            <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
-              <i class="mx-auto fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
-              <i class="mx-auto far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
-              <i class="mx-auto far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
-              <i class="mx-auto fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
-              <i class="mx-auto fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
-              <i class="mx-auto fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
-              <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
-              <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
-              <i class="far fa-poll-h mm-icon mt-3" v-if="type.key == 'poll'"></i>
-              <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
-              <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
-              <span class="text-center icon-text">{{type.value}}</span>
+          <div class="row mm-icon-row pl-5">
+            <div v-for="type, i in mindmapTypes" :key="i" class="card-width my-2 mb-5">
+              <div class="item icon-item mx-2 my-2 py-3 icon-col" @click.prevent="mindMapCreate(type.key)">
+                <i class="mx-auto fal fa-mind-share mm-icon mt-3" v-if="type.key == 'simple'"></i>
+                <i class="mx-auto far fa-columns mm-icon mt-3" v-if="type.key == 'kanban'"></i>
+                <i class="mx-auto far fa-chalkboard mm-icon mt-3" v-if="type.key == 'whiteboard'"></i>
+                <i class="mx-auto fad fa-th-large mm-icon mt-3" v-if="type.key == 'tree_map'"></i>
+                <i class="mx-auto fal fa-sitemap mm-icon mt-3" v-if="type.key == 'tree_chart'"></i>
+                <i class="mx-auto fas fa-project-diagram mm-icon mt-3" v-if="type.key == 'flowmap'"></i>
+                <i class="mx-auto fas fa-tasks mm-icon mt-3" v-if="type.key == 'todo'"></i>
+                <i class="fas fa-file-alt mm-icon mt-3" v-if="type.key == 'Notepad'"></i>
+                <i class="far fa-poll-h mm-icon mt-3" v-if="type.key == 'poll'"></i>
+                <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
+                <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
+                <span class="text-center icon-text">{{type.value}}</span>
+              </div>
             </div>
           </div>
         </div>
+        <footer>
+          <cookie-law theme="dark-lime"></cookie-law>
+        </footer>
       </div>
-      <sweet-modal ref="errorModal" class="of_v" icon="error">
-        {{ errorMsg }}
-        <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Open</button>
-        <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
-        <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
-      </sweet-modal>
-      <footer>
-        <cookie-law theme="dark-lime"></cookie-law>
-      </footer>
-      </div>
-      <sweet-modal ref="errorModal" class="of_v" icon="error">
-        {{ errorMsg }}
-        <button v-if="oldMSuiteName.length > 9 && oldMSuiteName.length < 21" slot="button" class="btn btn-secondary mr-2" @click="continueMSuite()">Open</button>
-        <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
-        <button slot="button" class="btn btn-info" @click="mindMapCreate(selectedType)">Create Random URL</button>
-      </sweet-modal>
     </div>
     <Beta v-if="beta_status" />
   </div>
@@ -62,14 +50,6 @@
   export default {
     data() {
       return {
-        mapName: "",
-        oldMSuiteName: '',
-        mapsArr: [],
-        errorMsg: '',
-        mindmapName: "",
-        uniqueKey: '',
-        hovered: false,
-        selectedType: 'simple',
         fromCaptcha: true,
         is_config: true,
         beta_status: Vue.prototype.$beta_status,
@@ -90,37 +70,12 @@
     },
     components: { CookieLaw, Recaptcha, Beta },
     methods: {
-      createNewMap() {
-        let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.mindmapName || "Central Idea", mm_type: this.selectedType } }).then((res) => {
-          if(res.data.mindmap.id !== null)
-          {
-            window.open(`/msuite/${res.data.mindmap.unique_key}`, "_self")
-          }
-        }).catch((error) => {
-          _this.errorMsg = 'This Map Url ' + error.response.data.messages[0]
-          _this.selectedType = error.response.data.mindmap.mm_type
-          _this.uniqueKey = error.response.data.mindmap.unique_key
-          _this.oldMSuiteName = error.response.data.mindmap.name
-          _this.mindmapName = ''
-          _this.$refs['errorModal'].open()
-        })
-      },
-      openMindMap(key) {
-        window.open(`/msuite/${key}`, "_self")
-      },
-      continueMSuite(){
-        if(this.uniqueKey) window.open(`/msuite/${this.uniqueKey}`, "_self")
-      },
-      tryAgain(){
-        this.selectedType = 'simple'
-        this.uniqueKey = ''
-        this.$refs['errorModal'].close()
+      createNewMap(key) {
+        this.$store.dispatch('createMsuite', key)
       },
       mindMapCreate(key) {
-        this.selectedType = key
-        this.createNewMap()
-      },
+        this.createNewMap(key)
+      }
     },
     mounted(){
       if(this.$cookies.get('verifiedCaptcha') == null) this.fromCaptcha = false

@@ -1,36 +1,17 @@
 <template>
   <div class="overflow-auto maxHeight">
-    <navigation-bar
-      @mSuiteTitleUpdate="mSuiteTitleUpdate"
-      @deleteMindmap="deleteMap"
-      @resetMindmap="resetMindmap"
-      @exportXLS="exportXLS($event)"
-      @sendLocals="sendLocals"
-      :current-mind-map="currentMindMap"
-      :defaultDeleteDays="defaultDeleteDays"
-      :expDays="expDays"
-      :deleteAfter="deleteAfter"
-      :exportId="'spreadSheet'"
-      :isEditing="isEditing"
-      :saveElement="saveElement"
-      :userList="userList"
-      :temporaryUser="temporaryUser"
-      ref="spreadSheetNavigation">
-    </navigation-bar>
     <span v-if="showPiviotTable" class="px-2" @click="showTable">
       <i class="table_icon fas fa-table fa-2x"></i>
     </span>
     <div id="graphs" class="w-100"></div>
-    <div id="spreadSheet" class="">
+    <div id="spreadSheet">
       <div id="mytable" class="w-100"></div>
     </div>
   </div>
 </template>
 <script>
   import http from "../../common/http"
-  import domtoimage from "dom-to-image-more"
   import jexcel from 'jspreadsheet-ce'
-  import { jsontoexcel } from "vue-table-to-excel";
   import "./styles/bossanova.css";
   import "./styles/jsuites.css";
   import TemporaryUser from "../../mixins/temporary_user.js"
@@ -43,9 +24,12 @@
   import '../../common/plotly.js'
   import '../../common/plotly_renderers.min.js' 
   export default {
-    props: ['currentMindMap','defaultDeleteDays','deleteAfter','expDays'],
+    props: {
+      exportDef : Function
+    },
     data() {
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         formula: '',
         sheetData: {
           data: [[]],
@@ -85,6 +69,7 @@
             data.message === "Reset mindmap"        &&
             this.currentMindMap.id === data.mindmap.id
           ) {
+            this.$store.commit('setMSuite', data.mindmap)
             this.sheetData = JSON.parse(data.mindmap.canvas)
             this.table.setData(this.sheetData.data)
             if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
@@ -104,23 +89,15 @@
             data.message === "storage updated"             &&
             this.currentMindMap.id == data.content.mindmap_id
           ) {
-            localStorage.nodeNumber = data.content.nodeNumber
-            localStorage.userNumber = data.content.userNumber
-            this.temporaryUser = data.content.userEdit
-            this.userList.push(data.content.userEdit)
-            localStorage.userList = JSON.stringify(this.userList);
-            this.isEditing = data.isEditing
-            if (!this.isEditing) {
-              this.saveElement = true
-              setTimeout(()=>{
-                this.saveElement = false
-              },1200)
-            }
+            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
           } else if (
             data.message === "Mindmap Updated"      &&
             this.currentMindMap.id === data.mindmap.id
           ) {
             let _this = this
+            _this.$store.commit('setMSuite', data.mindmap)
             _this.currentMindMap = data.mindmap
             if(_this.currentMindMap.canvas)
             {
@@ -156,10 +133,6 @@
       }
     },
     methods: {
-      resetMindmap() {
-        this.isReset = true
-        http.get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-      },
       createSheet(sheetData){
         let _this = this
         if(_this.currentMindMap.canvas != null) _this.sheetData = JSON.parse(sheetData)
@@ -260,7 +233,7 @@
         _this.sheetData.data    = _this.table.getData()
         _this.sheetData.columns = _this.table.options.columns
         if(_this.table.getStyle()) _this.sheetData.style = _this.table.getStyle()
-        _this.sheetData.user = localStorage.user
+        _this.sheetData.user = this.$store.getters.getUser
         let mindmap = { mindmap: { canvas: JSON.stringify(_this.sheetData) } }
         let id = _this.currentMindMap.unique_key
         if(!_this.isReset){
@@ -288,7 +261,7 @@
         if(this.changeRequest < 1){
           setTimeout(()=>{
             if(this.table.getStyle()) this.sheetData.style = this.table.getStyle()
-            this.sheetData.user = localStorage.user
+            this.sheetData.user = this.$store.getters.getUser
             let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
             let id = this.currentMindMap.unique_key
             if(!this.isReset){
@@ -332,7 +305,6 @@
             txtArea1.focus();
             sa=txtArea1.document.execCommand("SaveAs",true,"Say Thanks to Sumit.xls");
           } else {
-            this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
             let myDocument = 'data:application/vnd.ms-excel,' + encodeURIComponent(tab_text);
             let link = document.createElement("a");
             document.body.appendChild(link);
@@ -346,7 +318,6 @@
         if(option === 2){
           this.table.download();
         }
-        this.$refs['spreadSheetNavigation'].$refs['exportOptionCsv'].close()
       },
       createPivotTable(){
         this.showPiviotTable = true
@@ -378,6 +349,12 @@
     },
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
+      this.$store.dispatch('setExportId', 'spreadSheet')
+      this.sendLocals(false)
+      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas && JSON.parse(this.$store.getters.getMsuite.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
+      else this.$store.dispatch('setUserEdit', null)
+
+      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.createSheet(this.currentMindMap.canvas)
       $(".jexcel_content").addClass('h-100 w-100')
       $(".jexcel").addClass('w-100 h-100')
@@ -389,14 +366,9 @@
         let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
         $('#mytable')[0].style.height = heightVal
       },200)
-      this.sendLocals(false)
-      if (JSON.parse(this.currentMindMap.canvas).user) localStorage.userEdit = JSON.parse(this.currentMindMap.canvas).user
-      else localStorage.userEdit = ''
-      if(localStorage.mindmap_id == this.currentMindMap.id){
-        if(localStorage.userList) this.userList = JSON.parse(localStorage.userList)
-        else this.userList.push(localStorage.userEdit)
-        this.temporaryUser = localStorage.userEdit
-      }
+
+      this.getUserOnMount()
+      this.exportDef(this.exportXLS)
     },
   }
 </script>

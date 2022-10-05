@@ -35,18 +35,8 @@ class Mindmap < ApplicationRecord
   after_create  :pre_made_stages, if: :check_kanban
   
   def to_json
-    attach_files = []
-    if self.node_files.attached?
-      attach_files = self.node_files.map do |file|
-        {
-          id: file.id,
-          uri: Rails.application.routes.url_helpers.rails_blob_path(file, only_path: true)
-        }
-      end
-    end
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
-      attach_files: attach_files,
       editable: true
     ).as_json
   end
@@ -103,13 +93,7 @@ class Mindmap < ApplicationRecord
   end
 
   def generate_random_key
-    if self.name == "Central Idea"
-      o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
-      self.unique_key = (0...15).map { o[rand(o.length)] }.join
-    else
-      self.name = self.name.rstrip
-      self.name = self.name.strip
-      self.unique_key = self.name.squeeze(" ").gsub(/[[:space:]]/, '-')
-    end
+    o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
+    self.unique_key = (0...15).map { o[rand(o.length)] }.join
   end
 end

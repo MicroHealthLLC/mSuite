@@ -1,7 +1,7 @@
 <template>
   <div class="card-body p-0 border rounded">
-    <sketch-picker v-if="currentMindMap.mm_type == 'kanban'" class="rounded-0 size-color-picker" v-model="treeNode.stage_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
-    <sketch-picker v-else v-model="treeNode.line_color" :preset-colors="uniqueColors" @input="updateColorNode()" class=" h-25 overflow-auto size-color-picker rounded-0"/>
+    <sketch-picker v-if="mm_type == 'kanban'" class="rounded-0 size-color-picker" v-model="selectedNode.stage_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
+    <sketch-picker v-else v-model="selectedNode.line_color" :preset-colors="uniqueColors" @input="updateColorNode()" class=" h-25 overflow-auto size-color-picker rounded-0"/>
     <div class="pallete d-flex flex-row w-50">
       <div class="row w-100 bg-white">
         <div v-for="colorPalette in customPallete" class="col-2">
@@ -34,13 +34,13 @@
         randomColor: Palette.random(5),
         customPallete: [],
         node_color: '',
+        currentMindMap: this.$store.getters.getMsuite,
+        mm_type: this.$store.getters.getmmType
       }
     },
-    props:['treeNode', 'currentMindMap', 'nodes', 'uniqueColors'],
-    created() {
-    },
+    props:['selectedNode', 'nodes', 'uniqueColors'],
     mounted() {
-      if(this.currentMindMap.mm_type != 'calendar') this.createPalette()
+      if(this.mm_type != 'calendar') this.createPalette()
     },
     methods: {
       saveNodeColor(){
@@ -48,7 +48,7 @@
         else this.$emit("saveNodeColor")
       },
       closeModelPicker(){
-        if (this.currentMindMap.mm_type == 'tree_map'){
+        if (this.mm_type == 'tree_map'){
           let myClass = 'jqx-treemap-rectangle'
           let element = document.getElementsByClassName(myClass)[0]
           element.style.backgroundColor = this.currentMindMap.line_color
@@ -57,12 +57,12 @@
             element.style.backgroundColor = node.line_color
           });
         }
-        else if (this.currentMindMap.mm_type == 'kanban') {
+        else if (this.mm_type == 'kanban') {
           Object.values(this.nodes).forEach((stage, index) => {
             let element = document.getElementsByClassName('drag-column')[index]
             element.style.backgroundColor = stage.stage_color
           });
-        } else if (this.currentMindMap.mm_type == 'calendar'){
+        } else if (this.mm_type == 'calendar'){
           this.$emit("closeModelPicker")
           return
         }
@@ -85,9 +85,9 @@
         this.$emit("updateColorNode")
       },
       paletteUpdateColor(){
-        if (this.currentMindMap.mm_type == 'tree_map' || this.currentMindMap.mm_type == 'kanban'){
+        if (this.mm_type == 'tree_map' || this.mm_type == 'kanban'){
           let myClass = ''
-          if (this.currentMindMap.mm_type == 'tree_map') myClass = 'jqx-treemap-rectangle'
+          if (this.mm_type == 'tree_map') myClass = 'jqx-treemap-rectangle'
           else myClass = 'drag-column'
           Object.values(this.nodes).forEach((node, index) => {
             var objNode = {id: '', line_color: ''}
@@ -96,7 +96,7 @@
             element.style.backgroundColor = this.customPallete[index]
             objNode.line_color = this.customPallete[index]
           });
-          if(this.currentMindMap.mm_type == 'tree_map'){
+          if(this.mm_type == 'tree_map'){
             let element = document.getElementsByClassName('jqx-treemap-rectangle')[this.nodes.length]
             element.style.backgroundColor = this.customPallete[this.nodes.length]
           }
@@ -116,8 +116,8 @@
       },
       paletteSaveColor(){
         this.currentMindMap.line_color = this.customPallete[0]
-        this.$emit("updatedTreeChart" , this.currentMindMap)
-
+        this.$store.dispatch('updateMSuite', this.currentMindMap)
+        // this.$emit("updatedTreeChart" , this.currentMindMap)
         Object.values(this.nodes).forEach((node, index) => {
           var objNode = {id: '', line_color: '', stage_color: ''}
           objNode.id = node.id
@@ -128,7 +128,7 @@
       },
       createPalette(){
         this.customPallete = []
-        if (this.currentMindMap.mm_type == "kanban") this.randomColor = Palette.random(this.nodes.length)
+        if (this.mm_type == "kanban") this.randomColor = Palette.random(this.nodes.length)
         else this.randomColor = Palette.random(this.nodes.length + 1)
         this.randomColor.forEach((x, i) => {
           let h = parseInt(x.substring(4,7))
