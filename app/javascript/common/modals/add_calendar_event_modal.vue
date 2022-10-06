@@ -161,7 +161,10 @@
             backgroundColor:'#18A2B8',
             id: null
           }
-        if(this.actionType == 'update') data.id = this.showEvent.id
+        if(this.actionType == 'update'){
+          data.id = this.showEvent.id
+          data.backgroundColor = this.showEvent.backgroundColor
+        } 
         return data
       },
       createEvent(){

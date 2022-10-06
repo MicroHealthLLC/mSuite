@@ -133,8 +133,7 @@
         undoDone            : false,
         colorSelected       : false,
         uniqueColors        : [],
-        selectedEvent       : null
-
+        selectedEvent       : null,
       }
     },
     props: {
@@ -162,9 +161,6 @@
             this.calendar.destroy()
             this.createCalendar()
           }
-          else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.currentMindMap = data.mindmap
-          }
           else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
               this.calendar.store.getState().calendar.events.internalMap.clear()
               this.fetchEvents()
@@ -175,10 +171,10 @@
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
-          }
-          else {
-            this.calendar.store.getState().calendar.events.internalMap.clear()
-            this.fetchEvents()
+            if(data.isEditing == false){
+              this.calendar.store.getState().calendar.events.internalMap.clear()
+              this.fetchEvents()
+            }
           }
         }
       }
@@ -276,7 +272,7 @@
         this.showEditEvent = false
         this.calendar.move(value)
         this.getCalendarTitle()
-        this.fetchEvents()
+        this.bindEventToClick()
       },
       getCalendarTitle(){
         var calendarDate = new Date(this.calendar.getDate())
@@ -310,11 +306,14 @@
           eventObj.end = new Date(currentValue)
           this.saveEvents(eventObj)
         })
-        this.recurringEvents = null
+          this.recurringEvents = null
       },
-      beforeEventCreate(data){
-        this.saveEvents(data)
-        if(this.recurringEvents) this.generateRecurringEvents(data)
+      async beforeEventCreate(data){
+        this.sendLocals(true)
+        await this.saveEvents(data)
+        if(this.recurringEvents) await this.generateRecurringEvents(data)
+        this.sendLocals(false)
+        this.updateCalendarUser()
       },
       beforeEventUpdate(data){
         this.updateEvent(data)
@@ -328,7 +327,7 @@
           canvas: this.$store.state.userEdit
           });
       },
-      saveEvents(eventObj){
+      async saveEvents(eventObj){
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         let data = {
@@ -340,10 +339,10 @@
           line_color: eventObj.backgroundColor,
           mindmap_id: this.currentMindMap.id
           }
-        this.sendLocals(true)
-        this.updateCalendarUser()
-        http.post('/nodes.json', data).then((result) => {
-          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+        let _this = this
+        await http.post('/nodes.json', data).then((result) => {
+          _this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          _this.currentNodeId = result.data.node.id
         })
       },
       updateEvent(eventObj){
@@ -458,18 +457,7 @@
           ])
         })
         this.uniqueColors = this.getUniqueColors(this.mapColors);
-        let _this = this
-        setTimeout(()=>{
-          $(".toastui-calendar-weekday-event-title").click(function () {
-            _this.selectedEvent = this.parentElement
-          })
-          $(".toastui-calendar-event-time-content").click(function () {
-            _this.selectedEvent = this.parentElement
-          })
-          $(".toastui-calendar-weekday-event-dot").click(function () {
-            _this.selectedEvent = this
-          })
-        },50)
+        this.bindEventToClick()
         this.fetchedEvents = []
       },
       formatshowEventDate(){
@@ -564,6 +552,20 @@
         else {
           return 'dark';
         }
+      },
+      bindEventToClick(){
+        let _this = this
+        setTimeout(()=>{
+          $(".toastui-calendar-weekday-event-title").click(function () {
+            _this.selectedEvent = this.parentElement
+          })
+          $(".toastui-calendar-event-time-content").click(function () {
+            _this.selectedEvent = this.parentElement
+          })
+          $(".toastui-calendar-weekday-event-dot").click(function () {
+            _this.selectedEvent = this
+          })
+        },50)
       }
     },
     mounted: async function() {
