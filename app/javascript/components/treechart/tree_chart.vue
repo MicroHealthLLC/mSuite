@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- tree chart -->
-    <section id="treeChartObj" class="main_body font-serif">
+    <section id="treeChartObj" class="main_body font-serif" :class="mm_type == 'flowmap' ? 'd-flex align-items-center' : ''">
       <vue-tree
         style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
         :dataset="treeChartObj"
@@ -9,7 +9,7 @@
         :direction="isTreeChart"
         linkStyle="straight"
         ref="refTree"
-        class="parentTree"
+        class="flowmap-center-vertical overflow-hidden"
       >
         <template v-slot:node="{ node }">
           <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
