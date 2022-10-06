@@ -114,7 +114,7 @@
           case "tree_chart":
             return "TreeChart"
           case "flowmap":
-            return "Flowmap"
+            return "TreeChart"
           case "todo":
             return "ToDo"
           case "Notepad":

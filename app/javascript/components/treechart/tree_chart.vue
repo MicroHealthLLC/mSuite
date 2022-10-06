@@ -6,6 +6,7 @@
         style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
         :dataset="treeChartObj"
         :config="treeConfig"
+        :direction="isTreeChart"
         linkStyle="straight"
         ref="refTree"
         class="parentTree"
@@ -82,6 +83,7 @@
     },
     data(){
       return{
+        mm_type: this.$store.getters.getmmType,
         dragElement: null,
         mapColors: [],
         uniqueColors: [],
@@ -568,6 +570,11 @@
         disconnected() {}
       }
     },
+    computed: {
+      isTreeChart(){
+        if(this.mm_type == 'flowmap') return 'horizontal'
+      }
+    }
   }
 </script>
 <style type="text/css" lang="scss">
