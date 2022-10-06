@@ -30,6 +30,15 @@
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
           <a
+            href="javascript:;"
+            role="button"
+            v-b-tooltip.hover title="Duplicate"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent="$store.dispatch('cloneMap')"
+          >
+            <i class="fas fa-clone icons d-flex center_flex"></i>
+          </a>
+          <a
             v-if="mm_type != 'pollvote'"
             href="javascript:;"
             role="button"

@@ -7,6 +7,8 @@ class Node < ApplicationRecord
   belongs_to :stage, optional: true
 
   has_many_attached :node_files, dependent: :destroy
+  has_many :childs, class_name: 'Node', foreign_key: 'parent_node'
+  belongs_to :parent, class_name: 'Node',foreign_key: 'id', optional: true
 
   before_create :set_default_export_index
 
@@ -19,6 +21,10 @@ class Node < ApplicationRecord
 
   def validate_title
     return self.mindmap.mm_type == "tree_map"
+  end
+  
+  amoeba do
+    enable
   end
 
   def validate_kanban
