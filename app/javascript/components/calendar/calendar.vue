@@ -248,6 +248,12 @@
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         })
+        this.calendar.on('clickMoreEventsBtn',(eventObj)=>{
+          let pos = $(eventObj.target).position()
+          if(pos.top > 500){
+            $(eventObj.target).css({top: 300, left: pos.left});
+          }
+        })
       },
       findDateTimeMinutes(start, end){
         var startTime = moment(start, 'DD-MM-YYYY hh:mm:ss');
@@ -280,7 +286,7 @@
       },
       openRecurringEventsModal(data){
         this.recurringEvents = null
-        this.recurringEventsDate = data.end
+        this.recurringEventsDate = data
         this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
       },
       getRecurringEventsDate(events){
@@ -290,23 +296,33 @@
         let time = {
           startHours: eventObj.start.getHours(),
           startMinutes: eventObj.start.getMinutes(),
-          startSeconds: eventObj.start.getSeconds(),
           endHours: eventObj.end.getHours(),
           endMinutes: eventObj.end.getMinutes(),
-          endSeconds: eventObj.end.getSeconds(),
           }
-        this.recurringEvents.forEach((currentValue, index, rEvents)=> {
-          currentValue.setHours(time.startHours)
-          currentValue.setMinutes(time.startMinutes)
-          currentValue.setSeconds(time.startSeconds)
-          eventObj.start = new Date(currentValue)
-          currentValue.setHours(time.endHours)
-          currentValue.setMinutes(time.endMinutes)
-          currentValue.setSeconds(time.endSeconds)
-          eventObj.end = new Date(currentValue)
-          this.saveEvents(eventObj)
-        })
-          this.recurringEvents = null
+        let difference = this.getDateDifference(eventObj.start,eventObj.end)
+        if(difference == 0){
+          this.recurringEvents.forEach((currentValue, index, rEvents)=> {
+            currentValue.setHours(time.startHours)
+            currentValue.setMinutes(time.startMinutes)
+            eventObj.start = new Date(currentValue)
+            currentValue.setHours(time.endHours)
+            currentValue.setMinutes(time.endMinutes)
+            eventObj.end = new Date(currentValue)
+            this.saveEvents(eventObj)
+          })
+        }
+        else{
+          this.recurringEvents.forEach((currentValue, index, rEvents)=> {
+            currentValue[0].setHours(time.startHours)
+            currentValue[0].setMinutes(time.startMinutes)
+            eventObj.start = new Date(currentValue[0])
+            currentValue[1].setHours(time.endHours)
+            currentValue[1].setMinutes(time.endMinutes)
+            eventObj.end = new Date(currentValue[1])
+            this.saveEvents(eventObj)
+          })
+        }
+        this.recurringEvents = null
       },
       async beforeEventCreate(data){
         this.sendLocals(true)
