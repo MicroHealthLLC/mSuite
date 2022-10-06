@@ -177,8 +177,6 @@
         this.$refs.refTree.zoomOut()
       },
       transformScale(event) {
-        console.log(this.$store.getters.getScaleFactor)
-        console.log(event.deltaY)
         if (event.deltaY < 0) {
           this.zoomInScale()
         }
