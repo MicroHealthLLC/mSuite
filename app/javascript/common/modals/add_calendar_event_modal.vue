@@ -17,15 +17,15 @@
       <div class="row">
         <div class="col-10 d-flex content-justified-start px-0" v-if="allDay">
           <label class="form-label mt-1">Start</label>
-          <DatePicker class="mx-1" type="date" v-model="startDate"></DatePicker>
+          <DatePicker class="mx-1" type="date" format="MM/DD/YY" v-model="startDate"></DatePicker>
           <label class="form-label mt-1">End</label>
-          <DatePicker class="mx-1" type="date" v-model="endDate"></DatePicker>
+          <DatePicker class="mx-1" type="date" format="MM/DD/YY" v-model="endDate"></DatePicker>
         </div>
         <div class="col-10 d-flex content-justified-start px-0" v-else>
           <label class="form-label mt-1">Start</label>
-          <DatePicker class="mx-1" format="HH:mm" type="datetime" :minute-options="datePickerMinutes" v-model="startDate"></DatePicker>
+          <DatePicker class="mx-1" format="MM/DD/YY HH:mm" type="datetime" :minute-options="datePickerMinutes" v-model="startDate"></DatePicker>
           <label class="form-label mt-1">End</label>
-          <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="datetime" v-model="endDate"></DatePicker>
+          <DatePicker class="mx-1" format="MM/DD/YY HH:mm" :minute-options="datePickerMinutes" type="datetime" v-model="endDate"></DatePicker>
         </div>
         <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="allDayNotHidden" >
           <input type="checkbox" class="mr-2" v-model="allDay">
