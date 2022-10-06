@@ -119,8 +119,8 @@
     components: { DatePicker },
     watch:{
       recurringEventsDate(newVal, oldVal){
-        this.endOnDate = newVal
-        this.showDay(newVal.getDay())
+        this.endOnDate = newVal.end
+        this.showDay(newVal.end.getDay())
         this.validateValues
       },
       endsOn(newVal, oldVal){
@@ -131,19 +131,42 @@
       }
     },
     methods: {
+      closeMapModal() {
+        this.$refs.RecurringCalendarEventModal.close()
+      },
       calculateRecurrence() {
         if (!this.isValueInvalid){
           this.events = []
-          let eventDate = new Date(this.recurringEventsDate)
-          if (this.repeatType == "Month") this.calculateMonthRecurrence(eventDate)
-          else this.calculateWeekRecurrence(eventDate)
+          let difference = this.getDateDifference(this.recurringEventsDate.start,this.recurringEventsDate.end)
+          if (difference == 0){
+            let eventDate = new Date(this.recurringEventsDate.end)
+            if (this.repeatType == "Month") this.events = this.calculateMonthRecurrence(eventDate)
+            else this.events =  this.calculateWeekRecurrence(eventDate)
+          }
+          else{
+            let startDate = new Date(this.recurringEventsDate.start)
+            let endDate = new Date(this.recurringEventsDate.end)
+            if (this.repeatType == "Month"){
+              let startDateEvents = this.calculateMonthRecurrence(startDate)
+              let endDateEvents = this.calculateMonthRecurrence(endDate)
+              this.mergeEvents(startDateEvents,endDateEvents)
+            } 
+            else {
+              let startDateEvents = this.calculateWeekRecurrence(startDate)
+              let endDateEvents = this.calculateWeekRecurrence(endDate)
+              this.mergeEvents(startDateEvents,endDateEvents)
+            }
+          }
           this.$emit('continue', this.events)
           this.setDefaultValues()
           this.closeMapModal()
         }
       },
-      closeMapModal() {
-        this.$refs.RecurringCalendarEventModal.close()
+      mergeEvents(startDateEvents,endDateEvents){
+        let mergedEvents = startDateEvents.map(function (x, i) { 
+                return [x, endDateEvents[i]] 
+              })
+        this.events = mergedEvents
       },
       calculateMonthRecurrence(eventDate){
         let newEvents = []
@@ -181,7 +204,7 @@
             count++
           }
         }
-        this.events = newEvents
+        return newEvents
       },
       calculateWeekRecurrence(eventDate){
         let newEvents = []
@@ -219,7 +242,7 @@
             count++
           }
         }
-        this.events = newEvents
+        return newEvents
       },
       setDefaultValues(){
         this.repeatTime = 1
@@ -266,7 +289,7 @@
           }
         }
           if (this.recurringEventsDate){
-            let difference = this.getDateDifference(this.recurringEventsDate,this.endOnDate)
+            let difference = this.getDateDifference(this.recurringEventsDate.end,this.endOnDate)
             if( difference < 0 && this.endsOn =="on" ){
               this.disableRecurrence('.datePicker')
               }

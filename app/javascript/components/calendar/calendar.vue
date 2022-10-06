@@ -133,8 +133,7 @@
         undoDone            : false,
         colorSelected       : false,
         uniqueColors        : [],
-        selectedEvent       : null
-
+        selectedEvent       : null,
       }
     },
     props: {
@@ -162,9 +161,6 @@
             this.calendar.destroy()
             this.createCalendar()
           }
-          else if(data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.currentMindMap = data.mindmap
-          }
           else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
               this.calendar.store.getState().calendar.events.internalMap.clear()
               this.fetchEvents()
@@ -175,10 +171,10 @@
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
-          }
-          else {
-            this.calendar.store.getState().calendar.events.internalMap.clear()
-            this.fetchEvents()
+            if(data.isEditing == false){
+              this.calendar.store.getState().calendar.events.internalMap.clear()
+              this.fetchEvents()
+            }
           }
         }
       }
@@ -252,6 +248,12 @@
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         })
+        this.calendar.on('clickMoreEventsBtn',(eventObj)=>{
+          let pos = $(eventObj.target).position()
+          if(pos.top > 500){
+            $(eventObj.target).css({top: 300, left: pos.left});
+          }
+        })
       },
       findDateTimeMinutes(start, end){
         var startTime = moment(start, 'DD-MM-YYYY hh:mm:ss');
@@ -276,7 +278,7 @@
         this.showEditEvent = false
         this.calendar.move(value)
         this.getCalendarTitle()
-        this.fetchEvents()
+        this.bindEventToClick()
       },
       getCalendarTitle(){
         var calendarDate = new Date(this.calendar.getDate())
@@ -284,7 +286,7 @@
       },
       openRecurringEventsModal(data){
         this.recurringEvents = null
-        this.recurringEventsDate = data.end
+        this.recurringEventsDate = data
         this.$refs['recurring-calendar-event-modal'].$refs['RecurringCalendarEventModal'].open()
       },
       getRecurringEventsDate(events){
@@ -294,27 +296,40 @@
         let time = {
           startHours: eventObj.start.getHours(),
           startMinutes: eventObj.start.getMinutes(),
-          startSeconds: eventObj.start.getSeconds(),
           endHours: eventObj.end.getHours(),
           endMinutes: eventObj.end.getMinutes(),
-          endSeconds: eventObj.end.getSeconds(),
           }
-        this.recurringEvents.forEach((currentValue, index, rEvents)=> {
-          currentValue.setHours(time.startHours)
-          currentValue.setMinutes(time.startMinutes)
-          currentValue.setSeconds(time.startSeconds)
-          eventObj.start = new Date(currentValue)
-          currentValue.setHours(time.endHours)
-          currentValue.setMinutes(time.endMinutes)
-          currentValue.setSeconds(time.endSeconds)
-          eventObj.end = new Date(currentValue)
-          this.saveEvents(eventObj)
-        })
+        let difference = this.getDateDifference(eventObj.start,eventObj.end)
+        if(difference == 0){
+          this.recurringEvents.forEach((currentValue, index, rEvents)=> {
+            currentValue.setHours(time.startHours)
+            currentValue.setMinutes(time.startMinutes)
+            eventObj.start = new Date(currentValue)
+            currentValue.setHours(time.endHours)
+            currentValue.setMinutes(time.endMinutes)
+            eventObj.end = new Date(currentValue)
+            this.saveEvents(eventObj)
+          })
+        }
+        else{
+          this.recurringEvents.forEach((currentValue, index, rEvents)=> {
+            currentValue[0].setHours(time.startHours)
+            currentValue[0].setMinutes(time.startMinutes)
+            eventObj.start = new Date(currentValue[0])
+            currentValue[1].setHours(time.endHours)
+            currentValue[1].setMinutes(time.endMinutes)
+            eventObj.end = new Date(currentValue[1])
+            this.saveEvents(eventObj)
+          })
+        }
         this.recurringEvents = null
       },
-      beforeEventCreate(data){
-        this.saveEvents(data)
-        if(this.recurringEvents) this.generateRecurringEvents(data)
+      async beforeEventCreate(data){
+        this.sendLocals(true)
+        await this.saveEvents(data)
+        if(this.recurringEvents) await this.generateRecurringEvents(data)
+        this.sendLocals(false)
+        this.updateCalendarUser()
       },
       beforeEventUpdate(data){
         this.updateEvent(data)
@@ -328,7 +343,7 @@
           canvas: this.$store.state.userEdit
           });
       },
-      saveEvents(eventObj){
+      async saveEvents(eventObj){
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         let data = {
@@ -340,10 +355,10 @@
           line_color: eventObj.backgroundColor,
           mindmap_id: this.currentMindMap.id
           }
-        this.sendLocals(true)
-        this.updateCalendarUser()
-        http.post('/nodes.json', data).then((result) => {
-          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+        let _this = this
+        await http.post('/nodes.json', data).then((result) => {
+          _this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          _this.currentNodeId = result.data.node.id
         })
       },
       updateEvent(eventObj){
@@ -458,18 +473,7 @@
           ])
         })
         this.uniqueColors = this.getUniqueColors(this.mapColors);
-        let _this = this
-        setTimeout(()=>{
-          $(".toastui-calendar-weekday-event-title").click(function () {
-            _this.selectedEvent = this.parentElement
-          })
-          $(".toastui-calendar-event-time-content").click(function () {
-            _this.selectedEvent = this.parentElement
-          })
-          $(".toastui-calendar-weekday-event-dot").click(function () {
-            _this.selectedEvent = this
-          })
-        },50)
+        this.bindEventToClick()
         this.fetchedEvents = []
       },
       formatshowEventDate(){
@@ -564,6 +568,20 @@
         else {
           return 'dark';
         }
+      },
+      bindEventToClick(){
+        let _this = this
+        setTimeout(()=>{
+          $(".toastui-calendar-weekday-event-title").click(function () {
+            _this.selectedEvent = this.parentElement
+          })
+          $(".toastui-calendar-event-time-content").click(function () {
+            _this.selectedEvent = this.parentElement
+          })
+          $(".toastui-calendar-weekday-event-dot").click(function () {
+            _this.selectedEvent = this
+          })
+        },50)
       }
     },
     mounted: async function() {

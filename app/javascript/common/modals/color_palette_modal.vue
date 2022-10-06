@@ -15,8 +15,10 @@
     </div>
     <div class="card-button d-flex mt-1">
       <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-      <button class="btn btn-info border-none w-25" @click="closeModelPicker">Cancel</button>
+      <button v-if="mm_type != 'calendar'" class="btn btn-info border-none w-25" @click="closeModelPicker">Cancel</button>
+      <button v-if="mm_type == 'calendar'" class="btn btn-info border-none w-50" @click="closeModelPicker">Cancel</button>
       <button
+        v-if="mm_type != 'calendar'"
         class="btn btn-warning border-none w-25"
         @click="createPalette">
           <i class="fas fa-sync cursor-pointer mt-2"></i>

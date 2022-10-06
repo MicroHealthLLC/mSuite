@@ -84,7 +84,6 @@
         startDate:         null,
         endDate:           null,
         allDay:            false,
-        state:             'Busy',
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
@@ -152,16 +151,20 @@
         this.actionType = actType
       },
       generateDataObj(){
+        let _this = this
         let data = {
-            title: this.title,
-            body: this.description,
-            start: this.startDate,
-            end: this.endDate,
-            isAllday: this.allDay,
+            title: _this.title,
+            body: _this.description,
+            start: _this.startDate,
+            end: _this.endDate,
+            isAllday: _this.allDay,
             backgroundColor:'#18A2B8',
             id: null
           }
-        if(this.actionType == 'update') data.id = this.showEvent.id
+        if(this.actionType == 'update'){
+          data.id = this.showEvent.id
+          data.backgroundColor = this.showEvent.backgroundColor
+        } 
         return data
       },
       createEvent(){
