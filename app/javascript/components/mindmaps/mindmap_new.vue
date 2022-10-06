@@ -160,7 +160,6 @@
         centralNotes      : "",
         nodeNotes         : "",
         descEditMode      : false,
-        saveElement: false,
         editorOption      : {
           modules : {
             toolbar : [
@@ -193,19 +192,13 @@
               location.reload()
             }, 500)
           }
-          else if (this.$store.getters.getSelectedNode !== null && data.message === "Node is updated" && this.$store.getters.getSelectedNode.id === data.node.id) {
-            this.$store.commit('setSelectedNode' , data.node)
-          }
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else {
             this.getMindmap(this.currentMindMap.unique_key)
-            this.saveElement = true
-            setTimeout(()=>{
-              this.saveElement = false
-            },1200)
+            if (data.node) this.$store.commit('setSelectedNode' , data.node)
           }
         }
       }
