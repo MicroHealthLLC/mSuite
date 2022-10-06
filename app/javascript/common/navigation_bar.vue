@@ -225,7 +225,7 @@
         </span>
       </span>
       <span class="col-12 d-flex justify-content-end pt-2" style="height: 3rem;">
-        <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper h3" data-toggle="tooltip" :title="mSuiteTitle" style="textDecoration: underline">{{ mSuiteTitle | truncate(30) }}</span>
+        <span v-show="!editable" @click="makeEditable" class="mr-4 py-1 pointer text-sapphire text-wrapper h4 align-items-center" data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
         <input
           v-show="editable"
           :rows="1"
@@ -234,10 +234,9 @@
           type="text"
           v-debounce:3000ms="blurEvent"
           v-model="mSuiteName"
-          class="h3 my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
+          class="h4 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
-          style="textDecoration: underline"
           />
         <a
           href="javascript:;"
