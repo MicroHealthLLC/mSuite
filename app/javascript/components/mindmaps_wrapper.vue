@@ -47,7 +47,6 @@
   import Whiteboard from "./whiteboard/whiteboard"
   import PasswordView from "./password_view"
   import TreeChart from "./treechart/tree_chart"
-  import Flowmap from "./flowmap/flowmap"
   import ToDo from "./todo/todo"
   import Notepad from "./notepad/notepad"
   import SpreadSheet from "./spreadsheet/spreadsheet"
@@ -64,7 +63,6 @@
       PasswordView,
       Whiteboard,
       TreeChart,
-      Flowmap,
       ToDo,
       Notepad,
       SpreadSheet,
