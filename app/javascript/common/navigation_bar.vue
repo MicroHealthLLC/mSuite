@@ -24,8 +24,7 @@
           class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
-        >
-        </input>
+        />
       </span>
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
