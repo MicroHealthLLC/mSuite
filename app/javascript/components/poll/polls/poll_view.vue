@@ -39,7 +39,26 @@
         </div>
       </div>
       <div class="my-4">
-        <button
+        <el-button
+          type="success"
+          class="mt-4 py-1 px-3"
+          @click="createPollingMap">
+          LAUNCH POLL
+        </el-button>
+        <el-button
+          type="primary"  
+          class="ml-4 mt-4 py-1 px-3"
+          @click="showResult = !showResult">
+          SHOW RESULTS
+        </el-button>
+        <el-button
+          v-if="!child_mindmap"
+          type="warning"
+          class="text-white ml-4 mt-4 py-1 px-3"
+          @click="$emit('pollEditData')">
+          EDIT
+        </el-button>
+        <!-- <button
           class="btn btn-success mt-4 py-0 px-3 rounded-0"
           @click="createPollingMap">
           LAUNCH POLL
@@ -54,7 +73,7 @@
           class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
           @click="$emit('pollEditData')">
           EDIT
-        </button>
+        </button> -->
       </div>
     </div>
     <poll-results

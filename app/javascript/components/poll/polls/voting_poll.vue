@@ -40,14 +40,24 @@
           </div>
         </div>
         <div class="mt-4">
-          <button
+          <el-button
+            type="success"
+            class="mt-4 py-1 px-3"
+            @click="submitVote">
+            SUBMIT
+          </el-button>
+          <el-button
+            type="warning"
+            class="text-white ml-4 mt-4 py-1 px-3"
+            @click="resetData">RESET</el-button>
+          <!-- <button
             class="btn btn-success mt-4 py-0 px-3 rounded-0"
             @click="submitVote">
             SUBMIT
           </button>
           <button
             class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
-            @click="resetData">RESET</button>
+            @click="resetData">RESET</button> -->
         </div>
       </div>
       <section v-else-if="!validForVote" class="container">
