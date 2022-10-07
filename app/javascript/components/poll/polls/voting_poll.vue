@@ -5,7 +5,7 @@
         <span>{{ pollData.description }}</span>
         <div>
           <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
-            All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowable selected options indicated.
+            All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowed selectable options indicated.
           </span>
         </div>
         <div class="mt-3" v-for="(questions,index) in pollData.Questions">
@@ -13,14 +13,14 @@
             {{ index + 1 }}. {{ questions.question }}
           </h5>
           <span
-            v-if="questions.allowedAnswers + 1 > 1"
+            v-if="questions.allowedAnswers > 1"
             class="ml-4"
             :class="errorTriggered ? 'shake d-block border-danger':''">
-            Allowable selected options: {{ questions.allowedAnswers + 1 }}
+            Allowed selectable options: {{ questions.allowedAnswers }}
           </span>
           <div class="mt-2 ml-4" v-for="(answers, index) in questions.answerField">
             <input
-              v-if="questions.allowedAnswers > 0"
+              v-if="questions.allowedAnswers > 1"
               type="checkbox"
               :name="questions.question"
               :value="answers"
@@ -41,12 +41,14 @@
         </div>
         <div class="mt-4">
           <el-button
+            round
             type="success"
             class="mt-4 py-1 px-3"
             @click="submitVote">
             SUBMIT
           </el-button>
           <el-button
+            round
             type="warning"
             class="text-white ml-4 mt-4 py-1 px-3"
             @click="resetData">RESET</el-button>
