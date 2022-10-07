@@ -2,13 +2,14 @@
   <div class="overflow-auto maxHeight">
     <div class="container">
       <div class="d-flex mt-2">
-        <h5>Description&nbsp;</h5><span>(optional)</span>
+        <h5>Poll Description&nbsp;</h5><span>(optional)</span>
       </div>
-      <textarea
-        type="input"
-        v-model="poll.description"
-        class="mt-3 w-100"
-        placeholder="Input description text" />
+      <el-row>
+        <el-col :span="20">
+          <el-input :span="20" class="mt-2" type="textarea" autosize v-model="poll.description" placeholder="Add a description here...">
+          </el-input>
+        </el-col>
+      </el-row>
       <div v-for="(questions,index) in poll.Questions">
         <div
           draggable="true"
@@ -16,48 +17,63 @@
           @drop="dragDropQuestion($event,index)"
           ondragover="event.preventDefault();" >
           <hr />
-          <div class="d-flex mt-2 w-100">
+          <div class="d-flex mt-2">
             <h5 class="input-width">Question*</h5>
-            <i class="fas fa-times text-danger" @click="deleteQuestion(index)"></i>
           </div>
-            <textarea
-                  type="input"
-                  v-model="questions.question"
-                  class="w-100"
-                  :class="questions.question == '' && showError ? 'shake d-block border-danger':''"
-                  placeholder="Type Your Question Here..."
-                  required />
-            <h5>Answer Options*</h5>
-            <div class="text-danger">Atleast two options required</div>
-            <div v-for="(answer, index) in questions.answerField">
-              <div
+          <el-row :gutter="10">
+            <el-col :span="20">
+              <el-input autosize type="textarea"
+                v-model="questions.question"
+                class="w-100"
+                :class="questions.question == '' && showError ? 'shake d-block border-red':''"
+                placeholder="Type question here..."
+                required>
+              </el-input>
+            </el-col>
+            <el-col :span="4">
+              <el-button v-if="index != 0" type="danger" class="mt-1" icon="el-icon-close" size="mini" circle  @click="deleteQuestion(index)">
+              </el-button>
+            </el-col>
+          </el-row>
+            <h5 class="mt-3">Answer Options*</h5>
+            <div class="text-danger">Two options required</div>
+            <!-- <div v-for="(answer, index) in questions.answerField"> -->
+              <div v-for="(answer, index) in questions.answerField"
                 draggable="true"
                 @dragstart="dragStartAns($event, questions, index)"
                 @drop="dragDropAns($event, questions, index)"
                 ondragover="event.preventDefault();">
-                <div class="row mt-4">
-                  <div class="w-100">
-                    <input
+                <el-row :gutter="10" class="mt-2">
+                  <el-col :span="20">
+                    <el-input
                       :id="'answer' + index"
                       type="input"
                       v-model="answer.text"
-                      class="input-width"
-                      :class=" ( answer.text == '' || answer.text == undefined ) && showError ? 'shake d-block border-danger':''"
-                      placeholder="Type Your answer Here..."
-                      required />
-                      <i class="fas fa-times text-danger" @click="delAnswer(questions, answer, index)"></i>
-                  </div>
-                </div>
+                      :class=" ( answer.text == '' || answer.text == undefined ) && showError ? 'shake d-block border-red':''"
+                      placeholder="Type answer here..."
+                      required>
+                    </el-input>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-button v-if="index > 1" type="danger" icon="el-icon-close" size="mini" circle class="mt-1" @click="delAnswer(questions, answer, index)">
+                    </el-button>
+                  </el-col>
+                </el-row>
               </div>
-            </div>
-            <button
+            <!-- </div> -->
+            <!-- <button
               class="btn btn-color mt-3 py-0 px-3 rounded-0"
               @click="addAnswersOpt(questions)">
               Add Option
-            </button>
-            <div class="d-flex">
-              <div>Allowable Selected Options</div>
-              <select v-model="questions.allowedAnswers" class="form-select">
+            </button> -->
+            <el-button
+              class="btn-color mt-3 py-1"
+              @click="addAnswersOpt(questions)">
+              Add Option
+            </el-button>
+            <div class="mt-2 d-flex">
+              <div>Allowable selected options</div>
+              <select v-model="questions.allowedAnswers" class="ml-2 form-select">
                 <option
                   v-for="(value, index) in questions.answerField"
                   :value="index">
@@ -68,12 +84,17 @@
           </div>
       </div>
       <hr />
-      <button
+      <!-- <button
         class="btn btn-color mt-2 py-0 px-3 rounded-0"
         @click="addQuestion">
         Add Question
-      </button>
-      <div class="mt-5 d-flex">
+      </button> -->
+      <el-button
+        class="mt-2 btn-color py-1"
+        @click="addQuestion">
+        Add Question
+      </el-button>
+      <div class="mt-6 mb-4">
         <span>
           Poll End Date
         </span>
@@ -81,37 +102,47 @@
             id="input"
             class="border-0 rounded-0 py-0 px-3"
             v-model='poll.duedate'
-            :placeholder="poll.duedate ? duedate : 'DD MM YYYY'"
+            :placeholder="poll.duedate ? duedate : 'MM/DD/YYYY'"
             :format="format"
             ref="datePicker"
             >
           </date-picker>
-          <i class="mt-2 fas fa-times text-danger" @click="poll.duedate = ''"></i>
+          <!-- <el-tooltip class="item" effect="dark" content="Clear Date"> -->
+            <el-button type="danger" icon="el-icon-close" size="mini" circle @click="poll.duedate = ''"></el-button>
+            <!-- <i class="mt-2 fas fa-times text-danger" @click="poll.duedate = ''"></i> -->
+          <!-- </el-tooltip> -->
+         
       </div>
-      <div>
-        <span class="mb-2">
+      <div class="mb-4">
+        <span>
           Require User Names
         </span>
-          <input
-            id="input"
-            type="checkbox"
-            class="mt-2 userCheck"
-            v-model='poll.userNameRequire'
-            />
+        <input
+          id="input"
+          type="checkbox"
+          class="userCheck"
+          v-model='poll.userNameRequire'
+          />
       </div>
-      <div>Poll URL*</div>
-      <div>
-        <span>
+      <div>Poll URL: 
+        <span class="pollURL">
           https://msuite.app/msuite/{{poll.url}}
         </span>
       </div>
-      <button
+      <el-button
+        class="bg-dark text-light mt-2 py-2 px-3 float-right"
+        :class="createPermit ? 'cursor-disabled':''"
+        :disabled = "createPermit"
+        @click="createPin()">
+        PREVIEW
+      </el-button>
+      <!-- <button
         class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
         :class="createPermit ? 'cursor-disabled':''"
         :disabled = "createPermit"
         @click="createPin()">
         PREVIEW
-      </button>
+      </button> -->
     </div>
     <sweet-modal ref="saved_success" class="of_v" icon="success">
       Poll Saved Successfully
@@ -144,7 +175,7 @@
           url: ''
         },
         showError: false,
-        format: 'DD MMM YYYY',
+        format: 'MM/DD/YYYY',
         q_position: null,
         a_position: null,
         current_question: null,
@@ -156,7 +187,7 @@
     },
     computed: {
       duedate(){
-        return moment(new Date(this.poll.duedate)).format('DD MMM YYYY')
+        return moment(new Date(this.poll.duedate)).format('MM/DD/YYYY')
       }
     },
     mounted() {
