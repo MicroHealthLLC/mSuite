@@ -148,8 +148,11 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
-          {
+          if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
+            this.calendar.store.getState().calendar.events.internalMap.clear()
+            this.fetchEvents()
+          }
+          else if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id){
             window.open('/','_self')
           } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
@@ -171,10 +174,6 @@
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
-            if(data.isEditing == false){
-              this.calendar.store.getState().calendar.events.internalMap.clear()
-              this.fetchEvents()
-            }
           }
         }
       }
@@ -403,16 +402,15 @@
           }
           this.undoNodes.push({'req': 'addNode', node: dataObj})
         }
+        this.sendLocals(false)
         this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
-        this.sendLocals(false)
 
       },
       deleteEvents(){
         this.undoDone = false
         this.sendLocals(true)
         this.showEditEvent = false
-        this.updateCalendarUser()
         http.delete(`/nodes/${this.showEvent.id}.json`).then((res)=>{
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
@@ -434,6 +432,7 @@
             console.error(err);
           });
         this.sendLocals(false)
+        this.updateCalendarUser()
       },
       async fetchEvents(){
         let res = await this.$store.dispatch('getMSuite')
