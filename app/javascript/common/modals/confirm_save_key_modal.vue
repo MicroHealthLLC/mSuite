@@ -75,6 +75,7 @@
     data () {
       return {
         expDays: '',
+        deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
         currentMindMap: this.$store.getters.getMsuite,
         unique_key: this.$store.getters.getMsuite.unique_key,
         deletedAtMSuite: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.will_delete_at))
@@ -86,7 +87,8 @@
         return window.location.href
       },
       expDeleteDays () {
-        if(this.currentMindMap) return this.findTotalDaysBetweenDates()
+        if(this.currentMindMap && this.isSaveMap == null) return this.deleteAfter
+        else if(this.currentMindMap) return this.findTotalDaysBetweenDates()
       }
     },
     watch: {
