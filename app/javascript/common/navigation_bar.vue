@@ -336,9 +336,9 @@
       return{
         mSuiteName: this.$store.getters.getMsuite.title,
         mm_type: this.$store.getters.getmmType,
-        defaultDeleteDays: this.$store.getters.getMsuite.defaultDeleteDays,
-        deleteAfter: this.$store.getters.getMsuite.deleteAfter,
-        expDays: this.$store.getters.getMsuite.deleteAfter,
+        defaultDeleteDays: this.$store.getters.getDataMsuite.defaultDeleteDays,
+        deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
+        expDays: this.$store.getters.getDataMsuite.expDays,
         editable: false,
         isSaveMSuite: true,
         isMsuiteSaved: true,
