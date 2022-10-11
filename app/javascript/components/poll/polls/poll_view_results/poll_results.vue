@@ -3,10 +3,16 @@
     <div>
       <div>
         <h3 class="d-inline-block"><strong>Poll Results</strong></h3>
-        <button
+        <el-button
+          round
+          type="warning"
+          class="float-right text-white py-2 px-3"
+          @click="$emit('showPoll')">GO BACK
+        </el-button>
+        <!-- <button
           class="float-right btn btn-warning text-white py-0 px-3 rounded-0"
           @click="$emit('showPoll')">Go Back
-        </button>
+        </button> -->
       </div>
       <span>Poll Expiration Date: {{ expirationDate }}</span>
       <div class="graphs overflow-auto">

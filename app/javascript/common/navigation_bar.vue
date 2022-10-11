@@ -24,8 +24,7 @@
           class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
-        >
-        </input>
+        />
       </span>
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
@@ -336,9 +335,9 @@
       return{
         mSuiteName: this.$store.getters.getMsuite.title,
         mm_type: this.$store.getters.getmmType,
-        defaultDeleteDays: this.$store.getters.getMsuite.defaultDeleteDays,
-        deleteAfter: this.$store.getters.getMsuite.deleteAfter,
-        expDays: this.$store.getters.getMsuite.deleteAfter,
+        defaultDeleteDays: this.$store.getters.getDataMsuite.defaultDeleteDays,
+        deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
+        expDays: this.$store.getters.getDataMsuite.expDays,
         editable: false,
         isSaveMSuite: true,
         isMsuiteSaved: true,
