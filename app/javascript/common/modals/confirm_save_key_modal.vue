@@ -87,8 +87,8 @@
         return window.location.href
       },
       expDeleteDays () {
-        if(this.currentMindMap && this.isSaveMap == null) return this.deleteAfter
-        else if(this.currentMindMap) return this.findTotalDaysBetweenDates()
+        /* if(this.currentMindMap && this.isSaveMap == null ) return this.deleteAfter
+        else  */return this.findTotalDaysBetweenDates()
       }
     },
     watch: {
