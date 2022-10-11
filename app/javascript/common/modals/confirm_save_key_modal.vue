@@ -63,7 +63,7 @@
       </div>
     </sweet-modal>
     <sweet-modal ref="Error" class="of_v">
-      <p>Number of days not greater then {{ defaultDeleteDays }}</p>
+      <p>Number of days cannot be greater than {{ defaultDeleteDays }}</p>
     </sweet-modal>
   </div>
 </template>
