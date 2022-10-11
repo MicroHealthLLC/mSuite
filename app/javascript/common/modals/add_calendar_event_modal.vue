@@ -109,12 +109,14 @@
       startDate: {
         handler(newValue, oldValue) {
         this.toggleAllDay
+        this.validateValues
         },
         deep: true
       },
       endDate: {
         handler(newValue, oldValue) {
         this.toggleAllDay
+        this.validateValues
         },
         deep: true
       },
@@ -235,7 +237,7 @@
         }
       },
       validateValues(){
-        if (this.title && !this.isValueInvalid){
+        if (this.title && !this.isValueInvalid && this.startDate != null && this.endDate != null){
           this.enableEventCreation()
         }
         else{
