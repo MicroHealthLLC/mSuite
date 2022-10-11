@@ -1,8 +1,8 @@
 <template>
   <div class="card-body p-0 border rounded">
-    <sketch-picker v-if="mm_type == 'kanban'" class="rounded-0 size-color-picker" v-model="selectedNode.stage_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
-    <sketch-picker v-else v-model="selectedNode.line_color" :preset-colors="uniqueColors" @input="updateColorNode()" class=" h-25 overflow-auto size-color-picker rounded-0"/>
-    <div class="pallete d-flex flex-row w-50">
+    <sketch-picker v-if="selectedNode && mm_type == 'kanban'" class="rounded-0 size-color-picker" v-model="selectedNode.stage_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
+    <sketch-picker v-else v-model="node.line_color" :preset-colors="uniqueColors" @input="updateColorNode()" class=" h-25 overflow-auto size-color-picker rounded-0"/>
+    <div v-if="(selectedNode && mm_type == 'kanban') || mm_type != 'kanban'" class="pallete d-flex flex-row w-50">
       <div class="row w-100 bg-white">
         <div v-for="colorPalette in customPallete" class="col-2">
           <div
@@ -15,10 +15,14 @@
     </div>
     <div class="card-button d-flex mt-1">
       <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
-      <button v-if="mm_type != 'calendar'" class="btn btn-info border-none w-25" @click="closeModelPicker">Cancel</button>
-      <button v-if="mm_type == 'calendar'" class="btn btn-info border-none w-50" @click="closeModelPicker">Cancel</button>
       <button
-        v-if="mm_type != 'calendar'"
+        class="btn btn-info border-none"
+        :class="mm_type != 'calendar' || ((selectedNode && mm_type == 'kanban') || mm_type != 'kanban') ? 'w-50':'w-25'"
+        @click="closeModelPicker">
+        Cancel
+      </button>
+      <button
+         v-if="mm_type != 'calendar' && ((selectedNode && mm_type == 'kanban') || mm_type != 'kanban')"
         class="btn btn-warning border-none w-25"
         @click="createPalette">
           <i class="fas fa-sync cursor-pointer mt-2"></i>
@@ -40,7 +44,12 @@
         mm_type: this.$store.getters.getmmType
       }
     },
-    props:['selectedNode', 'nodes', 'uniqueColors'],
+    props:['selectedNode', 'selectedBlock', 'nodes', 'uniqueColors'],
+    computed: {
+      node(){
+        return this.selectedNode ? this.selectedNode : this.selectedBlock
+      }
+    },
     mounted() {
       if(this.mm_type != 'calendar') this.createPalette()
     },
@@ -60,10 +69,12 @@
           });
         }
         else if (this.mm_type == 'kanban') {
-          Object.values(this.nodes).forEach((stage, index) => {
-            let element = document.getElementsByClassName('drag-column')[index]
-            element.style.backgroundColor = stage.stage_color
-          });
+          if(this.selectedNode){
+            Object.values(this.nodes).forEach((stage, index) => {
+              let element = document.getElementsByClassName('drag-column')[index]
+              element.style.backgroundColor = stage.stage_color
+            });
+          }
         } else if (this.mm_type == 'calendar'){
           this.$emit("closeModelPicker")
           return

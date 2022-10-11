@@ -10,7 +10,7 @@
                   <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class="border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
                 </div>
                 <div class="d-flex w-25 justify-content-end">
-                  <div class="pointer" @click="stage.length > 0 ? selectedStageBg(stage,$event) : '' ">
+                  <div class="pointer" @click="stage.length > 0 ? selectedElementBg(stage,$event) : '' ">
                     <i class="fas fa-eye-dropper color-picker mt-1 icon-opacity" title="Color Picker"></i>
                   </div>
                   <div class="pointer text-center" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
@@ -31,15 +31,18 @@
           </div>
         </div>
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
-          <div class="d-inline-block w-100 block">
+          <div :id="'block' + block.id" class="d-inline-block w-100 block">
             <div class="pointer w-100 d-flex" @click="selectedNode(index)">
               <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add text here" />
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
                   <i class="fas ml-2 fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
                 </div>
+                <div @click="selectedElementBg(block,$event)">
+                  <i class="fas fa-eye-dropper text-muted color-picker ml-2 icon-opacity" title="Color Picker"></i>
+                </div>
                 <div>
-                  <i class="fas fa-arrows-alt position-relative ml-2 icon-opacity" title="Drag Task"></i>
+                  <i class="fas fa-arrows-alt text-secondary position-relative ml-2 icon-opacity" title="Drag Task"></i>
                 </div>
               </div>
             </div>
@@ -50,6 +53,7 @@
         <div class="card p-0 border-none color-picker-placement">
           <color-palette
             :selected-node="selectedStage"
+            :selected-block="selectedBlock"
             :nodes="allStages"
             :currentMindMap="currentMindMap"
             :customPallete="customPallete"
@@ -96,6 +100,7 @@
         new_color:'',
         previousColor: null,
         selectedStage: null,
+        selectedBlock: null,
         selectedElement: null,
         hover_addtask: '',
         selected: '',
@@ -115,7 +120,7 @@
     props: ['undoMap','redoMap'],
     channels: {
       WebNotificationsChannel: {
-        received(data) {
+        received: async function(data) {
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
@@ -145,11 +150,13 @@
             this.mountKanBan()
           }
           else {
-            this.getAllStages()
-            this.getAllNodes()
+            await this.getAllStages()
+            await this.getAllNodes()
             if(data.message === "Stage Updated"){
               this.allStages = data.stages
               this.updateBackgroundColors()
+            } else if(data.message === "Node is updated"){
+              this.updateBlockColors()
             }
           }
         }
@@ -212,7 +219,7 @@
               draggable: ".drag-column",
               dragClass: "sortable-drag",
               ghostClass: "sortable-ghost",
-              filter: ".drag-column-, .block-title",
+              filter: ".drag-column-",
               onEnd: function (evt) {
                 var itemEl = evt.item
                 let title = itemEl.getElementsByTagName('textarea')[0].value
@@ -229,6 +236,7 @@
               }
             });
             this.updateBackgroundColors()
+            this.updateBlockColors()
           }, 1500)
         })
       },
@@ -238,9 +246,9 @@
           });
       },
       //=====================GETTING MINDMAP==============================//
-      getMindmap(){
-        this.getAllStages()
-        this.getAllNodes()
+      getMindmap: async function(){
+        await this.getAllStages()
+        await this.getAllNodes()
       },
       // =====================STAGES CRUD OPERATIONS==============================//
       updateStageRequest(obj){
@@ -264,65 +272,131 @@
           bg.style.backgroundColor = this.allStages[index].stage_color
         })
       },
-      updateColor(){
-        this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
-        this.getColorNode('.drag-column')
-        this.getColorNode('.drag-column')
+      updateBlockColors(){
+        let _this = this
+        let BlockbgColors = Array.from(document.getElementsByClassName('block'))
+        BlockbgColors.forEach( color => {
+          if(color.id != ''){
+            for(let index=0; index < _this.blocks.length; index++){
+              if (color.id === 'block' + _this.blocks[index].id){
+                color.parentElement.parentElement.style.background = _this.blocks[index].line_color
+                color.children[0].children[0].style.backgroundColor = _this.blocks[index].line_color
+                break
+              }
+            }
+          }
+        })
       },
-      selectedStageBg(stage, e){
-        if(this.selectedStage !== null && this.selectedElement !== null){
-          let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
-          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
-          this.selectedElement.style.backgroundColor = this.previousColor
+      updateColor(){
+        if (this.selectedStage) {
+          this.selectedElement.style.backgroundColor = this.selectedStage.stage_color.hex
+          this.getColorNode('.drag-column')
         }
-        this.selectedStage = this.allStages.find(stg => stg.title === stage)
-        this.previousColor = this.selectedStage.stage_color
-        this.selectedElement = document.getElementsByClassName('drag-column-' + stage)[0]
+        else {
+          this.selectedElement.parentElement.parentElement.style.backgroundColor = this.selectedBlock.line_color.hex
+          this.selectedElement.children[0].children[0].style.backgroundColor = this.selectedBlock.line_color.hex
+          this.getColorNode('.block-title')
+        }
+      },
+      selectedElementBg(element, e){
+        if(this.selectedElement){
+          if(this.selectedStage){
+            let stage_index = this.allStages.findIndex(stg => stg.id === this.selectedStage.id)
+            Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
+            this.selectedElement.style.backgroundColor = this.previousColor
+            this.getColorNode('.drag-column')
+          } else if (this.selectedBlock){
+            let block_index = this.blocks.findIndex(blk => blk.id === this.selectedBlock.id)
+            Vue.set(this.blocks[block_index], 'line_color', this.previousColor)
+            this.selectedElement.parentElement.parentElement.style.backgroundColor = this.previousColor
+            this.selectedElement.children[0].children[0].style.backgroundColor = this.previousColor
+            this.getColorNode('.block-title')
+          }
+          this.selectedStage = null
+          this.selectedBlock = null
+          this.colorSelected = false
+          this.selectedElement = null
+        }
+        if ( typeof(element) == 'string' ){
+          this.selectedStage = this.allStages.find(stg => stg.title === element)
+          this.previousColor = this.selectedStage.stage_color
+          this.selectedElement = document.getElementsByClassName('drag-column-' + element)[0]
+        } else {
+          this.selectedBlock = this.blocks.find(blk => blk.id === element.id)
+          this.previousColor = this.selectedBlock.line_color
+          this.selectedElement = document.getElementById('block'+element.id)
+          if(this.selectedBlock.line_color == null) this.selectedBlock.line_color = "#FFFFFF"
+        }
         this.colorSelected = true
       },
-      saveNodeColor(){
+      async saveNodeColor(){
+        let _this = this
         this.sendLocals(true)
-        this.selectedStage.stage_color = this.selectedStage.stage_color.hex
-        const response = this.updateStageRequest(this.selectedStage)
-        response.then((res) => {
-          let index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
-          Vue.set(this.allStages[index], 'stage_color', res.data.stage.stage_color)
-        })
-        .catch( err => {
-          console.log(err)
-        })
+        if(this.selectedStage){
+          this.selectedStage.stage_color = this.selectedStage.stage_color.hex
+          const response = await this.updateStageRequest(this.selectedStage)
+            if (response) {
+            let index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
+            Vue.set(this.allStages[index], 'stage_color', response.data.stage.stage_color)
+          } else {
+            console.log("stage not updated")
+          }
+        } else if (this.selectedBlock){
+          this.selectedBlock.line_color = this.selectedBlock.line_color.hex
+          const response = this.updateBlockRequest(this.selectedBlock)
+          await response.then((res) => {
+            let index = _this.blocks.findIndex( blk => blk.id === _this.selectedBlock.id)
+            Vue.set(_this.blocks[index], 'line_color', res.data.node.line_color)
+          })
+        }
         this.selectedStage = null
+        this.selectedBlock = null
         this.selectedElement = null
         this.colorSelected = false
-        this.getColorNode('.drag-column')
       },
       saveTempColor(){
         let index = this.allStages.findIndex( stg => stg.title === this.selectedStage.title)
         this.allStages[index].stage_color = this.selectedStage.stage_color.hex
+        let block_index = this.blocks.findIndex( blk => blk.id === this.selectedBlock.id )
+        this.blocks[block_index].line_color = this.selectedBlock.line_color.hex
         this.selectedStage = null
         this.selectedElement = null
         this.colorSelected = false
         this.sendLocals(true)
       },
       closeModelPicker(){
-        let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
-        Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
-        this.selectedElement.style.backgroundColor = this.previousColor
-        this.selectedElement = null
+        if (this.selectedStage != null){
+          let stage_index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
+          Vue.set(this.allStages[stage_index], 'stage_color', this.previousColor)
+          this.selectedElement.style.backgroundColor = this.previousColor
+
+          Object.values(this.allStages).forEach((stage, index) => {
+            let element = document.getElementsByClassName('drag-column')[index]
+            element.style.backgroundColor = stage.stage_color
+          });
+          this.getColorNode('.drag-column')
+        } else {
+          let block_index = this.blocks.findIndex( blk => blk.id === this.selectedBlock.id)
+          Vue.set(this.blocks[block_index], 'line_color', this.previousColor)
+          this.selectedElement.parentElement.parentElement.style.backgroundColor = this.previousColor
+          this.selectedElement.children[0].children[0].style.backgroundColor = this.previousColor
+
+          Object.values(this.blocks).forEach((blk, index) => {
+            let block = document.getElementById('block' + blk.id)
+            block.parentElement.parentElement.style.backgroundColor = blk.line_color
+            block.children[0].children[0].style.backgroundColor = blk.line_color
+          });
+          this.getColorNode('.block-title')
+        }
         this.selectedStage = null
-
-        Object.values(this.allStages).forEach((stage, index) => {
-          let element = document.getElementsByClassName('drag-column')[index]
-          element.style.backgroundColor = stage.stage_color
-        });
-
+        this.selectedBlock = null
         this.colorSelected = false
-        this.getColorNode('.drag-column')
+        this.selectedElement = null
       },
-      getAllStages() {
-        http
+      async getAllStages() {
+        await http
         .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
-        .then((res) => {
+        .then( async (res) => {
           this.allStages = res.data.stages
           if(this.allStages.length == 3 &&
               this.allStages[0].title == 'TO DO' &&
@@ -421,6 +495,7 @@
             stage_id: this.allStages.find(stg => stg.title === stage).id,
             mindmap_id: this.currentMindMap.id,
             status: stage,
+            line_color: '#FFFFFF',
           }
         }
         this.updateKanbanUser()
@@ -476,7 +551,7 @@
         }
       },
 
-      editStageTitle(val){
+      editStageTitle: async function(val){
         this.sendLocals(true)
         val = val.replace(/\r?\n|\r/g, "")
         val.length < 1 ? this.$refs['errorStageModal'].open() : ''
@@ -491,26 +566,26 @@
         }
 
         this.stage.title =  val.length > 0 ? val : this.stage.title
-        const response = this.updateStageRequest(this.stage)
-        response
-        .then(result => {
-          let index = this.allStages.findIndex(stg => stg.id === result.data.stage.id)
+        const response = await this.updateStageRequest(this.stage)
+        if (response) {
+          let index = this.allStages.findIndex(stg => stg.id === response.data.stage.id)
+          this.getColorNode('.drag-column')
           if (val.length < 1){
             this.allStages[index].title = ''
             this.getAllStages()
-            this.getAllNodes()
+            await this.getAllNodes()
             this.sendLocals(false)
           }
           else if (index > -1) {
             Vue.set(this.allStages[index], 'title', '')
-            Vue.set(this.allStages[index], 'title', result.data.stage.title.trim())
-            let stage_style = document.getElementsByClassName('drag-column-' + result.data.stage.title)[0]
-            stage_style.style.backgroundColor = result.data.stage.stage_color
+            Vue.set(this.allStages[index], 'title', response.data.stage.title.trim())
+            let stage_style = document.getElementsByClassName('drag-column-' + response.data.stage.title)[0]
+            stage_style.style.backgroundColor = response.data.stage.stage_color
             this.updateStageTasks(this.stage.id)
             this.stage = null
             this.sendLocals(false)
           }
-        })
+        }
       },
       updateStageTasks(stageId) {
         let stage = this.allStages.find(s => s.id === stageId)
@@ -539,6 +614,7 @@
         const response = this.updateStageRequest(stage)
         response
         .then(result => {
+          this.getColorNode('.drag-column')
         })
         .catch(err=>{
           console.log(err)
@@ -559,41 +635,50 @@
             id: obj.id,
             title: obj.title,
             position: obj.position,
+            line_color: obj.line_color,
             stage_id: obj.stage_id
           }
         }
         this.updateKanbanUser()
         return http.patch(`/nodes/${obj.id}.json`,data)
       },
-      getAllNodes(){
-        http
+      async getAllNodes(){
+        await http
         .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
         .then((res) => {
           this.blocks = res.data.nodes
           this.new_stage = false
           this.loading = false
+          setTimeout(()=>{
+            this.updateBlockColors()
+          })
+          this.getColorNode('.block-title')
+          Object.values(this.blocks).forEach(block => {
+            this.mapColors.push(block.line_color);
+          });
+          this.uniqueColors = this.getUniqueColors(this.mapColors);
         })
         .catch((err) => {
           console.log(err)
         })
       },
 
-      updateBlockPosition(id, status, position) {
+      async updateBlockPosition(id, status, position) {
+        let _this = this
         let stage_id = this.allStages.find(stg => stg.title === status).id
         let block = this.blocks.find(blk => blk.id === Number(id))
         block.position = position
         block.stage_id = stage_id
-        const response = this.updateBlockRequest(block)
-        response
-        .then((res)=>{
+        const response = await this.updateBlockRequest(block)
+        if(response){
+          let res = response
           this.sendLocals(true)
           let block_id = this.blocks.findIndex(b => b.id === Number(id))
-          this.blocks[block_id].index = res.data.node.position
-          this.blocks[block_id].status = status
-        })
-        .catch(err => {
-          console.log(err)
-        })
+          _this.blocks[block_id].index = res.data.node.position
+          _this.blocks[block_id].status = status
+          _this.updateBlockColors()
+          this.getColorNode('.block-title')
+        } else alert('block position didn\'t updated')
       },
 
 
@@ -607,6 +692,7 @@
           this.sendLocals(true)
           let index = this.blocks.findIndex(b => b.id === res.data.node.id)
           Vue.set(this.blocks, index, res.data.node)
+          this.getColorNode('.block-title')
         })
         .catch(err => {
           console.log(err)
