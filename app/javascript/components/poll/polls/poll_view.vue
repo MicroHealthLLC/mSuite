@@ -4,7 +4,7 @@
       <h5><strong>{{ pollData.description }}</strong></h5>
       <div>
         <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
-          All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowable selected options indicated.
+          All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowed selectable options indicated.
         </span>
       </div>
       <div class="mt-3" v-for="(questions,index) in pollData.Questions">
@@ -12,13 +12,13 @@
           {{ index + 1 }}. {{ questions.question }}
         </h5>
         <span
-          v-if="questions.allowedAnswers + 1 > 1"
+          v-if="questions.allowedAnswers > 1"
           class="ml-4" :class="errorTriggered ? 'shake d-block border-danger':''">
-          Allowable selected options: {{ questions.allowedAnswers + 1 }}
+          Allowed selectable options: {{ questions.allowedAnswers }}
         </span>
         <div class="mt-2 ml-4" v-for="(answers, index) in questions.answerField">
           <input
-            v-if="questions.allowedAnswers > 0"
+            v-if="questions.allowedAnswers > 1"
             type="checkbox"
             :value="answers"
             :name="questions.question"
@@ -39,7 +39,29 @@
         </div>
       </div>
       <div class="my-4">
-        <button
+        <el-button
+          round
+          type="success"
+          class="mt-4 py-2 px-3"
+          @click="createPollingMap">
+          LAUNCH POLL
+        </el-button>
+        <el-button
+          round
+          type="primary"  
+          class="ml-4 mt-4 py-2 px-3"
+          @click="showResult = !showResult">
+          SHOW RESULTS
+        </el-button>
+        <el-button
+          round
+          v-if="!child_mindmap"
+          type="warning"
+          class="text-white ml-4 mt-4 py-2 px-3"
+          @click="$emit('pollEditData')">
+          EDIT
+        </el-button>
+        <!-- <button
           class="btn btn-success mt-4 py-0 px-3 rounded-0"
           @click="createPollingMap">
           LAUNCH POLL
@@ -54,7 +76,7 @@
           class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
           @click="$emit('pollEditData')">
           EDIT
-        </button>
+        </button> -->
       </div>
     </div>
     <poll-results

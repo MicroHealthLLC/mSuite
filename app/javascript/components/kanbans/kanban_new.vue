@@ -25,7 +25,7 @@
           </div>
           <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100" title="Add a Task">
             <a role="button" class="bg-transparent border-0 pe-none">
-              <i class="fas fa-plus position-absolute mt-1 text-secondary"></i>
+              <i class="fas fa-solid fa-list position-absolute mt-1 text-secondary"></i>
               <span class="task_plus ml-4"> Add a Task </span>
             </a>
           </div>
@@ -33,7 +33,7 @@
         <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
           <div :id="'block' + block.id" class="d-inline-block w-100 block">
             <div class="pointer w-100 d-flex" @click="selectedNode(index)">
-              <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add Title to Task"/>
+              <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add text here" />
               <div class="pointer float-right">
                 <div @click="deleteBlockConfirm(block)">
                   <i class="fas ml-2 fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
