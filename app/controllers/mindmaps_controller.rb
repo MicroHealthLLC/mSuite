@@ -170,7 +170,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def clone_map
-    clone_msuite = @mindmap.deep_clone include: [:nodes, { nodes: :childs }]
+    clone_msuite = @mindmap.amoeba_dup
     if clone_msuite.save
       render json: { mindmap: clone_msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
     else

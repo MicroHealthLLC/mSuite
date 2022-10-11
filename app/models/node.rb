@@ -11,7 +11,8 @@ class Node < ApplicationRecord
   belongs_to :parent, class_name: 'Node',foreign_key: 'id', optional: true
 
   before_create :set_default_export_index
-
+  before_create :set_mindmap
+  
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
 
@@ -24,7 +25,18 @@ class Node < ApplicationRecord
   end
   
   amoeba do
+    include_association :childs
+    # include_association :mindmap
     enable
+  end
+  
+  def set_mindmap
+    if self.parent_node
+      node = Node.find_by_id(self.parent_node)
+      if node && node.mindmap.id != self.mindmap.id
+        self.mindmap_id = node.mindmap.id
+      end
+    end
   end
 
   def validate_kanban
