@@ -7,30 +7,26 @@ class Node < ApplicationRecord
   belongs_to :stage, optional: true
 
   has_many_attached :node_files, dependent: :destroy
-  has_many :childs, class_name: 'Node', foreign_key: 'parent_node'
-  belongs_to :parent, class_name: 'Node',foreign_key: 'id', optional: true
+  has_many :children, class_name: 'Node', foreign_key: 'parent_node'
+  belongs_to :parent, class_name: 'Node', foreign_key: 'id', optional: true
 
-  before_create :set_default_export_index
-  before_create :set_mindmap
-  
+  before_create :set_default_export_index, :set_children
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
-
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
 
+  amoeba do
+    include_association :children
+    enable
+  end
+
   def validate_title
     return self.mindmap.mm_type == "tree_map"
   end
-  
-  amoeba do
-    include_association :childs
-    # include_association :mindmap
-    enable
-  end
-  
-  def set_mindmap
+
+  def set_children
     if self.parent_node
       node = Node.find_by_id(self.parent_node)
       if node && node.mindmap.id != self.mindmap.id
@@ -50,10 +46,7 @@ class Node < ApplicationRecord
     else
       parent = Node.find_by_id(self.parent_node)&.title
     end
-    self.as_json.merge(
-                       status: stage.try(:title),
-                       parent: parent
-                       ).as_json
+    self.as_json.merge(status: stage.try(:title), parent: parent).as_json
   end
 
   def parent_changed

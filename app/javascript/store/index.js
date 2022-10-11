@@ -154,12 +154,11 @@ const store = new Vuex.Store({
         commit('setMSuite', res.data.mindmap)
       })
     },
-    async cloneMap({ commit, state }){
+    async cloneMap({state ,dispatch}){
       await HTTP.get(`/msuite/${state.mSuite.unique_key}/clone_map`).then(res =>{
-        commit('setMSuite', res.data.mindmap)
-        router.push({ name: 'maproot', params: { key: res.data.mindmap.unique_key} })
-        router.go()
+      window.open(`/msuite/${res.data.mindmap.unique_key}`)
       })
+      dispatch('getMsuite')
     },
     async resetMindmap ({ commit, state }) {
       if(state.mSuite.mm_type != 'kanban'){
