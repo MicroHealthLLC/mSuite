@@ -16,7 +16,7 @@
         <el-card class="box-card mt-2 w-75">
           <div draggable="true" @dragstart="dragStartQuestion($event,index)" @drop="dragDropQuestion($event,index)"
             ondragover="event.preventDefault();">
-            <el-button v-if="index != 0" type="danger" class="float-right" icon="el-icon-minus" size="mini" circle
+            <el-button v-if="index != 0" type="danger" class="float-right" icon="el-icon-minus" size="mini" circle v-b-tooltip.hover title="Remove Question"
               @click="deleteQuestion(index)">
             </el-button>
             <div class="d-flex mt-2">
@@ -43,7 +43,7 @@
                   </el-input>
                 </el-col>
                 <el-col :span="2">
-                  <el-button v-if="index > 1" type="danger" icon="el-icon-minus" size="mini" circle class="mt-1"
+                  <el-button v-if="index > 1" type="danger" icon="el-icon-minus" size="mini" circle class="mt-1" v-b-tooltip.hover.right title="Remove Option"
                     @click="delAnswer(questions, answer, index)">
                   </el-button>
                 </el-col>
@@ -77,11 +77,8 @@
         <date-picker id="input" class="border-0 rounded-0 py-0 px-3" v-model='poll.duedate'
           :placeholder="poll.duedate ? duedate : 'MM/DD/YYYY'" :format="format" ref="datePicker">
         </date-picker>
-        <!-- <el-tooltip class="item" effect="dark" content="Clear Date"> -->
-        <el-button type="danger" icon="el-icon-close" size="mini" circle @click="poll.duedate = ''"></el-button>
-        <!-- <i class="mt-2 fas fa-times text-danger" @click="poll.duedate = ''"></i> -->
-        <!-- </el-tooltip> -->
-
+        <el-button type="danger" icon="el-icon-close" size="mini" circle @click="poll.duedate = ''" v-b-tooltip.hover.right title="Clear Date">
+        </el-button>
       </div>
       <div class="mb-4">
         <span>
@@ -90,9 +87,10 @@
         <input id="input" type="checkbox" class="userCheck" v-model='poll.userNameRequire' />
       </div>
       <div>Poll URL:
-        <span class="ml-2 pollURL">
+        <span id="pollURL" class="ml-2 pollURL">
           https://msuite.app/msuite/{{poll.url}}
         </span>
+        <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(poll.url)"></el-button>
       </div>
       <el-button round class="bg-dark text-light mt-2 py-2 px-3 float-right"
         :class="createPermit ? 'cursor-disabled':''" :disabled="createPermit" @click="createPin()">
@@ -166,6 +164,16 @@ export default {
     }
   },
   methods: {
+    copy(s) {
+      let newURL = `https://msuite.app/msuite/${s}`
+      navigator.clipboard.writeText(newURL)
+        .then(() => {
+          alert("Copied to clipboard")
+        })
+        .catch(() => {
+          alert("Unable to copy")
+        })
+    },
     addAnswersOpt(questions) {
       questions.answerField.push({
         value: this.poll.Questions[0].answerField.length + 1,
