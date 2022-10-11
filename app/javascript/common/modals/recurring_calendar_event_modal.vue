@@ -41,7 +41,7 @@
       </div>
       <div class="row my-2">  
         <span class="col-1 d-flex ">
-          <input type="radio" id="never" class="form-control" name="drone" value="never"checked v-model="endsOn">
+          <input type="radio" id="never" class="form-control" name="drone" value="never" checked v-model="endsOn">
         </span>
         <span class="col-11 d-flex content-justified-start px-0 mt-2">
           <label for="never" class="form-label">Never</label>
@@ -66,7 +66,7 @@
           <label for="after" class="form-label">After</label>
         </span>
           <span class="col-3 ml-2 d-flex content-justified-start">  
-            <input :disabled="endsOn !='after'" class="occurences form-control" type="number" value="1" min="1" max="53" v-model="occurences"/>
+            <input v-model="occurences" :disabled="endsOn !='after'" class="occurences form-control" type="number" value="1" min="1" max="53" />
           </span>
           <span class="col-1 mt-2 px-0">
             Occurences
@@ -111,7 +111,7 @@
         endsOn: 'never',
         occurences: 1,
         endOnDate: null,
-        format: 'YYYY-MM-DD',
+        format: 'MM/DD/YYYY',
         events: [],
         isValueInvalid: false
       }
@@ -249,7 +249,7 @@
         this.repeatType = 'Week'
         this.endsOn = 'never'
         this.occurences = 1
-        this.format = 'YYYY-MM-DD'
+        this.format = 'MM/DD/YYYY'
         this.events = []
       },
       showDay(val){

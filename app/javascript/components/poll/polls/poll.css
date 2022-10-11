@@ -23,8 +23,11 @@ hr {
 
 }
 input.userCheck {
-  width: 8vw;
-  height: 3vh;
+  width: 15px;
+  height: 15px;
+}
+.border-red {
+  border: 1px solid red !important;
 }
 .graphs{
   width: 80vw;

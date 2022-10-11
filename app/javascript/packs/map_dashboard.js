@@ -1,4 +1,5 @@
-
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 import Mindmap from 'components/dashboard.vue'
 import NavigationBar from "common/navigation_bar";
 import router from 'routers/mindmaps'
@@ -21,6 +22,7 @@ Vue.use(ActionCableVue, {
   connectImmediately: true
 })
 Vue.use(Vuex);
+Vue.use(ElementUI);
 Vue.use(VueTextareaAutosize)
 Vue.use(VueCookies);
 Vue.use(router)

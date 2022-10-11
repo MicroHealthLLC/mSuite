@@ -103,6 +103,10 @@ $focus-ring: 0px 0px 0px 2px $dark;
   }
 }
 
+.pollURL {
+  text-decoration: underline;
+}
+
 @media screen and (-ms-high-contrast: active) {
   .toggle-track {
     border-radius: 0;

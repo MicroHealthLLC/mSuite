@@ -141,6 +141,7 @@
       this.zmInScale(this.zoomInScale)
       this.zmOutScale(this.zoomOutScale)
       this.resetZmScale(this.resetZoomScale)
+      window.addEventListener('wheel', this.transformScale)
     },
     components: {
       ColorPalette
@@ -174,6 +175,14 @@
           this.$store.dispatch('setScaleFactor', this.$store.getters.getScaleFactor - 0.05)
         }
         this.$refs.refTree.zoomOut()
+      },
+      transformScale(event) {
+        if (event.deltaY < 0) {
+          this.zoomInScale()
+        }
+        else if (event.deltaY > 0) {
+          this.zoomOutScale()
+        }
       },
       resetZoomScale() {
         this.$refs.refTree.restoreScale()
