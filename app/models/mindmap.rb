@@ -15,7 +15,6 @@ class Mindmap < ApplicationRecord
 
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
-
   before_validation :generate_random_key, on: :create
   before_validation :set_will_delete_at_date, on: :create
   validates_uniqueness_of :unique_key, uniqueness: true, case_sensitive: false
@@ -24,15 +23,19 @@ class Mindmap < ApplicationRecord
   validates_uniqueness_of :name, case_sensitive: false, if: Proc.new { |mSuite| mSuite.name != 'Central Idea' }
   validates :name, presence: true
   validates :mm_type, presence: true
-
+  
   enum status: { active: 0, archived: 1 }
   enum is_save: { is_public: 0, is_private: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
   enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11}
-
+  
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
+  
+  amoeba do
+    enable
+  end
   
   def to_json
     self.as_json.merge(

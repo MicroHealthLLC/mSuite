@@ -2,7 +2,7 @@ require 'json'
 class MindmapsController < AuthenticatedController
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
-  before_action :set_mindmap, only: [:reset_password, :update, :show, :compute_child_nodes, :reset_mindmap, :destroy]
+  before_action :set_mindmap, only: [:reset_password, :update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map]
   before_action :verify_password, only: :show
   before_action :check_password_update, only: :update
   include HistoryConcern
@@ -167,6 +167,15 @@ class MindmapsController < AuthenticatedController
         fetched_mindmap.destroy
       end
     end  
+  end
+
+  def clone_map
+    clone_msuite = @mindmap.amoeba_dup
+    if clone_msuite.save
+      render json: { mindmap: clone_msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
+    else
+      render json: { mindmap: clone_msuite.to_json, messages: @mindmap.errors.full_messages, errors: clone_msuite.errors.to_json }, status: :found
+    end
   end
 
   def sendkeys; end

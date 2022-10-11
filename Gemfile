@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 # ruby '2.6.1'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 6.1.5.1'
 # Use postgresql as the database for Active Record
 # gem 'pg', '>= 0.18', '< 2.0'
 gem 'mysql2'
@@ -43,6 +43,9 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem "mock_redis"
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec', require: false
+  gem 'rubocop-performance', require: false
 end
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
@@ -60,8 +63,9 @@ gem 'activeadmin'
 gem 'deep_cloneable', '~> 3.2.0'
 gem 'activeadmin_addons'
 gem 'cancancan'
-gem 'omniauth-office365', github: 'jcarbo/omniauth-office365'
+gem 'omniauth-office365', path: './lib/omniauth-office365'
 gem 'omniauth-google-oauth2'
 gem 'serviceworker-rails'
 gem 'webpush'
+gem 'omniauth-rails_csrf_protection', '~> 0.1'
 gem 'amoeba'
