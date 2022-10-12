@@ -96,37 +96,43 @@
       await this.$store.dispatch('getMSuite').then(res => {
         this.dataLoaded = true
       })
+      this.is_verified = this.$store.getters.getDataMsuite.is_verified
     },
     mounted: async function() {
       this.checkNotifs('event')
     },
     computed: {
       viewIs() {
-        switch (this.$store.getters.getMsuite.mm_type) {
-          case "kanban":
-            return "KanbanView"
-          case "tree_map":
-            return "TreeMap"
-          case "whiteboard":
-            return "Whiteboard"
-          case "tree_chart":
-            return "TreeChart"
-          case "flowmap":
-            return "TreeChart"
-          case "todo":
-            return "ToDo"
-          case "Notepad":
-            return "Notepad"
-          case "spreadsheet":
-            return "SpreadSheet"
-          case "poll":
-            return "Poll"
-          case "pollvote":
-            return "VotingPoll"
-          case "calendar":
-            return "Calendar"
-          default:
-            return "MindmapView"
+        if(this.is_verified){
+          switch (this.$store.getters.getMsuite.mm_type) {
+            case "kanban":
+              return "KanbanView"
+            case "tree_map":
+              return "TreeMap"
+            case "whiteboard":
+              return "Whiteboard"
+            case "tree_chart":
+              return "TreeChart"
+            case "flowmap":
+              return "TreeChart"
+            case "todo":
+              return "ToDo"
+            case "Notepad":
+              return "Notepad"
+            case "spreadsheet":
+              return "SpreadSheet"
+            case "poll":
+              return "Poll"
+            case "pollvote":
+              return "VotingPoll"
+            case "calendar":
+              return "Calendar"
+            default:
+              return "MindmapView"
+          }
+        }
+        else{
+          return "PasswordView"
         }
       }
     },
