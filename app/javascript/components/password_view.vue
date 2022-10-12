@@ -10,10 +10,10 @@
   import PasswordModal from '../common/modals/password_modal'
   import ErrorModal from '../common/modals/error_modal'
   export default {
-    props:['currentMindMap'],
     data() {
       return {
-        password: ""
+        password: "",
+        currentMindMap: this.$store.getters.getMsuite
       }
     },
     mounted() {
