@@ -3,7 +3,7 @@ export default {
   data(){
     return{
       mindmap_id: 0,
-      storage: this.$store.state
+      storage: null
     }
   },
   methods: {
@@ -27,6 +27,17 @@ export default {
       });
     },
     sendLocals(isEditing){
+      let state = this.$store.state
+      this.storage = {   
+        user_id           : state.user_id,
+        user              : state.user,
+        userEdit          : state.userEdit,
+        mindmap_id        : state.mindmap_id,
+        userList          : state.userList,
+        temporaryUser     : state.temporaryUser,
+        nodeNumber        : state.nodeNumber,
+        canvas            : state.canvas
+      }
       this.$store.dispatch('setUserEdit', this.storage.user)
       this.$store.dispatch('mindmapId', this.mindmap_id)
       this.cableSend(isEditing)

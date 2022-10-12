@@ -85,7 +85,6 @@
         redoNodes: [],
         undoDone: false,
         nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
-        temporaryUser: '',
         saveElement: false,
         parent_nodes: {
           label: 'centralized',
@@ -132,8 +131,6 @@
     },
     channels: {
       WebNotificationsChannel: {
-        connected() {},
-        rejected() {},
         received(data) {
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
@@ -144,6 +141,7 @@
               location.reload()
             }, 1000)
           }
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {}
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
@@ -157,12 +155,15 @@
             this.redoNodes = []
             this.getTreeMap()
           } 
+          else if (data.message === "Node is deleted" && this.currentMindMap.id === data.node.mindmap_id) {
+            this.nodes.pop(this.nodes.find(x => x.id === data.node.id))
+            this.buildMap()
+          }
           else {
             this.getTreeMap()
           }
 
         },
-        disconnected() {}
       }
     },
     methods: {
@@ -260,7 +261,6 @@
         this.hiddenNode = false
         this.addChildTreeMap = false
         this.colorSelected = false
-        this.sendLocals(false)
       },
       updateSelectedNode: async function(obj){
         if(this.undoNodes.length > 0) {
@@ -282,7 +282,6 @@
         }
         this.updateTreeMaps()
         await http.put(`/nodes/${obj.id}`, obj).then((res) => {
-          this.sendLocals(false)
         }).catch(err => {
           this.err = err.message
           this.$refs['errorAddNode'].open()
@@ -293,7 +292,6 @@
         this.addChildTreeMap = false
       },
       deleteSelectedNode: async function(obj){
-        this.updateTreeMaps()
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
@@ -310,7 +308,8 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
-        this.sendLocals(false)
+        // this.sendLocals(false)
+        // this.updateTreeMaps()
       },
       submitChildNode: async function (obj) {
 
