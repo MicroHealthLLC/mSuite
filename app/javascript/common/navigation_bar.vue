@@ -388,9 +388,7 @@
         return pollDuedate
       },
       expireDateTime () {
-        let x = new Date(this.$store.getters.getMsuite.will_delete_at)
-        let formattedX = moment(x).add(1,'days').format("ddd MMM Do, YYYY")
-        return formattedX;
+        return moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1,'days').format("ddd MMM Do, YYYY")
       },
       checkMSuiteTypes () {
         return this.mm_type==='kanban' || this.mm_type==='tree_chart' || this.mm_type==='flowmap' || this.mm_type==='todo' || this.mm_type==='tree_map' || this.mm_type==='calendar'
