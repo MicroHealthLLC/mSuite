@@ -389,7 +389,7 @@
       },
       expireDateTime () {
         let x = new Date(this.$store.getters.getMsuite.will_delete_at)
-        let formattedX = moment(x).add(1,'days').format("MMM Do, YYYY")
+        let formattedX = moment(x).add(1,'days').format("ddd MMM Do, YYYY")
         return formattedX;
       },
       checkMSuiteTypes () {
