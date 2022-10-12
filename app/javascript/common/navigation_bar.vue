@@ -389,7 +389,8 @@
       },
       expireDateTime () {
         let x = new Date(this.$store.getters.getMsuite.will_delete_at)
-        return x.toDateString();
+        let formattedX = moment(x).add(1,'days').format("MMM Do, YYYY")
+        return formattedX;
       },
       checkMSuiteTypes () {
         return this.mm_type==='kanban' || this.mm_type==='tree_chart' || this.mm_type==='flowmap' || this.mm_type==='todo' || this.mm_type==='tree_map' || this.mm_type==='calendar'
