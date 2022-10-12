@@ -12,11 +12,14 @@
           <p class="mb-0 text-left text-center"> This will automatically delete if inactive for
             <code class="pointer">
               <input
-                :value="expDeleteDays"
+                v-model="expDaysInput"
                 type="number"
                 class="w-10"
+                min="1"
+                :max="defaultDeleteDays"
+                @click.prevent="onClick"
                 @keydown.enter.prevent.native
-                v-debounce:3000ms="expireDate"
+                v-debounce:500ms="expireDate"
                 id="willDeleteAt"
               />
             </code>
@@ -63,7 +66,7 @@
       </div>
     </sweet-modal>
     <sweet-modal ref="Error" class="of_v">
-      <p>Number of days not greater then {{ defaultDeleteDays }}</p>
+      <p>Number of days cannot be greater than {{ defaultDeleteDays }}</p>
     </sweet-modal>
   </div>
 </template>
@@ -74,6 +77,7 @@
     name: "ConfirmSaveKeyModal",
     data () {
       return {
+        expDaysInput: this.$store.getters.getDataMsuite.expDays,
         expDays: '',
         deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
         currentMindMap: this.$store.getters.getMsuite,
@@ -87,8 +91,8 @@
         return window.location.href
       },
       expDeleteDays () {
-        if(this.currentMindMap && this.isSaveMap == null) return this.deleteAfter
-        else if(this.currentMindMap) return this.findTotalDaysBetweenDates()
+        /* if(this.currentMindMap && this.isSaveMap == null ) return this.deleteAfter
+        else  */return this.findTotalDaysBetweenDates()
       }
     },
     watch: {
@@ -112,6 +116,9 @@
           this.currentMindMap.will_delete_at = this.deletedAtMSuite
         }
       },
+      onClick() {
+        this.expireDate(this.expDaysInput)
+      },
       updateInActiveDate () {
         this.$emit("updateInActiveDate", this.currentMindMap)
       },
@@ -119,6 +126,7 @@
         this.$emit("isSave")
       },
       goHome () {
+        //console.log(this.expDays)
         this.is_save()
         if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         this.$emit("changeIsMsuitSaved")
@@ -143,11 +151,14 @@
       findTotalDaysBetweenDates() {
         let currentDate = new Date();
         let comingDate = new Date(this.$store.getters.getMsuite.will_delete_at);
+        //console.log(currentDate)
+        //console.log(comingDate)
         return this.totalDays(comingDate,currentDate)
       },
       totalDays (date_1, date_2) {
         let difference = date_1.getTime() - date_2.getTime();
         let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        //console.log(TotalDays)
         return TotalDays;
       }
     }
