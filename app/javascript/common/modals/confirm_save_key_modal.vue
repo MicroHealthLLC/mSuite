@@ -12,13 +12,14 @@
           <p class="mb-0 text-left text-center"> This will automatically delete if inactive for
             <code class="pointer">
               <input
-                v-model="expDeleteDays"
+                v-model="expDaysInput"
                 type="number"
                 class="w-10"
                 min="1"
                 :max="defaultDeleteDays"
+                @click.prevent="onClick"
                 @keydown.enter.prevent.native
-                v-debounce:3000ms="expireDate"
+                v-debounce:500ms="expireDate"
                 id="willDeleteAt"
               />
             </code>
@@ -76,6 +77,7 @@
     name: "ConfirmSaveKeyModal",
     data () {
       return {
+        expDaysInput: this.$store.getters.getDataMsuite.expDays,
         expDays: '',
         deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
         currentMindMap: this.$store.getters.getMsuite,
@@ -89,7 +91,6 @@
         return window.location.href
       },
       expDeleteDays () {
-        console.log(this.$store.getters.getDataMsuite)
         /* if(this.currentMindMap && this.isSaveMap == null ) return this.deleteAfter
         else  */return this.findTotalDaysBetweenDates()
       }
@@ -114,6 +115,9 @@
           this.$refs.Error.open()
           this.currentMindMap.will_delete_at = this.deletedAtMSuite
         }
+      },
+      onClick() {
+        this.expireDate(this.expDaysInput)
       },
       updateInActiveDate () {
         this.$emit("updateInActiveDate", this.currentMindMap)
