@@ -77,7 +77,7 @@
     name: "ConfirmSaveKeyModal",
     data () {
       return {
-        expDaysInput: this.$store.getters.getDataMsuite.expDays,
+        expDaysInput: this.findTotalDaysBetweenDates(),
         expDays: '',
         deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
         currentMindMap: this.$store.getters.getMsuite,
@@ -117,6 +117,7 @@
         }
       },
       onClick() {
+        console.log(this.currentMindMap.will_delete_at)
         this.expireDate(this.expDaysInput)
       },
       updateInActiveDate () {
@@ -151,8 +152,8 @@
       findTotalDaysBetweenDates() {
         let currentDate = new Date();
         let comingDate = new Date(this.$store.getters.getMsuite.will_delete_at);
-        //console.log(currentDate)
-        //console.log(comingDate)
+        console.log(currentDate)
+        console.log(comingDate)
         return this.totalDays(comingDate,currentDate)
       },
       totalDays (date_1, date_2) {
