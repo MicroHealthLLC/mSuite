@@ -62,7 +62,7 @@
                               </b-col>
                               <b-col cols="2" sm="2" class="d-flex flex-row">
                                 <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                                <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-eject"></i></b-button>
+                                <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-ban"></i></b-button>
                               </b-col>
                             </b-row>
                           </b-form>
@@ -98,7 +98,7 @@
                               ref="datePicker"
                               ></date-picker>
                         </b-col>
-                        <b-col sm="2" cols="2" class="d-flex flex-row">
+                        <b-col sm="2" cols="2" class="d-flex flex-row justify-content-end">
                           <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
                           <b-button class="ml-1" v-b-tooltip.hover variant="warning" @click="clearTodoObj" title="Reset"> <i class="fas fa-undo-alt"></i> </b-button>
                         </b-col>
@@ -156,7 +156,7 @@
         disabledBefore: new Date(),
         placeHolderText: 'Your Todo',
         fieldDisabled: false,
-        format: 'YYYY-MM-DD',
+        format: 'MM/DD/YYYY',
         editInProgress: false,
         undoNodes: [],
         redoNodes: [],
