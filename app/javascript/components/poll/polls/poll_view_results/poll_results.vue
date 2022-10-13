@@ -9,10 +9,6 @@
           class="float-right text-white py-2 px-3"
           @click="$emit('showPoll')">GO BACK
         </el-button>
-        <!-- <button
-          class="float-right btn btn-warning text-white py-0 px-3 rounded-0"
-          @click="$emit('showPoll')">Go Back
-        </button> -->
       </div>
       <span>Poll Expiration Date: {{ expirationDate }}</span>
       <div class="graphs overflow-auto">
@@ -34,14 +30,12 @@
   import http from "../../../../common/http"
   import { convertArrayToCSV } from 'convert-array-to-csv'
   import moment from 'moment'
-
   import 'pivottable'
   import 'pivottable/dist/pivot.min.js'
   import 'pivottable/dist/pivot.min.css'
   import $ from 'jquery'
   import 'jquery-ui-bundle'
   import 'jquery-ui-bundle/jquery-ui.css'
-
   import '../../../../common/plotly.js'
   import '../../../../common/plotly_renderers.min.js'
 
@@ -62,11 +56,11 @@
     },
     mounted: async function(){
       await this.getVoteData()
-      if (this.pollData.duedate) this.expirationDate = moment(new Date(this.pollData.duedate)).format('DD MMM YYYY')
+      if(this.pollData.duedate) this.expirationDate = moment(new Date(this.pollData.duedate)).format('DD MMM YYYY')
       else this.expirationDate = 'None'
       setTimeout(()=>{
         this.createResultData()
-      }, 500)
+      },500)
     },
     methods:{
       async getVoteData() {

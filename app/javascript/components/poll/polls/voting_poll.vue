@@ -131,7 +131,7 @@
     },
     updated(){
       if(this.pollData.voters) this.pollData.voters.forEach(voter => {
-        if(voter == localStorage.user_id) this.returnFun = true
+        if(voter == this.$store.state.user_id) this.returnFun = true
       })
     },
     methods: {
@@ -160,12 +160,12 @@
              return
           } else {
             this.errorTriggered = false
-            question.voters.push(localStorage.user_id)
+            question.voters.push(this.$store.state.user_id)
             if ( question.checked.length == undefined ) {
               if ( question.answerField[question.checked.value - 1].votes == null){
                 question.answerField[question.checked.value - 1].votes = []
               }
-              question.answerField[question.checked.value - 1].votes.push(localStorage.user)
+              question.answerField[question.checked.value - 1].votes.push(this.$store.state.user)
             } else {
               question.checked.forEach( (answer,index) => {
                 if ( question.answerField[index].votes == null ) {
@@ -176,7 +176,7 @@
                     if ( question.votes == null ) {
                       question.votes = []
                     }
-                    question.votes.push(localStorage.user)
+                    question.votes.push(this.$store.state.user)
                   }
                 })
               })
@@ -198,7 +198,7 @@
       voted(){
         this.pollData.Questions.forEach( question => {
             question.voters.forEach(voter => {
-            if(voter == localStorage.user_id) this.returnFun = true
+            if(voter == this.$store.state.user_id) this.returnFun = true
           })
         })
         if (this.returnFun) {
