@@ -24,11 +24,19 @@
           class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
           @blur="mSuiteTitleUpdate"
           placeholder="Enter mSuite Map Title"
-        >
-        </input>
+        />
       </span>
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
+          <a
+            href="javascript:;"
+            role="button"
+            v-b-tooltip.hover title="Duplicate"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent="$store.dispatch('cloneMap')"
+          >
+            <i class="fas fa-clone icons d-flex center_flex"></i>
+          </a>
           <a
             v-if="mm_type != 'pollvote'"
             href="javascript:;"
@@ -380,8 +388,7 @@
         return pollDuedate
       },
       expireDateTime () {
-        let x = new Date(this.$store.getters.getMsuite.will_delete_at)
-        return x.toDateString();
+        return moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1,'days').format("ddd MMM Do, YYYY")
       },
       checkMSuiteTypes () {
         return this.mm_type==='kanban' || this.mm_type==='tree_chart' || this.mm_type==='flowmap' || this.mm_type==='todo' || this.mm_type==='tree_map' || this.mm_type==='calendar'
