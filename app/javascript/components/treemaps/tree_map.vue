@@ -141,7 +141,9 @@
               location.reload()
             }, 1000)
           }
-          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {}
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {
+            
+          }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
@@ -156,7 +158,7 @@
             this.getTreeMap()
           } 
           else if (data.message === "Node is deleted" && this.currentMindMap.id === data.node.mindmap_id) {
-            this.nodes.pop(this.nodes.find(x => x.id === data.node.id))
+            this.spliceNodes(data.node.id)
             this.buildMap()
           }
           else {
@@ -308,8 +310,8 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
-        // this.sendLocals(false)
-        // this.updateTreeMaps()
+        this.sendLocals(false)
+        this.updateTreeMaps()
       },
       submitChildNode: async function (obj) {
 
@@ -564,6 +566,12 @@
           this.child_node.mindmap_id = this.currentMindMap.id
           this.undoDone = false
           this.deleteSelectedNode(this.child_node)
+        }
+      },
+      spliceNodes(id){
+        const index = this.nodes.indexOf(this.nodes.find(x => x.id === id))
+        if (index > -1) { 
+          this.nodes.splice(index, 1); 
         }
       },
       addNodeToTreeMap(value, event){

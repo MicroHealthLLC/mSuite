@@ -530,6 +530,12 @@
             console.log(err)
           })
       },
+      spliceNodes(id){
+        const index = this.nodes.indexOf(this.nodes.find(x => x.id === id))
+        if (index > -1) { 
+          this.nodes.splice(index, 1); 
+        }
+      },
       redoObj(){
         http
           .put(`/msuite/${this.$store.getters.getMsuite.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
@@ -546,12 +552,13 @@
     },
     channels: {
       WebNotificationsChannel: {
-        connected() {},
-        rejected() {},
         received(data) {
           if (data.message === "Mindmap Deleted" && this.$store.getters.getMsuite.id === data.mindmap.id)
           {
             window.open('/','_self')
+          }
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {
+            
           }
           else if(data.message === "Password Updated" && this.$store.getters.getMsuite.id === data.mindmap.id)
           {
@@ -570,6 +577,10 @@
             this.undoNodes = []
             this.redoNodes = []
             this.fetchTreeChart()
+          }
+          else if (data.message === "Node is deleted" && this.$store.getters.getMsuite.id === data.node.mindmap_id) {
+            this.spliceNodes(data.node.id)
+            this.renderTreeChart()
           }
           else
           {
