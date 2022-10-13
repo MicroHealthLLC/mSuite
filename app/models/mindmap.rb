@@ -13,6 +13,9 @@ class Mindmap < ApplicationRecord
 
   has_many_attached :node_files, dependent: :destroy
 
+  has_one :child, class_name: 'Mindmap', foreign_key: 'parent_id'
+  belongs_to :parent, class_name: 'Mindmap', optional: true
+
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
   before_validation :generate_random_key, on: :create

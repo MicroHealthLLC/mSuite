@@ -6,8 +6,7 @@
       </div>
       <el-row>
         <el-col :span="22">
-          <el-input class="mt-2" type="textarea" autosize v-model="poll.description"
-            placeholder="Add a description here...">
+          <el-input class="mt-2" type="textarea" autosize v-model="poll.description" @blur="saveData" placeholder="Add a description here...">
           </el-input>
         </el-col>
       </el-row>
@@ -24,20 +23,19 @@
             </div>
             <el-row :gutter="10">
               <el-col :span="22">
-                <el-input autosize type="textarea" v-model="questions.question"     :class="questions.question == '' && showError ? 'shake d-block border-red':''"
+                <el-input autosize type="textarea" v-model="questions.question" @blur="saveData" :class="questions.question == '' && showError ? 'shake d-block border-red':''"
                   placeholder="Type question here..." required>
                 </el-input>
               </el-col>
             </el-row>
             <h5 class="mt-3">Answer Options*</h5>
             <div class="text-danger">Two options required</div>
-            <!-- <div v-for="(answer, index) in questions.answerField"> -->
             <div v-for="(answer, index) in questions.answerField" draggable="true"
               @dragstart="dragStartAns($event, questions, index)" @drop="dragDropAns($event, questions, index)"
               ondragover="event.preventDefault();">
               <el-row :gutter="10" class="mt-2">
                 <el-col :span="22">
-                  <el-input :id="'answer' + index" type="input" v-model="answer.text"
+                  <el-input :id="'answer' + index" type="input" @blur="saveData" v-model="answer.text"
                     :class=" ( answer.text == '' || answer.text == undefined ) && showError ? 'shake d-block border-red':''"
                     placeholder="Type answer here..." required>
                   </el-input>
@@ -54,7 +52,7 @@
             </el-button>
             <div class="mt-2 d-flex">
               <div>Allowed selectable options</div>
-              <el-input-number class="ml-2" size="mini" v-model="questions.allowedAnswers" :min="1"
+              <el-input-number class="ml-2" size="mini" @change="saveData" v-model="questions.allowedAnswers" :min="1"
                 :max="questions.answerField.length"></el-input-number>
             </div>
           </div>
@@ -74,7 +72,7 @@
         <span>
           Poll End Date
         </span>
-        <date-picker id="input" class="border-0 rounded-0 py-0 px-3" v-model='poll.duedate'
+        <date-picker id="input" @change="saveData" class="border-0 rounded-0 py-0 px-3" v-model='poll.duedate'
           :placeholder="poll.duedate ? duedate : 'MM/DD/YYYY'" :format="format" ref="datePicker">
         </date-picker>
         <el-button type="danger" icon="el-icon-close" size="mini" circle @click="poll.duedate = ''" v-b-tooltip.hover.right title="Clear Date">
@@ -84,7 +82,7 @@
         <span>
           Require User Names
         </span>
-        <input id="input" type="checkbox" class="userCheck" v-model='poll.userNameRequire' />
+        <input id="input" type="checkbox" class="userCheck" @change="saveData" v-model='poll.userNameRequire' />
       </div>
       <div>Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
@@ -96,13 +94,6 @@
         :class="createPermit ? 'cursor-disabled':''" :disabled="createPermit" @click="createPin()">
         PREVIEW
       </el-button>
-      <!-- <button
-        class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
-        :class="createPermit ? 'cursor-disabled':''"
-        :disabled = "createPermit"
-        @click="createPin()">
-        PREVIEW
-      </button> -->
     </div>
     <sweet-modal ref="saved_success" class="of_v" icon="success">
       Poll Saved Successfully
@@ -112,8 +103,9 @@
 
 <script>
 import http from "../../../common/http"
-import DatePicker from 'vue2-datepicker';
+import DatePicker from 'vue2-datepicker'
 import moment from 'moment'
+import TemporaryUser from "../../../mixins/temporary_user.js"
 
 export default {
   props: ["pollData", "currentMindMap"],
@@ -142,6 +134,7 @@ export default {
       result_data: [],
     }
   },
+  mixins: [TemporaryUser],
   components: {
     DatePicker
   },
@@ -151,6 +144,7 @@ export default {
     }
   },
   mounted() {
+    this.subscribeCable(this.currentMindMap.id)
     if (this.pollData) {
       this.poll = this.pollData
     }
@@ -159,7 +153,7 @@ export default {
   watch: {
     pollData: {
       handler(value) {
-        this.poll = value
+        if (value != null) this.poll = value
       }
     }
   },
@@ -240,6 +234,7 @@ export default {
         for (var i = 0; i < 19; i++)
           url += possible.charAt(Math.floor(Math.random() * possible.length));
         this.poll.url = url
+        this.saveData()
       }
     },
     checkAllFields() {
@@ -262,6 +257,70 @@ export default {
       return result_value
     },
     checkPollPin() {
+      return this.poll.pin == undefined || this.poll.pin == ''
+      this.savePoll()
+    },
+    savePoll(request) {
+      this.$emit("updateVote" , this.poll)
+    },
+    saveData(){
+      let mycanvas = {
+        pollData  : this.poll,
+        user      : this.$store.getters.getUser
+      }
+      mycanvas = JSON.stringify(mycanvas)
+      let mindmap = { mindmap: { canvas: mycanvas } }
+      this.$store.dispatch('updateMSuite', mindmap)
+      this.sendLocals(false)
+    },
+    delAnswer(questions, answer, index){
+      if ( questions.answerField.length > 2 ) {
+        questions.answerField.splice(index, 1)
+      }
+    },
+    deleteQuestion(index){
+      if ( this.poll.Questions.length > 1 ) {
+        this.poll.Questions.splice(index, 1)
+      }
+    },
+    dragStartQuestion(event,question_index){
+      this.q_position = question_index
+    },
+    dragDropQuestion(event,question_index){
+      const drag_question = this.poll.Questions.splice(this.q_position, 1)[0]
+      this.poll.Questions.splice(question_index, 0, drag_question)
+    },
+    dragStartAns(event, questions, answer_index){
+      this.a_position = answer_index
+      this.current_question = event.currentTarget.parentElement.parentElement
+    },
+    dragDropAns(event, questions, answer_index){
+      if ( this.current_question == event.currentTarget.parentElement.parentElement )
+      {
+        const drag_ans = questions.answerField.splice(this.a_position, 1)[0]
+        questions.answerField.splice(answer_index, 0, drag_ans)
+      }
+    },
+    checkAllFields(){
+      let _this = this
+      let result_value
+      _this.poll.Questions.forEach( (question, q_index) => {
+        _this.poll.Questions[q_index].answerField.forEach( (answer,index) => {
+          if ( _this.poll.Questions[q_index].answerField.length > 2 ) {
+            if(answer.text == '') _this.poll.Questions[q_index].answerField.splice(index, 100)
+          }
+        })
+        _this.result_data.push(_this.poll.Questions[q_index].answerField.length < 2 || _this.poll.Questions[q_index].question == '' || _this.poll.Questions[q_index].question == undefined || _this.poll.Questions[q_index].answerField[0].text == '' || _this.poll.Questions[q_index].answerField[1].text == '')
+      })
+      _this.result_data.filter( value => {
+        if (value == true) {
+          result_value = value
+          return
+        }
+      });
+      return result_value
+    },
+    checkPollPin(){
       return this.poll.pin == undefined || this.poll.pin == ''
     }
   }

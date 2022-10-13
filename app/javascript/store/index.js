@@ -150,7 +150,7 @@ const store = new Vuex.Store({
       return {'status': 200}
     },
     async updateMSuite({ commit, state }, obj){
-      await HTTP.put(`/msuite/${state.mSuite.unique_key}`, obj).then(res =>{
+      await HTTP.patch(`/msuite/${state.mSuite.unique_key}`, obj).then(res =>{
         commit('setMSuite', res.data.mindmap)
       })
     },

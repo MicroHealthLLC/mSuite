@@ -126,9 +126,16 @@
       }
     },
     methods: {
+      async getVoteData() {
+        let _this = this
+        let response = await http.get(`/msuite/${this.pollData.url}.json`)
+        if( response.data.mindmap &&
+          JSON.parse(response.data.mindmap.canvas).Questions[0].voters.length > 0) return false
+        else return true
+      },
       createPollingMap() {
         let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote', canvas: JSON.stringify(this.pollData) } }).then((res) => {
+        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then((res) => {
           if(res.data.mindmap.id !== null)
           {
             this.pollData.url = res.data.mindmap.unique_key
