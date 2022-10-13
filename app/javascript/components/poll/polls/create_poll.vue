@@ -6,8 +6,7 @@
       </div>
       <el-row>
         <el-col :span="22">
-          <el-input class="mt-2" type="textarea" autosize v-model="poll.description"
-            placeholder="Add a description here...">
+          <el-input class="mt-2" type="textarea" autosize v-model="poll.description" @blur="saveData" placeholder="Add a description here...">
           </el-input>
         </el-col>
       </el-row>
@@ -24,21 +23,20 @@
             </div>
             <el-row :gutter="10">
               <el-col :span="22">
-                <el-input autosize type="textarea" v-model="questions.question"     :class="questions.question == '' && showError ? 'shake d-block border-red':''"
+                <el-input autosize type="textarea" v-model="questions.question" @blur="saveData" :class="questions.question == '' && showError ? 'shake d-block border-red':''"
                   placeholder="Type question here..." required>
                 </el-input>
               </el-col>
             </el-row>
             <h5 class="mt-3">Answer Options*</h5>
             <div class="text-danger">Two options required</div>
-            <!-- <div v-for="(answer, index) in questions.answerField"> -->
             <div v-for="(answer, index) in questions.answerField" draggable="true"
               @dragstart="dragStartAns($event, questions, index)" @drop="dragDropAns($event, questions, index)"
               ondragover="event.preventDefault();">
               <el-row :gutter="10" class="mt-2">
                 <el-col :span="22">
-                  <el-input :id="'answer' + index" type="input" v-model="answer.text"
-                    :class=" ( answer.text == '' || answer.text == undefined ) && showError ? 'shake d-block border-red':''"
+                  <el-input :id="'answer' + index" type="input" @blur="saveData" v-model="answer.text"
+                    :class="(answer.text == '' || answer.text == undefined) && showError ? 'shake d-block border-red':''"
                     placeholder="Type answer here..." required>
                   </el-input>
                 </el-col>
@@ -54,19 +52,12 @@
             </el-button>
             <div class="mt-2 d-flex">
               <div>Allowed selectable options</div>
-              <el-input-number class="ml-2" size="mini" v-model="questions.allowedAnswers" :min="1"
+              <el-input-number class="ml-2" size="mini" @change="saveData" v-model="questions.allowedAnswers" :min="1"
                 :max="questions.answerField.length"></el-input-number>
             </div>
           </div>
         </el-card>
       </div>
-
-
-      <!-- <button
-        class="btn btn-color mt-2 py-0 px-3 rounded-0"
-        @click="addQuestion">
-        Add Question
-      </button> -->
       <el-button round class="mt-4 btn-color py-1" @click="addQuestion">
         Add Question
       </el-button>
@@ -74,7 +65,7 @@
         <span>
           Poll End Date
         </span>
-        <date-picker id="input" class="border-0 rounded-0 py-0 px-3" v-model='poll.duedate'
+        <date-picker id="input" @change="saveData" class="border-0 rounded-0 py-0 px-3" v-model='poll.duedate'
           :placeholder="poll.duedate ? duedate : 'MM/DD/YYYY'" :format="format" ref="datePicker">
         </date-picker>
         <el-button type="danger" icon="el-icon-close" size="mini" circle @click="poll.duedate = ''" v-b-tooltip.hover.right title="Clear Date">
@@ -84,7 +75,7 @@
         <span>
           Require User Names
         </span>
-        <input id="input" type="checkbox" class="userCheck" v-model='poll.userNameRequire' />
+        <input id="input" type="checkbox" class="userCheck" @change="saveData" v-model='poll.userNameRequire' />
       </div>
       <div>Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
@@ -96,13 +87,6 @@
         :class="createPermit ? 'cursor-disabled':''" :disabled="createPermit" @click="createPin()">
         PREVIEW
       </el-button>
-      <!-- <button
-        class="btn bg-dark text-light mt-2 py-0 px-3 rounded-0 float-right"
-        :class="createPermit ? 'cursor-disabled':''"
-        :disabled = "createPermit"
-        @click="createPin()">
-        PREVIEW
-      </button> -->
     </div>
     <sweet-modal ref="saved_success" class="of_v" icon="success">
       Poll Saved Successfully
@@ -112,8 +96,9 @@
 
 <script>
 import http from "../../../common/http"
-import DatePicker from 'vue2-datepicker';
+import DatePicker from 'vue2-datepicker'
 import moment from 'moment'
+import TemporaryUser from "../../../mixins/temporary_user.js"
 
 export default {
   props: ["pollData", "currentMindMap"],
@@ -142,6 +127,7 @@ export default {
       result_data: [],
     }
   },
+  mixins: [TemporaryUser],
   components: {
     DatePicker
   },
@@ -151,6 +137,7 @@ export default {
     }
   },
   mounted() {
+    this.subscribeCable(this.currentMindMap.id)
     if (this.pollData) {
       this.poll = this.pollData
     }
@@ -159,7 +146,7 @@ export default {
   watch: {
     pollData: {
       handler(value) {
-        this.poll = value
+        if (value != null) this.poll = value
       }
     }
   },
@@ -204,7 +191,13 @@ export default {
       this.savePoll()
     },
     savePoll(request) {
-      this.$emit("updateVote", this.poll)
+      let mycanvas = {
+        pollData  : this.poll,
+        user      : this.$store.getters.getUser
+      }
+      mycanvas = JSON.stringify(mycanvas)
+      let mindmap = { mindmap: { canvas: mycanvas } }
+      this.$emit("updateVote", mindmap)
     },
     delAnswer(questions, answer, index) {
       if (questions.answerField.length > 2) {
@@ -240,6 +233,7 @@ export default {
         for (var i = 0; i < 19; i++)
           url += possible.charAt(Math.floor(Math.random() * possible.length));
         this.poll.url = url
+        this.saveData()
       }
     },
     checkAllFields() {
@@ -261,9 +255,16 @@ export default {
       });
       return result_value
     },
-    checkPollPin() {
-      return this.poll.pin == undefined || this.poll.pin == ''
-    }
+    saveData(){
+      let mycanvas = {
+        pollData  : this.poll,
+        user      : this.$store.getters.getUser
+      }
+      mycanvas = JSON.stringify(mycanvas)
+      let mindmap = { mindmap: { canvas: mycanvas } }
+      this.$store.dispatch('updateMSuite', mindmap)
+      this.sendLocals(false)
+    },
   }
 }
 </script>
