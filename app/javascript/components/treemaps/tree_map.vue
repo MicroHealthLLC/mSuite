@@ -123,7 +123,6 @@
     mounted: async function () {
       this.subscribeCable(this.currentMindMap.id)
       this.$store.dispatch('setExportId', 'treeMapGraph')
-      this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
       this.undoMap(this.undoObj)
@@ -141,7 +140,9 @@
               location.reload()
             }, 1000)
           }
-          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {}
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {
+            
+          }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
             this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
@@ -156,7 +157,7 @@
             this.getTreeMap()
           } 
           else if (data.message === "Node is deleted" && this.currentMindMap.id === data.node.mindmap_id) {
-            this.nodes.pop(this.nodes.find(x => x.id === data.node.id))
+            this.spliceNodes(data.node.id)
             this.buildMap()
           }
           else {
@@ -308,8 +309,8 @@
             this.undoNodes.push({'req': 'deleteNode', node: myNode})
           }
         });
-        // this.sendLocals(false)
-        // this.updateTreeMaps()
+        this.sendLocals(false)
+        this.updateTreeMaps()
       },
       submitChildNode: async function (obj) {
 
@@ -357,7 +358,12 @@
         this.parent_nodes.label = this.currentMindMap.name
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
-        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+        this.sendLocals(false)
+        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != ''){
+          this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+          this.$store.dispatch('setTemporaryUser', this.$store.getters.getMsuite.canvas)
+          this.$store.dispatch('emptyUserList')
+        } 
 
         this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
         this.getColorNode('.jqx-treemap-rectangle')
@@ -564,6 +570,12 @@
           this.child_node.mindmap_id = this.currentMindMap.id
           this.undoDone = false
           this.deleteSelectedNode(this.child_node)
+        }
+      },
+      spliceNodes(id){
+        const index = this.nodes.indexOf(this.nodes.find(x => x.id === id))
+        if (index > -1) { 
+          this.nodes.splice(index, 1); 
         }
       },
       addNodeToTreeMap(value, event){
