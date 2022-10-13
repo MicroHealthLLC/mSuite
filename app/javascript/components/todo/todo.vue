@@ -21,6 +21,7 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
+                <draggable :list="sortedTodos">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 
                     :node="todo" 
@@ -72,6 +73,7 @@
                     </div>
                   </b-list-group-item>
                 </div>
+              </draggable>
               </b-list-group>
               <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
                 <div class="relative flex h-full">
@@ -120,6 +122,7 @@
 <script>
   import http from "../../common/http"
   import domtoimage from "dom-to-image-more"
+  import draggable from 'vuedraggable'
   import { ToggleButton } from 'vue-js-toggle-button'
   import DatePicker from 'vue2-datepicker';
   import './datepicker.css';
@@ -130,6 +133,9 @@
     props: {
       undoMap: Function,
       redoMap: Function
+    },
+    components: {
+      draggable
     },
     data() {
       return {
