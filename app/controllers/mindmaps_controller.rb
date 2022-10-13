@@ -27,6 +27,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
+    update_parent_mindmap() if @mindmap.mm_type == 'pollvote'
     @mindmap.update(mindmap_params)
     message = password_present?
     ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
@@ -123,12 +124,16 @@ class MindmapsController < AuthenticatedController
   end
 
   def del_child_mindmap
-    if  @mindmap.mm_type == 'poll' && @mindmap.canvas && JSON.parse(@mindmap.canvas)['url']
-      @child_mind_map = Mindmap.find_by(unique_key: JSON.parse(@mindmap.canvas)['url'])
+    if @mindmap.mm_type == 'poll' && @mindmap.child
+      @child_mind_map = @mindmap.child
       if @child_mind_map && @child_mind_map.destroy
         ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
       end
     end
+  end
+
+  def update_parent_mindmap
+    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.parent.id}", message: "Vote Received", mindmap: @mindmap.parent
   end
 
   def compute_child_nodes
@@ -140,6 +145,10 @@ class MindmapsController < AuthenticatedController
 
   def delete_empty_msuite
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
+    if fetched_mindmap.canvas
+      url = JSON.parse(fetched_mindmap.canvas)['pollData']['url'] if JSON.parse(fetched_mindmap.canvas)['pollData']
+      user = JSON.parse(fetched_mindmap.canvas)['user'] if JSON.parse(fetched_mindmap.canvas)
+    end
     if fetched_mindmap.nodes.empty?          &&
       fetched_mindmap.comments.empty?        &&
       fetched_mindmap.title == "Title"       &&
@@ -148,9 +157,10 @@ class MindmapsController < AuthenticatedController
       fetched_mindmap.password.nil? &&
       (fetched_mindmap.canvas.nil?  ||
         fetched_mindmap.canvas == '{"version":"4.6.0","data":[], "style":{}, "width": []}'||
-        fetched_mindmap.canvas == '{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":null},{\"value\":2,\"text\":\"\",\"votes\":null}],\"pin\":\"\",\"voters\":[],\"showResult\":false}' ||
+        fetched_mindmap.canvas == "{\"pollData\":{\"title\":\"\",\"description\":\"\",\"Questions\":[{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":[]},{\"value\":2,\"text\":\"\",\"votes\":[]}],\"allowedAnswers\":0,\"voters\":[]}],\"showResult\":false,\"url\":\"%s\"},\"user\":\"%s\"}" %[url, user] ||
         fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"objects\":[]}" ||
-        fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"columns\":[], \"data\":[], \"style\":{}, \"width\": []}")
+        fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"columns\":[], \"data\":[], \"style\":{}, \"width\": []}" ||
+        fetched_mindmap.canvas == "{\"pollData\":{\"title\":\"\",\"description\":\"\",\"Questions\":[{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":[]},{\"value\":2,\"text\":\"\",\"votes\":[]}],\"allowedAnswers\":1,\"voters\":[]}],\"showResult\":false,\"url\":\"%s\"},\"user\":\"%s\"}" %[url, user])
       if fetched_mindmap.mm_type =="kanban" &&
         fetched_mindmap.stages.count == 3 && 
         fetched_mindmap.stages[0][:title]       == "TO DO"       &&
@@ -249,6 +259,7 @@ class MindmapsController < AuthenticatedController
         :canvas,
         :title,
         :is_save,
+        :parent_id,
         :will_delete_at,
       )
     end

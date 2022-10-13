@@ -42,7 +42,6 @@
         currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         isReset: false,
-        pollData: null,
         pollEdit: false,
         child_mindmap: false
       }
@@ -63,56 +62,54 @@
               location.reload()
             }, 500)
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
-            this.$store.commit('setMSuite', data.mindmap)
-            this.pollEdit = true
-            this.pollData = {
-              title: '',
-              description: '',
-              Questions: [{
-                question: '',
-                answerField: [
-                  { value: 1, text: '', votes: [] },
-                  { value: 2, text: '', votes: [] }
-                ],
-                allowedAnswers: 0,
-                voters: [],
-              }],
-              showResult: false,
-              url: ''
-            }
+            this.resetPoll()
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.$store.commit('setMSuite', data.mindmap)
-            this.pollData = JSON.parse(data.mindmap.canvas)
+            this.pollData = JSON.parse(data.mindmap.canvas).pollData
+          }
+          else if (data.message === "storage updated" && this.currentMindMap.id === data.content.mindmap_id){
+            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+            this.$store.dispatch('setUserList'     , data.content.userEdit)
+          }
+          else if (data.message === "Vote Received" && this.currentMindMap.id === data.mindmap.id){
+            this.child_mindmap = true
           }
         }
       }
     },
-    mounted(){
+    computed: {
+      pollData() {
+        if (JSON.parse(this.$store.getters.getMsuite.canvas) && this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}')
+          return JSON.parse(this.$store.getters.getMsuite.canvas).pollData
+        else return null
+      }
+    },
+    mounted: async function(){
       if(this.currentMindMap){
         this.subscribeCable(this.currentMindMap.id)
         this.$store.dispatch('setExportId', 'poll')
-        this.pollData = JSON.parse(this.currentMindMap.canvas)
-        if (this.pollData){
-          if (this.pollData.Questions[0].question != '') this.dataLoaded = true
-          if (this.pollData.url) this.getPollData()
-          if (this.pollData.child_id) this.child_mindmap = true
-        }
-        this.exportXLS(0)
+        this.getData()
+        if(this.dataLoaded) this.exportXLS(0)
       }
+      if (this.currentMindMap.canvas == null){
+        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+      }
+      this.sendLocals(false)
+      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas && JSON.parse(this.$store.getters.getMsuite.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
+      else this.$store.dispatch('setUserEdit', null)
+      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+      this.getUserOnMount()
       this.exportDef(this.exportXLS)
     },
     methods: {
       updateVote(data){
-        let mindmap = {
-          name: data.url,
-          mindmap: { canvas: JSON.stringify(data) }
-        }
+        let _this = this
         let id = this.currentMindMap.unique_key
-        http.patch(`/msuite/${id}.json`,mindmap).then( res =>{
-          this.pollEdit = false
-          this.dataLoaded = true
-          if (JSON.parse(res.data.mindmap.canvas).child_id) this.child_mindmap = true
+        http.patch(`/msuite/${id}.json`,data).then( res =>{
+          _this.pollEdit = false
+          _this.dataLoaded = true
         })
       },
       pollEditData() {
@@ -121,9 +118,11 @@
       async getPollData(){
         let _this = this
         let response = await http.get(`/msuite/${this.pollData.url}.json`)
-        if(response && response.data.mindmap && response.data.mindmap.canvas){
-          _this.pollData = JSON.parse(response.data.mindmap.canvas)
-          _this.child_mindmap = true
+        if(response && response.data.mindmap){
+          if(response.data.mindmap.canvas){
+            _this.pollData = JSON.parse(response.data.mindmap.canvas).pollData
+          }
+          if(JSON.parse(response.data.mindmap.canvas).Questions[0].voters.length > 0) _this.child_mindmap = true
         }
       },
       exportXLS(option){
@@ -155,17 +154,26 @@
             })
             csv.unshift(fields.join(','))
             csv = csv.join('\r\n');
-          } )
+          })
           const xls = new xlsExport(graph_array, 'title');
-
           if (option == 1) xls.exportToXLS(`${this.currentMindMap.unique_key}.xls`)
           else if (option == 2) xls.exportToCSV(`${this.currentMindMap.unique_key}.csv`)
         } else {
           if ( option == 1 || option == 2 ) this.$refs['dataErrorModal'].open()
         }
       },
-      resetMindmap() {
-        let canvasData = {
+      async getData(){
+        if (this.pollData){
+          if (this.pollData.Questions){
+            let ques = this.pollData.Questions[0]
+              if(ques.question != '' && ques.answerField && ques.answerField[0].text != '' && ques.answerField[1].text != '') this.dataLoaded = true
+          }
+          if (this.pollData.url) this.getPollData()
+        }
+      },
+      resetPoll(){
+        this.pollEdit = true
+        let data = {
           title: '',
           description: '',
           Questions: [{
@@ -180,14 +188,14 @@
           showResult: false,
           url: ''
         }
-        let mindmap = { mindmap: {
-          canvas: JSON.stringify(canvasData),
-          title: 'Title' }
+        let mycanvas = {
+          pollData  : data,
+          user      : this.$store.getters.getUser
         }
+        mycanvas = JSON.stringify(mycanvas)
+        let mindmap = { mindmap: { canvas: mycanvas } }
         this.$store.dispatch('updateMSuite', mindmap)
-        this.pollEdit = false
-        this.dataLoaded = false
-      },
+      }
     },
   }
 </script>

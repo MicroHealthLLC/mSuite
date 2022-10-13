@@ -61,22 +61,6 @@
           @click="$emit('pollEditData')">
           EDIT
         </el-button>
-        <!-- <button
-          class="btn btn-success mt-4 py-0 px-3 rounded-0"
-          @click="createPollingMap">
-          LAUNCH POLL
-        </button>
-        <button
-          class="btn btn-info ml-4 mt-4 py-0 px-3 rounded-0"
-          @click="showResult = !showResult">
-          SHOW RESULTS
-        </button>
-        <button
-          v-if="!child_mindmap"
-          class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
-          @click="$emit('pollEditData')">
-          EDIT
-        </button> -->
       </div>
     </div>
     <poll-results
@@ -96,6 +80,7 @@
 <script>
   import http from "../../../common/http"
   import PollResults from "./poll_view_results/poll_results"
+
   export default {
     name: "Poll",
     props: ["pollData","currentMindMap", "child_mindmap"],
@@ -126,9 +111,16 @@
       }
     },
     methods: {
+      async getVoteData() {
+        let _this = this
+        let response = await http.get(`/msuite/${this.pollData.url}.json`)
+        if( response.data.mindmap &&
+          JSON.parse(response.data.mindmap.canvas).Questions[0].voters.length > 0) return false
+        else return true
+      },
       createPollingMap() {
         let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote', canvas: JSON.stringify(this.pollData) } }).then((res) => {
+        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then((res) => {
           if(res.data.mindmap.id !== null)
           {
             this.pollData.url = res.data.mindmap.unique_key
@@ -137,20 +129,20 @@
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
           }
         }).catch((error) => {
-            if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
-            _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
-            _this.selectedType = error.response.data.mindmap.mm_type
-            _this.uniqueKey = error.response.data.mindmap.unique_key
-            _this.oldMSuiteName = error.response.data.mindmap.name
-            _this.mindmapName = ''
-            _this.$refs['errorModal'].open()
+          if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
+          _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
+          _this.selectedType = error.response.data.mindmap.mm_type
+          _this.uniqueKey = error.response.data.mindmap.unique_key
+          _this.oldMSuiteName = error.response.data.mindmap.name
+          _this.mindmapName = ''
+          _this.$refs['errorModal'].open()
         })
       },
       checkAnswers(check){
         this.pollData.Questions.forEach( data => {
-          if ( (check[0] && check[0].text) || check.text){
+          if((check[0] && check[0].text) || check.text){
             this.loopBreaked = false
-          } else this.loopBreaked = true
+          }else this.loopBreaked = true
         } )
       },
       tryAgain(){
