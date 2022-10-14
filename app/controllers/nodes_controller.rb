@@ -51,7 +51,7 @@ class NodesController < AuthenticatedController
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar'
 
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node.to_json }
+      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node }
       respond_to do |format|
         format.json { render json: {success: true, node: delNodes}}
         format.html { }

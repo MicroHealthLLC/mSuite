@@ -85,7 +85,6 @@
         redoNodes: [],
         undoDone: false,
         nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
-        temporaryUser: '',
         saveElement: false,
         parent_nodes: {
           label: 'centralized',
@@ -124,7 +123,6 @@
     mounted: async function () {
       this.subscribeCable(this.currentMindMap.id)
       this.$store.dispatch('setExportId', 'treeMapGraph')
-      this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
       this.undoMap(this.undoObj)
@@ -132,8 +130,6 @@
     },
     channels: {
       WebNotificationsChannel: {
-        connected() {},
-        rejected() {},
         received(data) {
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
@@ -143,6 +139,9 @@
             setTimeout(() => {
               location.reload()
             }, 1000)
+          }
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id) {
+            
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
@@ -157,12 +156,15 @@
             this.redoNodes = []
             this.getTreeMap()
           } 
+          else if (data.message === "Node is deleted" && this.currentMindMap.id === data.node.mindmap_id) {
+            this.spliceNodes(data.node.id)
+            this.buildMap()
+          }
           else {
             this.getTreeMap()
           }
 
         },
-        disconnected() {}
       }
     },
     methods: {
@@ -260,7 +262,6 @@
         this.hiddenNode = false
         this.addChildTreeMap = false
         this.colorSelected = false
-        this.sendLocals(false)
       },
       updateSelectedNode: async function(obj){
         if(this.undoNodes.length > 0) {
@@ -282,7 +283,6 @@
         }
         this.updateTreeMaps()
         await http.put(`/nodes/${obj.id}`, obj).then((res) => {
-          this.sendLocals(false)
         }).catch(err => {
           this.err = err.message
           this.$refs['errorAddNode'].open()
@@ -293,7 +293,6 @@
         this.addChildTreeMap = false
       },
       deleteSelectedNode: async function(obj){
-        this.updateTreeMaps()
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
@@ -311,6 +310,7 @@
           }
         });
         this.sendLocals(false)
+        this.updateTreeMaps()
       },
       submitChildNode: async function (obj) {
 
@@ -332,8 +332,7 @@
             mindmap_id: _this.currentMindMap.id,
           }
         }
-        this.updateTreeMaps()
-        http.post(`/nodes.json`, data).then((res) => {
+        await http.post(`/nodes.json`, data).then((res) => {
           _this.submitChild = false
           _this.addChildTreeMap = false
           _this.hiddenNode = false
@@ -353,12 +352,19 @@
           _this.$refs['errorAddNode'].open()
           // error modal display
         })
+        this.updateTreeMaps()
+
       },
       mountMap: async function() {
         this.parent_nodes.label = this.currentMindMap.name
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
-        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+        this.sendLocals(false)
+        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != ''){
+          this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+          this.$store.dispatch('setTemporaryUser', this.$store.getters.getMsuite.canvas)
+          this.$store.dispatch('emptyUserList')
+        } 
 
         this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
         this.getColorNode('.jqx-treemap-rectangle')
@@ -565,6 +571,12 @@
           this.child_node.mindmap_id = this.currentMindMap.id
           this.undoDone = false
           this.deleteSelectedNode(this.child_node)
+        }
+      },
+      spliceNodes(id){
+        const index = this.nodes.indexOf(this.nodes.find(x => x.id === id))
+        if (index > -1) { 
+          this.nodes.splice(index, 1); 
         }
       },
       addNodeToTreeMap(value, event){
