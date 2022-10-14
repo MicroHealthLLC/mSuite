@@ -21,7 +21,7 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable :list="sortedTodos">
+                <draggable class="list-group" group="people" :list="sortedTodos">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 
                     :node="todo" 
