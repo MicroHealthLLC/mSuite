@@ -29,6 +29,7 @@
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
           <a
+            v-if="mm_type != 'pollvote'"
             href="javascript:;"
             role="button"
             v-b-tooltip.hover title="Duplicate"
