@@ -83,7 +83,8 @@
     "glob-parent": "^5.1.2",
     "node-fetch": "^2.6.7",
     "follow-redirects": "^1.14.8",
-    "jsdom": "^16.5.0"
+    "jsdom": "^16.5.0",
+    "trim-newlines": "3.0.1"
   },
   "devDependencies": {
     "sass": "^1.55.0",
