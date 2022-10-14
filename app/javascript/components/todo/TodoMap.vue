@@ -23,7 +23,7 @@
         <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)"
           class="dueDate col-3"
           :class="{ 'line-through': node.is_disabled }">
-            {{node.duedate}}
+            {{formatDate(node.duedate)}}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
           <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-3 fa fa-plus addTodo'  @click="toggleChildModal(node)"></i>
@@ -49,7 +49,7 @@
                     <date-picker
                       id="task-date"
                       v-model='selectedTodo.duedate'
-                      :placeholder="selectedTodo.duedate"
+                      :placeholder="formatDate(selectedTodo.duedate)"
                       :format="format"
                       ref="datePicker"
                       @close="closeDatePicker('task-date')"
@@ -70,7 +70,8 @@
     </b-list-group-item>
     <div  v-if="node.children && node.children.length">
       <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
-        <div class="flex" v-if="selectedTodo.id != child.id" @drop="event.preventDefault();" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart($event,child.id)">
+        <div class="flex" v-if="selectedTodo.id != child.id" @drop="dragDrop($event,child.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart($event,child.id)">
+          <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
           <div class="col-8 d-flex flex-row">
             <div class="flex-auto">
               <input
@@ -88,7 +89,7 @@
           <span @click="showInputFieldToggle(child)"
             class="col-3 dueDate pl-1"
             :class="{ 'line-through': child.is_disabled }"> 
-              {{child.duedate}}
+              {{formatDate(child.duedate)}}
           </span>
           <div class="col-1 ml-xl-5 ml-lg-5 ml-md-4 ml-sm-4 ml-4 pl-xl-1 pl-lg-0 pl-md-1 pl-sm-1 pl-1">
             <i class="d-none ml-2 fa fa-times"></i>
@@ -114,7 +115,7 @@
                       <date-picker
                         id="task-date-2"
                         v-model='selectedTodo.duedate'
-                        :placeholder="selectedTodo.duedate"
+                        :placeholder="formatDate(selectedTodo.duedate)"
                         :format="format"
                         @close="closeDatePicker('task-date-2')"
                         ref="date"
@@ -138,7 +139,8 @@
 </template>
 
 <script>
-  import http from "../../common/http"
+  import moment from "moment";
+import http from "../../common/http"
 
   export default {
     name: "node",
@@ -153,7 +155,7 @@
       return {
         parentIndex: null,
         index: null,
-        format: 'YYYY-MM-DD',
+        format: 'MM/DD/YYYY',
         fieldDisabled: false,
         editStatus: false,
         prevElement: null,
@@ -229,6 +231,9 @@
       clearTodoEditObj() {
         this.$emit("clearTodoEditObj")
       },
+      formatDate(date) {
+        return date ? moment(date).format("MM/DD/YYYY") : ""
+      }
     },
     computed: {
       sortedChildTodos() {

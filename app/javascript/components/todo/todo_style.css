@@ -50,9 +50,9 @@
     overflow-x: hidden;
   }
   .list-group-item{
-    animation: list 0.5s ease;
+    /* animation: list 0.5s ease; */
     font-family: 'Poppins', sans-serif;
-    transition: all 0.5s ease;
+    /* transition: all 0.5s ease; */
     margin-bottom: 0.22rem;
     padding: 0.55rem 1.25rem;
     border-radius: 0px !important;
