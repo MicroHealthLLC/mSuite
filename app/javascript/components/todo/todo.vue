@@ -21,8 +21,9 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable class="list-group" group="people" :list="sortedTodos">
+                <draggable class="list-group" group="people" :list="sortedTodos" :move="handleMove" @change="(e) => handleEnd(e, sortedTodos)">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
+                  <nested-test class="item-sub" :list="todo.elements" />
                   <todo-map 
                     :node="todo" 
                     :selectedTodo="selectedTodo" 
@@ -203,6 +204,28 @@
       }
     },
     methods: {
+      handleMove(item) {
+        /* this.movingSlot = item.relatedContext.component.$vnode.key;
+        return true; */
+        //console.log(item)
+      },
+      handleEnd(e, list) {
+        console.log(e)
+        console.log(list)
+        if (e.added) {
+          console.log("added")
+        } else if (e.removed) {
+          console.log("removed")
+        } else if (e.moved) {
+          console.log("moved")
+        }
+        /* var cc = this.DV_issue.checklists;
+        var count = 0;
+        for (var checklist of cc) {
+          checklist.position = count;
+          count++;
+        } */
+      },
       clearTodoObj() {
         this.todo = {}
         this.todoData = { title: null, date: null }
@@ -234,6 +257,13 @@
         this.$store.commit('SET_MSUITE', response)
         this.todos = response.nodes
         this.renderTodos()
+      },
+      async updateToDos() {
+        let res = await this.$store.dispatch('getMSuite')
+        let nodes = this.$store.getters.getMsuite.nodes
+        /* console.log(this.todos)
+        console.log(this.sortedTodos)
+        console.log(nodes) */
       },
       renderTodos(){
         let parent_nodes = []
@@ -500,6 +530,13 @@
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
     },
+    watch: {
+      sortedTodos() {
+        if (this.sortedTodos) {
+          this.updateToDos()
+        }
+      }
+    }
   }
 </script>
 <style scoped>

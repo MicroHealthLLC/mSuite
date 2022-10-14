@@ -69,7 +69,7 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="log">
+      <draggable class="list-group" :list="sortedChildTodos" group="people" :move="handleMove" @change="(e) => handleEnd(e, sortedChildTodos)">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
             <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
@@ -175,6 +175,21 @@ import http from "../../common/http"
         this.prevElement.parent_node = this.dropElement.id
         this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
       }, */
+      handleMove(item) {
+        /* this.movingSlot = item.relatedContext.component.$vnode.key;
+        return true; */
+        console.log(item)
+      },
+      handleEnd(e, list) {
+        console.log(e)
+        console.log(list)
+        /* var cc = this.DV_issue.checklists;
+        var count = 0;
+        for (var checklist of cc) {
+          checklist.position = count;
+          count++;
+        } */
+      },
       closeDatePicker(objId) {
         this.hideCalendar(objId)
       },
