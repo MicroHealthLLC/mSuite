@@ -25,7 +25,7 @@
               :name="questions.question"
               :value="answers"
               v-model="questions.checked"
-              :disabled="questions.checked.length > questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
+              :disabled="questions.checked.length >= questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
               @change="checkAnswers(questions.checked)"/>
             <input
               v-else
@@ -151,7 +151,7 @@
         let _this = this
         this.pollData.Questions.some( question => {
 
-          if (question.checked.length > question.allowedAnswers + 1 || question.checked.length < 1){
+          if (question.checked.length > question.allowedAnswers || question.checked.length < 1){
             this.errorTriggered = true
             this.loopBreaked = true
             setTimeout(()=>{

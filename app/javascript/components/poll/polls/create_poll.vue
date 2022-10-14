@@ -167,6 +167,7 @@ export default {
         text: '',
         votes: null
       })
+      this.saveData()
     },
     addQuestion() {
       this.poll.Questions.push({
@@ -178,6 +179,7 @@ export default {
         voters: [],
         allowedAnswers: 0,
       })
+      this.saveData()
     },
     createPin() {
       if (this.checkAllFields()) {
@@ -202,11 +204,13 @@ export default {
     delAnswer(questions, answer, index) {
       if (questions.answerField.length > 2) {
         questions.answerField.splice(index, 1)
+        this.saveData()
       }
     },
     deleteQuestion(index) {
       if (this.poll.Questions.length > 1) {
         this.poll.Questions.splice(index, 1)
+        this.saveData()
       }
     },
     dragStartQuestion(event, question_index) {
@@ -215,6 +219,7 @@ export default {
     dragDropQuestion(event, question_index) {
       const drag_question = this.poll.Questions.splice(this.q_position, 1)[0]
       this.poll.Questions.splice(question_index, 0, drag_question)
+      this.saveData()
     },
     dragStartAns(event, questions, answer_index) {
       this.a_position = answer_index
@@ -224,6 +229,7 @@ export default {
       if (this.current_question == event.currentTarget.parentElement.parentElement) {
         const drag_ans = questions.answerField.splice(this.a_position, 1)[0]
         questions.answerField.splice(answer_index, 0, drag_ans)
+        this.saveData()
       }
     },
     poll_url() {
