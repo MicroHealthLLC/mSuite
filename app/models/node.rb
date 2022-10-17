@@ -8,7 +8,7 @@ class Node < ApplicationRecord
 
   has_many_attached :node_files, dependent: :destroy
   has_many :children, class_name: 'Node', foreign_key: 'parent_node'
-  belongs_to :parent, class_name: 'Node', foreign_key: 'id', optional: true
+  belongs_to :parent, class_name: 'Node', foreign_key: 'parent_node', optional: true
 
   before_create :set_default_export_index, :set_children
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
@@ -23,7 +23,7 @@ class Node < ApplicationRecord
   end
 
   def validate_title
-    return self.mindmap.mm_type == "tree_map"
+    return self.id != nil && self.mindmap.mm_type == "tree_map"
   end
 
   def set_children

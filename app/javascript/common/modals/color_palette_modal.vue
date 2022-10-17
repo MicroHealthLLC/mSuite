@@ -22,7 +22,7 @@
         Cancel
       </button>
       <button
-         v-if="mm_type != 'calendar' && ((selectedNode && mm_type == 'kanban') || mm_type != 'kanban')"
+        v-if="mm_type != 'calendar' && ((selectedNode && mm_type == 'kanban') || mm_type != 'kanban')"
         class="btn btn-warning border-none w-25"
         @click="createPalette">
           <i class="fas fa-sync cursor-pointer mt-2"></i>
@@ -33,6 +33,8 @@
 
 <script>
   import Palette from "@color-palette/color-palette"
+  import TemporaryUser from "../../mixins/temporary_user.js"
+
 
   export default {
     data(){
@@ -45,6 +47,7 @@
       }
     },
     props:['selectedNode', 'selectedBlock', 'nodes', 'uniqueColors'],
+    mixins: [TemporaryUser],
     computed: {
       node(){
         return this.selectedNode ? this.selectedNode : this.selectedBlock
@@ -138,6 +141,7 @@
           objNode.stage_color = this.customPallete[index]
           this.$emit("updateTreeChartNode", objNode)
         });
+        if(this.mm_type == 'tree_map') this.sendLocals(false)
       },
       createPalette(){
         this.customPallete = []
