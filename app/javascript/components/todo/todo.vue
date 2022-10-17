@@ -178,11 +178,7 @@ export default {
       //console.log(item)
     },
     handleEnd(e, list) {
-      //console.log(e)
-      console.log(list)
       let newIdList = list.map(i => i.id)
-      console.log(newIdList)
-      
       let response = this.$store.getters.getMsuite
       console.log(this.$store.state.mSuite.nodes)
       let nodes = response.nodes
@@ -210,8 +206,8 @@ export default {
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            console.log(arr1[j].id)
-            console.log(arr2[i])
+            //console.log(arr1[j].id)
+            //console.log(arr2[i])
             sortedArr.push(arr1[j]);
           }
         }
