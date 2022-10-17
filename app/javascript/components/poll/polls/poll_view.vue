@@ -23,16 +23,15 @@
             :value="answers"
             :name="questions.question"
             v-model="questions.preview_checked"
-            :disabled="questions.preview_checked.length > questions.allowedAnswers && questions.preview_checked.indexOf(answers) == -1 ? true:false"
-            @change="checkAnswers(questions.preview_checked)" />
+            @change="checkDisabled(questions)"
+            :disabled="ans_count >= questions.allowedAnswers && questions.preview_checked.indexOf(answers) == -1 ? true:false" />
 
           <input
             v-else
             type="radio"
             :value="answers"
             :name="questions.question"
-            v-model="questions.preview_checked"
-            @change="checkAnswers(questions.preview_checked)" />
+            v-model="questions.preview_checked" />
           <span :class="errorTriggered ? 'shake d-block border-danger':''">
             {{ answers.text }}
           </span>
@@ -48,7 +47,7 @@
         </el-button>
         <el-button
           round
-          type="primary"  
+          type="primary"
           class="ml-4 mt-4 py-2 px-3"
           @click="showResult = !showResult">
           SHOW RESULTS
@@ -83,9 +82,10 @@
 
   export default {
     name: "Poll",
-    props: ["pollData","currentMindMap", "child_mindmap"],
+    props: ["pollData", "child_mindmap"],
     data() {
       return {
+        pollTitle: this.$store.getters.getMsuite.title,
         dataLoaded: false,
         showResult: false,
         errorMsg: null,
@@ -95,11 +95,23 @@
         mindmapName: '',
         mindmapExists: false,
         errorTriggered: false,
-        loopBreaked: false
+        ans_count: 0
       };
     },
     components: {
       PollResults
+    },
+    computed: {
+      currentMindMap(){
+        return this.$store.getters.getMsuite
+      }
+    },
+    watch: {
+      currentMindMap: {
+        handler(value) {
+          this.pollTitle = value.title
+        }, deep: true
+      },
     },
     mounted(){
       if(this.pollData) {
@@ -120,12 +132,20 @@
       },
       createPollingMap() {
         let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.currentMindMap.title, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then((res) => {
+        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then((res) => {
           if(res.data.mindmap.id !== null)
           {
-            this.pollData.url = res.data.mindmap.unique_key
-            this.pollData.child_id = res.data.mindmap.id
-            this.$emit("updateVote" , this.pollData, 'create')
+            this.pollData.url       = res.data.mindmap.unique_key
+            this.pollData.child_id  = res.data.mindmap.id
+
+            let mycanvas = {
+              pollData  : this.pollData,
+              user      : this.$store.getters.getUser
+            }
+            mycanvas = JSON.stringify(mycanvas)
+            let mindmap = { mindmap: { canvas: mycanvas } }
+            this.$emit("updateVote", mindmap)
+
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
           }
         }).catch((error) => {
@@ -138,12 +158,8 @@
           _this.$refs['errorModal'].open()
         })
       },
-      checkAnswers(check){
-        this.pollData.Questions.forEach( data => {
-          if((check[0] && check[0].text) || check.text){
-            this.loopBreaked = false
-          }else this.loopBreaked = true
-        } )
+      checkDisabled(checked){
+        this.ans_count = checked.preview_checked.length
       },
       tryAgain(){
         this.$refs['errorModal'].close()

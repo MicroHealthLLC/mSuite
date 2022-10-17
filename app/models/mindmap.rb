@@ -15,7 +15,6 @@ class Mindmap < ApplicationRecord
 
   has_one :child, class_name: 'Mindmap', foreign_key: 'parent_id'
   belongs_to :parent, class_name: 'Mindmap', optional: true
-
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
   before_validation :generate_random_key, on: :create
@@ -23,7 +22,7 @@ class Mindmap < ApplicationRecord
   validates_uniqueness_of :unique_key, uniqueness: true, case_sensitive: false
   validates :unique_key, presence: true
   validates :unique_key, length: { in: 10..20 }
-  validates_uniqueness_of :name, case_sensitive: false, if: Proc.new { |mSuite| mSuite.name != 'Central Idea' }
+  # validates_uniqueness_of :name, case_sensitive: false, if: Proc.new { |mSuite| mSuite.name != 'Central Idea' } #When Duplicating mindmap the validation was failing as the name of Mindmap was same 
   validates :name, presence: true
   validates :mm_type, presence: true
   
@@ -99,13 +98,13 @@ class Mindmap < ApplicationRecord
   end
 
   def generate_random_key
-    if self.name == "Central Idea"
-      o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
-      self.unique_key = (0...15).map { o[rand(o.length)] }.join
-    else
+    if self.mm_type == 'pollvote'
       self.name = self.name.rstrip
       self.name = self.name.strip
       self.unique_key = self.name.squeeze(" ").gsub(/[[:space:]]/, '-')
+    else
+      o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
+      self.unique_key = (0...15).map { o[rand(o.length)] }.join
     end
   end
 end
