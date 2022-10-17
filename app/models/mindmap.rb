@@ -98,7 +98,7 @@ class Mindmap < ApplicationRecord
   end
 
   def generate_random_key
-    if self.mm_type == 'poll'
+    if self.mm_type == 'pollvote'
       self.name = self.name.rstrip
       self.name = self.name.strip
       self.unique_key = self.name.squeeze(" ").gsub(/[[:space:]]/, '-')
