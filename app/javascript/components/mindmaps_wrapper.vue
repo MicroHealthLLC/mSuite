@@ -131,8 +131,11 @@
               return "MindmapView"
           }
         }
-        else{
+        else if(this.$store.getters.getMsuite){
           return "PasswordView"
+        }
+        else{
+          window.open("/","_self")
         }
       }
     },
