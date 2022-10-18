@@ -35,10 +35,6 @@ class Mindmap < ApplicationRecord
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
   
-  amoeba do
-    enable
-  end
-  
   def to_json
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),

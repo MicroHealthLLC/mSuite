@@ -398,7 +398,7 @@
         if (this.$store.state.temporaryUser) return this.$store.state.temporaryUser
       },
       duplicateMap () {
-        return this.mm_type == 'simple' || this.mm_type == 'kanban' || this.mm_type == 'whiteboard' || this.mm_type == 'calendar' || this.mm_type == 'poll' || this.mm_type == 'spreadsheet' || this.mm_type == 'Notepad'
+        return this.mm_type != 'pollvote'
       }
     },
     filters: {
