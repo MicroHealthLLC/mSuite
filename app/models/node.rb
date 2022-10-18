@@ -23,7 +23,7 @@ class Node < ApplicationRecord
   end
 
   def validate_title
-    return self.id != nil && self.mindmap.mm_type == "tree_map"
+    return self.mindmap && self.mindmap.id != nil && self.mindmap.mm_type == "tree_map"
   end
 
   def set_children

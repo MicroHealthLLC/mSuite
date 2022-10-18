@@ -315,20 +315,19 @@
       submitChildNode: async function (obj) {
 
         let _this = this
-        // localStorage.mindmap_id = _this.currentMindMap.id
         if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
           this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
           this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
         }
-
+        let parent = (obj.parent_label != '') ? obj.parent_label : 0
         this.sendLocals(false)
         let data = {
           node: {
             title: obj.label + ' ' + _this.$store.state.nodeNumber,
             line_color: obj.color,
             node_width: 50,//obj.node_width,
-            parent_node: ((obj.parent_label != null) ? obj.parent_label : 0),
+            parent_node: parent,
             mindmap_id: _this.currentMindMap.id,
           }
         }
@@ -340,6 +339,7 @@
           _this.nodeSample.parent_label = ''
           if( res.data.node.id == null ){
             obj.label = obj.label + ' 0'
+            obj.parent_label = parent
             this.submitChildNode(obj)
           }
           if (!this.undoDone) {
