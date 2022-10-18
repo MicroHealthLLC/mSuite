@@ -181,7 +181,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def clone_map
-    clone_msuite = @mindmap.amoeba_dup
+    clone_msuite = @mindmap.deep_clone include: [:nodes, :stages, :comments,{ nodes: :children }], use_dictionary: true
     clone_msuite.stages.skip_callback(:create, :before,:set_position) if @mindmap.mm_type == 'kanban'
     if clone_msuite.save
       clone_msuite.stages.set_callback(:create, :before,:set_position)
