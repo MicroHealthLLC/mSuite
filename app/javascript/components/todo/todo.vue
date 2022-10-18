@@ -177,29 +177,36 @@ export default {
       return true; */
       //console.log(item)
     },
-    handleEnd(e, list) {
+    async handleEnd(e, list) {
       let newIdList = list.map(i => i.id)
       let response = this.$store.getters.getMsuite
       console.log(response)
       let nodes = response.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
       response.nodes = sortedTodoArr
+      this.$store.getters.getMsuite.nodes = response.nodes
       try {
-        this.updateToDos(response)
+        await this.$store.dispatch('updateMSuiteToDo', this.$store.getters.getMsuite.nodes)
+        console.log(response.nodes)
       } catch (error) {
         console.error(error);
       }
     },
-    updateToDos(obj) {
-      console.log(obj)
-      try {
-        this.$store.commit('setMSuite', obj)
-        this.$store.dispatch('updateMSuite', obj)
-      } catch (error) {
-        console.log(error)
+    /* updateToDos(obj) {
+      let data = {}
+      if (obj == undefined){
+        data = {
+          canvas: this.$store.state.userEdit
+        }
+      } else {
+        data = {
+          nodes: obj.nodes,
+          canvas: this.$store.state.userEdit
+        }
       }
-      
-    },
+
+      this.$store.dispatch('updateMSuite', data)
+    }, */
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
       let auxArr = [];
@@ -213,14 +220,6 @@ export default {
           }
         }
       }
-      /* for (let i = 0; i < arr1.length; i++) {
-        if (!arrSet.has(arr1[i])) {
-          auxArr.push(arr1[i]);
-        }
-      } */
-      //let sortedAux = auxArr.sort((a, b) => a - b);
-      //let sortedAuxArr = sortedArr.concat(sortedAux);
-      console.log(sortedArr)
       return sortedArr
     },
     newSet(arr){
@@ -522,7 +521,7 @@ export default {
     this.$store.dispatch('setExportId', 'todo')
     this.subscribeCable(this.currentMindMap.id)
     this.todos = this.currentMindMap.nodes
-    console.log(this.$store.getters.getMsuite)
+    //console.log(this.$store.getters.getMsuite)
 
     if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '') this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
 
