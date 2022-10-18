@@ -180,24 +180,25 @@ export default {
     handleEnd(e, list) {
       let newIdList = list.map(i => i.id)
       let response = this.$store.getters.getMsuite
-      console.log(this.$store.state.mSuite.nodes)
+      console.log(response)
       let nodes = response.nodes
-      
-      this.updateToDos(this.relativeSortArray(nodes, newIdList))
-      /* try {
-        nodes.forEach((n, idx) => {
-
-          console.log(n)
-          //this.updateTodo(t, t.name, t.is_disabled)
-        })
+      let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+      response.nodes = sortedTodoArr
+      try {
+        this.updateToDos(response)
       } catch (error) {
         console.error(error);
-      } */
+      }
     },
-    async updateToDos(list) {
-      await this.$store.dispatch('updateMSuite', {
-        nodes: list
-      })
+    updateToDos(obj) {
+      console.log(obj)
+      try {
+        this.$store.commit('setMSuite', obj)
+        this.$store.dispatch('updateMSuite', obj)
+      } catch (error) {
+        console.log(error)
+      }
+      
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
@@ -521,6 +522,7 @@ export default {
     this.$store.dispatch('setExportId', 'todo')
     this.subscribeCable(this.currentMindMap.id)
     this.todos = this.currentMindMap.nodes
+    console.log(this.$store.getters.getMsuite)
 
     if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '') this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
 

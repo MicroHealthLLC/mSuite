@@ -37,6 +37,7 @@ const store = new Vuex.Store({
   },
   mutations:{
     setMSuite (state, payload){
+      console.log(payload)
       state.mSuite = payload
     },
     setCompleteMSuite(state, payload){
@@ -150,7 +151,10 @@ const store = new Vuex.Store({
       return {'status': 200}
     },
     async updateMSuite({ commit, state }, obj){
+      console.log(state)
+      console.log(obj)
       await HTTP.patch(`/msuite/${state.mSuite.unique_key}`, obj).then(res =>{
+        console.log(res)
         commit('setMSuite', res.data.mindmap)
       })
     },

@@ -47,20 +47,20 @@ export default {
       },1200)
     },
     getUserOnMount(){
-      if(this.storage.mindmap_id == this.mindmap_id){
-        if(this.storage.userEdit != null){
-          if(this.storage.userList) this.userList = this.storage.userList
-          else this.$store.dispatch('setUserList', this.storage.userEdit)
-          this.$store.dispatch('setTemporaryUser', this.storage.userEdit)
-          if (this.$store.getters.getmmType == 'spreadsheet' && this.storage.userList.length < 0){
+        if(this.storage.mindmap_id == this.mindmap_id && this.storage.mindmap_id != null && this.mindmap_id != null){
+          if(this.storage.userEdit != null){
+            if(this.storage.userList) this.userList = this.storage.userList
+            else this.$store.dispatch('setUserList', this.storage.userEdit)
+            this.$store.dispatch('setTemporaryUser', this.storage.userEdit)
+            if (this.$store.getters.getmmType == 'spreadsheet' && this.storage.userList.length < 0){
+              this.$store.dispatch('setUserList', null)
+              this.$store.dispatch('setTemporaryUser', null)
+            }
+          } else {
             this.$store.dispatch('setUserList', null)
             this.$store.dispatch('setTemporaryUser', null)
           }
-        } else {
-          this.$store.dispatch('setUserList', null)
-          this.$store.dispatch('setTemporaryUser', null)
         }
-      }
     }
   }
 }
