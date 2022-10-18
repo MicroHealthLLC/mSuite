@@ -29,7 +29,7 @@
       <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
         <span class="navbar_button d-flex flex-row-reverse">
           <a
-            v-if="mm_type != 'pollvote'"
+            v-if="duplicateMap"
             href="javascript:;"
             role="button"
             v-b-tooltip.hover title="Duplicate"
@@ -396,6 +396,9 @@
       },
       renderTemporaryUser () {
         if (this.$store.state.temporaryUser) return this.$store.state.temporaryUser
+      },
+      duplicateMap () {
+        return this.mm_type == 'simple' || this.mm_type == 'kanban' || this.mm_type == 'whiteboard' || this.mm_type == 'calendar' || this.mm_type == 'poll' || this.mm_type == 'spreadsheet' || this.mm_type == 'Notepad'
       }
     },
     filters: {

@@ -29,9 +29,9 @@ class NodesController < AuthenticatedController
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
     update_worker(@node) if @node.mindmap.mm_type == 'calendar'
 
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node.to_json }
+    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node}
     respond_to do |format|
-      format.json { render json: {node: @node.to_json}}
+      format.json { render json: {node: @node}}
       format.html { }
     end
   end
