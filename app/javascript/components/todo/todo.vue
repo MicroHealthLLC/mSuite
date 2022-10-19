@@ -177,16 +177,17 @@ export default {
       //console.log(item)
     },
     async handleEnd(e, list) {
-      console.log(e)
-      if (e.moved) {
-        console.log(e.moved.element.id)
         let newIdList = list.map(i => i.id)
         let nodes = this.$store.getters.getMsuite.nodes
         let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
         nodes = sortedTodoArr
         console.log(nodes)
-        this.reorderTodo(e.moved.element, nodes) 
-      }
+        if (e.moved) {
+          this.reorderTodo(e.moved.element, nodes) 
+        } else if (e.added){
+          this.reorderTodo(e.added.element, nodes)
+        } 
+      
       /* try {
         await this.$store.dispatch('updateMSuiteToDo', { mindmap: { nodes: nodes } })
         console.log(nodes)
@@ -216,9 +217,9 @@ export default {
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            console.log("title", arr1[j].title)
+            /* console.log("title", arr1[j].title)
             console.log(arr2[i])
-            console.log("index", i, j)
+            console.log("index", i, j) */
             arr1[j].position = i + 1
             sortedArr.push(arr1[j]);
           }

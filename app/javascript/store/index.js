@@ -151,10 +151,7 @@ const store = new Vuex.Store({
       return {'status': 200}
     },
     async updateMSuite({ commit, state }, obj){
-      console.log(state)
-      console.log(obj)
       await HTTP.patch(`/msuite/${state.mSuite.unique_key}`, obj).then(res =>{
-        console.log(res)
         commit('setMSuite', res.data.mindmap)
       })
     },
@@ -176,14 +173,6 @@ const store = new Vuex.Store({
       } else {
         await HTTP.post('/stages/reset_stages', { mindmap_id: state.mSuite.id })
       }
-    },
-    async updateMSuiteToDo({ commit, state }, obj){
-      console.log(obj)
-      await HTTP.patch(`/msuite/${state.mSuite.unique_key}`, obj ).then(res =>{
-        console.log(res)
-        //commit('setMSuite', res.data.mindmap)
-      })
-      //commit('setMSuite', obj)
     },
     setScaleFactor({ commit }, scaleFactor){
       commit('setScaleFactor', scaleFactor)
