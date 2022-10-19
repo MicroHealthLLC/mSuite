@@ -179,15 +179,13 @@ export default {
     },
     async handleEnd(e, list) {
       let newIdList = list.map(i => i.id)
-      let response = this.$store.getters.getMsuite
-      console.log(response)
-      let nodes = response.nodes
+      let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
-      response.nodes = sortedTodoArr
-      this.$store.getters.getMsuite.nodes = response.nodes
+      nodes = sortedTodoArr
+      console.log(nodes)
       try {
-        await this.$store.dispatch('updateMSuiteToDo', this.$store.getters.getMsuite.nodes)
-        console.log(response.nodes)
+        await this.$store.dispatch('updateMSuiteToDo', { mindmap: { nodes: nodes } })
+        console.log(nodes)
       } catch (error) {
         console.error(error);
       }
