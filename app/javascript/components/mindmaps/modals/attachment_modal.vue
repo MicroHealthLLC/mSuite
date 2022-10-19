@@ -42,7 +42,7 @@ import "quill/dist/quill.bubble.css"
 
 export default {
   name: "AttachmentModal",
-  props: ['selectedNode', 'editorOption', 'editable'],
+  props: ['editorOption', 'editable'],
   components: {
     quillEditor,
     AttachmentInput,
@@ -75,6 +75,11 @@ export default {
   updated(){
     if(this.nodeNotes === this.editedNode.description) this.statusBtn = 'Saved';
     else this.statusBtn = 'Editing...';
+  },
+  computed: {
+    selectedNode () {
+      return this.$store.getters.getSelectedNode
+    },
   },
   watch: {
     selectedNode: {

@@ -51,7 +51,6 @@
     <attachment-modal
       ref="attachment-modal"
       :editor-option="editorOption"
-      :selected-node="selectedNode"
       :editable="currentMindMap.editable"
       @nullify-attachment-modals="nullifyAttachmentModal"
       @update-node-description="updateNodeDescription"
@@ -158,7 +157,6 @@
         // attachment
         openVModal        : false,
         centralNotes      : "",
-        nodeNotes         : "",
         descEditMode      : false,
         editorOption      : {
           modules : {
@@ -963,14 +961,12 @@
       // attchment
       nullifyAttachmentModal() {
         this.centralNotes = ""
-        this.nodeNotes = ""
         this.openVModal = false
         this.descEditMode = false
       },
       openAttachments(tab="description-tab") {
         if (!this.$store.getters.getSelectedNode) { return; }
         this.openVModal = true
-        this.nodeNotes = this.$store.getters.getSelectedNode.description
         this.$refs['attachment-modal'].$refs.attachmentModal.open(tab)
       },
       updateNodeDescription(notes) {
@@ -1080,14 +1076,6 @@
       "currentMindMap.nodes": {
         handler: function() {
           this.currentNodes = this.currentMindMap.nodes
-        },
-        deep: true
-      },
-      "selectedNode.description": {
-        handler: function() {
-          if (this.$store.getters.getSelectedNode) {
-            this.nodeNotes = this.$store.getters.getSelectedNode.description
-          }
         },
         deep: true
       },
