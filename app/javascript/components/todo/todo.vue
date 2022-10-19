@@ -18,7 +18,6 @@
                 <draggable class="list-group" group="people" :list="sortedTodos" :move="handleMove"
                   @change="(e) => handleEnd(e, sortedTodos)">
                   <div v-for="(todo) in sortedTodos" :key="todo.id">
-                    <nested-test class="item-sub" :list="todo.elements" />
                     <todo-map :node="todo" :selectedTodo="selectedTodo" :completedTasks="completedTasks"
                       :editInProgress="editInProgress" :current-mind-map="currentMindMap" @updateTodo="updateTodo"
                       @toggleChildModal="toggleChildModal" @toggleDeleteTodo="toggleDeleteTodo"
@@ -178,17 +177,22 @@ export default {
       //console.log(item)
     },
     async handleEnd(e, list) {
-      let newIdList = list.map(i => i.id)
-      let nodes = this.$store.getters.getMsuite.nodes
-      let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
-      nodes = sortedTodoArr
-      console.log(nodes)
-      try {
+      console.log(e)
+      if (e.moved) {
+        console.log(e.moved.element.id)
+        let newIdList = list.map(i => i.id)
+        let nodes = this.$store.getters.getMsuite.nodes
+        let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+        nodes = sortedTodoArr
+        console.log(nodes)
+        this.reorderTodo(e.moved.element, nodes) 
+      }
+      /* try {
         await this.$store.dispatch('updateMSuiteToDo', { mindmap: { nodes: nodes } })
         console.log(nodes)
       } catch (error) {
         console.error(error);
-      }
+      } */
     },
     /* updateToDos(obj) {
       let data = {}
@@ -227,7 +231,7 @@ export default {
       }
       return arrSet;
     },
-      clearTodoObj() {
+    clearTodoObj() {
       this.todo = {}
       this.todoData = { title: null, date: null }
       this.todoChildData = { title: null, date: null }
@@ -342,6 +346,25 @@ export default {
         this.showModalTodo = false
         this.clearTodoObj()
         this.sendLocals(false)
+      }).catch((err) => {
+        console.error(err);
+      });
+    },
+    async reorderTodo(todo, list) {
+      let data = {
+        mindmap: {
+          nodes: list
+        }
+      }
+      this.updateTodoUser()
+      await this.$store.dispatch('updateMSuite', data)
+      .then((result) => {
+        console.log(result)
+        /* this.myTodos.push(result.data.node)
+        this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
+        this.showModalTodo = false
+        this.clearTodoObj()
+        this.sendLocals(false) */
       }).catch((err) => {
         console.error(err);
       });
