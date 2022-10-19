@@ -216,8 +216,10 @@ export default {
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            //console.log(arr1[j].id)
-            //console.log(arr2[i])
+            console.log("title", arr1[j].title)
+            console.log(arr2[i])
+            console.log("index", i, j)
+            arr1[j].position = i + 1
             sortedArr.push(arr1[j]);
           }
         }

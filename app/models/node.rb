@@ -10,7 +10,7 @@ class Node < ApplicationRecord
   has_many :children, class_name: 'Node', foreign_key: 'parent_node'
   belongs_to :parent, class_name: 'Node', foreign_key: 'parent_node', optional: true
 
-  before_create :set_default_export_index, :set_children
+  before_create :set_default_export_index, :set_children, :set_position
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
@@ -20,6 +20,12 @@ class Node < ApplicationRecord
   amoeba do
     include_association :children
     enable
+  end
+
+  def set_position
+    if mindmap_id.present? && ( position.nil? ||  position == 0 )
+      self.position = self.mindmap.nodes.count + 1
+    end
   end
 
   def validate_title
@@ -129,10 +135,10 @@ class Node < ApplicationRecord
       stage_previous.nodes.where("position > ?", self.position_was).update_all("position = position - 1")
       self.stage.nodes.where("position >= ?", position).where.not(id: id).update_all("position = position + 1")
 
-    elsif self.position > self.position_was
+    elsif self.stage_id && self.position > self.position_was
       self.stage.nodes.where("position <= ?", position).where.not(id: id).where.not("position < ?", position_was).update_all("position = position - 1")
 
-    elsif  self.position < self.position_was
+    elsif self.stage_id &&  self.position < self.position_was
       self.stage.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
 
     end

@@ -34,6 +34,8 @@ class Mindmap < ApplicationRecord
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
+
+  accepts_nested_attributes_for :nodes, update_only: true
   
   amoeba do
     enable
