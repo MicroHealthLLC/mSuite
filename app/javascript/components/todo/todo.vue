@@ -175,15 +175,17 @@ export default {
       if (!e.moved) console.log(e)
       let newIdList = list.map(i => i.id)
       let nodes = this.$store.getters.getMsuite.nodes
-      console.log(nodes)
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
       nodes = sortedTodoArr
-      console.log(nodes)
       if (e.moved) {
-        this.reorderTodo(e.moved.element, nodes)
-      } /* else if (e.added) {
-        this.reorderTodo(e.added.element, nodes)
-      } else this.reorderTodo(e.removed.element, nodes) */
+        this.reorderTodo(nodes)
+      } else if (e.added) {
+        nodes.forEach(n => {
+          if (n.id == e.added.element.id)
+            n.parent = this.currentMindMap.name
+        })
+        this.reorderTodo(nodes)
+      } /* else this.reorderTodo(e.removed.element, nodes) */
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
@@ -191,17 +193,17 @@ export default {
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            console.log("title", arr1[j].title)
+            /* console.log("title", arr1[j].title)
             console.log(arr2[i])
-            console.log("index", i, j)
+            console.log("index", i, j) */
             arr1[j].position = i + 1
             sortedArr.push(arr1[j]);
           }
         }
       }
-    return sortedArr
+      return sortedArr
     },
-    async reorderTodo(todo, list) {
+    async reorderTodo(list) {
       let data = {
         mindmap: {
           nodes: list
@@ -521,7 +523,7 @@ export default {
 
     this.undoMap(this.undoObj)
     this.redoMap(this.redoObj)
-    
+
   },
   /* watch: {
     sortedTodos() {

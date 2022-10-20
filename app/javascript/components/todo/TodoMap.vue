@@ -155,12 +155,20 @@ export default {
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
       nodes = sortedTodoArr
-      console.log(nodes)
+      //console.log(nodes)
       if (e.moved) {
-        this.reorderTodo(e.moved.element, nodes)
+        this.reorderTodo(nodes)
       } else if (e.added) {
-        this.reorderTodo(e.added.element, nodes)
-      } else this.reorderTodo(e.removed.element, nodes)
+        let otherNode = nodes.find(n => n.id != e.added.element.id)
+        nodes.forEach(n => {
+          if (n.id == e.added.element.id) {
+            n.parent = otherNode.parent
+            
+          }
+        })
+        console.log(nodes)
+        this.reorderTodo(nodes)
+      } /* else this.reorderTodo(e.removed.element, nodes) */
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
@@ -186,7 +194,7 @@ export default {
       }
       return arrSet;
     },
-    async reorderTodo(todo, list) {
+    async reorderTodo(list) {
       let data = {
         mindmap: {
           nodes: list
