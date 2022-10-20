@@ -135,10 +135,9 @@
           {
             Vue.set(this.currentMindMap, 'title', data.mindmap.title)
           }
-          else if(data.message === "storage updated" && 
-              (this.currentMindMap.id == data.content.mindmap_id ||
-              this.currentMindMap.id == data.content.mSuite.id))
+          else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id )
           {
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
@@ -165,20 +164,21 @@
     mounted: async function() {
       this.subscribeCable(this.currentMindMap.id)
       this.$store.dispatch('setExportId', 'kanban-board')
+      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
       this.sendLocals(false)
       if (this.$route.params.key) {
         this.getMindmap()
-      if (this.currentMindMap.canvas !=null){
-        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
-        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
-      }
-      else{
-        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
-        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)        
-        this.$store.dispatch('emptyUserList')
-      } 
+        if (this.currentMindMap.canvas !=null){
+          this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+          this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+        }
+        else{
+          this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+          this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+          this.$store.dispatch('emptyUserList')
+        }
       }
       this.mountKanBan()
       this.getUserOnMount()

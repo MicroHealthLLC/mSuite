@@ -82,7 +82,7 @@
             data.message === "storage updated"             &&
             this.currentMindMap.id == data.content.mindmap_id
           ) {
-            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           } else if (

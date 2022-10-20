@@ -1,7 +1,8 @@
 <template>
   <div v-if="dataLoaded" class="container">
     <div class="overflow-auto maxHeight" v-if="!showResult">
-      <h5><strong>{{ pollData.description }}</strong></h5>
+      <h3 id="poll-title" class="d-none"><strong>{{ currentMindMap.title }}</strong></h3>
+      <h5>{{ pollData.description }}</h5>
       <div>
         <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
           All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowed selectable options indicated.
@@ -24,14 +25,16 @@
             :name="questions.question"
             v-model="questions.preview_checked"
             @change="checkDisabled(questions)"
-            :disabled="ans_count >= questions.allowedAnswers && questions.preview_checked.indexOf(answers) == -1 ? true:false" />
+            :disabled="ans_count >= questions.allowedAnswers && questions.preview_checked.indexOf(answers) == -1 ? true:false"
+            @click="checkCheckedAns($event)" />
 
           <input
             v-else
             type="radio"
             :value="answers"
             :name="questions.question"
-            v-model="questions.preview_checked" />
+            v-model="questions.preview_checked"
+            @click="checkCheckedAns($event)" />
           <span :class="errorTriggered ? 'shake d-block border-danger':''">
             {{ answers.text }}
           </span>
@@ -95,7 +98,8 @@
         mindmapName: '',
         mindmapExists: false,
         errorTriggered: false,
-        ans_count: 0
+        ans_count: 0,
+        checkedAns: false
       };
     },
     components: {
@@ -160,6 +164,10 @@
       },
       checkDisabled(checked){
         this.ans_count = checked.preview_checked.length
+      },
+      checkCheckedAns(event){
+        if(event.target.checked) event.target.setAttribute("checked", "checked")
+        else event.target.removeAttribute("checked")
       },
       tryAgain(){
         this.$refs['errorModal'].close()
