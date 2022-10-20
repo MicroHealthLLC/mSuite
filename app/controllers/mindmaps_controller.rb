@@ -5,7 +5,7 @@ class MindmapsController < AuthenticatedController
   before_action :set_mindmap, only: [:reset_password, :update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map]
   before_action :verify_password, only: :show
   before_action :check_password_update, only: :update
-  include HistoryConcern
+  include HistoryConcern, MindmapConcern
 
   def index; end
 
@@ -181,8 +181,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def clone_map
-    clone_msuite = @mindmap.deep_clone include: [:nodes, :stages, :comments,{ nodes: :children }, { comments: :replies }], use_dictionary: true
-    clone_msuite.stages.skip_callback(:create, :before,:set_position) if @mindmap.mm_type == 'kanban'
+    clone_msuite = dup_msuite
     if clone_msuite.save
       clone_msuite.stages.set_callback(:create, :before,:set_position)
       render json: { mindmap: clone_msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
