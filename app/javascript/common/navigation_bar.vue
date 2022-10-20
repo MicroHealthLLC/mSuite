@@ -182,7 +182,7 @@
               <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
             </a>
         </span>  
-        <span v-if="$store.getters.getMsuite.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
+        <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
           <span v-b-tooltip.hover title="Delete">
             <a
               href="javascript:;"
@@ -319,6 +319,11 @@
     <delete-map-modal ref="delete-map-modal" @delete-mindmap="confirmDeleteMindmap"></delete-map-modal>
     <delete-password-modal ref="delete-password-modal" @deletePasswordCheck="deleteMindmapProtected">
     </delete-password-modal>
+    <section v-if="exportLoading" class="export-loading-tab">
+      <div class="loader-wrap">
+        <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -326,7 +331,7 @@
   import ConfirmSaveKeyModal from "./modals/confirm_save_key_modal"
   import { jsPDF } from "jspdf";
   import html2canvas from "html2canvas"
-  import domtoimage from "dom-to-image-more"
+  import domtoimage from "dom-to-image"
   import http from "./http"
   import ResetMapModal from '../components/mindmaps/modals/reset_map_modal'
   import UserMapModal from "./modals/user_map_modal"
@@ -351,7 +356,7 @@
         editable: false,
         isSaveMSuite: true,
         isMsuiteSaved: true,
-        poll_pin: null,
+        exportLoading: false,
         password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
         isSaveMap: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.is_save)),
         dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
@@ -377,7 +382,7 @@
         return this.$store.getters.getMsuite
       },
       renderUserList () {
-        if(this.$store.state.userList.length > 0) return this.$store.state.userList
+        if(this.$store.state.userEdit && this.$store.state.userList.length > 0) return this.$store.state.userList
       },
       mSuiteTitle () {
         return this.mSuiteName
@@ -395,7 +400,7 @@
         return this.mm_type==='kanban' || this.mm_type==='tree_chart' || this.mm_type==='flowmap' || this.mm_type==='todo' || this.mm_type==='tree_map' || this.mm_type==='calendar'
       },
       renderTemporaryUser () {
-        if (this.$store.state.temporaryUser) return this.$store.state.temporaryUser
+        if (this.$store.state.userEdit && this.$store.state.temporaryUser) return this.$store.state.temporaryUser
       },
       duplicateMap () {
         return this.mm_type != 'pollvote'
@@ -417,6 +422,7 @@
         .then((res) => {
           this.$store.commit('setMSuite', res.data.mindmap)
           this.currentMindMap = res.data.mindmap
+          this.currentMindMap.editable = true
           this.password = JSON.parse(JSON.stringify(this.currentMindMap.password))
           this.isSaveMap = JSON.parse(JSON.stringify(this.currentMindMap.is_save))
         })
@@ -579,6 +585,7 @@
         };
       },
       exportImage(option) {
+        this.exportLoading = true
         if (this.mm_type === 'simple'){
           this.$emit('exportToImage',option)
           this.$refs.exportBtn.blur()
@@ -586,7 +593,7 @@
         }
         else if (this.mm_type === 'Notepad') {
           this.$emit('export-to-document',option)
-        } 
+        }
         else {
           const _this = this
           let elm = document.getElementById(this.$store.getters.getExportId)
@@ -596,6 +603,10 @@
           }
           if (this.mm_type === 'spreadsheet'){
             elm = document.getElementsByClassName('jexcel_content')[0]
+          }
+          if (this.mm_type == 'poll'){
+            let inner_elm = document.getElementById('poll-title')
+            inner_elm.classList.remove("d-none");
           }
           elm.style.transform = "scale(1)"
           let map_key = _this.currentMindMap.unique_key || "image"
@@ -608,6 +619,7 @@
               downloadLink.download = map_key + ".png"
               downloadLink.click()
               document.body.removeChild(downloadLink)
+              this.exportLoading = false
             }
             else {
               var pdf = new jsPDF('l', 'px',[elm.scrollWidth,elm.scrollHeight],true);
@@ -617,12 +629,15 @@
                 pdf.addImage(url, 'JPEG', 0, 0, width, height);
                 pdf.save(map_key + '.pdf');
               });
+              this.exportLoading = false
             }
             _this.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
+            _this.mm_type === 'poll' ? document.getElementById('poll-title').classList.add('d-none') : false
             _this.$refs['exportOption'].close()
           })
           .catch((err) => {
             console.error('oops, something went wrong!', err)
+            this.exportLoading = false
           })
         }
       },
@@ -637,41 +652,9 @@
   }
 </script>
 
-<style>
+<style lang="scss">
   @import "../components/mindmaps/styles/mindmap_new.scss";
 
-  .dot {
-    width: 3px;
-    height: 3px;
-    background: #0F6674;
-    display: inline-block;
-    border-radius: 50%;
-    right: 0px;
-    bottom: 0px;
-    margin: 0px 0.2px;
-    position: relative;
-    animation: jump 1s infinite;
-  }
-  .dots-cont:hover > .dot {
-    animation: none;
-  }
-  .dots-cont .dot-1 {
-    -webkit-animation-delay: 100ms;
-    animation-delay: 100ms;
-  }
-  .dots-cont .dot-2 {
-    -webkit-animation-delay: 200ms;
-    animation-delay: 200ms;
-  }
-  .dots-cont .dot-3 {
-    -webkit-animation-delay: 300ms;
-    animation-delay: 300ms;
-  }
-  @keyframes jump {
-    0%   {bottom: 0px;}
-    20%  {bottom: 5px;}
-    40%  {bottom: 0px;}
-  }
   .mindmap-title{
     resize:none
   }

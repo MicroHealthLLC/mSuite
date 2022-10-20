@@ -42,6 +42,7 @@
             ])
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id){
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
             this.temporaryUser = data.content.userEdit

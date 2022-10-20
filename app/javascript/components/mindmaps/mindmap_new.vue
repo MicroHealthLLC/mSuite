@@ -191,6 +191,7 @@
             }, 500)
           }
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
@@ -239,7 +240,9 @@
         this.stopWatch        = true
         this.centralIdea      = this.currentMindMap.name
         this.currentNodes     = this.currentMindMap.nodes
-        this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')
+          this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
+        this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
         setTimeout(() => { this.drawLines() }, 1000)
         this.loading = false
       },
@@ -488,7 +491,8 @@
           ctx.clearRect(0, 0, c.width, c.height)
 
           let CI = this
-          this.currentMindMap.nodes.forEach((nod) => {
+          if(this.currentMindMap.nodes) {
+            this.currentMindMap.nodes.forEach((nod) => {
             if (nod.is_disabled || nod.hide_self) { return; }
             if (nod.line_color) {
               ctx.strokeStyle = nod.line_color
@@ -547,7 +551,8 @@
             }
             ctx.stroke()
             ctx.closePath()
-          })
+            })
+          }
         }
         else if (retry_count < 5) {
           setTimeout(this.drawLines(retry_count++), 100);
@@ -1024,12 +1029,10 @@
 
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
-      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
 
       this.sendLocals(false)
-      if (this.$route.params.key) {
-        this.mountMap()
-      }
+      this.mountMap()
+
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('touchend', this.stopDrag)
       window.addEventListener('wheel', this.transformScale)

@@ -12,6 +12,7 @@
                 type="checkbox"
                 class="mr-4"
                 :checked="node.is_disabled"
+                @input="checkCheckedAns($event)"
                 @click="updateTodo(node, node.name, !node.is_disabled)"
             />
           </div>
@@ -235,7 +236,11 @@ import http from "../../common/http"
       },
       formatDate(date) {
         return date ? moment(date).format("MM/DD/YYYY") : ""
-      }
+      },
+      checkCheckedAns(event){
+        if(event.target.checked) event.target.setAttribute("checked", "checked")
+        else event.target.removeAttribute("checked")
+      },
     },
     computed: {
       sortedChildTodos() {

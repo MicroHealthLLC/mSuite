@@ -9,11 +9,11 @@ meta content="width=device-width, initial-scale=1.0" name="viewport" id="viewpor
 
 /* CSS */
 // Add conditional classes before loading css
-link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" /
-link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" /
+link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" crossorigin="anonymous" /
+link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" crossorigin="anonymous"/
 link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous"/
 link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.21.2/bootstrap-vue.css" integrity="sha512-IULYRc2oqPYYv/YfLVAx2BfIF3UGFXhOtTyjYx4E/DsMa4QlDUozuCvhdIsssJbI8IB5NgeErtMQ1zJnPyyJ7g==" crossorigin="anonymous" referrerpolicy="no-referrer" /
-link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"
+link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" crossorigin="anonymous"/
 
 javascript:
   // Check if is Internet Explorer (documentMode is an IE only property)
@@ -40,7 +40,7 @@ script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.21.2/bootstra
 
 // TODO: Move to footer (not needed in header and no need to block loading)
 // TODO: Also handle this all asyncronously, and conditionally add mutation shim
-= stylesheet_link_tag 'https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css', media: 'all'
+= stylesheet_link_tag 'https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css', media: 'all', crossorigin: "anonymous"
 script src="//cdn.jsdelivr.net/npm/mutationobserver-shim/dist/mutationobserver.min.js"
 script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"
 
