@@ -171,68 +171,54 @@ export default {
     }
   },
   methods: {
-    handleMove(item) {
-      /* this.movingSlot = item.relatedContext.component.$vnode.key;
-      return true; */
-      //console.log(item)
-    },
     async handleEnd(e, list) {
-        let newIdList = list.map(i => i.id)
-        let nodes = this.$store.getters.getMsuite.nodes
-        let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
-        nodes = sortedTodoArr
-        console.log(nodes)
-        if (e.moved) {
-          this.reorderTodo(e.moved.element, nodes) 
-        } else if (e.added){
-          this.reorderTodo(e.added.element, nodes)
-        } 
-      
-      /* try {
-        await this.$store.dispatch('updateMSuiteToDo', { mindmap: { nodes: nodes } })
-        console.log(nodes)
-      } catch (error) {
-        console.error(error);
-      } */
+      if (!e.moved) console.log(e)
+      let newIdList = list.map(i => i.id)
+      let nodes = this.$store.getters.getMsuite.nodes
+      console.log(nodes)
+      let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+      nodes = sortedTodoArr
+      console.log(nodes)
+      if (e.moved) {
+        this.reorderTodo(e.moved.element, nodes)
+      } /* else if (e.added) {
+        this.reorderTodo(e.added.element, nodes)
+      } else this.reorderTodo(e.removed.element, nodes) */
     },
-    /* updateToDos(obj) {
-      let data = {}
-      if (obj == undefined){
-        data = {
-          canvas: this.$store.state.userEdit
-        }
-      } else {
-        data = {
-          nodes: obj.nodes,
-          canvas: this.$store.state.userEdit
-        }
-      }
-
-      this.$store.dispatch('updateMSuite', data)
-    }, */
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
       let auxArr = [];
-      let arrSet = this.newSet(arr2);
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            /* console.log("title", arr1[j].title)
+            console.log("title", arr1[j].title)
             console.log(arr2[i])
-            console.log("index", i, j) */
+            console.log("index", i, j)
             arr1[j].position = i + 1
             sortedArr.push(arr1[j]);
           }
         }
       }
-      return sortedArr
+    return sortedArr
     },
-    newSet(arr){
-      let arrSet = new Set();
-      for (let i = 0; i < arr.length; i++) {
-        arrSet.add(arr[i]);
+    async reorderTodo(todo, list) {
+      let data = {
+        mindmap: {
+          nodes: list
+        }
       }
-      return arrSet;
+      this.updateTodoUser()
+      await this.$store.dispatch('updateMSuite', data)
+        .then((result) => {
+          console.log(result)
+          /* this.myTodos.push(result.data.node)
+          this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
+          this.showModalTodo = false
+          this.clearTodoObj()
+          this.sendLocals(false) */
+        }).catch((err) => {
+          console.error(err);
+        });
     },
     clearTodoObj() {
       this.todo = {}
@@ -266,11 +252,6 @@ export default {
       this.todos = response.nodes
       this.renderTodos()
     },
-    /* updateToDos() {
-      //let res = await this.$store.dispatch('getMSuite')
-      let nodes = this.$store.getters.getMsuite.nodes
-      console.log(nodes)
-    }, */
     renderTodos() {
       let parent_nodes = []
       let date = ''
@@ -349,25 +330,6 @@ export default {
         this.showModalTodo = false
         this.clearTodoObj()
         this.sendLocals(false)
-      }).catch((err) => {
-        console.error(err);
-      });
-    },
-    async reorderTodo(todo, list) {
-      let data = {
-        mindmap: {
-          nodes: list
-        }
-      }
-      this.updateTodoUser()
-      await this.$store.dispatch('updateMSuite', data)
-      .then((result) => {
-        console.log(result)
-        /* this.myTodos.push(result.data.node)
-        this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
-        this.showModalTodo = false
-        this.clearTodoObj()
-        this.sendLocals(false) */
       }).catch((err) => {
         console.error(err);
       });
@@ -554,11 +516,12 @@ export default {
 
     $(".vue-js-switch .v-switch-label, .v-right").css({ "color": "#212529" })
     $(".v-switch-label, .v-right").css({ "color": "#212529" })
-
+    console.log(this.$store.getters.getMsuite.nodes)
     this.getUserOnMount()
 
     this.undoMap(this.undoObj)
     this.redoMap(this.redoObj)
+    
   },
   /* watch: {
     sortedTodos() {

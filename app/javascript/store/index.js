@@ -92,7 +92,6 @@ const store = new Vuex.Store({
       return state.mindmap_id
     },
     getMsuite (state) {
-      console.log(state)
       return state.mSuite
     },
     getDataMsuite (state) {
