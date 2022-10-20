@@ -113,6 +113,10 @@
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
         }else {
           this.$refs.Error.open()
+          if (this.expDaysInput < 1) {
+            this.expDaysInput = 1
+          } else this.expDaysInput = this.defaultDeleteDays
+          
           this.currentMindMap.will_delete_at = this.deletedAtMSuite
         }
       },
