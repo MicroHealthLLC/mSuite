@@ -85,7 +85,7 @@
         deletedAtMSuite: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.will_delete_at))
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap', 'expDays', 'deleteAfter', 'isSaveMSuite'],
+    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap', 'deleteAfter', 'isSaveMSuite'],
     computed: {
       getBaseUrl () {
         return window.location.href
@@ -99,6 +99,7 @@
       currentMindMap: {
         handler(value){
           this.isSaveMap = value.is_save
+          this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
       }
     },
@@ -158,7 +159,7 @@
         let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
         return TotalDays;
       }
-    }
+    },
   }
 </script>
 <style>
