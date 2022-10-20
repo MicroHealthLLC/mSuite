@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
+    <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error" blocking="true" hide-close-button="true">
       Incorrect Password, Please Enter correct password!
 
       <button slot="button" class="btn btn-info" @click="back_to_home"> Back To Home </button>

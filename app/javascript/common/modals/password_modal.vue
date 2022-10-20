@@ -1,5 +1,5 @@
 <template>
-  <sweet-modal ref="passwordModal" class="of_v">
+  <sweet-modal ref="passwordModal" class="of_v" blocking="true" hide-close-button="true">
     <div class="sweet_model_icon_div">
       <div class="radius_circle bg-warning center_flex mlr_a text-white">
         <i class="material-icons">security</i>
