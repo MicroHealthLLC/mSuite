@@ -314,6 +314,7 @@
           this.nodeColor = this.getRandomColor()
         }
         if (p_node) {
+          this.mousePos = $("#map-canvas")[0].getBoundingClientRect();
           if (this.nodeQuadrant(p_node) == 'UL' || this.nodeQuadrant(p_node) == 'LL') {
             this.parent_x = p_node.position_x - 100;
             this.parent_y = p_node.position_y + 25;
