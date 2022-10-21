@@ -498,13 +498,13 @@
             line_color: '#FFFFFF',
           }
         }
-        this.updateKanbanUser()
         http
         .post(`/nodes.json`, data)
         .then((res) => {
           this.blocks.push(res.data.node)
           this.undoNodes.push({'req': 'addNode', receivedData: res.data.node})
           this.sendLocals(false)
+          this.updateKanbanUser()
         })
         .catch((err) => {
           console.log(err)
