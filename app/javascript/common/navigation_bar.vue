@@ -418,14 +418,21 @@
     },
     methods:{
       isSave () {
-        http.post(`/msuite/${this.currentMindMap.unique_key}/reset_password`)
-        .then((res) => {
-          this.$store.commit('setMSuite', res.data.mindmap)
-          this.currentMindMap = res.data.mindmap
-          this.currentMindMap.editable = true
-          this.password = JSON.parse(JSON.stringify(this.currentMindMap.password))
-          this.isSaveMap = JSON.parse(JSON.stringify(this.currentMindMap.is_save))
-        })
+        this.sendLocals(false)
+        let mycanvas = null
+        let isValidJSON = true
+        try { mycanvas = JSON.parse(this.currentMindMap.canvas) } catch { isValidJSON = false }
+        if (!mycanvas) isValidJSON = false
+        if (isValidJSON && mycanvas.user){
+          mycanvas.user = this.$store.state.userEdit
+          this.currentMindMap.canvas = JSON.stringify(mycanvas)
+        }
+        else{
+          this.currentMindMap.canvas = this.$store.getters.getUser
+        }
+        this.currentMindMap.is_save = 'is_public'
+        this.currentMindMap.password = null
+        this.$store.dispatch('updateMSuite', this.currentMindMap)
       },
       deleteMap(){
         this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
