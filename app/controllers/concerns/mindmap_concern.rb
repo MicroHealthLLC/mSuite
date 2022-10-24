@@ -16,6 +16,7 @@ module MindmapConcern
 
   def check_msuite(fetched_mindmap)
     should_delete = true
+    return false if fetched_mindmap.mm_type == 'pollvote'
     if fetched_mindmap.canvas
       if valid_json?(fetched_mindmap.canvas)
         canvas = JSON.parse(fetched_mindmap.canvas)
