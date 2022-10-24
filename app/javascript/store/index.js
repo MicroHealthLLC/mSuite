@@ -156,7 +156,13 @@ const store = new Vuex.Store({
     },
     async cloneMap({state ,dispatch}){
       await HTTP.get(`/msuite/${state.mSuite.unique_key}/clone_map`).then(res =>{
-      window.open(`/msuite/${res.data.mindmap.unique_key}`)
+        window.open(`/msuite/${res.data.mindmap.unique_key}`)
+      })
+        dispatch('getMsuite')
+    },
+    async setCloneMapDate({state ,dispatch}, data){
+      await HTTP.post(`/msuite/${state.mSuite.unique_key}/clone_map`, {data:data}).then(res =>{
+        window.open(`/msuite/${res.data.mindmap.unique_key}`)
       })
       dispatch('getMsuite')
     },

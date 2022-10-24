@@ -2,16 +2,9 @@ module MindmapConcern
   extend ActiveSupport::Concern
   
   def dup_msuite
-    clone_msuite = @mindmap.deep_clone include: [:nodes, :stages, :comments,{ nodes: :children }, { comments: :replies }], use_dictionary: true
-    clone_msuite.stages.skip_callback(:create, :before,:set_position) if @mindmap.mm_type == 'kanban'
-    clone_msuite.canvas = dup_poll(clone_msuite) if clone_msuite.mm_type == 'poll'
-    clone_msuite
-  end
-
-  def dup_poll(msuite)
-    poll = JSON.parse(msuite.canvas)
-    poll['pollData']['url'] = ''
-    poll.to_json
+    @clone_msuite = @mindmap.deep_clone include: [:nodes, :stages, :comments,{ nodes: :children }, { comments: :replies }], use_dictionary: true
+    dup_conditions()
+    @clone_msuite
   end
 
   def check_msuite(fetched_mindmap)
@@ -26,6 +19,40 @@ module MindmapConcern
       end
     end
     should_delete
+  end
+
+  private
+
+  def dup_poll()
+    poll = JSON.parse(@clone_msuite.canvas)
+    poll['pollData']['url'] = ''
+    poll.to_json
+  end
+
+  def before_dup_calendar_todo()
+      @changed_month = params[:data][:month]
+      @changed_year = params[:data][:year]
+      update_calendar_date() if @clone_msuite.mm_type == 'calendar'
+      update_todo_date() if @clone_msuite.mm_type == 'todo'
+  end
+  
+  def update_calendar_date()
+    @clone_msuite.nodes.each do |node|
+      node.startdate = node.startdate.to_date.change(year:@changed_year, month: @changed_month)
+      node.duedate = node.duedate.to_date.change(year:@changed_year, month: @changed_month)
+    end
+  end
+
+  def update_todo_date()
+    @clone_msuite.nodes.each do |node|
+      node.duedate = node.duedate.to_date.change(year:@changed_year, month: @changed_month) if node.duedate != nil
+    end
+  end
+
+  def dup_conditions()
+    before_dup_calendar_todo() if @clone_msuite.mm_type == 'todo' || @clone_msuite.mm_type == 'calendar'
+    @clone_msuite.stages.skip_callback(:create, :before,:set_position) if @clone_msuite.mm_type == 'kanban'
+    @clone_msuite.canvas = dup_poll() if @clone_msuite.mm_type == 'poll'
   end
 
   def valid_json?(string)

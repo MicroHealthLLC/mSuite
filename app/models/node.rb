@@ -1,6 +1,6 @@
 class Node < ApplicationRecord
   include ActiveModel::Dirty
-
+  include NodeConcern
   default_scope { order('position ASC') }
 
   belongs_to :mindmap, optional: true
@@ -10,12 +10,17 @@ class Node < ApplicationRecord
   has_many :children, class_name: 'Node', foreign_key: 'parent_node'
   belongs_to :parent, class_name: 'Node', foreign_key: 'parent_node', optional: true
 
-  before_create :set_default_export_index
+  before_create :set_default_export_index, :create_notification
+  after_create :create_notification
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
+
+  def create_notification
+    create_worker(self) if self.mindmap.mm_type == 'calendar'
+  end
 
   def validate_title
     return self.mindmap && self.mindmap.id != nil && self.mindmap.mm_type == "tree_map"
