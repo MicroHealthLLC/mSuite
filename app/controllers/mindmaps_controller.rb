@@ -146,12 +146,12 @@ class MindmapsController < AuthenticatedController
   end
 
   def clone_map
-    clone_msuite = dup_msuite
-    if clone_msuite.save
-      clone_msuite.stages.set_callback(:create, :before,:set_position)
-      render json: { mindmap: clone_msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
+    msuite_clone = dup_msuite
+    if msuite_clone.save
+      msuite_clone.stages.set_callback(:create, :before,:set_position) if @mindmap.mm_type == 'kanban'
+      render json: { mindmap: msuite_clone.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
     else
-      render json: { mindmap: clone_msuite.to_json, messages: @mindmap.errors.full_messages, errors: clone_msuite.errors.to_json }, status: :found
+      render json: { mindmap: msuite_clone.to_json, messages: msuite_clone.errors.full_messages, errors: msuite_clone.errors.to_json }, status: :found
     end
   end
 

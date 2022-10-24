@@ -34,7 +34,7 @@
             role="button"
             v-b-tooltip.hover title="Duplicate"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-            @click.prevent="$store.dispatch('cloneMap')"
+            @click.prevent="beforeClone"
           >
             <i class="fas fa-clone icons d-flex center_flex"></i>
           </a>
@@ -324,6 +324,7 @@
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
       </div>
     </section>
+    <clone-modal ref="clone-modal"></clone-modal>
   </div>
 </template>
 
@@ -340,6 +341,7 @@
   import DeleteMapModal from './modals/delete_modal'
   import DeletePasswordModal from './modals/delete_password_modal'
   import TemporaryUser from "../mixins/temporary_user.js"
+  import CloneModal from './modals/clone_modal'
   import { mapState } from 'vuex'
 
   export default{
@@ -375,7 +377,8 @@
       ResetMapModal,
       CommentMapModal,
       UserMapModal,
-      MakePrivateModal
+      MakePrivateModal,
+      CloneModal
     },
     computed: {
       currentMindMap () {
@@ -648,6 +651,10 @@
           })
         }
       },
+      beforeClone(){
+        if (this.mm_type == 'calendar' || this.mm_type == 'todo') this.$refs['clone-modal'].$refs['cloneModal'].open()
+        else this.$store.dispatch('cloneMap') 
+      }
     },
     watch: {
       currentMindMap: {
