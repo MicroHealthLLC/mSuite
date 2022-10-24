@@ -8,8 +8,6 @@ class NodesController < AuthenticatedController
     # get nested children
     @node = Node.create(node_params)
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
-    create_worker(@node) if @node.mindmap.mm_type == 'calendar'
-
     if params[:duplicate_child_nodes].present?
       @node.duplicate_attributes(params[:duplicate_child_nodes])
       @node.duplicate_files(params[:duplicate_child_nodes])

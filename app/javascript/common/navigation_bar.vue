@@ -22,7 +22,7 @@
           <span class="navbar_button d-flex flex-row-reverse">
             <a v-if="duplicateMap" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent="$store.dispatch('cloneMap')">
+              @click.prevent="beforeClone">
               <i class="fas fa-clone icons d-flex center_flex"></i>
             </a>
             <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
@@ -57,7 +57,7 @@
             </a>
           </span>
           <span class="d-flex">
-            <a v-if="mm_type==='simple'" ref="exportWordBtn" role="button" v-b-tooltip.hover title="Export Word"
+            <a v-if="mm_type === 'simple'" ref="exportWordBtn" role="button" v-b-tooltip.hover title="Export Word"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.stop="exportToWord">
               <i class="fas fa-file-word icons d-flex center_flex"></i>
@@ -65,7 +65,7 @@
             <a v-if="mm_type == 'pollvote'" role="button" href="javascript:;"
               class="text-dark mt-2 mr-4 font-weight-bold" v-b-tooltip.hover title="Poll Expires">
               <span class="">
-                Poll Expires: {{pollExpDate}}
+                Poll Expires: {{ pollExpDate }}
               </span>
             </a>
             <a ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
@@ -73,14 +73,14 @@
               @click.prevent.stop="$refs['exportOption'].open()">
               <i class="material-icons export_icon icons d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type==='spreadsheet' || mm_type==='poll' " ref="exportBtn" role="button" href="javascript:;"
+            <a v-if="mm_type === 'spreadsheet' || mm_type === 'poll'" ref="exportBtn" role="button" href="javascript:;"
               class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" v-b-tooltip.hover title="Export"
               @click.prevent.stop="$refs['exportOptionCsv'].open()">
               <i class="fas fa-file-excel icons d-flex center_flex"></i>
             </a>
             <a v-if="mm_type != 'pollvote'" role="button" href="javascript:;"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent.stop="saveMSuite" v-b-tooltip.hover :title="'Expires '+ expireDateTime">
+              @click.prevent.stop="saveMSuite" v-b-tooltip.hover :title="'Expires ' + expireDateTime">
               <i class="material-icons save_btn icons d-flex center_flex"></i>
             </a>
           </span>
@@ -101,7 +101,7 @@
           <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
             <span v-b-tooltip.hover title="Delete">
               <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{button_disabled: !$store.getters.getSelectedNode}"
+                :class="{ button_disabled: !$store.getters.getSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
                 @click.stop="deleteSelectedNode">
                 <i class="material-icons delete_icon icons d-flex center_flex"></i>
@@ -109,21 +109,21 @@
             </span>
             <span v-b-tooltip.hover title="Paste">
               <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{button_disabled: !$store.getters.getCopiedNode}"
+                :class="{ button_disabled: !$store.getters.getCopiedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="pasteCopiedNode">
                 <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Cut">
               <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{button_disabled: !$store.getters.getSelectedNode}"
+                :class="{ button_disabled: !$store.getters.getSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="cutSelectedNode">
                 <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Copy" class="">
               <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{button_disabled: !$store.getters.getSelectedNode}"
+                :class="{ button_disabled: !$store.getters.getSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="copySelectedNode">
                 <i class="material-icons copy_icon icons d-flex center_flex"></i>
               </a>
@@ -136,13 +136,13 @@
             <div v-if="renderUserList && renderUserList.length > 0">
               Editing by:
               <span v-for="user in renderUserList">
-                {{user}},
+                {{ user }},
               </span>
             </div>
           </a>
           <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
             v-b-tooltip.hover title="Status" v-if="renderTemporaryUser">
-            <span> Last Edited By {{renderTemporaryUser}}</span>
+            <span> Last Edited By {{ renderTemporaryUser }}</span>
           </a>
         </span>
       </span>
@@ -200,6 +200,7 @@
         <sync-loader :loading="exportLoading" color="#FFF" size="15px"></sync-loader>
       </div>
     </section>
+    <clone-modal ref="clone-modal"></clone-modal>
   </div>
 </template>
 
@@ -216,6 +217,7 @@ import MakePrivateModal from "./modals/make_private_modal"
 import DeleteMapModal from './modals/delete_modal'
 import DeletePasswordModal from './modals/delete_password_modal'
 import TemporaryUser from "../mixins/temporary_user.js"
+import CloneModal from './modals/clone_modal'
 import { mapState } from 'vuex'
 
 export default {
@@ -251,7 +253,8 @@ export default {
     ResetMapModal,
     CommentMapModal,
     UserMapModal,
-    MakePrivateModal
+    MakePrivateModal,
+    CloneModal
   },
   computed: {
     currentMindMap() {
@@ -527,6 +530,10 @@ export default {
           })
       }
     },
+    beforeClone() {
+      if (this.mm_type == 'calendar' || this.mm_type == 'todo') this.$refs['clone-modal'].$refs['cloneModal'].open()
+      else this.$store.dispatch('cloneMap')
+    }
   },
   watch: {
     currentMindMap: {

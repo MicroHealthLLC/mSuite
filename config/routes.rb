@@ -29,6 +29,7 @@ Rails.application.routes.draw do
       post :sendkeys
       put :redo_mindmap
       get :clone_map
+      post :clone_map
     end
   end
 
