@@ -219,19 +219,41 @@
           this.errorMessage = ''
         }
         else if(difference < 0){
-          this.isValueInvalid = true
+          /* this.isValueInvalid = true
           this.errorMessage = 'End Date is Less Than Start Date'
-          this.invalidMessage = true
+          this.invalidMessage = true */
+          this.isValueInvalid = true
+          let startDateMonth = new Date(this.startDate).getMonth()
+          let startDateDate = new Date(this.startDate).getDate()
+          let startDateYear = new Date(this.startDate).getYear()
+          let endDateMonth = new Date(this.endDate).getMonth()
+          let endDateDate = new Date(this.endDate).getDate()
+          let endDateYear = new Date(this.endDate).getYear()
+
+          if (endDateYear - startDateYear < 0) {
+            this.endDate.setYear(startDateYear + 1900)
+          } else if (endDateMonth - startDateMonth < 0) {
+            this.endDate.setMonth(startDateMonth)
+          } else if (endDateDate - startDateDate < 0) {
+            this.endDate.setDate(startDateDate)
+          }
         }
         else{
           if ((this.endDate - this.startDate) <= 0 && this.allDay == false ){
-            this.isValueInvalid = true
+            /* this.isValueInvalid = true
             this.errorMessage = 'Event End Time Should Be Greater Than Event Start Time'
-            this.invalidMessage = true
+            this.invalidMessage = true */
+            this.isValueInvalid = true
+            let startDateHours = new Date(this.startDate).getHours()
+            let startDateMinutes =  new Date(this.startDate).getMinutes()
+            
+            this.endDate.setHours(startDateHours + 1)
+            this.endDate.setMinutes(startDateMinutes)
           }
           else{
             this.errorMessage = ''
             this.invalidMessage = false
+            this.isValueInvalid = false
           }
           this.allDayNotHidden = true
         }
