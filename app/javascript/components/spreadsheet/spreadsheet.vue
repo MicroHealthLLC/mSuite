@@ -38,6 +38,7 @@
           rows: null,
           column: null,
           columns: [],
+          minDimensions: [32,32]
         },
         isReset: false,
         userList: [],
@@ -69,27 +70,19 @@
             data.message === "Reset mindmap"        &&
             this.currentMindMap.id === data.mindmap.id
           ) {
+            this.currentMindMap = data.mindmap
             this.$store.commit('setMSuite', data.mindmap)
             this.sheetData = JSON.parse(data.mindmap.canvas)
             this.table.setData(this.sheetData.data)
             if(this.sheetData.style != undefined) this.table.setStyle(this.sheetData.style)
             this.table.destroy()
             this.createSheet(data.mindmap.canvas)
-            $(".jexcel_content").addClass('h-100 w-100')
-            $(".jexcel").addClass('w-100 h-100')
-            $(".jexcel_content")[0].style.maxHeight = '100vh'
-            setTimeout(()=>{
-              let navbarHeight = $(".buttons_container").height()
-              let toolbarHeight= $('.jexcel_toolbar').height()
-              let totalHeight = navbarHeight + toolbarHeight
-              let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
-              $('#mytable')[0].style.height = heightVal
-            },200)
+            this.sheetStyles()
           } else if (
             data.message === "storage updated"             &&
             this.currentMindMap.id == data.content.mindmap_id
           ) {
-            this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           } else if (
@@ -127,6 +120,7 @@
               }
               _this.changeRequest = _this.changeRequest + 1
             }
+            this.sheetStyles()
           }
           else {}
         }
@@ -136,6 +130,10 @@
       createSheet(sheetData){
         let _this = this
         if(_this.currentMindMap.canvas != null) _this.sheetData = JSON.parse(sheetData)
+        if(this.currentMindMap.canvas && this.sheetData.data.length > 0 && this.sheetData.columns.length > 0) this.sheetData.minDimensions = [_this.sheetData.columns.length, _this.sheetData.data.length]
+        else{
+          this.sheetData.minDimensions = [32,32]
+        }
         let table = jexcel(document.getElementById('mytable'), {
           data: _this.sheetData.data,
           columns: _this.sheetData.columns,
@@ -144,7 +142,7 @@
           formula: true,
           tableOverflow: true,
           tableHeight: '100vh',
-          minDimensions:[32,32],
+          minDimensions: _this.sheetData.minDimensions,
           allowRenameColumn: true,
           onchange: _this.dataChange,
           onchangestyle: _this.changeStyle,
@@ -227,6 +225,18 @@
           ],
         });
         _this.table = table
+      },
+      sheetStyles(){
+        $(".jexcel_content").addClass('h-100 w-100')
+        $(".jexcel").addClass('w-100 h-100')
+        $(".jexcel_content")[0].style.maxHeight = '100vh'
+        setTimeout(()=>{
+          let navbarHeight = $(".buttons_container").height()
+          let toolbarHeight= $('.jexcel_toolbar').height()
+          let totalHeight = navbarHeight + toolbarHeight
+          let heightVal = `calc(100vh - ${totalHeight + 52}px)`
+          $('#mytable')[0].style.height = heightVal
+        },200)
       },
       async dataChange(){
         let _this = this
@@ -356,16 +366,7 @@
 
       this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.createSheet(this.currentMindMap.canvas)
-      $(".jexcel_content").addClass('h-100 w-100')
-      $(".jexcel").addClass('w-100 h-100')
-      $(".jexcel_content")[0].style.maxHeight = '100vh'
-      setTimeout(()=>{
-        let navbarHeight = $(".buttons_container").height()
-        let toolbarHeight= $('.jexcel_toolbar').height()
-        let totalHeight = navbarHeight + toolbarHeight
-        let heightVal = `calc(100vh - ${totalHeight + 52}px)`;
-        $('#mytable')[0].style.height = heightVal
-      },200)
+      this.sheetStyles()
 
       this.getUserOnMount()
       this.exportDef(this.exportXLS)

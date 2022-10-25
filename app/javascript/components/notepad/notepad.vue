@@ -42,6 +42,7 @@
             ])
           }
           else if(data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id){
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
             this.temporaryUser = data.content.userEdit
@@ -129,11 +130,12 @@
               list.classList.remove('ql-size-large')
             } else if (list.firstChild.className == 'ql-size-large'){
               list.classList.add('ql-size-large')
-              list.firstChild.classList.remove('ql-size-huge')
               list.classList.remove('ql-size-huge')
+              list.classList.remove('ql-size-small')
             } else if (list.firstChild.className == 'ql-size-huge'){
               list.classList.add('ql-size-huge')
-              list.firstChild.classList.remove('ql-size-large')
+              list.classList.remove('ql-size-small')
+              list.classList.remove('ql-size-large')
             } else {
               list.classList.remove('ql-size-small')
               list.classList.remove('ql-size-large')

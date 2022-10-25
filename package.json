@@ -16,6 +16,8 @@
     "convert-array-to-csv": "^2.0.0",
     "d3-color": "^3.1.0",
     "dom-autoscroller": "^2.3.4",
+    "dom-to-image": "^2.6.0",
+    "dom-to-image-font-patch": "^1.0.1",
     "dom-to-image-more": "^2.8.0",
     "element-ui": "^2.15.10",
     "fabric": "^4.6.0",
@@ -83,7 +85,8 @@
     "glob-parent": "^5.1.2",
     "node-fetch": "^2.6.7",
     "follow-redirects": "^1.14.8",
-    "jsdom": "^16.5.0"
+    "jsdom": "^16.5.0",
+    "trim-newlines": "3.0.1"
   },
   "devDependencies": {
     "sass": "^1.55.0",

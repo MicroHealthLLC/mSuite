@@ -317,7 +317,6 @@
         this.nodes.push(this.nodeTemp)
         this.addNodeTree = true
         this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
-        // localStorage.mindmap_id = this.$store.getters.getMsuite.id
 
         if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
           this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
@@ -561,6 +560,7 @@
           }
           else if(data.message === "storage updated" && this.$store.getters.getMsuite.id == data.content.mindmap_id)
           {
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)

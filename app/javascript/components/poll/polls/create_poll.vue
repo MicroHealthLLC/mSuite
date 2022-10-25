@@ -141,7 +141,7 @@ export default {
     if (this.pollData) {
       this.poll = this.pollData
     }
-    this.poll_url()
+    this.pollUrl()
   },
   watch: {
     pollData: {
@@ -232,14 +232,15 @@ export default {
         this.saveData()
       }
     },
-    poll_url() {
+    pollUrl() {
       if (this.poll.url == '') {
         var url = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         for (var i = 0; i < 19; i++)
           url += possible.charAt(Math.floor(Math.random() * possible.length));
         this.poll.url = url
-        this.saveData()
+        let mindmap = this.createMindmapCanvas(null)
+        this.$store.dispatch('updateMSuite', mindmap)
       }
     },
     checkAllFields() {
@@ -262,15 +263,19 @@ export default {
       return result_value
     },
     saveData(){
-      let mycanvas = {
-        pollData  : this.poll,
-        user      : this.$store.getters.getUser
-      }
-      mycanvas = JSON.stringify(mycanvas)
-      let mindmap = { mindmap: { canvas: mycanvas } }
+      let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
       this.$store.dispatch('updateMSuite', mindmap)
       this.sendLocals(false)
     },
+    createMindmapCanvas(tUser){
+      let mycanvas = {
+        pollData  : this.poll,
+        user      : tUser
+      }
+      mycanvas = JSON.stringify(mycanvas)
+      let mindmap = { mindmap: { canvas: mycanvas } }
+      return mindmap
+    }
   }
 }
 </script>

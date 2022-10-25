@@ -69,6 +69,7 @@
             this.pollData = JSON.parse(data.mindmap.canvas).pollData
           }
           else if (data.message === "storage updated" && this.currentMindMap.id === data.content.mindmap_id){
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
@@ -92,12 +93,15 @@
         this.getData()
         if(this.dataLoaded) this.exportXLS(0)
       }
-      if (this.currentMindMap.canvas == null){
+      if (this.currentMindMap.canvas == null ){
         this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
         this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
       }
       this.sendLocals(false)
-      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas && JSON.parse(this.$store.getters.getMsuite.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
+      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas && JSON.parse(this.$store.getters.getMsuite.canvas).user)
+      {
+        this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
+      }  
       else this.$store.dispatch('setUserEdit', null)
       this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.getUserOnMount()

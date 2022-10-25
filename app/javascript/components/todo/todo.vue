@@ -21,7 +21,7 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable :list="sortedTodos">
+                <draggable class="list-group" group="people" :list="sortedTodos">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 
                     :node="todo" 
@@ -187,6 +187,7 @@
             }, 500)
           } else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id)
           {
+            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setNodeNumber' , data.content.nodeNumber)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
@@ -288,7 +289,7 @@
       },
       async updateTodoUser(){
         await this.$store.dispatch('updateMSuite',  {
-           canvas: this.$store.state.userEdit
+           canvas: this.$store.getters.getUser
           })
       },
       async addTodo() {

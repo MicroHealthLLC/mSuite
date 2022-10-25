@@ -23,13 +23,13 @@ Rails.application.routes.draw do
 
   resources :mindmaps, path: 'msuite', except: [:edit] do
     member do
-      post :reset_password
       get :compute_child_nodes
       get :reset_mindmap
       post :undo_mindmap
       post :sendkeys
       put :redo_mindmap
       get :clone_map
+      post :clone_map
     end
   end
 

@@ -3,7 +3,7 @@ export default {
   data(){
     return{
       mindmap_id: 0,
-      storage: null
+      storage: this.$store.state
     }
   },
   methods: {
@@ -15,20 +15,8 @@ export default {
       });
     },
     cableSend(editing){
-      this.$cable.perform({
-        channel: 'WebNotificationsChannel',
-        room: this.mindmap_id,
-
-        data: {
-          message: 'storage updated',
-          isEditing: editing,
-          content: this.storage
-        }
-      });
-    },
-    sendLocals(isEditing){
       let state = this.$store.state
-      this.storage = {   
+      let data = {
         user_id           : state.user_id,
         user              : state.user,
         userEdit          : state.userEdit,
@@ -38,6 +26,18 @@ export default {
         nodeNumber        : state.nodeNumber,
         canvas            : state.canvas
       }
+      this.$cable.perform({
+        channel: 'WebNotificationsChannel',
+        room: this.mindmap_id,
+
+        data: {
+          message: 'storage updated',
+          isEditing: editing,
+          content: data
+        }
+      });
+    },
+    sendLocals(isEditing){
       this.$store.dispatch('setUserEdit', this.storage.user)
       this.$store.dispatch('mindmapId', this.mindmap_id)
       this.cableSend(isEditing)

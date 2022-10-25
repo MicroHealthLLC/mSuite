@@ -2,10 +2,10 @@ require 'json'
 class MindmapsController < AuthenticatedController
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
-  before_action :set_mindmap, only: [:reset_password, :update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map]
+  before_action :set_mindmap, only: [:update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map]
   before_action :verify_password, only: :show
   before_action :check_password_update, only: :update
-  include HistoryConcern
+  include HistoryConcern, MindmapConcern
 
   def index; end
 
@@ -30,7 +30,7 @@ class MindmapsController < AuthenticatedController
     update_parent_mindmap() if @mindmap.mm_type == 'pollvote'
     @mindmap.update(mindmap_params)
     message = password_present?
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: message, mindmap: @mindmap
+    broadcast_actioncable(@mindmap,message)
     render json: { mindmap: @mindmap.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
   end
 
@@ -75,15 +75,9 @@ class MindmapsController < AuthenticatedController
     end
   end
 
-  def reset_password
-    if @mindmap.update_columns(password: nil, is_save: 'is_public')
-      render json: { success: true, mindmap: @mindmap }
-    end
-  end
-
   def reset_mindmap
     @mindmap.reset_mindmap
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Reset mindmap", mindmap: @mindmap
+    broadcast_actioncable(@mindmap,'Reset mindmap')
     render json: { success: true, mindmap: @mindmap }
   end
 
@@ -110,7 +104,7 @@ class MindmapsController < AuthenticatedController
   def destroy
     del_child_mindmap()
     if check_for_password && @mindmap.destroy
-      ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Mindmap Deleted", mindmap: @mindmap
+      broadcast_actioncable(@mindmap,'Mindmap Deleted')
       respond_to do |format|
         format.json { render json: { success: true } }
         format.html {}
@@ -127,13 +121,13 @@ class MindmapsController < AuthenticatedController
     if @mindmap.mm_type == 'poll' && @mindmap.child
       @child_mind_map = @mindmap.child
       if @child_mind_map && @child_mind_map.destroy
-        ActionCable.server.broadcast "web_notifications_channel#{@child_mind_map.id}", message: "Mindmap Deleted", mindmap: @child_mind_map
+        broadcast_actioncable(@child_mind_map,'Mindmap Deleted')
       end
     end
   end
 
   def update_parent_mindmap
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.parent.id}", message: "Vote Received", mindmap: @mindmap.parent
+    broadcast_actioncable(@mindmap.parent,'Vote Received')
   end
 
   def compute_child_nodes
@@ -145,46 +139,19 @@ class MindmapsController < AuthenticatedController
 
   def delete_empty_msuite
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
-    if fetched_mindmap.canvas
-      url = JSON.parse(fetched_mindmap.canvas)['pollData']['url'] if JSON.parse(fetched_mindmap.canvas)['pollData']
-      user = JSON.parse(fetched_mindmap.canvas)['user'] if JSON.parse(fetched_mindmap.canvas)
+    if check_msuite(fetched_mindmap)
+      fetched_mindmap.destroy
+      broadcast_actioncable(fetched_mindmap,'Mindmap Deleted')
     end
-    if fetched_mindmap.nodes.empty?          &&
-      fetched_mindmap.comments.empty?        &&
-      fetched_mindmap.title == "Title"       &&
-      fetched_mindmap.name == "Central Idea" &&
-      fetched_mindmap.will_delete_at == Date.today+ENV['EXP_DAYS'].to_i.day &&
-      fetched_mindmap.password.nil? &&
-      (fetched_mindmap.canvas.nil?  ||
-        fetched_mindmap.canvas == '{"version":"4.6.0","data":[], "style":{}, "width": []}'||
-        fetched_mindmap.canvas == "{\"pollData\":{\"title\":\"\",\"description\":\"\",\"Questions\":[{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":[]},{\"value\":2,\"text\":\"\",\"votes\":[]}],\"allowedAnswers\":0,\"voters\":[]}],\"showResult\":false,\"url\":\"%s\"},\"user\":\"%s\"}" %[url, user] ||
-        fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"objects\":[]}" ||
-        fetched_mindmap.canvas == "{\"version\":\"4.6.0\",\"columns\":[], \"data\":[], \"style\":{}, \"width\": []}" ||
-        fetched_mindmap.canvas == "{\"pollData\":{\"title\":\"\",\"description\":\"\",\"Questions\":[{\"question\":\"\",\"answerField\":[{\"value\":1,\"text\":\"\",\"votes\":[]},{\"value\":2,\"text\":\"\",\"votes\":[]}],\"allowedAnswers\":1,\"voters\":[]}],\"showResult\":false,\"url\":\"%s\"},\"user\":\"%s\"}" %[url, user])
-      if fetched_mindmap.mm_type =="kanban" &&
-        fetched_mindmap.stages.count == 3 && 
-        fetched_mindmap.stages[0][:title]       == "TO DO"       &&
-        fetched_mindmap.stages[0][:stage_color] == "#ebecf0"     &&
-        fetched_mindmap.stages[1][:title]       == "IN PROGRESS" &&
-        fetched_mindmap.stages[1][:stage_color] == "#ebecf0"     &&
-        fetched_mindmap.stages[2][:title]       == "DONE"        &&
-        fetched_mindmap.stages[2][:stage_color] == "#ebecf0"
-
-        fetched_mindmap.destroy
-        ActionCable.server.broadcast "web_notifications_channel#{fetched_mindmap.id}", message: "Mindmap Deleted", mindmap: fetched_mindmap
-      elsif fetched_mindmap.mm_type !="kanban"
-        ActionCable.server.broadcast "web_notifications_channel#{fetched_mindmap.id}", message: "Mindmap Deleted", mindmap: fetched_mindmap
-        fetched_mindmap.destroy
-      end
-    end  
   end
 
   def clone_map
-    clone_msuite = @mindmap.amoeba_dup
-    if clone_msuite.save
-      render json: { mindmap: clone_msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
+    msuite_clone = dup_msuite
+    if msuite_clone.save
+      msuite_clone.stages.set_callback(:create, :before,:set_position) if @mindmap.mm_type == 'kanban'
+      render json: { mindmap: msuite_clone.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i, defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i, expDays: ENV['EXP_DAYS'].to_i }
     else
-      render json: { mindmap: clone_msuite.to_json, messages: @mindmap.errors.full_messages, errors: clone_msuite.errors.to_json }, status: :found
+      render json: { mindmap: msuite_clone.to_json, messages: msuite_clone.errors.full_messages, errors: msuite_clone.errors.to_json }, status: :found
     end
   end
 
@@ -275,4 +242,8 @@ class MindmapsController < AuthenticatedController
         end
       end
     end
+
+  def broadcast_actioncable(mindmap,message)
+    ActionCable.server.broadcast "web_notifications_channel#{mindmap.id}", message: message, mindmap: mindmap
+  end
 end

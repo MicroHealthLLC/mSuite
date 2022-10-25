@@ -66,7 +66,7 @@
       </div>
     </sweet-modal>
     <sweet-modal ref="Error" class="of_v">
-      <p>Number of days cannot be greater than {{ defaultDeleteDays }}</p>
+      <p>Number of days must be between 1 - {{ defaultDeleteDays }}</p>
     </sweet-modal>
   </div>
 </template>
@@ -85,20 +85,17 @@
         deletedAtMSuite: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.will_delete_at))
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap', 'expDays', 'deleteAfter', 'isSaveMSuite'],
+    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap', 'deleteAfter', 'isSaveMSuite'],
     computed: {
       getBaseUrl () {
         return window.location.href
       },
-      expDeleteDays () {
-        /* if(this.currentMindMap && this.isSaveMap == null ) return this.deleteAfter
-        else  */return this.findTotalDaysBetweenDates()
-      }
     },
     watch: {
       currentMindMap: {
         handler(value){
           this.isSaveMap = value.is_save
+          //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
       }
     },
@@ -113,7 +110,12 @@
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
         }else {
           this.$refs.Error.open()
-          this.currentMindMap.will_delete_at = this.deletedAtMSuite
+          if (this.expDaysInput < 1) {
+            this.expDaysInput = 1
+          } else this.expDaysInput = this.defaultDeleteDays
+          if (!this.currentMindMap.will_delete_at) {
+            this.currentMindMap.will_delete_at = this.expDaysInput
+          }
         }
       },
       onClick() {
@@ -158,7 +160,7 @@
         let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
         return TotalDays;
       }
-    }
+    },
   }
 </script>
 <style>
