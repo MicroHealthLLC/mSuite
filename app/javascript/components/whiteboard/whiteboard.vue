@@ -599,9 +599,9 @@
       }
       this.sendLocals(false)
       if (this.$store.getters.getMsuite.canvas && this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && JSON.parse(this.$store.getters.getMsuite.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
-      if (this.currentMindMap.canvas ==null){
-        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
-        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+      if (this.currentMindMap.canvas == '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}'){
+        this.$store.dispatch('setUserEdit', null)
+        this.$store.dispatch('setTemporaryUser', null)
       }
       this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.getUserOnMount()

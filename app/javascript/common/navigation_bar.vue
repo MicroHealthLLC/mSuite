@@ -306,6 +306,14 @@ export default {
         mycanvas.user = this.$store.state.userEdit
         this.currentMindMap.canvas = JSON.stringify(mycanvas)
       }
+      else if(isValidJSON && this.checkMmType()){
+        let _this = this
+        mycanvas = {
+          ...mycanvas,
+          user: _this.$store.state.userEdit
+        }
+        this.currentMindMap.canvas = JSON.stringify(mycanvas)
+      }
       else {
         this.currentMindMap.canvas = this.$store.getters.getUser
       }
@@ -533,6 +541,9 @@ export default {
     beforeClone() {
       if (this.mm_type == 'calendar' || this.mm_type == 'todo') this.$refs['clone-modal'].$refs['cloneModal'].open()
       else this.$store.dispatch('cloneMap')
+    },
+    checkMmType(){
+    return (this.mm_type == 'whiteboard' || this.mm_type == 'poll' || this.mm_type == 'Notepad' || this.mm_type == 'spreadsheet')
     }
   },
   watch: {

@@ -34,7 +34,15 @@ class Mindmap < ApplicationRecord
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
+  before_create :update_canvas, if: :check_mm_type
   
+  def update_canvas
+    self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}'
+  end
+  
+  def check_mm_type
+    return self.mm_type == 'whiteboard' || self.mm_type == 'poll' || self.mm_type == 'Notepad' || self.mm_type == 'spreadsheet'
+  end 
   def to_json
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
