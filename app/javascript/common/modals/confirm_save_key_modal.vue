@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sweet-modal ref="confirmSaveKeyModal" class="of_v">
+    <sweet-modal ref="confirmSaveKeyModal" class="of_v" v-on:close="onClose">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-warning center_flex mlr_a text-white">
           <i class="material-icons">notification_important</i>
@@ -79,22 +79,29 @@
       return {
         expDaysInput: this.findTotalDaysBetweenDates(),
         expDays: '',
-        deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
+        //deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
         currentMindMap: this.$store.getters.getMsuite,
         unique_key: this.$store.getters.getMsuite.unique_key,
         deletedAtMSuite: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.will_delete_at))
       }
     },
-    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap', 'deleteAfter', 'isSaveMSuite'],
+    props: ['currentMindMap', 'defaultDeleteDays', 'isSaveMap',/*  'deleteAfter', */ 'isSaveMSuite'],
     computed: {
       getBaseUrl () {
         return window.location.href
       },
     },
+    mounted() {
+      this.expDays = this.expDaysInput
+      //this.expireDate(this.expDaysInput)
+    },
     watch: {
       currentMindMap: {
         handler(value){
+          console.log(value)
           this.isSaveMap = value.is_save
+          console.log(this.isSaveMap)
+          //console.log(this.currentMindMap)
           //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
       }
@@ -106,17 +113,22 @@
           var day = new Date();
           var nextDay = new Date(day);
           nextDay.setDate(day.getDate() + parseInt(value));
-          this.currentMindMap.will_delete_at = nextDay
+          console.log(nextDay)
+          this.currentMindMap.will_delete_at = moment(nextDay).format('DD-MM-YYYY')
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
+
         }else {
           this.$refs.Error.open()
           if (this.expDaysInput < 1) {
             this.expDaysInput = 1
-          } else this.expDaysInput = this.defaultDeleteDays
-          if (!this.currentMindMap.will_delete_at) {
-            this.currentMindMap.will_delete_at = this.expDaysInput
+          } else if (this.expDaysInput > this.defaultDeleteDays) {
+            this.expDaysInput = this.defaultDeleteDays
           }
+          /* if (!this.currentMindMap.will_delete_at) {
+            this.currentMindMap.will_delete_at = this.expDaysInput
+          } */
         }
+        console.log(this.currentMindMap.will_delete_at)
       },
       onClick() {
         this.expireDate(this.expDaysInput)
@@ -139,6 +151,10 @@
         this.$emit("openPrivacy", this.isSaveMSuite)
       },
       openPrivacy () {
+        if (this.isSaveMap == null && this.findTotalDaysBetweenDates() == 5) {
+          this.expireDate(this.expDaysInput)
+        }
+        
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
         else if(this.isSaveMSuite) this.closeModal()
@@ -146,6 +162,9 @@
       },
       closeModal() {
         this.$refs.confirmSaveKeyModal.close()
+      },
+      onClose() {
+        //this.expDaysInput = this.expDays
       },
       deleteMap () {
         this.$emit("deleteMap")

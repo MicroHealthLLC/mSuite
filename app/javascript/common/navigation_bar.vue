@@ -153,7 +153,7 @@
     <confirm-save-key-modal @openPrivacy="openPrivacy" @updateInActiveDate="updateMsuite" @deleteMap="deleteMap"
       @isSave="isSave" @changeIsMsuitSaved="handleChangeIsMsuiteSaved" ref="confirm-save-key-modal"
       :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :isSaveMap="isSaveMap"
-      :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays">
+      :defaultDeleteDays="defaultDeleteDays" :expDays="expDays">
     </confirm-save-key-modal>
     <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
@@ -229,7 +229,7 @@ export default {
       mSuiteName: this.$store.getters.getMsuite.title,
       mm_type: this.$store.getters.getmmType,
       defaultDeleteDays: this.$store.getters.getDataMsuite.defaultDeleteDays,
-      deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
+      //deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
       expDays: this.$store.getters.getDataMsuite.expDays,
       editable: false,
       isSaveMSuite: true,

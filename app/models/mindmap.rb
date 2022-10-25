@@ -87,7 +87,7 @@ class Mindmap < ApplicationRecord
   def hash_password
     self.password = Password.create(self.password) if self.password.present?
     self.is_save = "is_private"
-    self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now if (self.will_delete_at == ENV['EXP_DAYS'].to_i.days.from_now.to_date)
+    # self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now if (self.will_delete_at == ENV['EXP_DAYS'].to_i.days.from_now.to_date)
   end
 
   private
