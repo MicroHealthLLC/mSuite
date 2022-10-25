@@ -234,9 +234,7 @@ class MindmapsController < AuthenticatedController
     def check_password_update
       if params[:mindmap][:password].present?
         unless @mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) || @mindmap.password.blank?
-          respond_to do |format|
-            format.json { render json: { error: "Password Mismatched" } }
-          end
+          render json: { error: "Password Mismatched" }
         else
           session.delete(:mindmap_id)
         end
