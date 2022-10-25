@@ -232,9 +232,10 @@ class MindmapsController < AuthenticatedController
     end
 
     def check_password_update
-      if params[:mindmap][:password].present?
+      if params[:mindmap][:password].present? && params[:mindmap][:old_password]
         unless @mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) || @mindmap.password.blank?
-          render json: { error: "Password Mismatched" }
+          render json: { error: "Password Mismatched" }, status: 406
+          return
         else
           session.delete(:mindmap_id)
         end
