@@ -486,10 +486,12 @@ export default {
       if (this.mm_type === 'simple') {
         this.$emit('exportToImage', option)
         this.$refs.exportBtn.blur()
+        this.exportLoading = false
         this.$refs['exportOption'].close()
       }
       else if (this.mm_type === 'Notepad') {
         this.$emit('export-to-document', option)
+        this.exportLoading = false
       }
       else {
         const _this = this
