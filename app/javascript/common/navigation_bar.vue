@@ -9,143 +9,140 @@
           <img src="/assets/msuite.png" />
         </a>
       </span>
-      <span v-if="$parent.is_verified">
-        <span class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-center px-0">
-          <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
-            data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
-          <input v-show="editable" :rows="1" id="mSuiteTitle" @keydown.enter.prevent="mSuiteTitleUpdate" type="text"
-            v-debounce:3000ms="blurEvent" v-model="mSuiteName"
-            class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
-            @blur="mSuiteTitleUpdate" placeholder="Enter mSuite Map Title" />
-        </span>
-        <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
-          <span class="navbar_button d-flex flex-row-reverse">
-            <a v-if="duplicateMap" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent="beforeClone">
-              <i class="fas fa-clone icons d-flex center_flex"></i>
-            </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent="deleteMap">
-              <i class="fas fa-trash-alt icons d-flex center_flex"></i>
-            </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="User"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent="openUserModal">
-              <i class="fas fa-user-edit icons d-flex center_flex"></i>
-            </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex" v-b-tooltip.hover
-              title="Comments" @click.prevent="openCommentModal">
-              <i id="comment" class="fa fa-comment d-flex center_flex"></i>
-            </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
-              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" v-b-tooltip.hover title="Reset"
-              @click.stop="resetMap">
-              <i class="material-icons restore_icon icons d-flex center_flex"></i>
-            </a>
-          </span>
-          <span v-if="checkMSuiteTypes" class="d-flex flex-row-reverse">
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Redo"
-              class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="redoMindmap">
-              <i class="fas fa-redo-alt"></i>
-            </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Undo"
-              class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="undoMindmap">
-              <i class="fas fa-undo-alt"></i>
-            </a>
-          </span>
-          <span class="d-flex">
-            <a v-if="mm_type === 'simple'" ref="exportWordBtn" role="button" v-b-tooltip.hover title="Export Word"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.stop="exportToWord">
-              <i class="fas fa-file-word icons d-flex center_flex"></i>
-            </a>
-            <a v-if="mm_type == 'pollvote'" role="button" href="javascript:;"
-              class="text-dark mt-2 mr-4 font-weight-bold" v-b-tooltip.hover title="Poll Expires">
-              <span class="">
-                Poll Expires: {{ pollExpDate }}
-              </span>
-            </a>
-            <a ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent.stop="$refs['exportOption'].open()">
-              <i class="material-icons export_icon icons d-flex center_flex"></i>
-            </a>
-            <a v-if="mm_type === 'spreadsheet' || mm_type === 'poll'" ref="exportBtn" role="button" href="javascript:;"
-              class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" v-b-tooltip.hover title="Export"
-              @click.prevent.stop="$refs['exportOptionCsv'].open()">
-              <i class="fas fa-file-excel icons d-flex center_flex"></i>
-            </a>
-            <a v-if="mm_type != 'pollvote'" role="button" href="javascript:;"
-              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent.stop="saveMSuite" v-b-tooltip.hover :title="'Expires ' + expireDateTime">
-              <i class="material-icons save_btn icons d-flex center_flex"></i>
-            </a>
-          </span>
-          <span v-if="mm_type === 'simple' || mm_type === 'tree_chart' || mm_type === 'flowmap'" class="d-flex">
-            <a v-if="$store.getters.getScaleFactor != 1" href="javascript:;" role="button" v-b-tooltip.hover
-              title="100%" class="zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="resetZoomScale">
-              <i class="fas fa-history icons d-flex center_flex"></i>
-            </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom +"
-              class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="zoomInScale">
-              <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
-            </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom -"
-              class="navbar_button zoom_btn text-info edit_delete_btn mr-3 center_flex" @click.prevent="zoomOutScale">
-              <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
-            </a>
-          </span>
-          <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
-            <span v-b-tooltip.hover title="Delete">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getSelectedNode }"
-                class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
-                @click.stop="deleteSelectedNode">
-                <i class="material-icons delete_icon icons d-flex center_flex"></i>
-              </a>
-            </span>
-            <span v-b-tooltip.hover title="Paste">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getCopiedNode }"
-                class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="pasteCopiedNode">
-                <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
-              </a>
-            </span>
-            <span v-b-tooltip.hover title="Cut">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getSelectedNode }"
-                class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="cutSelectedNode">
-                <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
-              </a>
-            </span>
-            <span v-b-tooltip.hover title="Copy" class="">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getSelectedNode }"
-                class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="copySelectedNode">
-                <i class="material-icons copy_icon icons d-flex center_flex"></i>
-              </a>
-            </span>
-          </span>
-        </span>
-        <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem;">
-          <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
-            v-b-tooltip.hover title="Status">
-            <div v-if="renderUserList && renderUserList.length > 0">
-              Editing by:
-              <span v-for="user in renderUserList">
-                {{ user }},
-              </span>
-            </div>
+      <span class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-center px-0">
+        <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
+          data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
+        <input v-show="editable" :rows="1" id="mSuiteTitle" @keydown.enter.prevent="mSuiteTitleUpdate" type="text"
+          v-debounce:3000ms="blurEvent" v-model="mSuiteName"
+          class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
+          @blur="mSuiteTitleUpdate" placeholder="Enter mSuite Map Title" />
+      </span>
+      <!-- <span v-if="$parent.is_verified"> -->
+      <span v-if="$parent.is_verified" class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
+        <span class="navbar_button d-flex flex-row-reverse">
+          <a v-if="duplicateMap" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent="beforeClone">
+            <i class="fas fa-clone icons d-flex center_flex"></i>
           </a>
-          <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
-            v-b-tooltip.hover title="Status" v-if="renderTemporaryUser">
-            <span> Last Edited By {{ renderTemporaryUser }}</span>
+          <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.prevent="deleteMap">
+            <i class="fas fa-trash-alt icons d-flex center_flex"></i>
           </a>
+          <a href="javascript:;" role="button" v-b-tooltip.hover title="User"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent="openUserModal">
+            <i class="fas fa-user-edit icons d-flex center_flex"></i>
+          </a>
+          <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex" v-b-tooltip.hover
+            title="Comments" @click.prevent="openCommentModal">
+            <i id="comment" class="fa fa-comment d-flex center_flex"></i>
+          </a>
+          <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
+            class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" v-b-tooltip.hover title="Reset"
+            @click.stop="resetMap">
+            <i class="material-icons restore_icon icons d-flex center_flex"></i>
+          </a>
+        </span>
+        <span v-if="checkMSuiteTypes" class="d-flex flex-row-reverse">
+          <a href="javascript:;" role="button" v-b-tooltip.hover title="Redo"
+            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="redoMindmap">
+            <i class="fas fa-redo-alt"></i>
+          </a>
+          <a href="javascript:;" role="button" v-b-tooltip.hover title="Undo"
+            class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="undoMindmap">
+            <i class="fas fa-undo-alt"></i>
+          </a>
+        </span>
+        <span class="d-flex">
+          <a v-if="mm_type === 'simple'" ref="exportWordBtn" role="button" v-b-tooltip.hover title="Export Word"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="exportToWord">
+            <i class="fas fa-file-word icons d-flex center_flex"></i>
+          </a>
+          <a v-if="mm_type == 'pollvote'" role="button" href="javascript:;" class="text-dark mt-2 mr-4 font-weight-bold"
+            v-b-tooltip.hover title="Poll Expires">
+            <span class="">
+              Poll Expires: {{ pollExpDate }}
+            </span>
+          </a>
+          <a ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent.stop="$refs['exportOption'].open()">
+            <i class="material-icons export_icon icons d-flex center_flex"></i>
+          </a>
+          <a v-if="mm_type === 'spreadsheet' || mm_type === 'poll'" ref="exportBtn" role="button" href="javascript:;"
+            class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" v-b-tooltip.hover title="Export"
+            @click.prevent.stop="$refs['exportOptionCsv'].open()">
+            <i class="fas fa-file-excel icons d-flex center_flex"></i>
+          </a>
+          <a v-if="mm_type != 'pollvote'" role="button" href="javascript:;"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.prevent.stop="saveMSuite" v-b-tooltip.hover :title="'Expires ' + expireDateTime">
+            <i class="material-icons save_btn icons d-flex center_flex"></i>
+          </a>
+        </span>
+        <span v-if="mm_type === 'simple' || mm_type === 'tree_chart' || mm_type === 'flowmap'" class="d-flex">
+          <a v-if="$store.getters.getScaleFactor != 1" href="javascript:;" role="button" v-b-tooltip.hover title="100%"
+            class="zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="resetZoomScale">
+            <i class="fas fa-history icons d-flex center_flex"></i>
+          </a>
+          <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom +"
+            class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="zoomInScale">
+            <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
+          </a>
+          <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom -"
+            class="navbar_button zoom_btn text-info edit_delete_btn mr-3 center_flex" @click.prevent="zoomOutScale">
+            <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
+          </a>
+        </span>
+        <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
+          <span v-b-tooltip.hover title="Delete">
+            <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
+              :class="{ button_disabled: !$store.getters.getSelectedNode }"
+              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="deleteSelectedNode">
+              <i class="material-icons delete_icon icons d-flex center_flex"></i>
+            </a>
+          </span>
+          <span v-b-tooltip.hover title="Paste">
+            <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
+              :class="{ button_disabled: !$store.getters.getCopiedNode }"
+              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="pasteCopiedNode">
+              <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
+            </a>
+          </span>
+          <span v-b-tooltip.hover title="Cut">
+            <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
+              :class="{ button_disabled: !$store.getters.getSelectedNode }"
+              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="cutSelectedNode">
+              <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
+            </a>
+          </span>
+          <span v-b-tooltip.hover title="Copy" class="">
+            <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
+              :class="{ button_disabled: !$store.getters.getSelectedNode }"
+              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="copySelectedNode">
+              <i class="material-icons copy_icon icons d-flex center_flex"></i>
+            </a>
+          </span>
         </span>
       </span>
+      <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem;">
+        <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
+          v-b-tooltip.hover title="Status">
+          <div v-if="renderUserList && renderUserList.length > 0">
+            Editing by:
+            <span v-for="user in renderUserList">
+              {{ user }},
+            </span>
+          </div>
+        </a>
+        <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
+          v-b-tooltip.hover title="Status" v-if="renderTemporaryUser">
+          <span> Last Edited By {{ renderTemporaryUser }}</span>
+        </a>
+      </span>
+      <!-- </span> -->
     </div>
     <sweet-modal>
     </sweet-modal>
@@ -153,7 +150,7 @@
     <confirm-save-key-modal @openPrivacy="openPrivacy" @updateInActiveDate="updateMsuite" @deleteMap="deleteMap"
       @isSave="isSave" @changeIsMsuitSaved="handleChangeIsMsuiteSaved" ref="confirm-save-key-modal"
       :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :isSaveMap="isSaveMap"
-      :defaultDeleteDays="defaultDeleteDays" :expDays="expDays">
+      :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays">
     </confirm-save-key-modal>
     <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
@@ -229,7 +226,7 @@ export default {
       mSuiteName: this.$store.getters.getMsuite.title,
       mm_type: this.$store.getters.getmmType,
       defaultDeleteDays: this.$store.getters.getDataMsuite.defaultDeleteDays,
-      //deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
+      deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
       expDays: this.$store.getters.getDataMsuite.expDays,
       editable: false,
       isSaveMSuite: true,
@@ -273,7 +270,8 @@ export default {
       return pollDuedate
     },
     expireDateTime() {
-      return moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
+      let x = moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
+      return x
     },
     checkMSuiteTypes() {
       return this.mm_type === 'kanban' || this.mm_type === 'tree_chart' || this.mm_type === 'flowmap' || this.mm_type === 'todo' || this.mm_type === 'tree_map' || this.mm_type === 'calendar'
@@ -306,7 +304,7 @@ export default {
         mycanvas.user = this.$store.state.userEdit
         this.currentMindMap.canvas = JSON.stringify(mycanvas)
       }
-      else if(isValidJSON && this.checkMmType()){
+      else if (isValidJSON && this.checkMmType()) {
         let _this = this
         mycanvas = {
           ...mycanvas,
@@ -542,8 +540,8 @@ export default {
       if (this.mm_type == 'calendar' || this.mm_type == 'todo') this.$refs['clone-modal'].$refs['cloneModal'].open()
       else this.$store.dispatch('cloneMap')
     },
-    checkMmType(){
-    return (this.mm_type == 'whiteboard' || this.mm_type == 'poll' || this.mm_type == 'Notepad' || this.mm_type == 'spreadsheet')
+    checkMmType() {
+      return (this.mm_type == 'whiteboard' || this.mm_type == 'poll' || this.mm_type == 'Notepad' || this.mm_type == 'spreadsheet')
     }
   },
   watch: {

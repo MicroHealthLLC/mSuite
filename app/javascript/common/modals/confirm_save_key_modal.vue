@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sweet-modal ref="confirmSaveKeyModal" class="of_v" v-on:close="onClose">
+    <sweet-modal ref="confirmSaveKeyModal" class="of_v">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-warning center_flex mlr_a text-white">
           <i class="material-icons">notification_important</i>
@@ -100,8 +100,7 @@
         handler(value){
           console.log(value)
           this.isSaveMap = value.is_save
-          console.log(this.isSaveMap)
-          //console.log(this.currentMindMap)
+          console.log(this.$store.getters.getMsuite)
           //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
       }
@@ -114,7 +113,7 @@
           var nextDay = new Date(day);
           nextDay.setDate(day.getDate() + parseInt(value));
           console.log(nextDay)
-          this.currentMindMap.will_delete_at = moment(nextDay).format('DD-MM-YYYY')
+          this.currentMindMap.will_delete_at = nextDay
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
 
         }else {
@@ -162,9 +161,6 @@
       },
       closeModal() {
         this.$refs.confirmSaveKeyModal.close()
-      },
-      onClose() {
-        //this.expDaysInput = this.expDays
       },
       deleteMap () {
         this.$emit("deleteMap")
