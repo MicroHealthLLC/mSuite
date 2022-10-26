@@ -495,7 +495,7 @@ export default {
         }
         if (this.mm_type == 'poll') {
           let inner_elm = document.getElementById('poll-title')
-          inner_elm.classList.remove("d-none");
+          if (inner_elm) inner_elm.classList.remove("d-none");
         }
         elm.style.transform = "scale(1)"
         let map_key = _this.currentMindMap.unique_key || "image"
@@ -521,7 +521,7 @@ export default {
               this.exportLoading = false
             }
             _this.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
-            _this.mm_type === 'poll' ? document.getElementById('poll-title').classList.add('d-none') : false
+            _this.mm_type === 'poll' && document.getElementById('poll-title') ? document.getElementById('poll-title').classList.add('d-none') : false
             _this.$refs['exportOption'].close()
           })
           .catch((err) => {
