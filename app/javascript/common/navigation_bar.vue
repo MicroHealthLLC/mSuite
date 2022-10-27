@@ -9,7 +9,7 @@
           <img src="/assets/msuite.png" />
         </a>
       </span>
-      <span v-if="$parent.is_verified">
+      <!-- <span v-if="$parent.is_verified"> -->
         <span class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-center px-0">
           <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
             data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
@@ -18,7 +18,7 @@
             class="my-1 py-1 mindmap-title border-0 text-sapphire font-weight-bold align-items-center w-100 text-center"
             @blur="mSuiteTitleUpdate" placeholder="Enter mSuite Map Title" />
         </span>
-        <span class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
+        <span v-if="$parent.is_verified" class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
           <span class="navbar_button d-flex flex-row-reverse">
             <a v-if="duplicateMap" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -61,6 +61,22 @@
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.stop="exportToWord">
               <i class="fas fa-file-word icons d-flex center_flex"></i>
+            </a>
+            <a
+              v-if="mm_type == 'todo' || mm_type =='calendar'"
+              :disabled="disableToggle"
+              :class="{ button_disabled: disableToggle }"
+              ref="changeView"
+              role="button"
+              href="javascript:;"
+              v-b-tooltip.hover :title="mm_type == 'todo' ? 'Switch to Calendar':'Switch to Todo'"
+              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
+              @click.prevent.stop="changeView"
+            >
+              <i
+                class="icons d-flex center_flex"
+                :class="mm_type == 'todo' ? 'fad fa-calendar-alt' : 'fas fa-tasks'">
+              </i>
             </a>
             <a v-if="mm_type == 'pollvote'" role="button" href="javascript:;"
               class="text-dark mt-2 mr-4 font-weight-bold" v-b-tooltip.hover title="Poll Expires">
@@ -145,7 +161,7 @@
             <span> Last Edited By {{ renderTemporaryUser }}</span>
           </a>
         </span>
-      </span>
+      <!-- </span> -->
     </div>
     <sweet-modal>
     </sweet-modal>
@@ -235,6 +251,7 @@ export default {
       isSaveMSuite: true,
       isMsuiteSaved: true,
       exportLoading: false,
+      disableToggle: false,
       password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
       isSaveMap: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.is_save)),
       dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
@@ -245,6 +262,10 @@ export default {
   },
   mounted() {
     if (this.delMap) this.delMap(this.deleteMap)
+    this.checkDate()
+  },
+  updated() {
+    this.checkDate()
   },
   components: {
     DeletePasswordModal,
@@ -306,6 +327,14 @@ export default {
         mycanvas.user = this.$store.state.userEdit
         this.currentMindMap.canvas = JSON.stringify(mycanvas)
       }
+      else if(isValidJSON && this.checkMmType()){
+        let _this = this
+        mycanvas = {
+          ...mycanvas,
+          user: _this.$store.getters.getUser
+        }
+        this.currentMindMap.canvas = JSON.stringify(mycanvas)
+      }
       else {
         this.currentMindMap.canvas = this.$store.getters.getUser
       }
@@ -322,7 +351,7 @@ export default {
     },
     passwordProtect(new_password, old_password) {
       http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`, { mindmap: { password: new_password, old_password: old_password } })
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`, { mindmap: { canvas: this.$store.getters.getUser, password: new_password, old_password: old_password } })
         .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
@@ -385,7 +414,7 @@ export default {
       this.$store.dispatch('updateMSuite', obj)
     },
     putMSuite(value) {
-      this.$store.dispatch('updateMSuite', { mindmap: { title: value } })
+      this.$store.dispatch('updateMSuite', { mindmap: { title: value, canvas: this.$store.getters.getUser } })
       this.sendLocals(false)
     },
     openUserModal() {
@@ -473,15 +502,26 @@ export default {
         e.target.blur()
       };
     },
+    async changeView(){
+      if (!this.disableToggle){
+        let data = { mm_type: 'todo'}
+        if(this.mm_type == 'todo'){
+            data.mm_type = 'calendar'
+          this.updateMsuite(data)
+        } else if (this.mm_type == 'calendar') this.updateMsuite(data)
+      }
+    },
     exportImage(option) {
       this.exportLoading = true
       if (this.mm_type === 'simple') {
         this.$emit('exportToImage', option)
         this.$refs.exportBtn.blur()
+        this.exportLoading = false
         this.$refs['exportOption'].close()
       }
       else if (this.mm_type === 'Notepad') {
         this.$emit('export-to-document', option)
+        this.exportLoading = false
       }
       else {
         const _this = this
@@ -495,7 +535,7 @@ export default {
         }
         if (this.mm_type == 'poll') {
           let inner_elm = document.getElementById('poll-title')
-          inner_elm.classList.remove("d-none");
+          if (inner_elm) inner_elm.classList.remove("d-none");
         }
         elm.style.transform = "scale(1)"
         let map_key = _this.currentMindMap.unique_key || "image"
@@ -521,7 +561,7 @@ export default {
               this.exportLoading = false
             }
             _this.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
-            _this.mm_type === 'poll' ? document.getElementById('poll-title').classList.add('d-none') : false
+            _this.mm_type === 'poll' && document.getElementById('poll-title') ? document.getElementById('poll-title').classList.add('d-none') : false
             _this.$refs['exportOption'].close()
           })
           .catch((err) => {
@@ -533,12 +573,28 @@ export default {
     beforeClone() {
       if (this.mm_type == 'calendar' || this.mm_type == 'todo') this.$refs['clone-modal'].$refs['cloneModal'].open()
       else this.$store.dispatch('cloneMap')
+    },
+    checkMmType(){
+    return (this.mm_type == 'whiteboard' || this.mm_type == 'poll' || this.mm_type == 'Notepad' || this.mm_type == 'spreadsheet')
+    },
+    checkDate() {
+      if(this.mm_type == 'todo' && this.currentMindMap.nodes){
+        for (let i=0; i<this.currentMindMap.nodes.length; i++){
+          if(this.currentMindMap.nodes[i].duedate){
+            this.disableToggle = false
+            return
+          }
+        }
+        this.disableToggle = true
+        return
+      }
     }
   },
   watch: {
     currentMindMap: {
       handler(value) {
         this.mSuiteName = value.title
+        this.mm_type = value.mm_type
       }, deep: true
     },
   }

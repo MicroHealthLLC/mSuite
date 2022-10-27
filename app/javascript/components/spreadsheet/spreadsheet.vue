@@ -361,10 +361,7 @@
       this.subscribeCable(this.currentMindMap.id)
       this.$store.dispatch('setExportId', 'spreadSheet')
       this.sendLocals(false)
-      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas && JSON.parse(this.$store.getters.getMsuite.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
-      else this.$store.dispatch('setUserEdit', null)
-
-      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+      this.setUserOnMountC()
       this.createSheet(this.currentMindMap.canvas)
       this.sheetStyles()
 

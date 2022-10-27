@@ -25,7 +25,7 @@ class NodesController < AuthenticatedController
     previous_title = @node.title
     @node.update(update_node_params)
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
-    update_worker(@node) if @node.mindmap.mm_type == 'calendar'
+    update_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
 
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node}
     respond_to do |format|
@@ -47,7 +47,7 @@ class NodesController < AuthenticatedController
       delNodes = @node if @node.mindmap.mm_type == 'calendar'
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
-      del_worker(@node) if @node.mindmap.mm_type == 'calendar'
+      del_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
 
       ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node }
       respond_to do |format|
@@ -128,6 +128,7 @@ class NodesController < AuthenticatedController
       :mindmap_id,
       :is_disabled,
       :line_color,
+      :hide_children,
       :description,
       :position,
       :node_width,
@@ -146,6 +147,7 @@ class NodesController < AuthenticatedController
       :stage_id,
       :mindmap_id,
       :is_disabled,
+      :hide_children,
       :line_color,
       :description,
       :position,
