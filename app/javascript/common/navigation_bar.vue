@@ -62,6 +62,22 @@
               @click.stop="exportToWord">
               <i class="fas fa-file-word icons d-flex center_flex"></i>
             </a>
+            <a
+              v-if="mm_type == 'todo' || mm_type =='calendar'"
+              :disabled="disableToggle"
+              :class="{ button_disabled: disableToggle }"
+              ref="changeView"
+              role="button"
+              href="javascript:;"
+              v-b-tooltip.hover :title="mm_type == 'todo' ? 'Switch to Calendar':'Switch to Todo'"
+              class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
+              @click.prevent.stop="changeView"
+            >
+              <i
+                class="icons d-flex center_flex"
+                :class="mm_type == 'todo' ? 'fad fa-calendar-alt' : 'fas fa-tasks'">
+              </i>
+            </a>
             <a v-if="mm_type == 'pollvote'" role="button" href="javascript:;"
               class="text-dark mt-2 mr-4 font-weight-bold" v-b-tooltip.hover title="Poll Expires">
               <span class="">
@@ -235,6 +251,7 @@ export default {
       isSaveMSuite: true,
       isMsuiteSaved: true,
       exportLoading: false,
+      disableToggle: false,
       password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
       isSaveMap: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.is_save)),
       dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
@@ -245,6 +262,10 @@ export default {
   },
   mounted() {
     if (this.delMap) this.delMap(this.deleteMap)
+    this.checkDate()
+  },
+  updated() {
+    this.checkDate()
   },
   components: {
     DeletePasswordModal,
@@ -481,6 +502,15 @@ export default {
         e.target.blur()
       };
     },
+    async changeView(){
+      if (!this.disableToggle){
+        let data = { mm_type: 'todo'}
+        if(this.mm_type == 'todo'){
+            data.mm_type = 'calendar'
+          this.updateMsuite(data)
+        } else if (this.mm_type == 'calendar') this.updateMsuite(data)
+      }
+    },
     exportImage(option) {
       this.exportLoading = true
       if (this.mm_type === 'simple') {
@@ -546,12 +576,25 @@ export default {
     },
     checkMmType(){
     return (this.mm_type == 'whiteboard' || this.mm_type == 'poll' || this.mm_type == 'Notepad' || this.mm_type == 'spreadsheet')
+    },
+    checkDate() {
+      if(this.mm_type == 'todo' && this.currentMindMap.nodes){
+        for (let i=0; i<this.currentMindMap.nodes.length; i++){
+          if(this.currentMindMap.nodes[i].duedate){
+            this.disableToggle = false
+            return
+          }
+        }
+        this.disableToggle = true
+        return
+      }
     }
   },
   watch: {
     currentMindMap: {
       handler(value) {
         this.mSuiteName = value.title
+        this.mm_type = value.mm_type
       }, deep: true
     },
   }
