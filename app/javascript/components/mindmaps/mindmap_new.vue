@@ -114,7 +114,9 @@
       exportImg: Function,
       exportWord: Function,
       delSelectedNode: Function,
-      cutSelNode: Function
+      cutSelNode: Function,
+      copySelNode: Function,
+      pasteNode: Function,
     },
 
     data() {
@@ -1043,6 +1045,8 @@
       this.exportWord(this.exportToWord)
       this.delSelectedNode(this.deleteSelectedNode)
       this.cutSelNode(this.cutSelectedNode)
+      this.copySelNode(this.copySelectedNode)
+      this.pasteNode(this.pasteCopiedNode)
     },
 
     created(){
