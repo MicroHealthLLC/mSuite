@@ -487,10 +487,7 @@
       this.$store.dispatch('setExportId', 'todo')
       this.subscribeCable(this.currentMindMap.id)
       this.todos = this.currentMindMap.nodes
-
-      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
-
-      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+      this.setUserOnMount()
       this.renderTodos()
 
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})

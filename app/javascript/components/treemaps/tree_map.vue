@@ -123,6 +123,7 @@
     mounted: async function () {
       this.subscribeCable(this.currentMindMap.id)
       this.$store.dispatch('setExportId', 'treeMapGraph')
+      this.sendLocals(false)
       this.mountMap()
       this.getUserOnMount()
       this.undoMap(this.undoObj)
@@ -361,13 +362,7 @@
         this.parent_nodes.color = this.currentMindMap.line_color
         this.nodes = this.currentMindMap.nodes
         this.sendLocals(false)
-        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != ''){
-          this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
-          this.$store.dispatch('setTemporaryUser', this.$store.getters.getMsuite.canvas)
-          this.$store.dispatch('emptyUserList')
-        } 
-
-        this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+        this.setUserOnMount()
         this.getColorNode('.jqx-treemap-rectangle')
         this.mapColors = []
         this.uniqueColors = []
