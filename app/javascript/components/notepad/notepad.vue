@@ -48,7 +48,7 @@
             this.temporaryUser = data.content.userEdit
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.currentMindMap = data.mindmap
+            this.$store.commit('setMSuite', data.mindmap)
             this.content = JSON.parse(JSON.parse(data.mindmap.canvas).notepad)
             if(this.content == null){
               this.qeditor.setContents([
