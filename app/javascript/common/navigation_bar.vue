@@ -310,7 +310,7 @@ export default {
         let _this = this
         mycanvas = {
           ...mycanvas,
-          user: _this.$store.state.userEdit
+          user: _this.$store.getters.getUser
         }
         this.currentMindMap.canvas = JSON.stringify(mycanvas)
       }
@@ -330,7 +330,7 @@ export default {
     },
     passwordProtect(new_password, old_password) {
       http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`, { mindmap: { password: new_password, old_password: old_password } })
+        .patch(`/msuite/${this.currentMindMap.unique_key}.json`, { mindmap: { canvas: this.$store.getters.getUser, password: new_password, old_password: old_password } })
         .then(res => {
           if (res.data.mindmap) {
             this.currentMindMap.password = res.data.mindmap.password
@@ -393,7 +393,7 @@ export default {
       this.$store.dispatch('updateMSuite', obj)
     },
     putMSuite(value) {
-      this.$store.dispatch('updateMSuite', { mindmap: { title: value } })
+      this.$store.dispatch('updateMSuite', { mindmap: { title: value, canvas: this.$store.getters.getUser } })
       this.sendLocals(false)
     },
     openUserModal() {
@@ -486,10 +486,12 @@ export default {
       if (this.mm_type === 'simple') {
         this.$emit('exportToImage', option)
         this.$refs.exportBtn.blur()
+        this.exportLoading = false
         this.$refs['exportOption'].close()
       }
       else if (this.mm_type === 'Notepad') {
         this.$emit('export-to-document', option)
+        this.exportLoading = false
       }
       else {
         const _this = this

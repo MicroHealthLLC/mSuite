@@ -328,8 +328,6 @@
         this.sendLocals(true)
         await this.saveEvents(data)
         if(this.recurringEvents) await this.generateRecurringEvents(data)
-        this.sendLocals(false)
-        this.updateCalendarUser()
       },
       beforeEventUpdate(data){
         this.updateEvent(data)
@@ -340,7 +338,7 @@
       },
       async updateCalendarUser(){
         await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-          canvas: this.$store.state.userEdit
+          canvas: this.$store.getters.getUser
           });
       },
       async saveEvents(eventObj){
@@ -356,6 +354,8 @@
           mindmap_id: this.currentMindMap.id
           }
         let _this = this
+        _this.sendLocals(false)
+        _this.updateCalendarUser()
         await http.post('/nodes.json', data).then((result) => {
           _this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
           _this.currentNodeId = result.data.node.id
@@ -440,7 +440,6 @@
         this.currentMindMap = this.$store.getters.getMsuite
         this.$store.dispatch('setMindMapId', this.currentMindMap.id)
         this.fetchedEvents = this.currentMindMap.nodes
-        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
         this.renderEvents()
       },
       renderEvents(){
@@ -590,6 +589,7 @@
       this.sendLocals(false)
       this.createCalendar()
       this.getCalendarTitle()
+      this.setUserOnMount()
       await this.fetchEvents()
       this.getUserOnMount()
       var el = document.querySelector('#calendar');

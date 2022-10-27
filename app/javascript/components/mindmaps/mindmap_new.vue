@@ -240,9 +240,7 @@
         this.stopWatch        = true
         this.centralIdea      = this.currentMindMap.name
         this.currentNodes     = this.currentMindMap.nodes
-        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')
-          this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
-        this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+        this.setUserOnMount()
         setTimeout(() => { this.drawLines() }, 1000)
         this.loading = false
       },
@@ -738,8 +736,8 @@
       // =============== Map CRUD OPERATIONS =====================
       saveCurrentMap() {
         this.currentMindMap.name = this.centralIdea
+        this.currentMindMap.canvas = this.$store.getters.getUser
         if (this.currentMindMap.id) {
-          this.currentMindMap.canvas = this.$store.state.userEdit
           let formData = { mindmap: this.currentMindMap }
           this.$store.dispatch('updateMSuite', formData)
           this.stopWatch      = true
@@ -758,6 +756,7 @@
             console.log(error)
           })
         }
+        this.sendLocals(true)
       },
       // =============== Map CRUD OPERATIONS =====================
 
@@ -1030,8 +1029,6 @@
 
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
-
-      this.sendLocals(false)
       this.mountMap()
 
       window.addEventListener('mouseup', this.stopDrag)

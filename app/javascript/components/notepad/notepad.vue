@@ -213,13 +213,11 @@
       this.sendLocals(false)
       window.katex = katex
       if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).notepad) this.content = JSON.parse(JSON.parse(this.currentMindMap.canvas).notepad)
-      if (this.currentMindMap.canvas && JSON.parse(this.currentMindMap.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.currentMindMap.canvas).user)
-      else this.$store.dispatch('setUserEdit', null)
-      this.$store.dispatch('setMindMapId', this.currentMindMap.id)
+      this.setUserOnMountC()
       this.createEditor()
       this.editorEvents()
       this.qeditor.setContents(this.content)
-      this.getUserOnMount(),
+      this.getUserOnMount()
       this.exportDoc(this.exportToDocument)
     },
     updated() {
