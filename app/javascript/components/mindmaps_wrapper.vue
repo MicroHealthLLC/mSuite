@@ -17,6 +17,7 @@
       @pasteCopiedNode="pasteCopiedNode"
       @cutSelectedNode="cutSelectedNode"
       @before-reset="beforeReset"
+      @before-save="beforeSave"
     ></navigation-bar>
     <component
       :is="viewIs"
@@ -34,6 +35,7 @@
       :paste-node="pasteNode"
       :cut-sel-node="cutSelNode"
       :reset-before="resetBefore"
+      :save-before="saveBefore"
       @deleteMindMap="deleteMindMap"
     />
   </div>
@@ -89,7 +91,8 @@
         copySelNode     : newEventSource(),
         pasteNode       : newEventSource(),
         cutSelNode      : newEventSource(),
-        resetBefore     : newEventSource()
+        resetBefore     : newEventSource(),
+        saveBefore      : newEventSource()
       }
     },
     beforeCreate: async function() {
@@ -164,6 +167,9 @@
       },
       beforeReset () {
         this.resetBefore.emit()
+      },
+      beforeSave () {
+        this.saveBefore.emit()
       },
       exportToDoc (option) {
         this.exportDoc.emit(option)

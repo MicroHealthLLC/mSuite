@@ -4,7 +4,7 @@ class MindmapsController < AuthenticatedController
   #before_action :set_access_user
   before_action :set_mindmap, only: [:update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map]
   before_action :verify_password, only: :show
-  before_action :check_password_update, only: :update
+  prepend_before_action :check_password_update, only: :update
   include HistoryConcern, MindmapConcern
 
   def index; end
@@ -232,11 +232,10 @@ class MindmapsController < AuthenticatedController
     end
 
     def check_password_update
+      @mindmap = Mindmap.find_by(unique_key: params[:id])
       if params[:mindmap][:password].present?
-        unless @mindmap.password.present? && @mindmap.check_password(params[:mindmap][:old_password]) || @mindmap.password.blank?
-          respond_to do |format|
-            format.json { render json: { error: "Password Mismatched" } }
-          end
+        unless @mindmap.password.present? && @mindmap.check_password(params[:old_password]) || @mindmap.password.blank?
+          render json: { error: "Password Mismatched" }
         else
           session.delete(:mindmap_id)
         end

@@ -33,7 +33,8 @@ const store = new Vuex.Store({
     nodeNumber     : 0,
     canvas         : '{"version":"4.6.0","objects":[]}',
     selectedNode   : null,
-    copiedNode     : null
+    copiedNode     : null,
+    error          : null
   },
   mutations:{
     setMSuite (state, payload){
@@ -85,7 +86,10 @@ const store = new Vuex.Store({
     },
     setCopiedNodeDisabled(state, payload){
       state.copiedNode.is_disabled = payload
-    }
+    },
+    setError(state, payload){
+      state.error = payload
+    },
   },
   getters: {
     getMindmapId(state) {
@@ -127,6 +131,9 @@ const store = new Vuex.Store({
     getCopiedNode (state) {
       return state.copiedNode
     },
+    getError (state) {
+      return state.error
+    }
   },
   actions: {
     createMsuite({ commit }, strMtype){
@@ -151,7 +158,11 @@ const store = new Vuex.Store({
     },
     async updateMSuite({ commit, state }, obj){
       await HTTP.patch(`/msuite/${state.mSuite.unique_key}`, obj).then(res =>{
-        commit('setMSuite', res.data.mindmap)
+        if(res.data.error) commit('setError', res.data.error)
+        else {
+          commit('setError', null)
+          commit('setMSuite', res.data.mindmap)
+        }
       })
     },
     async cloneMap({state ,dispatch}){

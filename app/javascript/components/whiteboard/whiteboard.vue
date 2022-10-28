@@ -122,7 +122,8 @@
   export default {
     mixins: [Common, TemporaryUser],
     props: {
-      resetBefore: Function
+      resetBefore: Function,
+      saveBefore: Function
     },
     data() {
       return {
@@ -570,9 +571,12 @@
             title: 'Title'
           }
         }
-        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+        this.beforeSave()
         this.$store.dispatch('setCanvas' , mindmap.mindmap.canvas)
       },
+      beforeSave(){
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+      }
     },
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
@@ -601,6 +605,7 @@
       this.setUserOnMountC()
       this.getUserOnMount()
       this.resetBefore(this.beforeReset)
+      this.saveBefore(this.beforeSave)
     },
   }
 </script>
