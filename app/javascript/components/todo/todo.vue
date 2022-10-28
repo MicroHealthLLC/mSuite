@@ -376,7 +376,9 @@
         }
         todo.title = title
         todo.is_disabled = completed
-        todo.duedate = this.selectedTodo.duedate
+        todo.duedate = this.selectedTodo.duedate ? this.selectedTodo.duedate : todo.duedate
+        todo.startdate = todo.duedate
+        todo.hide_children = true
 
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
@@ -398,19 +400,8 @@
           this.undoNodes.push({'req': 'addNode', node: todo})
         }
 
-        let data = {
-          id: todo.id,
-          children: todo.children,
-          counter: todo.counter,
-          title: todo.title,
-          name: todo.name,
-          startdate: todo.duedate,
-          duedate: todo.duedate,
-          is_disabled: false,
-          hide_children: true
-        }
         this.updateTodoUser()
-        http.put(`/nodes/${todo.id}`, data)
+        http.put(`/nodes/${todo.id}`, todo)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
         this.sendLocals(false)
