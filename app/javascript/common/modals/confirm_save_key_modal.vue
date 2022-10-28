@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sweet-modal ref="confirmSaveKeyModal" class="of_v">
+    <sweet-modal ref="confirmSaveKeyModal" class="of_v" v-on:open="onOpen">
       <div class="sweet_model_icon_div">
         <div class="radius_circle bg-warning center_flex mlr_a text-white">
           <i class="material-icons">notification_important</i>
@@ -79,7 +79,8 @@
       return {
         expDaysInput: this.findTotalDaysBetweenDates(),
         expDays: '',
-        //deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
+        startingDays: '',
+        deleteAfter: this.$store.getters.getDataMsuite.deleteAfter,
         currentMindMap: this.$store.getters.getMsuite,
         unique_key: this.$store.getters.getMsuite.unique_key,
         deletedAtMSuite: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.will_delete_at))
@@ -105,6 +106,9 @@
         }, deep: true
       }
     },
+    mounted() {
+      this.startingDays = this.expDaysInput
+    },
     methods: {
       expireDate (val) {
         const value = val
@@ -129,8 +133,14 @@
         }
         console.log(this.currentMindMap.will_delete_at)
       },
+      onOpen() {
+        if (this.startingDays != this.expDaysInput)
+        {
+          this.expDaysInput = this.startingDays
+        }
+      },
       onClick() {
-        this.expireDate(this.expDaysInput)
+        //this.expireDate(this.expDaysInput)
       },
       updateInActiveDate () {
         this.$emit("updateInActiveDate", this.currentMindMap)
@@ -139,7 +149,8 @@
         this.$emit("isSave")
       },
       goHome () {
-        //console.log(this.expDays)
+        this.expireDate(this.expDaysInput)
+        this.startingDays = this.expDaysInput
         this.is_save()
         //if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         this.$emit("changeIsMsuitSaved")
@@ -150,10 +161,12 @@
         this.$emit("openPrivacy", this.isSaveMSuite)
       },
       openPrivacy () {
-        if (this.isSaveMap == null && this.findTotalDaysBetweenDates() == 5) {
+        /* if (this.isSaveMap == null && this.findTotalDaysBetweenDates() == 5) {
           this.expireDate(this.expDaysInput)
-        }
+        } */
         
+        this.expireDate(this.expDaysInput)
+        this.startingDays = this.expDaysInput
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
         else if(this.isSaveMSuite) this.closeModal()
