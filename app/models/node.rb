@@ -19,7 +19,7 @@ class Node < ApplicationRecord
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
 
   def create_notification
-    create_worker(self) if self.mindmap.mm_type == 'calendar'
+    create_worker(self) if self.mindmap.mm_type == 'calendar' || self.mindmap.mm_type == 'todo'
   end
 
   def validate_title

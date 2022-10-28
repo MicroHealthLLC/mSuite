@@ -46,7 +46,7 @@ module NodeConcern
   end
 
   def create_worker(node)
-    SendEventWorker.perform_at(get_time(node) , node.id)
+    SendEventWorker.perform_at(get_time(node) , node.id) if node.startdate
   end
 
   def update_worker(node)

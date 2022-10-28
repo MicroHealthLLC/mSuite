@@ -181,7 +181,9 @@
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
-          } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
+          } else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id ) {
+            this.$store.commit('setMSuite', data.mindmap)
+          }else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
               location.reload()
             }, 500)
@@ -192,6 +194,7 @@
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
+            this.$store.commit('setMSuite', data.mindmap)
             this.currentMindMap = data.mindmap
             this.undoNodes = []
             this.redoNodes = []
@@ -303,7 +306,16 @@
         }
         if(this.todoData.date) this.todoData.date = new Date(this.todoData.date.getTime() - this.todoData.date.getTimezoneOffset() * 60 * 1000)
         let data = {
-          node: {title: this.todoData.title, mindmap_id: this.currentMindMap.id, duedate: this.todoData.date, is_disabled: false}
+          node: {
+              title: this.todoData.title,
+              description: '',
+              mindmap_id: this.currentMindMap.id,
+              startdate: this.todoData.date,
+              duedate: this.todoData.date,
+              is_disabled: false,
+              hide_children: true,
+              line_color: '#18A2B8'
+            }
         }
         this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
@@ -326,8 +338,19 @@
           return
         }
         if(this.todoChildData.date) this.todoChildData.date = new Date(this.todoChildData.date.getTime() - this.todoChildData.date.getTimezoneOffset() * 60 * 1000)
+
         let data = {
-          node: {title: this.todoChildData.title, duedate: this.todoChildData.date, mindmap_id: this.currentMindMap.id, parent_node: this.todo_parent, is_disabled: false}
+          node: {
+            title: this.todoChildData.title,
+            description: '',
+            mindmap_id: this.currentMindMap.id,
+            parent_node: this.todo_parent,
+            startdate: this.todoChildData.date,
+            duedate: this.todoChildData.date,
+            line_color: '#58A2B8',
+            is_disabled: false,
+            hide_children: true
+          }
         }
         this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
@@ -374,8 +397,20 @@
         } else {
           this.undoNodes.push({'req': 'addNode', node: todo})
         }
+
+        let data = {
+          id: todo.id,
+          children: todo.children,
+          counter: todo.counter,
+          title: todo.title,
+          name: todo.name,
+          startdate: todo.duedate,
+          duedate: todo.duedate,
+          is_disabled: false,
+          hide_children: true
+        }
         this.updateTodoUser()
-        http.put(`/nodes/${todo.id}`, todo)
+        http.put(`/nodes/${todo.id}`, data)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
         this.sendLocals(false)
@@ -473,6 +508,9 @@
       },
     },
     computed: {
+      mSuite () {
+        return this.$store.getters.getMsuite
+      },
       sortedTodos() {
         if(this.completedTasks){
           return this.myTodos
@@ -487,10 +525,7 @@
       this.$store.dispatch('setExportId', 'todo')
       this.subscribeCable(this.currentMindMap.id)
       this.todos = this.currentMindMap.nodes
-
-      if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
-
-      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+      this.setUserOnMount()
       this.renderTodos()
 
       $(".vue-js-switch .v-switch-label, .v-right").css({"color": "#212529"})
@@ -501,6 +536,14 @@
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
     },
+    watch: {
+      mSuite: {
+        handler(value) {
+          this.currentMindMap = value
+          this.todos = value.nodes
+        }, deep: true
+      },
+    }
   }
 </script>
 <style scoped>

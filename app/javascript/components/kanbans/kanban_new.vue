@@ -167,12 +167,12 @@
       this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
-      this.sendLocals(false)
       if (this.$route.params.key) {
         this.getMindmap()
         if (this.currentMindMap.canvas !=null){
           this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
           this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+          this.setUserOnMount()
         }
         else{
           this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
