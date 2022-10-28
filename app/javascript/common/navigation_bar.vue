@@ -294,7 +294,8 @@ export default {
       return pollDuedate
     },
     expireDateTime() {
-      return moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
+      let x = moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
+      return x
     },
     checkMSuiteTypes() {
       return this.mm_type === 'kanban' || this.mm_type === 'tree_chart' || this.mm_type === 'flowmap' || this.mm_type === 'todo' || this.mm_type === 'tree_map' || this.mm_type === 'calendar'
@@ -317,17 +318,16 @@ export default {
     }
   },
   methods: {
-    isSave() {
-      this.sendLocals(false)
+    checkMindmapType(){
       let mycanvas = null
       let isValidJSON = true
       try { mycanvas = JSON.parse(this.currentMindMap.canvas) } catch { isValidJSON = false }
       if (!mycanvas) isValidJSON = false
       if (isValidJSON && mycanvas.user) {
-        mycanvas.user = this.$store.state.userEdit
+        mycanvas.user = this.$store.getters.getUser
         this.currentMindMap.canvas = JSON.stringify(mycanvas)
       }
-      else if(isValidJSON && this.checkMmType()){
+      else if (isValidJSON && this.checkMmType()) {
         let _this = this
         mycanvas = {
           ...mycanvas,
@@ -338,6 +338,10 @@ export default {
       else {
         this.currentMindMap.canvas = this.$store.getters.getUser
       }
+    },
+    isSave() {
+      this.sendLocals(false)
+      this.checkMindmapType()
       this.currentMindMap.is_save = 'is_public'
       this.currentMindMap.password = null
       this.$store.dispatch('updateMSuite', this.currentMindMap)
@@ -349,20 +353,24 @@ export default {
       this.isSaveMSuite = val
       this.$refs['make-private-modal'].$refs['makePrivateModal'].open()
     },
-    passwordProtect(new_password, old_password) {
-      http
-        .patch(`/msuite/${this.currentMindMap.unique_key}.json`, { mindmap: { canvas: this.$store.getters.getUser, password: new_password, old_password: old_password } })
-        .then(res => {
-          if (res.data.mindmap) {
-            this.currentMindMap.password = res.data.mindmap.password
-            if (!this.isSaveMSuite) window.open("/", "_self")
-            else location.reload()
-            this.$refs['successModal'].open()
-          }
-          else {
-            if (res.data.error) this.$refs['errorModal'].open()
-          }
-        })
+    async passwordProtect(new_password, old_password) {
+      this.sendLocals(false)
+      this.checkMindmapType()
+      this.currentMindMap.is_save = 'is_private'
+      this.currentMindMap.password = new_password
+      this.currentMindMap.old_password = old_password
+      await this.$store.dispatch('updateMSuite', this.currentMindMap)
+
+        if (this.$store.getters.getError) {
+          this.$refs['errorModal'].open()
+        }
+        else {
+          this.$emit("before-save")
+          this.currentMindMap.password = this.$store.getters.getMsuite.password
+          if (!this.isSaveMSuite) window.open("/", "_self")
+          else location.reload()
+          this.$refs['successModal'].open()
+        }
     },
     passwordAgain() {
       this.$refs['passwordMismatched'].close()
@@ -424,11 +432,13 @@ export default {
       this.$refs['comment-box-modal'].$refs['commentBoxModal'].open()
     },
     saveMSuite() {
+      this.$emit("before-save")
       this.isSaveMSuite = true
       this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
     },
     goHome() {
       if (this.mm_type != 'pollvote') {
+        this.$emit("before-save")
         this.isSaveMSuite = false
         this.$refs['confirm-save-key-modal'].$refs['confirmSaveKeyModal'].open()
       }
