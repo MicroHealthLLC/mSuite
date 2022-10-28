@@ -294,7 +294,8 @@ export default {
       return pollDuedate
     },
     expireDateTime() {
-      return moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
+      let x = moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
+      return x
     },
     checkMSuiteTypes() {
       return this.mm_type === 'kanban' || this.mm_type === 'tree_chart' || this.mm_type === 'flowmap' || this.mm_type === 'todo' || this.mm_type === 'tree_map' || this.mm_type === 'calendar'
@@ -326,7 +327,7 @@ export default {
         mycanvas.user = this.$store.getters.getUser
         this.currentMindMap.canvas = JSON.stringify(mycanvas)
       }
-      else if(isValidJSON && this.checkMmType()){
+      else if (isValidJSON && this.checkMmType()) {
         let _this = this
         mycanvas = {
           ...mycanvas,
