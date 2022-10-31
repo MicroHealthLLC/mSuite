@@ -75,10 +75,10 @@
     computed:{
       showSaveBTN(){
         if(!this.password){
-          if(this.old_password.length < 1 && this.password != null || this.new_password.length < 1 || this.confirm_password.length < 1)return true
+          if(this.old_password.length < 8 && this.password != null || this.new_password.length < 8 || this.confirm_password.length < 8)return true
         }
         if(this.password){
-          if(this.old_password.length < 1 || this.new_password != this.confirm_password) return true
+          if(this.old_password.length < 8 || this.new_password.length < 8 || this.new_password != this.confirm_password) return true
         }
       }
     }

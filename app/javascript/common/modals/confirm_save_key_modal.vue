@@ -99,9 +99,7 @@
     watch: {
       currentMindMap: {
         handler(value){
-          console.log(value)
           this.isSaveMap = value.is_save
-          console.log(this.$store.getters.getMsuite)
           //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
       }
@@ -116,7 +114,6 @@
           var day = new Date();
           var nextDay = new Date(day);
           nextDay.setDate(day.getDate() + parseInt(value));
-          console.log(nextDay)
           this.currentMindMap.will_delete_at = nextDay
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
 
@@ -131,7 +128,6 @@
             this.currentMindMap.will_delete_at = this.expDaysInput
           } */
         }
-        console.log(this.currentMindMap.will_delete_at)
       },
       onOpen() {
         if (this.startingDays != this.expDaysInput)
