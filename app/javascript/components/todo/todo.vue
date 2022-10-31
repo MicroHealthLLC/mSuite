@@ -128,6 +128,7 @@
   import './datepicker.css';
   import TodoMap from "./TodoMap";
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import Common from "../../mixins/common.js"
 
   export default {
     props: {
@@ -174,7 +175,7 @@
       ToggleButton,
       DatePicker
     },
-    mixins: [TemporaryUser],
+    mixins: [Common, TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -304,7 +305,7 @@
           }, 1500)
           return
         }
-        if(this.todoData.date) this.todoData.date = new Date(this.todoData.date.getTime() - this.todoData.date.getTimezoneOffset() * 60 * 1000)
+        if(this.todoData.date) this.todoData.date = this.getTimeZone(this.todoData.date)
         let data = {
           node: {
               title: this.todoData.title,
@@ -337,7 +338,7 @@
           }, 1500)
           return
         }
-        if(this.todoChildData.date) this.todoChildData.date = new Date(this.todoChildData.date.getTime() - this.todoChildData.date.getTimezoneOffset() * 60 * 1000)
+        if(this.todoChildData.date) this.todoChildData.date = this.getTimeZone(this.todoChildData.date)
 
         let data = {
           node: {
@@ -372,7 +373,7 @@
           return
         }
         if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
-          this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - this.selectedTodo.duedate.getTimezoneOffset() * 60 * 1000)
+          this.selectedTodo.duedate = this.getTimeZone(this.selectedTodo.duedate)
         }
         todo.title = title
         todo.is_disabled = completed
