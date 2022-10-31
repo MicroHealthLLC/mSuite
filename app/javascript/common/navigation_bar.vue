@@ -609,6 +609,9 @@ export default {
   watch: {
     currentMindMap: {
       handler(value) {
+        if (this.currentMindMap.is_save = 'is_public') {
+          value.is_save = 'is_public'
+        }
         this.mSuiteName = value.title
         this.mm_type = value.mm_type
       }, deep: true

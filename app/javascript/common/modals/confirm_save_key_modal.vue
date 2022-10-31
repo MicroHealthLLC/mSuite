@@ -48,7 +48,7 @@
           Save Private
         </a>
         <a
-          v-if="isSaveMap == 'is_private'"
+          v-if="this.currentMindMap.is_save == 'is_private'"
           href="javascript:;"
           class="btn_2 col-3 bg-warning text-white mr_1"
           @click.stop="changePrivacy"
@@ -93,19 +93,9 @@
       },
     },
     mounted() {
+      this.startingDays = this.expDaysInput
       this.expDays = this.expDaysInput
       //this.expireDate(this.expDaysInput)
-    },
-    watch: {
-      currentMindMap: {
-        handler(value){
-          this.isSaveMap = value.is_save
-          //this.expDaysInput = this.findTotalDaysBetweenDates()
-        }, deep: true
-      }
-    },
-    mounted() {
-      this.startingDays = this.expDaysInput
     },
     methods: {
       expireDate (val) {
@@ -183,6 +173,18 @@
         let difference = date_1.getTime() - date_2.getTime();
         let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
         return TotalDays;
+      }
+    },
+    watch: {
+      currentMindMap: {
+        handler(value){
+          if (this.currentMindMap.is_save = 'is_public'){
+            console.log(this.currentMindMap.is_save)
+            value.is_save = 'is_public'
+          }
+          this.isSaveMap = value.is_save
+          //this.expDaysInput = this.findTotalDaysBetweenDates()
+        }, deep: true
       }
     },
   }
