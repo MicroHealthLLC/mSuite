@@ -332,8 +332,7 @@
         this.selectedNode = {id: ''}
         this.treeChartObj.name = this.$store.getters.getMsuite.name
         this.nodes = this.$store.getters.getMsuite.nodes
-        if (this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.$store.getters.getMsuite.canvas != '')this.$store.dispatch('setUserEdit', this.$store.getters.getMsuite.canvas)
-        this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+        this.setUserOnMount()
         this.addNodeTree = false
         this.getColorNode('.rich-media-node')
         this.mapColors = []

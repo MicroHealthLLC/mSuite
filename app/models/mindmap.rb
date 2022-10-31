@@ -34,7 +34,15 @@ class Mindmap < ApplicationRecord
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
+  before_create :update_canvas, if: :check_mm_type
   
+  def update_canvas
+    self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}'
+  end
+  
+  def check_mm_type
+    return self.mm_type == 'whiteboard' || self.mm_type == 'poll' || self.mm_type == 'Notepad' || self.mm_type == 'spreadsheet'
+  end 
   def to_json
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
@@ -79,7 +87,7 @@ class Mindmap < ApplicationRecord
   def hash_password
     self.password = Password.create(self.password) if self.password.present?
     self.is_save = "is_private"
-    self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now if (self.will_delete_at == ENV['EXP_DAYS'].to_i.days.from_now.to_date)
+    # self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now if (self.will_delete_at == ENV['EXP_DAYS'].to_i.days.from_now.to_date)
   end
 
   private

@@ -122,7 +122,8 @@
   export default {
     mixins: [Common, TemporaryUser],
     props: {
-      resetBefore: Function
+      resetBefore: Function,
+      saveBefore: Function
     },
     data() {
       return {
@@ -570,9 +571,12 @@
             title: 'Title'
           }
         }
-        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+        this.beforeSave()
         this.$store.dispatch('setCanvas' , mindmap.mindmap.canvas)
       },
+      beforeSave(){
+        this.updateWhiteBoard(JSON.stringify(this.canvas.toJSON()))
+      }
     },
     mounted() {
       this.subscribeCable(this.currentMindMap.id)
@@ -598,14 +602,10 @@
         this.canvas.renderAll();
       }
       this.sendLocals(false)
-      if (this.$store.getters.getMsuite.canvas && this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && JSON.parse(this.$store.getters.getMsuite.canvas).user) this.$store.dispatch('setUserEdit', JSON.parse(this.$store.getters.getMsuite.canvas).user)
-      if (this.currentMindMap.canvas ==null){
-        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
-        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
-      }
-      this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
+      this.setUserOnMountC()
       this.getUserOnMount()
       this.resetBefore(this.beforeReset)
+      this.saveBefore(this.beforeSave)
     },
   }
 </script>

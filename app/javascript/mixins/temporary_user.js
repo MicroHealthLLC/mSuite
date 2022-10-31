@@ -3,6 +3,7 @@ export default {
   data(){
     return{
       mindmap_id: 0,
+      msuite: this.$store.getters.getMsuite,
       storage: this.$store.state
     }
   },
@@ -46,11 +47,28 @@ export default {
         this.saveElement = false
       },1200)
     },
+    setUserOnMount(){
+      this.$store.dispatch('setMindMapId', this.msuite.id)
+      if (this.msuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' && this.msuite.canvas != ''){
+        this.$store.dispatch('setUserList', null)
+        this.$store.dispatch('setUserEdit', this.msuite.canvas)
+        this.$store.dispatch('setUserList', this.msuite.canvas)
+      }
+    },
+    setUserOnMountC(){
+      this.$store.dispatch('setMindMapId', this.msuite.id)
+      if (this.msuite.canvas && JSON.parse(this.msuite.canvas).user){
+        this.$store.dispatch('setUserList', null)
+        this.$store.dispatch('setUserEdit', JSON.parse(this.msuite.canvas).user)
+        this.$store.dispatch('setUserList', JSON.parse(this.msuite.canvas).user)
+      } else {
+        this.$store.dispatch('setUserEdit', null)
+        this.$store.dispatch('setTemporaryUser', null)
+      }
+    },
     getUserOnMount(){
       if(this.storage.mindmap_id == this.mindmap_id){
         if(this.storage.userEdit != null){
-          if(this.storage.userList) this.userList = this.storage.userList
-          else this.$store.dispatch('setUserList', this.storage.userEdit)
           this.$store.dispatch('setTemporaryUser', this.storage.userEdit)
           if (this.$store.getters.getmmType == 'spreadsheet' && this.storage.userList.length < 0){
             this.$store.dispatch('setUserList', null)

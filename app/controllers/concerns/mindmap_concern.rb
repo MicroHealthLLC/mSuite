@@ -9,7 +9,7 @@ module MindmapConcern
 
   def check_msuite(fetched_mindmap)
     should_delete = true
-    return false if fetched_mindmap.mm_type == 'pollvote'
+    return false if !fetched_mindmap || fetched_mindmap.mm_type == 'pollvote'
     if fetched_mindmap.canvas
       if valid_json?(fetched_mindmap.canvas)
         canvas = JSON.parse(fetched_mindmap.canvas)
@@ -30,22 +30,15 @@ module MindmapConcern
   end
 
   def before_dup_calendar_todo()
-      @changed_month = params[:data][:month]
-      @changed_year = params[:data][:year]
-      update_calendar_date() if @clone_msuite.mm_type == 'calendar'
-      update_todo_date() if @clone_msuite.mm_type == 'todo'
+      changed_month = params[:data][:month]
+      changed_year = params[:data][:year]
+      update_calendar_todo_dates(changed_month,changed_year)
   end
   
-  def update_calendar_date()
+  def update_calendar_todo_dates(changed_month,changed_year)
     @clone_msuite.nodes.each do |node|
-      node.startdate = node.startdate.to_date.change(year:@changed_year, month: @changed_month)
-      node.duedate = node.duedate.to_date.change(year:@changed_year, month: @changed_month)
-    end
-  end
-
-  def update_todo_date()
-    @clone_msuite.nodes.each do |node|
-      node.duedate = node.duedate.to_date.change(year:@changed_year, month: @changed_month) if node.duedate != nil
+      node.startdate = node.startdate.change(year:changed_year, month: changed_month) if @clone_msuite.mm_type =='calendar'
+      node.duedate = node.duedate.change(year:changed_year, month: changed_month) if node.duedate != nil
     end
   end
 
