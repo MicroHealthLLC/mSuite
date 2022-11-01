@@ -258,7 +258,7 @@ export default {
     }
   },
   created() {
-    window.addEventListener('beforeunload', this.isMsuiteEmpty)
+    window.addEventListener('unload', this.isMsuiteEmpty)
   },
   mounted() {
     if (this.delMap) this.delMap(this.deleteMap)
