@@ -65,7 +65,7 @@
         </el-button>
         <div class="mt-4" v-else>Poll URL:
           <span class="font-weight-bold">
-            https://msuite.app/msuite/{{pollData.url}}
+            {{baseURL}}/msuite/{{pollData.url}}
           </span>
           <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(pollData.url)">
           </el-button>
@@ -106,7 +106,8 @@
         mindmapExists: false,
         errorTriggered: false,
         ans_count: 0,
-        checkedAns: false
+        checkedAns: false,
+        baseURL: window.location.origin
       };
     },
     components: {
@@ -192,7 +193,7 @@
         this.$refs['errorModal'].close()
       },
       copy(s) {
-      let newURL = `https://msuite.app/msuite/${s}`
+      let newURL = `${this.baseURL}/msuite/${s}`
       navigator.clipboard.writeText(newURL)
         .then(() => {
           alert("Copied to clipboard")

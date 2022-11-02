@@ -79,7 +79,7 @@
       </div>
       <div>Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
-          https://msuite.app/msuite/{{poll.url}}
+          {{baseURL}}/msuite/{{poll.url}}
         </span>
         <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(poll.url)"></el-button>
       </div>
@@ -125,6 +125,7 @@ export default {
       a_position: null,
       current_question: null,
       result_data: [],
+      baseURL: window.location.origin
     }
   },
   mixins: [TemporaryUser],
@@ -152,7 +153,7 @@ export default {
   },
   methods: {
     copy(s) {
-      let newURL = `https://msuite.app/msuite/${s}`
+      let newURL = `${this.baseURL}/msuite/${s}`
       navigator.clipboard.writeText(newURL)
         .then(() => {
           alert("Copied to clipboard")
