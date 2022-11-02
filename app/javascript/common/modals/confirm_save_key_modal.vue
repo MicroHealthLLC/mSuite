@@ -144,6 +144,8 @@
         else window.open("/", "_self")
       },
       changePrivacy () {
+        this.expireDate(this.expDaysInput)
+        this.startingDays = this.expDaysInput
         this.$emit("openPrivacy", this.isSaveMSuite)
       },
       openPrivacy () {
