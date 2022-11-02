@@ -1,5 +1,5 @@
 <template>
-  <div class="buttons_area">
+  <div class="buttons_area" id="nav">
     <div class="buttons_container px-2 pt-2 row pb-0">
       <span :class="!$parent.is_verified ? 'mb-5 mt-1 ml-5' : 'navbar_icon flex ml-5 col-lg-2 col-md-2 col-sm-2 pr-0'">
         <a v-if="$parent.is_verified" href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="goHome">

@@ -182,6 +182,10 @@
       }
       this.mountKanBan()
       this.getUserOnMount()
+      setTimeout(()=>{
+        let height = document.getElementById('nav').offsetHeight
+        document.getElementById('kanban-board').style.height = `calc(100vh - ${height}px)`
+      }, 1400)
     },
     components:{
       ColorPalette
