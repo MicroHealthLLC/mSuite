@@ -180,10 +180,7 @@
     watch: {
       currentMindMap: {
         handler(value){
-          if (this.currentMindMap.is_save = 'is_public'){
-            console.log(this.currentMindMap.is_save)
-            value.is_save = 'is_public'
-          }
+          this.currentMindMap.is_save = value.is_save
           this.isSaveMap = value.is_save
           //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
