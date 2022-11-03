@@ -93,9 +93,11 @@
       },
     },
     mounted() {
-      this.startingDays = this.expDaysInput
       this.expDays = this.expDaysInput
       //this.expireDate(this.expDaysInput)
+    },
+    mounted() {
+      this.startingDays = this.expDaysInput
     },
     methods: {
       expireDate (val) {
@@ -104,6 +106,7 @@
           var day = new Date();
           var nextDay = new Date(day);
           nextDay.setDate(day.getDate() + parseInt(value));
+          console.log(nextDay)
           this.currentMindMap.will_delete_at = nextDay
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
 
@@ -118,6 +121,7 @@
             this.currentMindMap.will_delete_at = this.expDaysInput
           } */
         }
+        console.log(this.currentMindMap.will_delete_at)
       },
       onOpen() {
         if (this.startingDays != this.expDaysInput)
@@ -144,8 +148,6 @@
         else window.open("/", "_self")
       },
       changePrivacy () {
-        // this.expireDate(this.expDaysInput)
-        // this.startingDays = this.expDaysInput
         this.$emit("openPrivacy", this.isSaveMSuite)
       },
       openPrivacy () {

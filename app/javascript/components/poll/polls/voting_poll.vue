@@ -2,7 +2,6 @@
   <div>
     <div id="poll-vote">
       <div class="container overflow-auto maxHeight" v-if="validForVote && !returnFun">
-        <h3 id="poll-title" class="d-none"><strong>{{ currentMindMap.title }}</strong></h3>
         <span>{{ pollData.description }}</span>
         <div>
           <span class="text-danger" :class="errorTriggered ? 'shake d-block border-danger':''">
@@ -27,16 +26,14 @@
               :value="answers"
               v-model="questions.checked"
               :disabled="questions.checked.length >= questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
-              @change="checkAnswers(questions.checked)"
-              @click="checkCheckedAns($event)" />
+              @change="checkAnswers(questions.checked)"/>
             <input
               v-else
               type="radio"
               :name="questions.question"
               :value="answers"
               v-model="questions.checked"
-              @change="checkAnswers(questions.checked)"
-              @click="checkCheckedAns($event)" />
+              @change="checkAnswers(questions.checked)"/>
             <span>
               {{ answers.text }}
             </span>
@@ -121,7 +118,6 @@
       if(this.currentMindMap) {
         this.pollData = JSON.parse(this.currentMindMap.canvas)
         this.subscribeCable(this.currentMindMap.id)
-        this.$store.dispatch('setExportId', 'poll-vote')
         this.voted()
         this.pollData.Questions.forEach( question => {
           question.checked = []
@@ -208,10 +204,6 @@
         if (this.returnFun) {
           this.returnFun = true
         } else this.returnFun = false
-      },
-      checkCheckedAns(event){
-        if(event.target.checked) event.target.setAttribute("checked", "checked")
-        else event.target.removeAttribute("checked")
       },
     }
   };

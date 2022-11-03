@@ -1,5 +1,5 @@
 <template>
-  <div class="buttons_area" id="nav">
+  <div class="buttons_area">
     <div class="buttons_container px-2 pt-2 row pb-0">
       <span :class="!$parent.is_verified ? 'mb-5 mt-1 ml-5' : 'navbar_icon flex ml-5 col-lg-2 col-md-2 col-sm-2 pr-0'">
         <a v-if="$parent.is_verified" href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="goHome">
@@ -422,10 +422,8 @@ export default {
       this.$store.dispatch('updateMSuite', obj)
     },
     putMSuite(value) {
+      this.$store.dispatch('updateMSuite', { mindmap: { title: value, canvas: this.$store.getters.getUser } })
       this.sendLocals(false)
-      this.checkMindmapType()
-      this.currentMindMap.title = value
-      this.$store.dispatch('updateMSuite', this.currentMindMap)
     },
     openUserModal() {
       this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
@@ -545,7 +543,7 @@ export default {
         if (this.mm_type === 'spreadsheet') {
           elm = document.getElementsByClassName('jexcel_content')[0]
         }
-        if (this.mm_type == 'poll' || this.mm_type == 'pollvote') {
+        if (this.mm_type == 'poll') {
           let inner_elm = document.getElementById('poll-title')
           if (inner_elm) inner_elm.classList.remove("d-none");
         }
@@ -572,12 +570,8 @@ export default {
               });
               this.exportLoading = false
             }
-            if (_this.mm_type === 'kanban') {
-             document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100'))
-            }
-            if ((_this.mm_type === 'poll' || _this.mm_type == 'pollvote') && document.getElementById('poll-title')) {
-                document.getElementById('poll-title').classList.add('d-none')
-            }
+            _this.mm_type === 'kanban' ? document.getElementsByClassName('drag-inner-list').forEach(i => i.classList.remove('mh-100')) : false
+            _this.mm_type === 'poll' && document.getElementById('poll-title') ? document.getElementById('poll-title').classList.add('d-none') : false
             _this.$refs['exportOption'].close()
           })
           .catch((err) => {

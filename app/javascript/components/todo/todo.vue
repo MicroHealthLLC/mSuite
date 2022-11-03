@@ -128,7 +128,6 @@
   import './datepicker.css';
   import TodoMap from "./TodoMap";
   import TemporaryUser from "../../mixins/temporary_user.js"
-  import Common from "../../mixins/common.js"
 
   export default {
     props: {
@@ -175,7 +174,7 @@
       ToggleButton,
       DatePicker
     },
-    mixins: [Common, TemporaryUser],
+    mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -305,7 +304,7 @@
           }, 1500)
           return
         }
-        if(this.todoData.date) this.todoData.date = this.getTimeZone(this.todoData.date)
+        if(this.todoData.date) this.todoData.date = new Date(this.todoData.date.getTime() - this.todoData.date.getTimezoneOffset() * 60 * 1000)
         let data = {
           node: {
               title: this.todoData.title,
@@ -338,7 +337,7 @@
           }, 1500)
           return
         }
-        if(this.todoChildData.date) this.todoChildData.date = this.getTimeZone(this.todoChildData.date)
+        if(this.todoChildData.date) this.todoChildData.date = new Date(this.todoChildData.date.getTime() - this.todoChildData.date.getTimezoneOffset() * 60 * 1000)
 
         let data = {
           node: {
@@ -373,13 +372,11 @@
           return
         }
         if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
-          this.selectedTodo.duedate = this.getTimeZone(this.selectedTodo.duedate)
+          this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - this.selectedTodo.duedate.getTimezoneOffset() * 60 * 1000)
         }
         todo.title = title
         todo.is_disabled = completed
-        todo.duedate = this.selectedTodo.duedate ? this.selectedTodo.duedate : todo.duedate
-        todo.startdate = todo.duedate
-        todo.hide_children = true
+        todo.duedate = this.selectedTodo.duedate
 
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
@@ -401,8 +398,19 @@
           this.undoNodes.push({'req': 'addNode', node: todo})
         }
 
+        let data = {
+          id: todo.id,
+          children: todo.children,
+          counter: todo.counter,
+          title: todo.title,
+          name: todo.name,
+          startdate: todo.duedate,
+          duedate: todo.duedate,
+          is_disabled: false,
+          hide_children: true
+        }
         this.updateTodoUser()
-        http.put(`/nodes/${todo.id}`, todo)
+        http.put(`/nodes/${todo.id}`, data)
         this.selectedTodo = {id: ''}
         this.editInProgress = false
         this.sendLocals(false)
