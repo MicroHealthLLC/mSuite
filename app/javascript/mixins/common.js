@@ -106,6 +106,9 @@ export default {
         let difference = utcDate2 - utcDate1
         difference = difference/(1000 * 60 * 60 * 24)
         return difference
-      }
+      },
+      getTimeZone(date){
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
+      },
   }
 }
