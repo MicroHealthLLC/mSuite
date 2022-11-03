@@ -48,7 +48,7 @@
           Save Private
         </a>
         <a
-          v-if="this.currentMindMap.is_save == 'is_private'"
+          v-if="this.currentMindMap.is_save == 'is_private' && this.currentMindMap.password != null"
           href="javascript:;"
           class="btn_2 col-3 bg-warning text-white mr_1"
           @click.stop="changePrivacy"
@@ -95,6 +95,12 @@
     mounted() {
       this.startingDays = this.expDaysInput
       this.expDays = this.expDaysInput
+      this.$root.$on("isSavingDays", (val) => {
+        if (val) {
+          this.expireDate(this.expDaysInput)
+          this.startingDays = this.expDaysInput
+        }
+      })
       //this.expireDate(this.expDaysInput)
     },
     methods: {
@@ -152,9 +158,11 @@
         /* if (this.isSaveMap == null && this.findTotalDaysBetweenDates() == 5) {
           this.expireDate(this.expDaysInput)
         } */
-        
-        this.expireDate(this.expDaysInput)
-        this.startingDays = this.expDaysInput
+        /* this.expireDate(this.expDaysInput)
+        this.startingDays = this.expDaysInput */
+        if (this.currentMindMap.password == null) {
+          this.changePrivacy()
+        }
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
         else if(this.isSaveMSuite) this.closeModal()
@@ -180,10 +188,7 @@
     watch: {
       currentMindMap: {
         handler(value){
-          if (this.currentMindMap.is_save = 'is_public'){
-            console.log(this.currentMindMap.is_save)
-            value.is_save = 'is_public'
-          }
+          this.currentMindMap.is_save = value.is_save
           this.isSaveMap = value.is_save
           //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true

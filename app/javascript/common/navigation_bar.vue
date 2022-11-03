@@ -365,10 +365,12 @@ export default {
           this.$refs['errorModal'].open()
         }
         else {
+          this.$root.$emit("isSavingDays", true)
           this.$emit("before-save")
           this.currentMindMap.password = this.$store.getters.getMsuite.password
           if (!this.isSaveMSuite) window.open("/", "_self")
           else location.reload()
+          this.$root.$emit("isSavingDays", false)
           this.$refs['successModal'].open()
         }
     },
@@ -609,9 +611,7 @@ export default {
   watch: {
     currentMindMap: {
       handler(value) {
-        if (this.currentMindMap.is_save = 'is_public') {
-          value.is_save = 'is_public'
-        }
+        this.currentMindMap.is_save = value.is_save
         this.mSuiteName = value.title
         this.mm_type = value.mm_type
       }, deep: true
