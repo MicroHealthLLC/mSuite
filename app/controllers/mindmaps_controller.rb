@@ -165,7 +165,7 @@ class MindmapsController < AuthenticatedController
 
     def password_present?
       message = "Mindmap Updated"
-      if params[:mindmap][:password].present?
+      if params[:mindmap][:password].present? && params[:old_password]
         message              = "Password Updated"
         session[:mindmap_id] = @mindmap.unique_key + @mindmap.password
       end
