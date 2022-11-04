@@ -48,7 +48,7 @@
           Save Private
         </a>
         <a
-          v-if="this.currentMindMap.is_save == 'is_private'"
+          v-if="this.currentMindMap.is_save == 'is_private' && this.currentMindMap.password != null"
           href="javascript:;"
           class="btn_2 col-3 bg-warning text-white mr_1"
           @click.stop="changePrivacy"
@@ -93,11 +93,15 @@
       },
     },
     mounted() {
-      this.expDays = this.expDaysInput
-      //this.expireDate(this.expDaysInput)
-    },
-    mounted() {
       this.startingDays = this.expDaysInput
+      this.expDays = this.expDaysInput
+      this.$root.$on("isSavingDays", (val) => {
+        if (val) {
+          this.expireDate(this.expDaysInput)
+          this.startingDays = this.expDaysInput
+        }
+      })
+      //this.expireDate(this.expDaysInput)
     },
     methods: {
       expireDate (val) {
@@ -106,7 +110,6 @@
           var day = new Date();
           var nextDay = new Date(day);
           nextDay.setDate(day.getDate() + parseInt(value));
-          console.log(nextDay)
           this.currentMindMap.will_delete_at = nextDay
           if(this.currentMindMap.will_delete_at) this.updateInActiveDate()
 
@@ -121,7 +124,6 @@
             this.currentMindMap.will_delete_at = this.expDaysInput
           } */
         }
-        console.log(this.currentMindMap.will_delete_at)
       },
       onOpen() {
         if (this.startingDays != this.expDaysInput)
@@ -148,19 +150,32 @@
         else window.open("/", "_self")
       },
       changePrivacy () {
+        // this.expireDate(this.expDaysInput)
+        // this.startingDays = this.expDaysInput
         this.$emit("openPrivacy", this.isSaveMSuite)
       },
       openPrivacy () {
         /* if (this.isSaveMap == null && this.findTotalDaysBetweenDates() == 5) {
           this.expireDate(this.expDaysInput)
         } */
-        
-        this.expireDate(this.expDaysInput)
-        this.startingDays = this.expDaysInput
+        /* this.expireDate(this.expDaysInput)
+        this.startingDays = this.expDaysInput */
+        console.log(this.isSaveMSuite)
+        if (this.currentMindMap.password == null) {
+          this.changePrivacy()
+        } else {
+          this.expireDate(this.expDaysInput)
+          this.startingDays = this.expDaysInput
+        }
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
         else if(this.isSaveMSuite) this.closeModal()
-        else window.open("/", "_self")
+        else if (this.currentMindMap.password == null){
+          this.changePrivacy()
+        }
+        if (this.isSaveMap == 'is_private' && !this.isSaveMSuite && this.currentMindMap.password) {
+          window.open("/", "_self")
+        }
       },
       closeModal() {
         this.$refs.confirmSaveKeyModal.close()
@@ -182,10 +197,7 @@
     watch: {
       currentMindMap: {
         handler(value){
-          if (this.currentMindMap.is_save = 'is_public'){
-            console.log(this.currentMindMap.is_save)
-            value.is_save = 'is_public'
-          }
+          this.currentMindMap.is_save = value.is_save
           this.isSaveMap = value.is_save
           //this.expDaysInput = this.findTotalDaysBetweenDates()
         }, deep: true
