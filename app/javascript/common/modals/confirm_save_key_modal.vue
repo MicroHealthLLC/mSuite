@@ -160,13 +160,22 @@
         } */
         /* this.expireDate(this.expDaysInput)
         this.startingDays = this.expDaysInput */
+        console.log(this.isSaveMSuite)
         if (this.currentMindMap.password == null) {
           this.changePrivacy()
+        } else {
+          this.expireDate(this.expDaysInput)
+          this.startingDays = this.expDaysInput
         }
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMap == null || this.isSaveMap == 'is_public') this.$emit("openPrivacy", this.isSaveMSuite)
         else if(this.isSaveMSuite) this.closeModal()
-        else window.open("/", "_self")
+        else if (this.currentMindMap.password == null){
+          this.changePrivacy()
+        }
+        if (this.isSaveMap == 'is_private' && !this.isSaveMSuite && this.currentMindMap.password) {
+          window.open("/", "_self")
+        }
       },
       closeModal() {
         this.$refs.confirmSaveKeyModal.close()
