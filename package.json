@@ -36,6 +36,7 @@
     "jspdf": "^2.5.0",
     "jspreadsheet-ce": "^4.11.1",
     "katex": "^0.16.2",
+    "loader-utils": "^2.0.3",
     "lodash": "^4.17.21",
     "minimatch": "^3.0.5",
     "moment": "^2.29.4",
@@ -88,7 +89,8 @@
     "follow-redirects": "^1.14.8",
     "jsdom": "^16.5.0",
     "trim-newlines": "3.0.1",
-    "minimatch": "^3.0.5"
+    "minimatch": "^3.0.5",
+    "loader-utils": "^2.0.3"
   },
   "devDependencies": {
     "sass": "^1.55.0",
