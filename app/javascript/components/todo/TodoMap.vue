@@ -70,7 +70,7 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="log">
+      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="(e) => handleEnd(e, sortedChildTodos)">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
             <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
@@ -176,6 +176,69 @@ import http from "../../common/http"
         this.prevElement.parent_node = this.dropElement.id
         this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
       }, */
+      async handleEnd(e, list) {
+      console.log(e)
+      let newIdList = list.map(i => i.id)
+      let nodes = this.$store.getters.getMsuite.nodes
+      let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+      nodes = sortedTodoArr
+      //console.log(nodes)
+      if (e.moved) {
+        this.reorderTodo(nodes)
+      } else if (e.added) {
+        let otherNode = nodes.find(n => n.id != e.added.element.id)
+        nodes.forEach(n => {
+          if (n.id == e.added.element.id) {
+            n.parent = otherNode.parent
+            
+          }
+        })
+        console.log(nodes)
+        this.reorderTodo(nodes)
+      } /* else this.reorderTodo(e.removed.element, nodes) */
+    },
+    relativeSortArray(arr1, arr2) {
+      let sortedArr = [];
+      let auxArr = [];
+      let arrSet = this.newSet(arr2);
+      for (let i = 0; i < arr2.length; i++) {
+        for (let j = 0; j < arr1.length; j++) {
+          if (arr1[j].id === arr2[i]) {
+            /* console.log("title", arr1[j].title)
+            console.log(arr2[i])
+            console.log("index", i, j) */
+            arr1[j].position = i + 1
+            sortedArr.push(arr1[j]);
+          }
+        }
+      }
+      return sortedArr
+    },
+    newSet(arr) {
+      let arrSet = new Set();
+      for (let i = 0; i < arr.length; i++) {
+        arrSet.add(arr[i]);
+      }
+      return arrSet;
+    },
+    async reorderTodo(list) {
+      let data = {
+        mindmap: {
+          nodes: list
+        }
+      }
+      await this.$store.dispatch('updateMSuite', data)
+        .then((result) => {
+          console.log(result)
+          /* this.myTodos.push(result.data.node)
+          this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
+          this.showModalTodo = false
+          this.clearTodoObj()
+          this.sendLocals(false) */
+        }).catch((err) => {
+          console.error(err);
+        });
+    },
       closeDatePicker(objId) {
         this.hideCalendar(objId)
       },
@@ -207,6 +270,7 @@ import http from "../../common/http"
         }
       },
       toggleChildModal(todo) {
+        console.log(todo)
         this.$emit("toggleChildModal",todo)
       },
       toggleDeleteTodo(todo) {
