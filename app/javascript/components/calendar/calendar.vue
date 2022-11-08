@@ -457,9 +457,12 @@
         this.mapColors = []
         this.uniqueColors = []
         this.calendar.store.getState().calendar.events.internalMap.clear()
+        let _this = this
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
-          currentValue.duedate = moment(new Date(currentValue.duedate))
-          currentValue.startdate = moment(new Date(currentValue.startdate))
+          currentValue.duedate = _this.getTimeZone(currentValue.duedate)
+          currentValue.startdate = _this.getTimeZone(currentValue.startdate)
+          // currentValue.duedate = moment(new Date(currentValue.duedate))
+          // currentValue.startdate = moment(new Date(currentValue.startdate))
           let colorType = this.lightOrDark(currentValue.line_color)
           let textColor = '#F8F8F8'
           if (colorType != 'dark') textColor = '#020101'
