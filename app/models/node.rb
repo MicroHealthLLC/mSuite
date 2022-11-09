@@ -23,6 +23,15 @@ class Node < ApplicationRecord
       self.position = self.mindmap.nodes.count + 1
     end
   end
+  
+  def set_children
+    if self.parent_node
+      node = Node.find_by_id(self.parent_node)
+      if node && node.mindmap.id != self.mindmap.id
+        self.mindmap_id = node.mindmap.id
+      end
+    end
+  end
 
   def create_notification
     create_worker(self) if self.mindmap.mm_type == 'calendar' || self.mindmap.mm_type == 'todo'
