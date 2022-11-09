@@ -148,6 +148,7 @@ export default {
     pollData: {
       handler(value) {
         if (value != null) this.poll = value
+        if(this.poll.url == '') this.pollUrl()
       }
     }
   },
