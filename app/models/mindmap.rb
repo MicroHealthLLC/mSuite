@@ -17,6 +17,9 @@ class Mindmap < ApplicationRecord
   belongs_to :parent, class_name: 'Mindmap', optional: true
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
+
+  accepts_nested_attributes_for :nodes, update_only: true
+
   before_validation :generate_random_key, on: :create
   before_validation :set_will_delete_at_date, on: :create
   validates_uniqueness_of :unique_key, uniqueness: true, case_sensitive: false
