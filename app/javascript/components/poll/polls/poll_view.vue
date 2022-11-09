@@ -79,7 +79,7 @@
     </poll-results>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
       {{ errorMsg }}
-      <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="updateMindMap()">Update Poll</button>
+      <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="updateMindMap()">Reset Poll</button>
       <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
       <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button>
     </sweet-modal>
