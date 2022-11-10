@@ -209,19 +209,23 @@
     },
   methods: {
     async handleEnd(e, list) {
+      console.log(this.myTodos)
       if (!e.moved) console.log(e)
       let newIdList = list.map(i => i.id)
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
       nodes = sortedTodoArr
+      console.log(nodes)
       if (e.moved) {
         this.reorderTodo(nodes)
       } else if (e.added) {
+        let otherNode = nodes.find(n => n.id != e.added.element.id)
         nodes.forEach(n => {
           if (n.id == e.added.element.id)
-            n.parent = this.currentMindMap.name
+            n.parent_node = otherNode.parent_node
         })
         this.reorderTodo(nodes)
+        //this.fetchToDos()
       } /* else this.reorderTodo(e.removed.element, nodes) */
     },
     relativeSortArray(arr1, arr2) {
@@ -246,12 +250,12 @@
           nodes: list
         }
       }
-      this.updateTodoUser()
+      console.log(data)
       await this.$store.dispatch('updateMSuite', data)
         .then((result) => {
           //console.log(result)
-          /* this.myTodos.push(result.data.node)
-          this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
+           this.myTodos.push(result.data.node)
+          /*this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
           this.showModalTodo = false
           this.clearTodoObj()
           this.sendLocals(false) */
@@ -577,12 +581,15 @@
 
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
+      console.log(this.todos)
+      console.log(this.$store.getters.getMsuite.nodes)
     },
     watch: {
       mSuite: {
         handler(value) {
           this.currentMindMap = value
           this.todos = value.nodes
+          //this.fetchToDos()
         }, deep: true
       },
     }

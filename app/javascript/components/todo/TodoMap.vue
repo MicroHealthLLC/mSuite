@@ -182,17 +182,23 @@ import http from "../../common/http"
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
       nodes = sortedTodoArr
-      //console.log(nodes)
+      console.log(nodes)
       if (e.moved) {
         this.reorderTodo(nodes)
       } else if (e.added) {
         let otherNode = nodes.find(n => n.id != e.added.element.id)
         nodes.forEach(n => {
           if (n.id == e.added.element.id) {
-            n.parent = otherNode.parent
-            
+            console.log(n)
+            n.parent_node = otherNode.parent_node
           }
         })
+/*         if (e.added.element.children && e.added.element.children.length > 0) {
+          let nodeChildren = e.added.element.children
+          nodeChildren.forEach(n => {
+            console.log(n)
+          })
+        } */
         console.log(nodes)
         this.reorderTodo(nodes)
       } /* else this.reorderTodo(e.removed.element, nodes) */
@@ -204,9 +210,6 @@ import http from "../../common/http"
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            /* console.log("title", arr1[j].title)
-            console.log(arr2[i])
-            console.log("index", i, j) */
             arr1[j].position = i + 1
             sortedArr.push(arr1[j]);
           }
@@ -227,6 +230,7 @@ import http from "../../common/http"
           nodes: list
         }
       }
+      console.log(data)
       await this.$store.dispatch('updateMSuite', data)
         .then((result) => {
           console.log(result)
