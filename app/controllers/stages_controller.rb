@@ -1,9 +1,11 @@
 class StagesController < AuthenticatedController
   before_action :set_stage, only: [:update,:destroy]
-  before_action :set_mindmap, only: [:reset_stages]
+  before_action :set_mindmap, only: [:reset_stages, :index]
 
   def create
-    @stage = Stage.create(stage_params)
+    @stage = Stage.new(stage_params)
+    @stage.save
+    @stage = @stage.decryption
     if @stage.new_record?
       respond_to do |format|
         format.json { render json: {status: 500} }
@@ -20,17 +22,16 @@ class StagesController < AuthenticatedController
 
   def update
     @stages = Stage.where(mindmap_id: @stage.mindmap_id)
-    if @stage.update(stage_params)
-      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Updated", stage: @stage, stages: @stages
-      respond_to do |format|
-        format.json { render json: {stage: @stage} }
-        format.html { }
-      end
+    @stage.update(stage_params)
+    ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Updated", stage: @stage.decryption, stages: @stages.map(&:decryption)
+    respond_to do |format|
+      format.json { render json: {stage: @stage} }
+      format.html { }
     end
   end
 
   def index
-    @stages = Stage.where(mindmap_id: params[:mindmap_id])
+    @stages = @mindmap.stages.map(&:decryption)
     respond_to do |format|
       format.json { render json: {stages: @stages} }
       format.html { }
@@ -56,6 +57,7 @@ class StagesController < AuthenticatedController
 
   def reset_stages
     @mindmap.reset_mindmap
+    @mindmap = @mindmap.decrypt_attributes
     @nodes = Node.where(mindmap_id: params[:mindmap_id])
     Stage.where(mindmap_id: params[:mindmap_id]).delete_all
     @mindmap.stages.create([{title:'TO DO'},{title:'IN PROGRESS'},{title:'DONE'}])

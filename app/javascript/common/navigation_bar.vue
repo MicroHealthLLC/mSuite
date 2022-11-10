@@ -407,14 +407,17 @@ export default {
         .catch(error => {
           console.log(error)
         })
-    },
+      },
+      setHeaders(){
+        let data = new FormData()
+        let token = document.querySelector('meta[name="csrf-token"]').attributes['content'].value
+        data.append('unique_key', this.currentMindMap.unique_key)
+        data.append("authenticity_token", token)
+        return data
+      },
     isMsuiteEmpty() {
       if (this.isMsuiteSaved) {
-        let data = new FormData()
-        let token = document.querySelector('meta[name="csrf-token"]').attributes['content'].value;
-        data.append('unique_key', this.currentMindMap.unique_key);
-        data.append("authenticity_token", token);
-        navigator.sendBeacon('is_msuite_empty', data)
+        navigator.sendBeacon('is_msuite_empty', this.setHeaders())
       }
     },
     handleChangeIsMsuiteSaved() {

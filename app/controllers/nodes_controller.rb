@@ -1,19 +1,16 @@
 class NodesController < AuthenticatedController
-  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order]
-  before_action :set_nodes, only:[:index]
   include NodeConcern
+  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order]
+  before_action :set_mSuite, only: [:index]
   $deleted_child_nodes = []
 
   def create
     # get nested children
-    @node = Node.create(node_params)
+    @node = Node.new(node_params)
+    @node.save
+    @node = @node.decryption
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
-    if params[:duplicate_child_nodes].present?
-      @node.duplicate_attributes(params[:duplicate_child_nodes])
-      @node.duplicate_files(params[:duplicate_child_nodes])
-      dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
-      Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
-    end
+    duplicate_child_nodes if params[:duplicate_child_nodes].present?
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is created", node: @node }
     respond_to do |format|
       format.json { render json: {node: @node}}
@@ -23,10 +20,11 @@ class NodesController < AuthenticatedController
 
   def update
     previous_title = @node.title
+    previous_title = EncryptionService.decrypt(previous_title) if @node.mindmap.is_private?
     @node.update(update_node_params)
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
+    @node = @node.decryption
     update_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
-
     ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node}
     respond_to do |format|
       format.json { render json: {node: @node}}
@@ -35,6 +33,7 @@ class NodesController < AuthenticatedController
   end
 
   def index
+    @nodes = @mindmap.nodes.map(&:decryption)
     respond_to do |format|
       format.json { render json: {nodes: @nodes.map(&:to_json)}}
       format.html { }
@@ -48,7 +47,6 @@ class NodesController < AuthenticatedController
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
-
       ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node }
       respond_to do |format|
         format.json { render json: {success: true, node: delNodes}}
@@ -86,7 +84,6 @@ class NodesController < AuthenticatedController
 
   def hide_show_nested_children(nodes)
     return if nodes.length == 0
-
     nodes.each do |nod|
       nod.update_column('hide_self', @flag)
       unless nod.hide_children == true
@@ -110,13 +107,14 @@ class NodesController < AuthenticatedController
     set_mindmap if @node
   end
 
-  def set_nodes
-    @nodes = Node.where(mindmap_id: params[:mindmap_id])
-  end
-
   def set_mindmap
     @mindmap = @node.mindmap
   end
+
+  def set_mSuite
+    @mindmap = Mindmap.find_by_id(params[:mindmap_id])
+  end
+
   def update_node_params
     params.require(:node).permit(
       :id,
