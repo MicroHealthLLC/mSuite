@@ -177,31 +177,27 @@ import http from "../../common/http"
         this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
       }, */
       async handleEnd(e, list) {
-      console.log(e)
       let newIdList = list.map(i => i.id)
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
-      nodes = sortedTodoArr
-      console.log(nodes)
       if (e.moved) {
-        this.reorderTodo(nodes)
+        this.reorderTodo(sortedTodoArr)
       } else if (e.added) {
-        let otherNode = nodes.find(n => n.id != e.added.element.id)
-        nodes.forEach(n => {
+        let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
+        sortedTodoArr.forEach((n, idx) => {
           if (n.id == e.added.element.id) {
-            console.log(n)
+            let oldId = n.id
             n.parent_node = otherNode.parent_node
+            nodes.forEach(c => {
+              if (c.parent_node == oldId) {
+                c.parent_node = n.parent_node
+                sortedTodoArr.push(c)
+              }
+            }) 
           }
         })
-/*         if (e.added.element.children && e.added.element.children.length > 0) {
-          let nodeChildren = e.added.element.children
-          nodeChildren.forEach(n => {
-            console.log(n)
-          })
-        } */
-        console.log(nodes)
-        this.reorderTodo(nodes)
-      } /* else this.reorderTodo(e.removed.element, nodes) */
+        this.reorderTodo(sortedTodoArr)
+      }
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
@@ -230,15 +226,10 @@ import http from "../../common/http"
           nodes: list
         }
       }
-      console.log(data)
       await this.$store.dispatch('updateMSuite', data)
         .then((result) => {
           console.log(result)
-          /* this.myTodos.push(result.data.node)
-          this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
-          this.showModalTodo = false
-          this.clearTodoObj()
-          this.sendLocals(false) */
+          this.$parent.$parent.fetchToDos()
         }).catch((err) => {
           console.error(err);
         });

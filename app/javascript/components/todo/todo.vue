@@ -209,24 +209,21 @@
     },
   methods: {
     async handleEnd(e, list) {
-      console.log(this.myTodos)
-      if (!e.moved) console.log(e)
-      let newIdList = list.map(i => i.id)
-      let nodes = this.$store.getters.getMsuite.nodes
-      let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
-      nodes = sortedTodoArr
-      console.log(nodes)
-      if (e.moved) {
-        this.reorderTodo(nodes)
-      } else if (e.added) {
-        let otherNode = nodes.find(n => n.id != e.added.element.id)
-        nodes.forEach(n => {
-          if (n.id == e.added.element.id)
-            n.parent_node = otherNode.parent_node
-        })
-        this.reorderTodo(nodes)
-        //this.fetchToDos()
-      } /* else this.reorderTodo(e.removed.element, nodes) */
+      if (!e.removed) {
+        let newIdList = list.map(i => i.id)
+        let nodes = this.$store.getters.getMsuite.nodes
+        let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+        if (e.moved) {
+          this.reorderTodo(sortedTodoArr)
+        } else if (e.added) {
+          let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
+          sortedTodoArr.forEach(n => {
+            if (n.id == e.added.element.id)
+              n.parent_node = otherNode.parent_node
+          })
+          this.reorderTodo(sortedTodoArr)
+        }
+      }
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
@@ -234,9 +231,6 @@
       for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
-            /* console.log("title", arr1[j].title)
-            console.log(arr2[i])
-            console.log("index", i, j) */
             arr1[j].position = i + 1
             sortedArr.push(arr1[j]);
           }
@@ -250,15 +244,9 @@
           nodes: list
         }
       }
-      console.log(data)
       await this.$store.dispatch('updateMSuite', data)
         .then((result) => {
-          //console.log(result)
-           this.myTodos.push(result.data.node)
-          /*this.undoNodes.push({ req: 'addNode', receivedData: result.data.node })
-          this.showModalTodo = false
-          this.clearTodoObj()
-          this.sendLocals(false) */
+          this.fetchToDos()
         }).catch((err) => {
           console.error(err);
         });
@@ -581,8 +569,6 @@
 
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
-      console.log(this.todos)
-      console.log(this.$store.getters.getMsuite.nodes)
     },
     watch: {
       mSuite: {
