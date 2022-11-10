@@ -1,0 +1,55 @@
+#pomodoro {
+  max-width: 512px;
+  width: 100%;
+  #clock {
+    background-size: contain;
+    display: flex;
+    justify-content: center;
+    @media all and (min-width: 512px){
+      margin-bottom: -32px;
+    }
+    @media all and (max-width: 184px){
+      margin-bottom: -20px;
+      margin-bottom: -11.5px;
+    }
+    #timer {
+      $hover: 5;
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      #title {
+        color: #FF8B8A;
+        font-size: 28px;
+        line-height: 28px;
+        margin: 3px 0 1px;
+        @media all and (max-width: 512px){
+          font-size: 5.5vw;
+          line-height: 5.5vw;
+        }
+        @media all and (max-width: 184px){
+          font-size: 10px;
+          line-height: 10px;
+        }
+      }
+      #countdown {
+        color: #19AAB2;
+        display: flex;
+        font-size: 43px;
+        font-weight: 600;
+        line-height: 43px;
+        @media all and (max-width: 512px){
+          font-size: 8.4vw;
+          line-height: 8.4vw;
+        }
+        @media all and (max-width: 184px){
+          font-size: 15.4px;
+          line-height: 15.4px;
+        }
+        #minutes::after {
+          content: ":";
+        }
+      }
+    }
+  }
+}

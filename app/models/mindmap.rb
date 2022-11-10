@@ -36,6 +36,8 @@ class Mindmap < ApplicationRecord
   after_create  :pre_made_stages, if: :check_kanban
   before_create :update_canvas, if: :check_mm_type
   
+  include LockoutMsuiteConcern
+
   def update_canvas
     self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}'
   end
@@ -48,6 +50,23 @@ class Mindmap < ApplicationRecord
       nodes: self.nodes.map(&:to_json),
       editable: true
     ).as_json
+  end
+
+  def check_validate(session_m_id, psw_check)
+    is_verified = true
+    if self.password.present? && session_m_id == self.unique_key + self.password
+      unlock_msuite
+      return [is_verified, session_m_id]
+    elsif self && self.password.present?
+      if psw_check.present?
+        is_verified  = self.check_password(psw_check)
+        session_m_id = self.unique_key + self.password if is_verified
+        lock_msuite if !is_verified
+      else
+        is_verified = false
+      end
+    end
+    return [is_verified, session_m_id]
   end
 
   def check_kanban

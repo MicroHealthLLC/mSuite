@@ -35,6 +35,9 @@ class Api::SettingsController < AuthenticatedController
       :terms_url,
       :privacy_url,
       :about_url,
+      :failed_password_attempts,
+      :lockout_period,
+      :permanent_lock
     )
   end
 end
