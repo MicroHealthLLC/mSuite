@@ -238,7 +238,7 @@ export default {
       if (this.poll.url == '') {
         var url = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (var i = 0; i < 19; i++)
+        for (var i = 0; i < 15; i++)
           url += possible.charAt(Math.floor(Math.random() * possible.length));
         this.poll.url = url
         let mindmap = this.createMindmapCanvas(null)
