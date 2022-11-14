@@ -184,15 +184,10 @@ class MindmapsController < AuthenticatedController
 
     def verify_password
       @is_verified = true
-      if @mindmap && @mindmap.password.present? && session[:mindmap_id] == @mindmap.unique_key + @mindmap.password
-        return
-      elsif @mindmap && @mindmap.password.present?
-        if params[:password_check].present?
-          @is_verified         = @mindmap.check_password(params[:password_check])
-          session[:mindmap_id] = @mindmap.unique_key + @mindmap.password if @is_verified
-        else
-          @is_verified = false
-        end
+      if @mindmap && @mindmap.password.present?
+        check_status = @mindmap.check_validate(session[:mindmap_id], params[:password_check])
+        @is_verified = check_status[0]
+        session[:mindmap_id] = check_status[1] if @is_verified
       end
     end
 
@@ -228,6 +223,7 @@ class MindmapsController < AuthenticatedController
         :is_save,
         :parent_id,
         :will_delete_at,
+        :failed_password_attempts
       )
     end
 

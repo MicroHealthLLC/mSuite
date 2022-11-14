@@ -28,7 +28,9 @@ jQuery(function($) {
             privacy_url: '',
             about_url: '',
             terms_url: '',
-
+            failed_password_attempts: 0,
+            lockout_period: 0,
+            permanent_lock: 0
           }
         }
       },
@@ -65,6 +67,7 @@ jQuery(function($) {
               <li role="tab" tabindex="-2" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="google_recaptcha" aria-labelledby="ui-id-3" :class="{'ui-tabs-active ui-state-active': currentTab == 3}"><a @click.stop.prevent="currentTab = 3" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Google Recaptcha</a></li>
               <li role="tab" tabindex="-3" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="beta" aria-labelledby="ui-id-4" :class="{'ui-tabs-active ui-state-active': currentTab == 4}"><a @click.stop.prevent="currentTab = 4" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-1">Beta</a></li>
               <li role="tab" tabindex="-4" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="headerLink" aria-labelledby="ui-id-5" :class="{'ui-tabs-active ui-state-active': currentTab == 5}"><a @click.stop.prevent="currentTab = 5" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-5">Header</a></li>
+              <li role="tab" tabindex="-5" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="password_lockout_time" aria-labelledby="ui-id-6" :class="{'ui-tabs-active ui-state-active': currentTab == 6}"><a @click.stop.prevent="currentTab = 6" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-6">Password Lockout Time</a></li>
             </ul>
             <div class="tab-content">
               <div id="office365" aria-labelledby="ui-id-1" role="tabpanel" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="false" v-show="currentTab === 1">
@@ -135,6 +138,30 @@ jQuery(function($) {
                         Terms URL <abbr title="required">*</abbr>
                       </label>
                       <input :readOnly="!isEditing" id="" v-model="settings.terms_url" type="text">
+                    </li>
+                  </ol>
+                </fieldset>
+              </div>
+              <div id="password_lockout_time" aria-labelledby="ui-id-6" role="tabpanel" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="true" v-show="currentTab === 6">
+                <fieldset class="inputs"><legend><span>Password Lockout Time</span></legend>
+                  <ol>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Failed Password Attempts <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.failed_password_attempts" type="number">
+                    </li>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                         Lockout Period (mins only) <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.lockout_period" type="number">
+                    </li>
+                    <li class="string input required stringish" id="">
+                      <label class="label">
+                        Permanent Lock File after Attempts <abbr title="required">*</abbr>
+                      </label>
+                      <input :readOnly="!isEditing" id="" v-model="settings.permanent_lock" type="number">
                     </li>
                   </ol>
                 </fieldset>

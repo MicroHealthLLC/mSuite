@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_12_141024) do
+ActiveRecord::Schema.define(version: 2022_11_01_135640) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -91,6 +91,10 @@ ActiveRecord::Schema.define(version: 2022_10_12_141024) do
     t.text "canvas", limit: 4294967295
     t.integer "is_save"
     t.integer "parent_id"
+    t.integer "failed_password_attempts"
+    t.integer "total_failed_password_attempts"
+    t.datetime "lockout_period"
+    t.boolean "permanent_lock", default: false
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 
@@ -131,6 +135,9 @@ ActiveRecord::Schema.define(version: 2022_10_12_141024) do
     t.string "about_url"
     t.string "terms_url"
     t.string "privacy_url"
+    t.integer "failed_password_attempts"
+    t.integer "lockout_period"
+    t.integer "permanent_lock"
   end
 
   create_table "stages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
