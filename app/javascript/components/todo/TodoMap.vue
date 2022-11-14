@@ -70,7 +70,7 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="(e) => handleEnd(e, sortedChildTodos)">
+      <draggable class="list-group" :list="sortedChildTodos" @change="(e) => handleEnd(e, sortedChildTodos)" :group="{ name: 'people', pull: false, put: true }">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
             <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
@@ -202,7 +202,8 @@
       let sortedArr = [];
       let auxArr = [];
       let arrSet = this.newSet(arr2);
-      for (let i = 0; i < arr2.length; i++) {
+      if (arr1 && arr2) {
+        for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
             arr1[j].position = i + 1
@@ -211,6 +212,7 @@
         }
       }
       return sortedArr
+    }
     },
     newSet(arr) {
       let arrSet = new Set();

@@ -21,7 +21,7 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable class="list-group" group="people" :list="sortedTodos" @change="(e) => handleEnd(e, sortedTodos)">
+                <draggable class="list-group" :group="{ name: 'people', pull: true, put: false }" :list="sortedTodos" @start="(e) => handleStart(e)" @change="(e) => handleEnd(e, sortedTodos)">
                 <div v-for="(todo) in sortedTodos" :key="todo.id">
                   <todo-map 
                     :node="todo" 
@@ -225,10 +225,14 @@
         }
       }
     },
+    handleStart(e) {
+      console.log(e)
+    },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
       let auxArr = [];
-      for (let i = 0; i < arr2.length; i++) {
+      if (arr1 && arr2) {
+        for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
             arr1[j].position = i + 1
@@ -237,6 +241,7 @@
         }
       }
       return sortedArr
+    }
     },
     async reorderTodo(list) {
       let data = {
