@@ -142,8 +142,7 @@
 </template>
 
 <script>
-  import moment from "moment";
-import http from "../../common/http"
+  import http from "../../common/http"
 
   export default {
     name: "node",
