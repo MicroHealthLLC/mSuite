@@ -48,6 +48,8 @@
   import TreeMap from "./treemaps/tree_map"
   import Whiteboard from "./whiteboard/whiteboard"
   import PasswordView from "./password_view"
+  import WaitForTime from "./wait_for_time"
+  import PermanentLock from "./permanent_lock"
   import TreeChart from "./treechart/tree_chart"
   import ToDo from "./todo/todo"
   import Notepad from "./notepad/notepad"
@@ -63,6 +65,8 @@
       KanbanView,
       TreeMap,
       PasswordView,
+      WaitForTime,
+      PermanentLock,
       Whiteboard,
       TreeChart,
       ToDo,
@@ -77,6 +81,10 @@
         loading: true,
         is_verified: false,
         dataLoaded: false,
+        failedPasswordAttempts: 0,
+        S_failedPasswordAttempts: Vue.prototype.$failed_password_attempts,
+        S_lockTime: Vue.prototype.$lockout_period,
+        lockTime: new Date(),
         undoMap         : newEventSource(),
         redoMap         : newEventSource(),
         zmInScale       : newEventSource(),
@@ -96,53 +104,70 @@
       }
     },
     beforeCreate: async function() {
-      await this.$store.dispatch('getMSuite').then(res => {
-        this.dataLoaded = true
-      })
+      await this.$store.dispatch('getMSuite')
       this.is_verified = this.$store.getters.getDataMsuite.is_verified
+      this.failedPasswordAttempts = this.$store.getters.getMsuite.failed_password_attempts
+      this.lockTime = this.$store.getters.getMsuite.lockout_period
+      await this.checkAttempts()
+      this.dataLoaded = true
     },
     mounted: async function() {
       this.checkNotifs('event')
     },
     computed: {
       viewIs() {
-        if(this.is_verified){
-          switch (this.$store.getters.getMsuite.mm_type) {
-            case "kanban":
-              return "KanbanView"
-            case "tree_map":
-              return "TreeMap"
-            case "whiteboard":
-              return "Whiteboard"
-            case "tree_chart":
-              return "TreeChart"
-            case "flowmap":
-              return "TreeChart"
-            case "todo":
-              return "ToDo"
-            case "Notepad":
-              return "Notepad"
-            case "spreadsheet":
-              return "SpreadSheet"
-            case "poll":
-              return "Poll"
-            case "pollvote":
-              return "VotingPoll"
-            case "calendar":
-              return "Calendar"
-            default:
-              return "MindmapView"
+        if(this.$store.getters.getMsuite.permanent_lock){
+          return "PermanentLock"
+        } else {
+          if(this.failedPasswordAttempts > this.S_failedPasswordAttempts - 1){
+            return "WaitForTime"
+          } else {
+            if(this.is_verified){
+              switch (this.$store.getters.getMsuite.mm_type) {
+                case "kanban":
+                  return "KanbanView"
+                case "tree_map":
+                  return "TreeMap"
+                case "whiteboard":
+                  return "Whiteboard"
+                case "tree_chart":
+                  return "TreeChart"
+                case "flowmap":
+                  return "TreeChart"
+                case "todo":
+                  return "ToDo"
+                case "Notepad":
+                  return "Notepad"
+                case "spreadsheet":
+                  return "SpreadSheet"
+                case "poll":
+                  return "Poll"
+                case "pollvote":
+                  return "VotingPoll"
+                case "calendar":
+                  return "Calendar"
+                default:
+                  return "MindmapView"
+              }
+            }
+            else if(this.$store.getters.getMsuite){
+              return "PasswordView"
+            }
+            else{
+              window.open("/","_self")
+            }
           }
-        }
-        else if(this.$store.getters.getMsuite){
-          return "PasswordView"
-        }
-        else{
-          window.open("/","_self")
         }
       }
     },
     methods: {
+      async checkAttempts(){
+        let _this = this
+        let time = new Date(new Date(_this.lockTime).getTime() + parseInt(_this.S_lockTime) * 60 * 1000)
+        if(new Date() > time){
+          await this.$store.dispatch('updateMSuite', {mindmap: {failed_password_attempts: 0}})
+        }
+      },
       zoomInScale () {
         this.zmInScale.emit()
       },

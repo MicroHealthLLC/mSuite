@@ -13,6 +13,7 @@ import store from '../store/index.js'
 import vueDebounce from 'vue-debounce'
 import VueTextareaAutosize from 'vue-textarea-autosize'
 import VueCookies from 'vue-cookies';
+import moment from 'moment';
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
 Vue.use(ActionCableVue, {
@@ -26,6 +27,7 @@ Vue.use(ElementUI);
 Vue.use(VueTextareaAutosize)
 Vue.use(VueCookies);
 Vue.use(router)
+Vue.use(moment)
 Vue.component('vue-tree', VueTree)
 Vue.component('navigation-bar', NavigationBar)
 Vue.component('sync-loader', SyncLoader)

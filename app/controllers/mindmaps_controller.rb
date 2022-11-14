@@ -196,15 +196,10 @@ class MindmapsController < AuthenticatedController
 
     def verify_password
       @is_verified = true
-      if @mindmap && @mindmap.password.present? && session[:mindmap_id] == @mindmap.unique_key + @mindmap.password
-        return
-      elsif @mindmap && @mindmap.password.present?
-        if params[:password_check].present?
-          @is_verified         = @mindmap.check_password(params[:password_check])
-          session[:mindmap_id] = @mindmap.unique_key + @mindmap.password if @is_verified
-        else
-          @is_verified = false
-        end
+      if @mindmap && @mindmap.password.present?
+        check_status = @mindmap.check_validate(session[:mindmap_id], params[:password_check])
+        @is_verified = check_status[0]
+        session[:mindmap_id] = check_status[1] if @is_verified
       end
     end
 
@@ -228,6 +223,10 @@ class MindmapsController < AuthenticatedController
     end
 
     def mindmap_params
+      if params[:mindmap][:nodes]
+        nodes = params[:mindmap].delete(:nodes) 
+        params[:mindmap][:nodes_attributes] = nodes
+      end
       params.require(:mindmap).permit(
         :name,
         :mm_type,
@@ -240,6 +239,8 @@ class MindmapsController < AuthenticatedController
         :is_save,
         :parent_id,
         :will_delete_at,
+        :failed_password_attempts,
+        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate]
       )
     end
 

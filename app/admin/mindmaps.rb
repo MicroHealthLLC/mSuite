@@ -17,7 +17,9 @@ ActiveAdmin.register Mindmap do
       :category_id,
       :status,
       :share,
+      :permanent_lock,
       :description,
+      :mm_type,
       shared_user_ids: []
     ]
   end
@@ -32,6 +34,7 @@ ActiveAdmin.register Mindmap do
       f.input :category
       f.input :status, include_blank: false, include_hidden: false, label: "State"
       f.input :share, include_blank: false, include_hidden: false, label: "Share as"
+      f.input :permanent_lock
       f.input :description
       f.input :shared_users, label: "Shared with"
     end

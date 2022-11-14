@@ -18,6 +18,9 @@ class Mindmap < ApplicationRecord
   belongs_to :parent, class_name: 'Mindmap', optional: true
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
+
+  accepts_nested_attributes_for :nodes, update_only: true
+
   before_validation :generate_random_key, on: :create
   before_validation :set_will_delete_at_date, on: :create
   validates_uniqueness_of :unique_key, uniqueness: true, case_sensitive: false
@@ -51,6 +54,8 @@ class Mindmap < ApplicationRecord
     return true if self.is_private? || self.changes[:is_save]
   end
   
+  include LockoutMsuiteConcern
+
   def update_canvas
     self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' unless self.is_private?
   end
@@ -64,6 +69,23 @@ class Mindmap < ApplicationRecord
       nodes: self.nodes.map(&:to_json),
       editable: true
     ).as_json
+  end
+
+  def check_validate(session_m_id, psw_check)
+    is_verified = true
+    if self.password.present? && session_m_id == self.unique_key + self.password
+      unlock_msuite
+      return [is_verified, session_m_id]
+    elsif self && self.password.present?
+      if psw_check.present?
+        is_verified  = self.check_password(psw_check)
+        session_m_id = self.unique_key + self.password if is_verified
+        lock_msuite if !is_verified
+      else
+        is_verified = false
+      end
+    end
+    return [is_verified, session_m_id]
   end
 
   def check_kanban

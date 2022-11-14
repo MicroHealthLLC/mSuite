@@ -29,7 +29,6 @@
 <script>
   import http from "../../../../common/http"
   import { convertArrayToCSV } from 'convert-array-to-csv'
-  import moment from 'moment'
   import 'pivottable'
   import 'pivottable/dist/pivot.min.js'
   import 'pivottable/dist/pivot.min.css'

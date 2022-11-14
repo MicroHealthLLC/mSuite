@@ -106,7 +106,6 @@
   import Chance from 'chance'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
-  import moment from 'moment';
 
   export default {
     mixins: [Common, TemporaryUser],
@@ -457,9 +456,12 @@
         this.mapColors = []
         this.uniqueColors = []
         this.calendar.store.getState().calendar.events.internalMap.clear()
+        let _this = this
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
-          currentValue.duedate = moment(new Date(currentValue.duedate))
-          currentValue.startdate = moment(new Date(currentValue.startdate))
+          currentValue.duedate   = new Date(currentValue.duedate)
+          currentValue.startdate = new Date(currentValue.startdate)
+          // currentValue.duedate = moment(new Date(currentValue.duedate))
+          // currentValue.startdate = moment(new Date(currentValue.startdate))
           let colorType = this.lightOrDark(currentValue.line_color)
           let textColor = '#F8F8F8'
           if (colorType != 'dark') textColor = '#020101'

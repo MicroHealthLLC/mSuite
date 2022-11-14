@@ -34,6 +34,21 @@ class Node < ApplicationRecord
     return self.mindmap.is_private?
   end
 
+  def set_position
+    if mindmap_id.present? && ( position.nil? ||  position == 0 )
+      self.position = self.mindmap.nodes.count + 1
+    end
+  end
+  
+  def set_children
+    if self.parent_node
+      node = Node.find_by_id(self.parent_node)
+      if node && node.mindmap.id != self.mindmap.id
+        self.mindmap_id = node.mindmap.id
+      end
+    end
+  end
+
   def create_notification
     create_worker(self) if self.mindmap.mm_type == 'calendar' || self.mindmap.mm_type == 'todo'
   end
@@ -156,10 +171,10 @@ class Node < ApplicationRecord
       stage_previous.nodes.where("position > ?", self.position_was).update_all("position = position - 1")
       self.stage.nodes.where("position >= ?", position).where.not(id: id).update_all("position = position + 1")
 
-    elsif self.position > self.position_was
+    elsif self.stage_id && self.position > self.position_was
       self.stage.nodes.where("position <= ?", position).where.not(id: id).where.not("position < ?", position_was).update_all("position = position - 1")
 
-    elsif  self.position < self.position_was
+    elsif self.stage_id && self.position < self.position_was
       self.stage.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
 
     end
