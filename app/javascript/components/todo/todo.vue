@@ -250,7 +250,7 @@
         })
         parent_nodes = parent_nodes.map((node, index) => {
           if(node.duedate != null){
-            date = node.duedate.slice(0, 10)
+            date = new Date(node.duedate).toLocaleDateString("en-US")
           } else {
             date = node.duedate
           }
@@ -270,7 +270,7 @@
         let date = ''
         this.todos.forEach((node) => {
           if(node.duedate != null){
-            date = node.duedate.slice(0, 10)
+            date = new Date(node.duedate).toLocaleDateString("en-US")
           } else {
             date = node.duedate
           }
@@ -305,7 +305,7 @@
           }, 1500)
           return
         }
-        if(this.todoData.date) this.todoData.date = this.getTimeZone(this.todoData.date)
+        if(this.todoData.date) this.todoData.date = moment(this.todoData.date)._d
         let data = {
           node: {
               title: this.todoData.title,
@@ -338,7 +338,7 @@
           }, 1500)
           return
         }
-        if(this.todoChildData.date) this.todoChildData.date = this.getTimeZone(this.todoChildData.date)
+        if(this.todoChildData.date) this.todoChildData.date = moment(this.todoChildData.date)._d
 
         let data = {
           node: {
@@ -373,7 +373,7 @@
           return
         }
         if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
-          this.selectedTodo.duedate = this.getTimeZone(this.selectedTodo.duedate)
+          this.selectedTodo.duedate = moment(this.selectedTodo.duedate)._d
         }
         todo.title = title
         todo.is_disabled = completed

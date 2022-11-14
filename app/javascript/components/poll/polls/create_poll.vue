@@ -97,7 +97,6 @@
 <script>
 import http from "../../../common/http"
 import DatePicker from 'vue2-datepicker'
-import moment from 'moment'
 import TemporaryUser from "../../../mixins/temporary_user.js"
 
 export default {
