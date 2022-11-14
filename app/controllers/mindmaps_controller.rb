@@ -211,6 +211,10 @@ class MindmapsController < AuthenticatedController
     end
 
     def mindmap_params
+      if params[:mindmap][:nodes]
+        nodes = params[:mindmap].delete(:nodes) 
+        params[:mindmap][:nodes_attributes] = nodes
+      end
       params.require(:mindmap).permit(
         :name,
         :mm_type,
@@ -223,7 +227,8 @@ class MindmapsController < AuthenticatedController
         :is_save,
         :parent_id,
         :will_delete_at,
-        :failed_password_attempts
+        :failed_password_attempts,
+        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate]
       )
     end
 

@@ -70,7 +70,7 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="log">
+      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="(e) => handleEnd(e, sortedChildTodos)">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
             <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
@@ -175,6 +175,64 @@
         this.prevElement.parent_node = this.dropElement.id
         this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
       }, */
+      async handleEnd(e, list) {
+      let newIdList = list.map(i => i.id)
+      let nodes = this.$store.getters.getMsuite.nodes
+      let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+      if (e.moved) {
+        this.reorderTodo(sortedTodoArr)
+      } else if (e.added) {
+        let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
+        sortedTodoArr.forEach((n, idx) => {
+          if (n.id == e.added.element.id) {
+            let oldId = n.id
+            n.parent_node = otherNode.parent_node
+            nodes.forEach(c => {
+              if (c.parent_node == oldId) {
+                c.parent_node = n.parent_node
+                sortedTodoArr.push(c)
+              }
+            }) 
+          }
+        })
+        this.reorderTodo(sortedTodoArr)
+      }
+    },
+    relativeSortArray(arr1, arr2) {
+      let sortedArr = [];
+      let auxArr = [];
+      let arrSet = this.newSet(arr2);
+      for (let i = 0; i < arr2.length; i++) {
+        for (let j = 0; j < arr1.length; j++) {
+          if (arr1[j].id === arr2[i]) {
+            arr1[j].position = i + 1
+            sortedArr.push(arr1[j]);
+          }
+        }
+      }
+      return sortedArr
+    },
+    newSet(arr) {
+      let arrSet = new Set();
+      for (let i = 0; i < arr.length; i++) {
+        arrSet.add(arr[i]);
+      }
+      return arrSet;
+    },
+    async reorderTodo(list) {
+      let data = {
+        mindmap: {
+          nodes: list
+        }
+      }
+      await this.$store.dispatch('updateMSuite', data)
+        .then((result) => {
+          console.log(result)
+          this.$parent.$parent.fetchToDos()
+        }).catch((err) => {
+          console.error(err);
+        });
+    },
       closeDatePicker(objId) {
         this.hideCalendar(objId)
       },
@@ -206,6 +264,7 @@
         }
       },
       toggleChildModal(todo) {
+        console.log(todo)
         this.$emit("toggleChildModal",todo)
       },
       toggleDeleteTodo(todo) {
