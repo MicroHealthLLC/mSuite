@@ -116,30 +116,30 @@
           </span>
           <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
             <span v-b-tooltip.hover title="Delete">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
+                :class="{ button_disabled: !getSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
                 @click.stop="deleteSelectedNode">
                 <i class="material-icons delete_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Paste">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getCopiedNode }"
+              <a href="javascript:;" role="button" :disabled="(!getSelectedNode || !getCopiedNode)"
+                :class="{ button_disabled: (!getSelectedNode || !getCopiedNode) }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="pasteCopiedNode">
                 <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Cut">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
+                :class="{ button_disabled: !getSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="cutSelectedNode">
                 <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Copy" class="">
-              <a href="javascript:;" role="button" :disabled="!$store.getters.getSelectedNode"
-                :class="{ button_disabled: !$store.getters.getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
+                :class="{ button_disabled: !getSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="copySelectedNode">
                 <i class="material-icons copy_icon icons d-flex center_flex"></i>
               </a>
@@ -254,6 +254,8 @@ export default {
       disableToggle: false,
       failed_password_attempts: Vue.prototype.$failed_password_attempts,
       lockout_period: Vue.prototype.$lockout_period,
+      getSelectedNode: null,
+      getCopiedNode: null,
       password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
       isSaveMap: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.is_save)),
       dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
@@ -288,6 +290,12 @@ export default {
     },
     mSuiteTitle() {
       return this.mSuiteName
+    },
+    selectedNode(){
+      return this.$store.getters.getSelectedNode
+    },
+    copiedNode(){
+      return this.$store.getters.getCopiedNode
     },
     pollExpDate() {
       let duedate = JSON.parse(this.currentMindMap.canvas).duedate
@@ -482,10 +490,11 @@ export default {
       this.$emit("copySelectedNode")
     },
     deleteSelectedNode() {
+      this.$store.commit('setCopiedNode' , null)
       this.$emit("deleteSelectedNode")
     },
     pasteCopiedNode() {
-      this.$emit("pasteCopiedNode")
+      if (this.getSelectedNode) this.$emit("pasteCopiedNode")
     },
     cutSelectedNode() {
       this.$emit("cutSelectedNode")
@@ -624,6 +633,17 @@ export default {
         this.mm_type = value.mm_type
       }, deep: true
     },
+    selectedNode: {
+      handler(value) {
+        if (value && value.id == "" && !this.getCopiedNode) this.getSelectedNode = null
+        else this.getSelectedNode = value
+      }
+    },
+    copiedNode: {
+      handler(value) {
+        this.getCopiedNode = value
+      }
+    }
   }
 }
 </script>
