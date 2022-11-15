@@ -51,7 +51,7 @@ jQuery(function($) {
         fetchSettings() {
           $.get("/api/settings.json", (data) => {
             for (let key in this.settings) {
-              this.settings[key] = data[key] || '';
+              this.settings[key] = data[key];
             }
             this.loading = false;
           });

@@ -6,7 +6,7 @@ class Setting < ApplicationRecord
   def self.[](name)
     unless available_settings[name]["cached"].blank? || available_settings[name]["cached"].nil?
       return available_settings[name]["cached"]
-    end
+  end
     available_settings[name]["default"]
   rescue
   end
@@ -19,6 +19,7 @@ class Setting < ApplicationRecord
   end
 
   begin
+    puts "*** Loading available settings ***"
     load_available_settings
   rescue ActiveRecord::NoDatabaseError
   rescue => e

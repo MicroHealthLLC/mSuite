@@ -4,7 +4,8 @@ class Mindmap < ApplicationRecord
   include ActiveModel::Dirty
   include BCrypt
   include EncryptionConcern, DecryptionConcern
-
+  include LockoutMsuiteConcern
+  
   belongs_to :user, optional: true
   belongs_to :category, optional: true
 
@@ -53,8 +54,6 @@ class Mindmap < ApplicationRecord
   def check_private?
     return true if self.is_private? || self.changes[:is_save]
   end
-  
-  include LockoutMsuiteConcern
 
   def update_canvas
     self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' unless self.is_private?
