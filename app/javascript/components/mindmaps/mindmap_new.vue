@@ -773,7 +773,7 @@
         1000
       ),
       hasChilNodes(node) {
-        return this.currentMindMap.nodes.filter((nod) => nod.parent_node == node.id).length > 0;
+        return this.currentMindMap.nodes.filter((nod) => !nod.is_disabled && nod.parent_node == node.id).length > 0;
       },
       getNewPosition(new_parent) {
         let new_location = [0, 0]
