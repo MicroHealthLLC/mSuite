@@ -76,7 +76,7 @@
     color: white;
   }
   .list-move {
-    transition: .2s;
+    transition: transform 0.5s;
   }
 
   .svg-inline--fa, .fa-plus{

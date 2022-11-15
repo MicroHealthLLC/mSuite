@@ -22,8 +22,8 @@
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <draggable class="list-group" group="people" :list="sortedTodos" :move="checkMove"
-                  @change="(e) => handleEnd(e, sortedTodos)">
-                  <transition-group name="list">
+                  @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false" v-bind="dragOptions">
+                  <transition-group type="transition" :name="!drag ? 'list' : null">
                     <div v-for="(todo) in sortedTodos" :key="todo.id">
                       <todo-map :node="todo" :selectedTodo="selectedTodo" :completedTasks="completedTasks"
                         :editInProgress="editInProgress" :current-mind-map="currentMindMap" @updateTodo="updateTodo"
@@ -154,6 +154,7 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
+        drag: false
       }
     },
     components: {
@@ -165,7 +166,7 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          console.log(data)
+          //console.log(data)
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
@@ -547,6 +548,13 @@
         } else {
           return this.myTodos
         }
+      },
+      dragOptions() {
+        return {
+          animation: 200,
+          disabled: false,
+          ghostClass: "ghost"
+        };
       }
     },
     mounted() {
