@@ -6,32 +6,20 @@ class Setting < ApplicationRecord
   def self.[](name)
     unless available_settings[name]["cached"].blank? || available_settings[name]["cached"].nil?
       return available_settings[name]["cached"]
-    end
+  end
     available_settings[name]["default"]
   rescue
   end
 
-  def setting_keys
-    ['office365_key', 'office365_secret', 'google_oauth_key', 'google_oauth_secret', 'failed_password_attempts', 'lockout_period', 'permanent_lock']
-  end
-
-  def as_json(options={})
-    h = {}
-    cached = Setting.first || new
-    setting_keys.each do |key|
-      h["#{key}"] = cached.send(key) ? cached.send(key) : (ENV["#{key.upcase}"] || '').to_i
-    end
-    h
-  end
-  
   def self.load_available_settings
     cached = first || new
-    ['office365_key', 'office365_secret', 'google_oauth_key', 'google_oauth_secret', 'failed_password_attempts', 'lockout_period', 'permanent_lock'].each do |key|
+    ['office365_key', 'office365_secret', 'google_oauth_key', 'google_oauth_secret'].each do |key|
       available_settings["#{key.upcase}"] = { 'default' => ENV["#{key.upcase}"], 'cached' => cached.send(key) || '' }
     end
   end
 
   begin
+    puts "*** Loading available settings ***"
     load_available_settings
   rescue ActiveRecord::NoDatabaseError
   rescue => e
