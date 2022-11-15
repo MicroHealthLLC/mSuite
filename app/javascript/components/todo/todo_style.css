@@ -75,6 +75,9 @@
   .fa-undo-alt{
     color: white;
   }
+  .list-move {
+    transition: .2s;
+  }
 
   .svg-inline--fa, .fa-plus{
     height: 0.93rem !important;

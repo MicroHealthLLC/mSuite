@@ -70,7 +70,8 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" @change="(e) => handleEnd(e, sortedChildTodos)" :group="{ name: 'people', pull: false, put: true }">
+      <draggable class="list-group" :list="sortedChildTodos" @change="(e) => handleEnd(e, sortedChildTodos)" group="people">
+        <transition-group name="list">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
             <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
@@ -136,6 +137,7 @@
             </div>
           </div>
         </b-list-group-item>
+      </transition-group>
       </draggable>
     </div>
   </div>
@@ -230,7 +232,7 @@
       await this.$store.dispatch('updateMSuite', data)
         .then((result) => {
           console.log(result)
-          this.$parent.$parent.fetchToDos()
+            this.$parent.$parent.$parent.fetchToDos()
         }).catch((err) => {
           console.error(err);
         });
