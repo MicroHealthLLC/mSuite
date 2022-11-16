@@ -617,7 +617,7 @@
         this.cutFlag                = true
         this.saveCurrentMap()
         http.put(`/nodes/${this.$store.getters.getCopiedNode.id}.json`, {node: this.$store.getters.getCopiedNode}).then((res) => {
-          this.$store.commit('setSelectedNode' , { id: ''})
+          this.$store.commit('setSelectedNode' , null)
         }).catch((error) => {
           console.log(error)
         })
@@ -625,7 +625,7 @@
       copySelectedNode() {
         if (!this.$store.getters.getSelectedNode) { return; }
         this.$store.commit('setCopiedNode' , this.$store.getters.getSelectedNode)
-        this.$store.commit('setSelectedNode' , { id: ''})
+        this.$store.commit('setSelectedNode' , null)
       },
       pasteCopiedNode() {
         if (!this.$store.getters.getCopiedNode) { return; }
