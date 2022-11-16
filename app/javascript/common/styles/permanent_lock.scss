@@ -1,0 +1,21 @@
+.stamp {
+  transform: rotate(10deg);
+  color: #555;
+  font-size: 2rem;
+  font-weight: 700;
+  border: 0.25rem solid #555;
+  display: inline-block;
+  padding: 0.25rem 1rem;
+  text-transform: uppercase;
+  border-radius: 1rem;
+  font-family: 'Courier';
+  mix-blend-mode: multiply;
+}
+
+.is-nope {
+  color: #D23;
+  border: 0.5rem double #D23;
+  transform: rotate(3deg);
+  -webkit-mask-position: 2rem 3rem;
+  font-size: 1.3rem;
+}

@@ -72,7 +72,6 @@
   import DatePicker from 'vue2-datepicker';
   import 'vue2-datepicker/index.css';
   import Common from "../../mixins/common.js"
-  import moment from 'moment';
   export default {
     Name: "AddCalendarEventModal",
     props:['eventDates','showEvent'],

@@ -252,6 +252,8 @@ export default {
       isMsuiteSaved: true,
       exportLoading: false,
       disableToggle: false,
+      failed_password_attempts: Vue.prototype.$failed_password_attempts,
+      lockout_period: Vue.prototype.$lockout_period,
       password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
       isSaveMap: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.is_save)),
       dateFormate: { month: 'long', weekday: 'long', year: 'numeric', day: 'numeric' }
@@ -391,8 +393,11 @@ export default {
         .delete(`/msuite/${this.currentMindMap.unique_key}.json?password_check=${password}`)
         .then(res => {
           if (res.data.success) window.open("/", "_self")
-          if (!res.data.success && this.currentMindMap.password)
+          if (!res.data.success && this.currentMindMap.password) {
+            this.currentMindMap.failed_password_attempts = this.currentMindMap.failed_password_attempts + 1
+            this.$store.dispatch('updateMSuite', this.currentMindMap)
             this.$refs['errorModal'].open()
+          }
         })
         .catch(error => {
           console.log(error)
@@ -407,14 +412,17 @@ export default {
         .catch(error => {
           console.log(error)
         })
-    },
+      },
+      setHeaders(){
+        let data = new FormData()
+        let token = document.querySelector('meta[name="csrf-token"]').attributes['content'].value
+        data.append('unique_key', this.currentMindMap.unique_key)
+        data.append("authenticity_token", token)
+        return data
+      },
     isMsuiteEmpty() {
       if (this.isMsuiteSaved) {
-        let data = new FormData()
-        let token = document.querySelector('meta[name="csrf-token"]').attributes['content'].value;
-        data.append('unique_key', this.currentMindMap.unique_key);
-        data.append("authenticity_token", token);
-        navigator.sendBeacon('is_msuite_empty', data)
+        navigator.sendBeacon('is_msuite_empty', this.setHeaders())
       }
     },
     handleChangeIsMsuiteSaved() {

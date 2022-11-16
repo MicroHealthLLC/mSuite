@@ -1,6 +1,6 @@
 class Node < ApplicationRecord
   include ActiveModel::Dirty
-  include NodeConcern
+  include NodeConcern, EncryptionConcern, DecryptionConcern
   default_scope { order('position ASC') }
 
   belongs_to :mindmap, optional: true
@@ -11,19 +11,66 @@ class Node < ApplicationRecord
   belongs_to :parent, class_name: 'Node', foreign_key: 'parent_node', optional: true
 
   before_create :set_default_export_index, :create_notification
+  before_create :encrypt_attributes, if: :check_private?
   after_create :create_notification
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
+  before_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
+  validate :encrypted_title, if: :validate_private_treemap_condition
+
+  def decryption
+    return decrypt_mindmap_attr if self.mindmap.is_private?
+    self
+  end
+
+  def encrypt_attributes
+    encrypt_node
+  end
+  
+  def check_private?
+    return self.mindmap.is_private?
+  end
+
+  def set_position
+    if mindmap_id.present? && ( position.nil? ||  position == 0 )
+      self.position = self.mindmap.nodes.count + 1
+    end
+  end
+  
+  def set_children
+    if self.parent_node
+      node = Node.find_by_id(self.parent_node)
+      if node && node.mindmap.id != self.mindmap.id
+        self.mindmap_id = node.mindmap.id
+      end
+    end
+  end
 
   def create_notification
     create_worker(self) if self.mindmap.mm_type == 'calendar' || self.mindmap.mm_type == 'todo'
   end
 
+  def validate_private_treemap_condition
+    return self.mindmap.is_private? && self.mindmap.tree_map?
+  end
+
+  def encrypted_title
+    add_errors_to_title(EncryptionService.decrypt(self.title))
+  end
+
+  def add_errors_to_title(title)
+    nodes = self.nodes.map(&:decryption) unless nodes.empty?
+    return if nodes.nil?
+    nodes.each do |node|
+      errors.add :title, :unprocessable_entity, message: "not unique" if node[:title] == title
+    end
+  end
+
   def validate_title
-    return self.mindmap && self.mindmap.id != nil && self.mindmap.mm_type == "tree_map"
+    return self.mindmap && self.mindmap.id != nil && self.mindmap.mm_type == "tree_map" && !self.mindmap.is_private?
   end
 
   def validate_kanban
@@ -34,10 +81,14 @@ class Node < ApplicationRecord
     parent = ''
     if self.parent_node == 0 || self.parent_node == nil
       parent = Mindmap.find_by_id(self.mindmap_id)&.name
+      parent = EncryptionService.decrypt(parent) if self.mindmap.is_private?
     else
       parent = Node.find_by_id(self.parent_node)&.title
+      parent = EncryptionService.decrypt(parent) if self.mindmap.is_private?
     end
-    self.as_json.merge(status: stage.try(:title), parent: parent).as_json
+    status = stage.try(:title)
+    status = EncryptionService.decrypt(status) if status && self.mindmap.is_private?
+    self.as_json.merge(status: status, parent: parent).as_json
   end
 
   def parent_changed
@@ -120,10 +171,10 @@ class Node < ApplicationRecord
       stage_previous.nodes.where("position > ?", self.position_was).update_all("position = position - 1")
       self.stage.nodes.where("position >= ?", position).where.not(id: id).update_all("position = position + 1")
 
-    elsif self.position > self.position_was
+    elsif self.stage_id && self.position > self.position_was
       self.stage.nodes.where("position <= ?", position).where.not(id: id).where.not("position < ?", position_was).update_all("position = position - 1")
 
-    elsif  self.position < self.position_was
+    elsif self.stage_id && self.position < self.position_was
       self.stage.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
 
     end

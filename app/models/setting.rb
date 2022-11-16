@@ -1,12 +1,16 @@
 class Setting < ApplicationRecord
 
+  validates :failed_password_attempts, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :lockout_period, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :permanent_lock, numericality: { only_integer: true, greater_than_or_equal_to: 5 }
+
   cattr_accessor :available_settings
   self.available_settings ||= {}
 
   def self.[](name)
     unless available_settings[name]["cached"].blank? || available_settings[name]["cached"].nil?
       return available_settings[name]["cached"]
-    end
+  end
     available_settings[name]["default"]
   rescue
   end
@@ -19,6 +23,7 @@ class Setting < ApplicationRecord
   end
 
   begin
+    puts "*** Loading available settings ***"
     load_available_settings
   rescue ActiveRecord::NoDatabaseError
   rescue => e
