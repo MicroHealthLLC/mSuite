@@ -70,7 +70,8 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" group="people" @change="(e) => handleEnd(e, sortedChildTodos)">
+      <draggable class="list-group" :list="sortedChildTodos" @change="(e) => handleEnd(e, sortedChildTodos)" group="people" @start="drag = true" @end="drag = false" v-bind="dragOptions">
+        <transition-group type="transition" :name="!drag ? 'list' : null">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
             <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
@@ -136,6 +137,7 @@
             </div>
           </div>
         </b-list-group-item>
+      </transition-group>
       </draggable>
     </div>
   </div>
@@ -161,7 +163,8 @@
         fieldDisabled: false,
         editStatus: false,
         prevElement: null,
-        dropElement: null
+        dropElement: null,
+        drag: false
       }
     },
     methods:{
@@ -202,7 +205,8 @@
       let sortedArr = [];
       let auxArr = [];
       let arrSet = this.newSet(arr2);
-      for (let i = 0; i < arr2.length; i++) {
+      if (arr1 && arr2) {
+        for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
             arr1[j].position = i + 1
@@ -211,6 +215,7 @@
         }
       }
       return sortedArr
+    }
     },
     newSet(arr) {
       let arrSet = new Set();
@@ -228,7 +233,7 @@
       await this.$store.dispatch('updateMSuite', data)
         .then((result) => {
           console.log(result)
-          this.$parent.$parent.fetchToDos()
+            this.$parent.$parent.$parent.fetchToDos()
         }).catch((err) => {
           console.error(err);
         });
@@ -308,6 +313,13 @@
         } else {
           return this.node.children
         }
+      },
+      dragOptions() {
+        return {
+          animation: 200,
+          disabled: false,
+          ghostClass: "ghost"
+        };
       }
     },
     watch: {

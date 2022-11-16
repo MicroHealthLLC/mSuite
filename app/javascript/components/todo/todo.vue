@@ -21,59 +21,45 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable class="list-group" group="people" :list="sortedTodos" @change="(e) => handleEnd(e, sortedTodos)">
-                <div v-for="(todo) in sortedTodos" :key="todo.id">
-                  <todo-map 
-                    :node="todo" 
-                    :selectedTodo="selectedTodo" 
-                    :completedTasks="completedTasks"
-                    :editInProgress="editInProgress"
-                    :current-mind-map="currentMindMap"
-                    @updateTodo="updateTodo"
-                    @toggleChildModal="toggleChildModal"
-                    @toggleDeleteTodo="toggleDeleteTodo"
-                    @showInputField="showInputField"
-                    @blurEvent="blurEvent"
-                    @clearTodoEditObj="clearTodoEditObj"></todo-map>
-                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
-                    <div class="ml-1">
-                      <div class="relative flex h-full">
-                        <div class="container relative z-20 max-w-xl mt-20 h-min">
-                          <b-form @submit.prevent="addChildTodo()">
-                            <b-row>
-                              <b-col cols="5" sm="5">
-                                <b-form-input
-                                  :class="fieldDisabled ? 'shake': ''"
-                                  v-model="todoChildData.title"
-                                  ref="title"
-                                  type="text"
-                                  :placeholder="'Add subtask for ' + todo.name"
-                                >
-                                </b-form-input>
-                              </b-col>
-                              <b-col cols="5" sm="5">
-                                  <date-picker
-                                    id="input"
-                                    class="w-75"
-                                    v-model='todoChildData.date'
-                                    placeholder="Due Date"
-                                    :format="format"
-                                    ref="datePicker"
-                                    ></date-picker>
-                              </b-col>
-                              <b-col cols="2" sm="2" class="d-flex flex-row">
-                                <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                                <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-ban"></i></b-button>
-                              </b-col>
-                            </b-row>
-                          </b-form>
+                <draggable class="list-group" group="people" :list="sortedTodos" :move="checkMove"
+                  @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false" v-bind="dragOptions">
+                  <transition-group type="transition" :name="!drag ? 'list' : null">
+                    <div v-for="(todo) in sortedTodos" :key="todo.id">
+                      <todo-map :node="todo" :selectedTodo="selectedTodo" :completedTasks="completedTasks"
+                        :editInProgress="editInProgress" :current-mind-map="currentMindMap" @updateTodo="updateTodo"
+                        @toggleChildModal="toggleChildModal" @toggleDeleteTodo="toggleDeleteTodo" @showInputField="showInputField"
+                        @blurEvent="blurEvent" @clearTodoEditObj="clearTodoEditObj"></todo-map>
+                      <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
+                        <div class="ml-1">
+                          <div class="relative flex h-full">
+                            <div class="container relative z-20 max-w-xl mt-20 h-min">
+                              <b-form @submit.prevent="addChildTodo()">
+                                <b-row>
+                                  <b-col cols="5" sm="5">
+                                    <b-form-input :class="fieldDisabled ? 'shake': ''" v-model="todoChildData.title" ref="title"
+                                      type="text" :placeholder="'Add subtask for ' + todo.name">
+                                    </b-form-input>
+                                  </b-col>
+                                  <b-col cols="5" sm="5">
+                                    <date-picker id="input" class="w-75" v-model='todoChildData.date' placeholder="Due Date"
+                                      :format="format" ref="datePicker"></date-picker>
+                                  </b-col>
+                                  <b-col cols="2" sm="2" class="d-flex flex-row">
+                                    <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
+                                        class="fas fa-save"></i> </b-button>
+                                    <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj">
+                                      <i class="fas fa-ban"></i></b-button>
+                                  </b-col>
+                                </b-row>
+                              </b-form>
+                            </div>
+                            <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
+                          </div>
                         </div>
-                        <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
-                      </div>
+                      </b-list-group-item>
                     </div>
-                  </b-list-group-item>
-                </div>
-              </draggable>
+                  </transition-group>
+                </draggable>
               </b-list-group>
               <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
                 <div class="relative flex h-full">
@@ -168,6 +154,7 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
+        drag: false
       }
     },
     components: {
@@ -179,11 +166,13 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
+          //console.log(data)
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
           } else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id ) {
             this.$store.commit('setMSuite', data.mindmap)
+            this.fetchToDos()
           }else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
               location.reload()
@@ -225,10 +214,16 @@
         }
       }
     },
+    checkMove(e) {
+      /* console.log(e)
+      console.log(e.draggedContext.element.name)
+      console.log(e.relatedContext.element.name) */
+    },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
       let auxArr = [];
-      for (let i = 0; i < arr2.length; i++) {
+      if (arr1 && arr2) {
+        for (let i = 0; i < arr2.length; i++) {
         for (let j = 0; j < arr1.length; j++) {
           if (arr1[j].id === arr2[i]) {
             arr1[j].position = i + 1
@@ -237,6 +232,7 @@
         }
       }
       return sortedArr
+    }
     },
     async reorderTodo(list) {
       let data = {
@@ -552,6 +548,13 @@
         } else {
           return this.myTodos
         }
+      },
+      dragOptions() {
+        return {
+          animation: 200,
+          disabled: false,
+          ghostClass: "ghost"
+        };
       }
     },
     mounted() {
