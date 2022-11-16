@@ -44,8 +44,17 @@ jQuery(function($) {
       },
       methods: {
         submitSettings() {
-          $.post("/api/settings.json", { settings: this.settings }, (data) => {
-            window.location.href = "/admin/settings";
+          $.ajax({
+            type: "POST",
+            url: "/api/settings.json",
+            data: { settings: this.settings },
+            success: function(msg){
+              alert( "Data Saved");
+              window.location.href = "/admin/settings";
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+              alert(XMLHttpRequest.responseJSON.join('\n'))
+            }
           });
         },
         fetchSettings() {
@@ -54,7 +63,9 @@ jQuery(function($) {
               this.settings[key] = data[key];
             }
             this.loading = false;
-          });
+          }).fail(function() {
+            alert("Error fetching settings")
+          })
         }
       },
       template: `<div>

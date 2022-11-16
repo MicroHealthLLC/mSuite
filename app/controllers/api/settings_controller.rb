@@ -10,7 +10,7 @@ class Api::SettingsController < AuthenticatedController
     if @settings.update(setting_params)
       render json: @settings
     else
-      render json: {}, status: 422
+      render json: @settings.errors.full_messages, status: 422
     end
   end
 
