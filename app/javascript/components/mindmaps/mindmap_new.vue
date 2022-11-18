@@ -601,10 +601,8 @@
         this.sendLocals(true)
       },
       nullifyFlags() {
-        this.$store.commit('setSelectedNode' , { id: ''})
         this.dragging     = false
         this.draggingNode = false
-        this.$store.commit('setCopiedNode' , null)
         this.editingNode  = null
       },
       // =============== STYLING OPERATIONS =====================
@@ -625,7 +623,6 @@
       copySelectedNode() {
         if (!this.$store.getters.getSelectedNode) { return; }
         this.$store.commit('setCopiedNode' , this.$store.getters.getSelectedNode)
-        this.$store.commit('setSelectedNode' , null)
       },
       pasteCopiedNode() {
         if (!this.$store.getters.getCopiedNode) { return; }
@@ -744,7 +741,6 @@
           this.$store.dispatch('updateMSuite', formData)
           this.stopWatch      = true
           this.currentMindMap = this.$store.getters.getMsuite
-          this.$store.commit('setSelectedNode' , null)
           this.updateQuery()
         } else {
           http.post(`/msuite.json`, { mindmap: this.currentMindMap }).then((res) => {
@@ -752,7 +748,6 @@
             this.$store.commit('setMSuite', res.data.mindmap)
 
             this.currentMindMap = this.$store.getters.getMsuite
-            this.$store.commit('setSelectedNode' , null)
             this.updateQuery()
           }).catch((error) => {
             console.log(error)
