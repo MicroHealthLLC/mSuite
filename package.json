@@ -36,7 +36,7 @@
     "jspdf": "^2.5.0",
     "jspreadsheet-ce": "^4.11.1",
     "katex": "^0.16.2",
-    "loader-utils": "^2.0.3",
+    "loader-utils": "^2.0.4",
     "lodash": "^4.17.21",
     "minimatch": "^3.0.5",
     "moment": "^2.29.4",
