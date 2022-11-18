@@ -141,7 +141,7 @@
         this.$emit("isSave")
       },
       goHome () {
-        this.expireDate(this.expDaysInput)
+        // this.expireDate(this.expDaysInput)
         this.startingDays = this.expDaysInput
         this.is_save()
         //if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)

@@ -21,59 +21,45 @@
               height = "28"/>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable class="list-group" group="people" :list="sortedTodos">
-                <div v-for="(todo) in sortedTodos" :key="todo.id">
-                  <todo-map 
-                    :node="todo" 
-                    :selectedTodo="selectedTodo" 
-                    :completedTasks="completedTasks"
-                    :editInProgress="editInProgress"
-                    :current-mind-map="currentMindMap"
-                    @updateTodo="updateTodo"
-                    @toggleChildModal="toggleChildModal"
-                    @toggleDeleteTodo="toggleDeleteTodo"
-                    @showInputField="showInputField"
-                    @blurEvent="blurEvent"
-                    @clearTodoEditObj="clearTodoEditObj"></todo-map>
-                  <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
-                    <div class="ml-1">
-                      <div class="relative flex h-full">
-                        <div class="container relative z-20 max-w-xl mt-20 h-min">
-                          <b-form @submit.prevent="addChildTodo()">
-                            <b-row>
-                              <b-col cols="5" sm="5">
-                                <b-form-input
-                                  :class="fieldDisabled ? 'shake': ''"
-                                  v-model="todoChildData.title"
-                                  ref="title"
-                                  type="text"
-                                  :placeholder="'Add subtask for ' + todo.name"
-                                >
-                                </b-form-input>
-                              </b-col>
-                              <b-col cols="5" sm="5">
-                                  <date-picker
-                                    id="input"
-                                    class="w-75"
-                                    v-model='todoChildData.date'
-                                    placeholder="Due Date"
-                                    :format="format"
-                                    ref="datePicker"
-                                    ></date-picker>
-                              </b-col>
-                              <b-col cols="2" sm="2" class="d-flex flex-row">
-                                <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i class="fas fa-save"></i> </b-button>
-                                <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj"><i class="fas fa-ban"></i></b-button>
-                              </b-col>
-                            </b-row>
-                          </b-form>
+                <draggable class="list-group" group="people" :list="sortedTodos" :move="checkMove"
+                  @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false" v-bind="dragOptions">
+                  <transition-group type="transition" :name="!drag ? 'list' : null">
+                    <div v-for="(todo) in sortedTodos" :key="todo.id">
+                      <todo-map :node="todo" :selectedTodo="selectedTodo" :completedTasks="completedTasks"
+                        :editInProgress="editInProgress" :current-mind-map="currentMindMap" @updateTodo="updateTodo"
+                        @toggleChildModal="toggleChildModal" @toggleDeleteTodo="toggleDeleteTodo" @showInputField="showInputField"
+                        @blurEvent="blurEvent" @clearTodoEditObj="clearTodoEditObj"></todo-map>
+                      <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
+                        <div class="ml-1">
+                          <div class="relative flex h-full">
+                            <div class="container relative z-20 max-w-xl mt-20 h-min">
+                              <b-form @submit.prevent="addChildTodo()">
+                                <b-row>
+                                  <b-col cols="5" sm="5">
+                                    <b-form-input :class="fieldDisabled ? 'shake': ''" v-model="todoChildData.title" ref="title"
+                                      type="text" :placeholder="'Add subtask for ' + todo.name">
+                                    </b-form-input>
+                                  </b-col>
+                                  <b-col cols="5" sm="5">
+                                    <date-picker id="input" class="w-75" v-model='todoChildData.date' placeholder="Due Date"
+                                      :format="format" ref="datePicker"></date-picker>
+                                  </b-col>
+                                  <b-col cols="2" sm="2" class="d-flex flex-row">
+                                    <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
+                                        class="fas fa-save"></i> </b-button>
+                                    <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary" @click="cancelChildObj">
+                                      <i class="fas fa-ban"></i></b-button>
+                                  </b-col>
+                                </b-row>
+                              </b-form>
+                            </div>
+                            <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
+                          </div>
                         </div>
-                        <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
-                      </div>
+                      </b-list-group-item>
                     </div>
-                  </b-list-group-item>
-                </div>
-              </draggable>
+                  </transition-group>
+                </draggable>
               </b-list-group>
               <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
                 <div class="relative flex h-full">
@@ -168,6 +154,7 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
+        drag: false
       }
     },
     components: {
@@ -179,11 +166,13 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
+          //console.log(data)
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
           } else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id ) {
             this.$store.commit('setMSuite', data.mindmap)
+            this.fetchToDos()
           }else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
               location.reload()
@@ -207,70 +196,120 @@
         }
       }
     },
-    methods: {
-      clearTodoObj() {
-        this.todo = {}
-        this.todoData = { title: null, date: null }
-        this.todoChildData = { title: null, date: null }
-      },
-      cancelChildObj() {
-        this.showChildModalTodo = false
-        this.clearTodoObj()
-      },
-      toggleChildModal(todo) {
-        this.todo = todo
-        this.todo_parent = todo.id
-        this.showChildModalTodo = true
-        this.sendLocals(true)
-      },
-      clearTodoEditObj() {
-        this.selectedTodo = {id: ''}
-        this.editInProgress = false
-        this.fetchToDos()
-        this.sendLocals(false)
-      },
-      async fetchToDos(){
-        let res = await this.$store.dispatch('getMSuite')
-        let response = this.$store.getters.getMsuite
-        this.$store.dispatch('setMindMapId', response.id)
-        this.defaultDeleteDays = response.defaultDeleteDays
-        this.deleteAfter = response.deleteAfter
-        this.expDays = response.expDays
-        this.$store.commit('SET_MSUITE', response)
-        this.todos = response.nodes
-        this.renderTodos()
-      },
-      renderTodos(){
-        let parent_nodes = []
-        let date = ''
-        this.todos.forEach((node) => {
-          if(node.parent_node == null){
-            parent_nodes.push(node)
+  methods: {
+    async handleEnd(e, list) {
+      if (!e.removed) {
+        let newIdList = list.map(i => i.id)
+        let nodes = this.$store.getters.getMsuite.nodes
+        let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+        if (e.moved) {
+          this.reorderTodo(sortedTodoArr)
+        } else if (e.added) {
+          let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
+          sortedTodoArr.forEach(n => {
+            if (n.id == e.added.element.id)
+              n.parent_node = otherNode.parent_node
+          })
+          this.reorderTodo(sortedTodoArr)
+        }
+      }
+    },
+    checkMove(e) {
+      /* console.log(e)
+      console.log(e.draggedContext.element.name)
+      console.log(e.relatedContext.element.name) */
+    },
+    relativeSortArray(arr1, arr2) {
+      let sortedArr = [];
+      let auxArr = [];
+      if (arr1 && arr2) {
+        for (let i = 0; i < arr2.length; i++) {
+        for (let j = 0; j < arr1.length; j++) {
+          if (arr1[j].id === arr2[i]) {
+            arr1[j].position = i + 1
+            sortedArr.push(arr1[j]);
           }
-        })
-        parent_nodes = parent_nodes.map((node, index) => {
-          if(node.duedate != null){
-            date = node.duedate.slice(0, 10)
-          } else {
-            date = node.duedate
-          }
-          return {
-            name: node.title,
-            id: node.id,
-            is_disabled: node.is_disabled,
-            counter: 0,
-            duedate: date,
-            children: []
-          }
-        })
-        this.getChildNode(parent_nodes)
-      },
+        }
+      }
+      return sortedArr
+    }
+    },
+    async reorderTodo(list) {
+      let data = {
+        mindmap: {
+          nodes: list
+        }
+      }
+      await this.$store.dispatch('updateMSuite', data)
+        .then((result) => {
+          this.fetchToDos()
+        }).catch((err) => {
+          console.error(err);
+        });
+    },
+    clearTodoObj() {
+      this.todo = {}
+      this.todoData = { title: null, date: null }
+      this.todoChildData = { title: null, date: null }
+    },
+    cancelChildObj() {
+      this.showChildModalTodo = false
+      this.clearTodoObj()
+    },
+    toggleChildModal(todo) {
+      this.todo = todo
+      this.todo_parent = todo.id
+      this.showChildModalTodo = true
+      this.sendLocals(true)
+    },
+    clearTodoEditObj() {
+      this.selectedTodo = { id: '' }
+      this.editInProgress = false
+      this.fetchToDos()
+      this.sendLocals(false)
+    },
+    async fetchToDos() {
+      let res = await this.$store.dispatch('getMSuite')
+      let response = this.$store.getters.getMsuite
+      this.$store.dispatch('setMindMapId', response.id)
+      this.defaultDeleteDays = response.defaultDeleteDays
+      this.deleteAfter = response.deleteAfter
+      this.expDays = response.expDays
+      this.$store.commit('SET_MSUITE', response)
+      this.todos = response.nodes
+      this.renderTodos()
+    },
+    renderTodos() {
+      let parent_nodes = []
+      let date = ''
+      this.todos.forEach((node) => {
+        if (node.parent_node == null) {
+          parent_nodes.push(node)
+        }
+      })
+      parent_nodes = parent_nodes.map((node, index) => {
+        if (node.duedate != null) {
+          date = node.duedate.slice(0, 10)
+        } else {
+          date = node.duedate
+        }
+        return {
+          name: node.title,
+          id: node.id,
+          is_disabled: node.is_disabled,
+          counter: 0,
+          duedate: date,
+          children: []
+        }
+      })
+      this.getChildNode(parent_nodes)
+    },
       getChildNode(parent_nodes){
         let childNodes = []
         let date = ''
         this.todos.forEach((node) => {
           if(node.duedate != null){
-            date = node.duedate.slice(0, 10)
+            date = new Date(node.duedate).toLocaleDateString("en-US")
           } else {
             date = node.duedate
           }
@@ -305,7 +344,7 @@
           }, 1500)
           return
         }
-        if(this.todoData.date) this.todoData.date = this.getTimeZone(this.todoData.date)
+        if(this.todoData.date) this.todoData.date = moment(this.todoData.date)._d
         let data = {
           node: {
               title: this.todoData.title,
@@ -338,7 +377,7 @@
           }, 1500)
           return
         }
-        if(this.todoChildData.date) this.todoChildData.date = this.getTimeZone(this.todoChildData.date)
+        if(this.todoChildData.date) this.todoChildData.date = moment(this.todoChildData.date)._d
 
         let data = {
           node: {
@@ -373,7 +412,7 @@
           return
         }
         if(this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
-          this.selectedTodo.duedate = this.getTimeZone(this.selectedTodo.duedate)
+          this.selectedTodo.duedate = moment(this.selectedTodo.duedate)._d
         }
         todo.title = title
         todo.is_disabled = completed
@@ -400,7 +439,6 @@
         } else {
           this.undoNodes.push({'req': 'addNode', node: todo})
         }
-
         this.updateTodoUser()
         http.put(`/nodes/${todo.id}`, todo)
         this.selectedTodo = {id: ''}
@@ -510,6 +548,13 @@
         } else {
           return this.myTodos
         }
+      },
+      dragOptions() {
+        return {
+          animation: 200,
+          disabled: false,
+          ghostClass: "ghost"
+        };
       }
     },
     mounted() {
@@ -533,6 +578,7 @@
         handler(value) {
           this.currentMindMap = value
           this.todos = value.nodes
+          //this.fetchToDos()
         }, deep: true
       },
     }

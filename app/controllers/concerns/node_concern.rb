@@ -26,7 +26,7 @@ module NodeConcern
         end
         if is_disabled.uniq.count == 1
           parent_node.update(is_disabled: is_disabled.include?(true))
-        else is_disabled.uniq.count == 2
+        elsif is_disabled.uniq.count == 2
           parent_node.update(is_disabled: false)
         end
       else
@@ -60,6 +60,13 @@ module NodeConcern
     else
       SendEventWorker.perform_at(get_time(node) , node.id)
     end
+  end
+
+  def duplicate_child_nodes
+    @node.duplicate_attributes(params[:duplicate_child_nodes])
+    @node.duplicate_files(params[:duplicate_child_nodes])
+    dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
+    Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
   end
 
   def del_worker(node)

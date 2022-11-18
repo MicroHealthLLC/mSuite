@@ -86,7 +86,6 @@
 <script>
   import http from "../../../common/http"
   import TemporaryUser from "../../../mixins/temporary_user.js"
-  import moment from 'moment'
 
   export default {
     name: "Poll",

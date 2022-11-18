@@ -10,7 +10,7 @@ class Api::SettingsController < AuthenticatedController
     if @settings.update(setting_params)
       render json: @settings
     else
-      render json: {}, status: 422
+      render json: @settings.errors.full_messages, status: 422
     end
   end
 
@@ -35,6 +35,9 @@ class Api::SettingsController < AuthenticatedController
       :terms_url,
       :privacy_url,
       :about_url,
+      :failed_password_attempts,
+      :lockout_period,
+      :permanent_lock
     )
   end
 end
