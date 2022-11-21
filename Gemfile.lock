@@ -1,6 +1,5 @@
-GIT
-  remote: https://github.com/jcarbo/omniauth-office365.git
-  revision: 9260c66cb125cb0685ee4c65c8be2fe917f892a5
+PATH
+  remote: lib/omniauth-office365
   specs:
     omniauth-office365 (1.0.0)
       omniauth-oauth2 (~> 1.3.1)
@@ -113,7 +112,7 @@ GEM
     crass (1.0.6)
     deep_cloneable (3.2.0)
       activerecord (>= 3.1.0, < 8)
-    devise (4.7.3)
+    devise (4.8.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 4.1.0)
@@ -408,7 +407,7 @@ DEPENDENCIES
   cancancan
   coffee-rails (~> 4.2)
   deep_cloneable (~> 3.2.0)
-  devise (~> 4.7.1)
+  devise (= 4.8.1)
   dotenv-rails
   hiredis
   jbuilder (~> 2.5)
@@ -440,3 +439,4 @@ DEPENDENCIES
   webpush
 
 BUNDLED WITH
+   2.3.22
