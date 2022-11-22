@@ -289,7 +289,7 @@
       })
       parent_nodes = parent_nodes.map((node, index) => {
         if (node.duedate != null) {
-          date = node.duedate.slice(0, 10)
+          date = new Date(node.duedate).toLocaleDateString("en-US")
         } else {
           date = node.duedate
         }
@@ -417,6 +417,7 @@
         todo.title = title
         todo.is_disabled = completed
         todo.duedate = this.selectedTodo.duedate ? this.selectedTodo.duedate : todo.duedate
+        todo.duedate = moment(todo.duedate)._d
         todo.startdate = todo.duedate
         todo.hide_children = true
 

@@ -607,6 +607,10 @@
         el.addEventListener("mouseleave", function( event ){
           this.showEditEvent = false
         })
+      setTimeout(()=>{
+        let height = document.getElementById('nav').offsetHeight
+        document.getElementById('calendar').style.height = `calc(96vh - ${height}px)`
+      }, 100)
       this.undoMap(this.undoEvent)
       this.redoMap(this.redoEvent)
     },
