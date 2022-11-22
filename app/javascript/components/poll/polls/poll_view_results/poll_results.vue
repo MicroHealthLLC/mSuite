@@ -12,7 +12,7 @@
       </div>
       <span>Poll Expiration Date: {{ expirationDate }}</span>
       <div class="graphs overflow-auto">
-        <div class="mt-4" v-for="(results,index) in pollData.Questions">
+        <div class="mt-4" v-for="(results,index) in pollResults.Questions" :key="index">
           <h4>
             <strong>{{ index + 1 }}.&nbsp;</strong>
             <strong>{{ results.question }}</strong>
@@ -43,6 +43,7 @@
     props: ["pollData"],
     data() {
       return {
+        currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         pollData_questions: [],
         dataUpdated: false,
@@ -55,16 +56,22 @@
     },
     mounted: async function(){
       await this.getVoteData()
-      if(this.pollData.duedate) this.expirationDate = moment(new Date(this.pollData.duedate)).format('DD MMM YYYY')
+      if(this.pollResults.duedate) this.expirationDate = moment(new Date(this.pollResults.duedate)).format('DD MMM YYYY')
       else this.expirationDate = 'None'
       setTimeout(()=>{
         this.createResultData()
       },500)
     },
+    computed: {
+      pollResults() {
+        if (this.pollData.Questions) return this.pollData
+        else return this.pollData.pollData
+      }
+    },
     methods:{
       async getVoteData() {
         let _this = this
-        let response = await http.get(`/msuite/${this.pollData.url}.json`)
+        let response = await http.get(`/msuite/${this.currentMindMap.unique_key}.json`)
         if(response && response.data.mindmap && response.data.mindmap.canvas){
           _this.pollData = JSON.parse(response.data.mindmap.canvas)
           _this.loaded = true
@@ -78,7 +85,7 @@
       },
       createResultData(){
         let _this = this
-        this.pollData.Questions.forEach( (poll_question, index) => {
+        this.pollResults.Questions.forEach( (poll_question, index) => {
           var json = poll_question.answerField
           var fields = Object.keys(json[0])
           var replacer = function(key, value) { return value === null ? '' : value }

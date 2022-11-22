@@ -7,7 +7,7 @@
         :pollData="pollData"
         :graph_array="graph_array"
         :current-mind-map="currentMindMap"
-        :child_mindmap="child_mindmap"
+        :child-mindmap="childMindmap"
         @pollEditData="pollEditData"
         @updateVote="updateVote"></poll-view>
 
@@ -42,8 +42,7 @@
         currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         isReset: false,
-        pollEdit: false,
-        child_mindmap: false
+        pollEdit: false
       }
     },
     components: {
@@ -73,9 +72,6 @@
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
-          else if (data.message === "Vote Received" && this.currentMindMap.id === data.mindmap.id){
-            this.child_mindmap = true
-          }
         }
       }
     },
@@ -84,6 +80,9 @@
         if (JSON.parse(this.$store.getters.getMsuite.canvas) && this.$store.getters.getMsuite.canvas != '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}')
           return JSON.parse(this.$store.getters.getMsuite.canvas).pollData
         else return null
+      },
+      childMindmap() {
+        return this.pollData.Questions[0].voters.length > 0
       }
     },
     mounted: async function(){
@@ -113,16 +112,6 @@
       },
       pollEditData() {
         this.pollEdit = true
-      },
-      async getPollData(){
-        let _this = this
-        let response = await http.get(`/msuite/${this.pollData.url}.json`)
-        if(response && response.data.mindmap){
-          if(response.data.mindmap.canvas){
-            _this.pollData = JSON.parse(response.data.mindmap.canvas).pollData
-          }
-          if(JSON.parse(response.data.mindmap.canvas).Questions[0].voters.length > 0) _this.child_mindmap = true
-        }
       },
       exportXLS(option){
         if(this.pollData){
@@ -165,9 +154,8 @@
         if (this.pollData){
           if (this.pollData.Questions){
             let ques = this.pollData.Questions[0]
-              if(ques.question != '' && ques.answerField && ques.answerField[0].text != '' && ques.answerField[1].text != '') this.dataLoaded = true
+            if(ques.question != '' && ques.answerField && ques.answerField[0].text != '' && ques.answerField[1].text != '') this.dataLoaded = true
           }
-          if (this.pollData.url) this.getPollData()
         }
       },
       resetPoll(){

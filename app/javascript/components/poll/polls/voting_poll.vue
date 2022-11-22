@@ -75,7 +75,7 @@
       <section v-else class="container">
           <h4>
             <strong>
-              Your response has been recorded, Thanks for your Time.
+              {{ msg }}
             </strong>
           </h4>
       </section>
@@ -93,6 +93,7 @@
     data() {
       return {
         currentMindMap: this.$store.getters.getMsuite,
+        msg: 'Your response has been recorded, Thanks for your Time.',
         pollData: {},
         returnFun: false,
         checkDisable: false,
@@ -105,21 +106,21 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
-          if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
+          if ( (data.message === "Mindmap Deleted" || data.message === "Reset mindmap") && this.currentMindMap.parent_id === data.mindmap.id)
           {
             window.open('/','_self')
           }
-          else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
-            this.$store.commit('setMSuite', data.mindmap)
-            this.pollData = JSON.parse(data.mindmap.canvas)
+          else if (data.message === "Mindmap Updated" && this.currentMindMap.parent_id === data.mindmap.id){
+            this.pollData = JSON.parse(data.mindmap.canvas).pollData
+            this.voted()
           }
         }
       }
     },
-    mounted(){
+    mounted: async function(){
       if(this.currentMindMap) {
-        this.pollData = JSON.parse(this.currentMindMap.canvas)
-        this.subscribeCable(this.currentMindMap.id)
+        this.pollData = await JSON.parse(this.currentMindMap.parent.canvas).pollData
+        this.subscribeCable(this.currentMindMap.parent_id)
         this.$store.dispatch('setExportId', 'poll-vote')
         this.voted()
         this.pollData.Questions.forEach( question => {
@@ -186,12 +187,15 @@
             }
           }
         })
-        if (!this.returnFun && !this.errorTriggered && !this.loopBreaked ) {
-          let mindmap = {
-          mindmap: { canvas: JSON.stringify(this.pollData) }
+        if ( !this.returnFun && !this.errorTriggered && !this.loopBreaked){
+          let mycanvas = {
+            pollData  : this.pollData,
+            user      : this.$store.getters.getUser
           }
-          let id = this.currentMindMap.unique_key
-          this.$store.dispatch('updateMSuite', mindmap).then(res => {
+          mycanvas = JSON.stringify(mycanvas)
+          let mindmap = { mindmap: { canvas: mycanvas } }
+
+          http.patch(`/msuite/${this.currentMindMap.parent.unique_key}`, mindmap).then(res =>{
             _this.voted()
           })
         } else {
@@ -200,9 +204,13 @@
       },
       voted(){
         this.pollData.Questions.forEach( question => {
+          if (question.voters.length > 0){
             question.voters.forEach(voter => {
-            if(voter == this.$store.state.user_id) this.returnFun = true
-          })
+              if(voter == this.$store.state.user_id) this.returnFun = true
+            })
+          } else {
+            this.returnFun = false
+          }
         })
         if (this.returnFun) {
           this.returnFun = true

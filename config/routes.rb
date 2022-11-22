@@ -15,7 +15,6 @@ Rails.application.routes.draw do
     end
   end
 
-  put 'msuite/destroy_nodes' => 'mindmaps#destroy_nodes'
   get 'msuite/list_all_maps' => 'mindmaps#list_all_maps'
   get 'nodes/hide_children' => 'nodes#hide_children'
   get 'error_404' => 'home#page_404'
