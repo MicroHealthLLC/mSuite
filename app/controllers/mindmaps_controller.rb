@@ -116,7 +116,7 @@ class MindmapsController < AuthenticatedController
 
   def delete_empty_msuite
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
-    fetched_mindmap = fetched_mindmap.decrypt_attributes
+    fetched_mindmap = fetched_mindmap.decrypt_attributes if fetched_mindmap
     if check_msuite(fetched_mindmap)
       fetched_mindmap.destroy
       broadcast_actioncable(fetched_mindmap,'Mindmap Deleted')
