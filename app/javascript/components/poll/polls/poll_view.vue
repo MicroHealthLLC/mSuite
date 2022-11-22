@@ -57,7 +57,7 @@
         </el-button>
         <el-button
           round
-          v-if="!child_mindmap"
+          v-if="!childMindmap"
           type="warning"
           class="text-white ml-4 mt-4 py-2 px-3"
           @click="$emit('pollEditData')">
@@ -79,7 +79,7 @@
     </poll-results>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
       {{ errorMsg }}
-      <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="resetMindmap()">Reset Poll</button>
+      <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="resetPollVotes()">Reset Poll Votes</button>
       <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
       <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button>
     </sweet-modal>
@@ -92,7 +92,7 @@
 
   export default {
     name: "Poll",
-    props: ["pollData", "child_mindmap"],
+    props: ["pollData", "childMindmap"],
     data() {
       return {
         pollTitle: this.$store.getters.getMsuite.title,
@@ -147,17 +147,6 @@
         http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then((res) => {
           if(res.data.mindmap.id !== null)
           {
-            this.pollData.url       = res.data.mindmap.unique_key
-            this.pollData.child_id  = res.data.mindmap.id
-
-            let mycanvas = {
-              pollData  : this.pollData,
-              user      : this.$store.getters.getUser
-            }
-            mycanvas = JSON.stringify(mycanvas)
-            let mindmap = { mindmap: { canvas: mycanvas } }
-            this.$emit("updateVote", mindmap)
-
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
           }
         }).catch((error) => {
@@ -180,8 +169,20 @@
       tryAgain(){
         this.$refs['errorModal'].close()
       },
-      resetMindmap(){
-        this.$store.dispatch("resetMindmap")
+      resetPollVotes(){
+        this.pollData.Questions.forEach( data => {
+          data.voters = []
+          data.answerField.forEach( voters => {
+            voters.votes = []
+          })
+        })
+        let mycanvas = {
+          pollData  : this.pollData,
+          user      : this.$store.getters.getUser
+        }
+        mycanvas = JSON.stringify(mycanvas)
+        let mindmap = { mindmap: { canvas: mycanvas } }
+        this.$emit("updateVote", mindmap)
         this.$refs['errorModal'].close()
       },
       generateRandomURL(){

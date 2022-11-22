@@ -730,9 +730,6 @@
 
         this.sendLocals(false)
       },
-      deletAllNodes(nodes) {
-        http.put('/msuite/destroy_nodes.json', {nodes: nodes})
-      },
       // =============== Node CRUD OPERATIONS =====================
 
       // =============== Map CRUD OPERATIONS =====================
