@@ -253,7 +253,7 @@
       },
 
       sendKeys(subscription){
-        http.post(`/msuite/${this.$route.params.key}/sendkeys`, {
+        http.post(`/msuite/${this.$route.params.key}/sendkeys.json`, {
           subscription: subscription,
           message: 'Sending subscription'
         });
