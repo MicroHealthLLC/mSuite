@@ -236,6 +236,7 @@ module HistoryConcern
               node = Node.find(arrayNode[:id])
               current_mindmap_id = node[:mindmap_id]
             end
+            node.decryption
             deletedNodes.push(node.destroy())
           end
           nodeObj = ({
