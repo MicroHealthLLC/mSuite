@@ -89,6 +89,7 @@
 <script>
   import http from "../../../common/http"
   import PollResults from "./poll_view_results/poll_results"
+  import TemporaryUser from "../../../mixins/temporary_user.js"
 
   export default {
     name: "Poll",
@@ -110,6 +111,7 @@
         baseURL: window.location.origin
       };
     },
+    mixins: [TemporaryUser],
     components: {
       PollResults
     },
@@ -148,6 +150,7 @@
           if(res.data.mindmap.id !== null)
           {
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
+            _this.sendLocals()
           }
         }).catch((error) => {
           if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true

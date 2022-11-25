@@ -108,6 +108,7 @@
         http.patch(`/msuite/${id}.json`,data).then( res =>{
           _this.pollEdit = false
           _this.dataLoaded = true
+          _this.sendLocals()
         })
       },
       pollEditData() {
