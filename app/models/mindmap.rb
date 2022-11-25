@@ -15,7 +15,7 @@ class Mindmap < ApplicationRecord
 
   has_many_attached :node_files, dependent: :destroy
 
-  has_one :child, class_name: 'Mindmap', foreign_key: 'parent_id'
+  has_many :children, class_name: 'Mindmap', foreign_key: 'parent_id', dependent: :destroy
   belongs_to :parent, class_name: 'Mindmap', optional: true
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
@@ -56,7 +56,9 @@ class Mindmap < ApplicationRecord
   end
 
   def update_canvas
-    self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' unless self.is_private?
+    if check_mm_type
+      self.canvas = '{"version":"4.6.0","columns":[], "data":[], "style":{}, "width": []}' unless self.is_private?
+    end
   end
   
   def check_mm_type
@@ -66,6 +68,7 @@ class Mindmap < ApplicationRecord
   def to_json
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
+      parent: self.parent,
       editable: true
     ).as_json
   end
@@ -107,6 +110,7 @@ class Mindmap < ApplicationRecord
 
   def reset_mindmap
     self.nodes.destroy_all
+    self.children.destroy_all
     self.node_files.map(&:purge)
     self.assign_attributes(
       name: "Central Idea",

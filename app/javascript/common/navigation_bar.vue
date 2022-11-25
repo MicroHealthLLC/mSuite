@@ -149,7 +149,7 @@
         <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem;">
           <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
             v-b-tooltip.hover title="Status">
-            <div v-if="renderUserList && renderUserList.length > 0">
+            <div v-if="duplicateMap && renderUserList && renderUserList.length > 0">
               Editing by:
               <span v-for="user in renderUserList">
                 {{ user }},
@@ -157,7 +157,7 @@
             </div>
           </a>
           <a href="javascript:;" role="button" class="navbar_button d-flex text-info pointer mr-3 center_flex"
-            v-b-tooltip.hover title="Status" v-if="renderTemporaryUser">
+            v-b-tooltip.hover title="Status" v-if="duplicateMap && renderTemporaryUser">
             <span> Last Edited By {{ renderTemporaryUser }}</span>
           </a>
         </span>

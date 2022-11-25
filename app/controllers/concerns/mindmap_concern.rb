@@ -31,6 +31,12 @@ module MindmapConcern
       canvas = EncryptionService.decrypt(canvas) if @clone_msuite.is_private?
       poll = JSON.parse(canvas)
       poll['pollData']['url'] = ''
+      for data in poll['pollData']['Questions']
+        data['voters'] = []
+        for voters in data['answerField']
+          voters['votes'] = []
+        end
+      end
       poll = poll.to_json
       poll = EncryptionService.encrypt(poll) if @clone_msuite.is_private?
       poll

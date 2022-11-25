@@ -289,7 +289,7 @@
       })
       parent_nodes = parent_nodes.map((node, index) => {
         if (node.duedate != null) {
-          date = node.duedate.slice(0, 10)
+          date = new Date(node.duedate).toLocaleDateString("en-US")
         } else {
           date = node.duedate
         }
@@ -417,6 +417,7 @@
         todo.title = title
         todo.is_disabled = completed
         todo.duedate = this.selectedTodo.duedate ? this.selectedTodo.duedate : todo.duedate
+        todo.duedate = moment(todo.duedate)._d
         todo.startdate = todo.duedate
         todo.hide_children = true
 
@@ -425,12 +426,14 @@
             if(element['receivedData']){
               if(element['receivedData'].id === todo.id) {
               this.undoNodes[index]['receivedData'].title = todo.title
+              this.undoNodes[index]['receivedData'].startdate = todo.duedate
               this.undoNodes[index]['receivedData'].duedate = todo.duedate
               this.undoNodes[index]['receivedData'].is_disabled = completed
               }
             } else {
               if(element['node'].id === todo.id) {
               this.undoNodes[index]['node'].title = todo.title
+              this.undoNodes[index]['node'].startdate = todo.duedate
               this.undoNodes[index]['node'].duedate = todo.duedate
               this.undoNodes[index]['node'].is_disabled = completed
               }
@@ -456,10 +459,12 @@
               this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
             }
             if (!this.undoDone) {
+              let duedate = moment(todo.duedate)._d
               let myNode = {
                 id: todo.id,
                 title: todo.name,
-                duedate: todo.duedate,
+                startdate: duedate,
+                duedate: duedate,
                 mindmap_id: this.currentMindMap.id,
                 parent_node: todo.parent,
                 is_disabled: todo.is_disabled
