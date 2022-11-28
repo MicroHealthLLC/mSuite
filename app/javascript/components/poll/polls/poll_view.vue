@@ -144,9 +144,17 @@
       },
       createPollingMap() {
         let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then((res) => {
+        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then( async (res) => {
           if(res.data.mindmap.id !== null)
           {
+            this.pollData.url = res.data.mindmap.unique_key
+            let mycanvas = {
+              pollData  : this.pollData,
+              user      : this.$store.getters.getUser
+            }
+            mycanvas = JSON.stringify(mycanvas)
+            let mindmap = { mindmap: { canvas: mycanvas } }
+            await this.$store.dispatch('updateMSuite', mindmap)
             window.open(`/msuite/${res.data.mindmap.unique_key}`)
           }
         }).catch((error) => {
