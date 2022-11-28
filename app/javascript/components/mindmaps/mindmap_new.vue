@@ -287,11 +287,11 @@
       },
       nullifySlider() {
         this.isSlideDown  = false
-        this.$store.commit('setSelectedNode' , { id: ''})
+        this.$store.commit('setSelectedNode' ,null)
       },
       editNode(event, node) {
         this.editingNode  = node
-        this.$store.commit('setSelectedNode' , { id: ''})
+        this.$store.commit('setSelectedNode' ,null)
         this.dragging     = false
         this.draggingNode = false
         this.sendLocals(true)
@@ -398,7 +398,7 @@
             ctx.quadraticCurveTo(this.parent_x, (this.parent_y + this.currentPositionY)/2, this.currentPositionX, this.currentPositionY);
             ctx.stroke();
           }
-        } else if (this.draggingNode) {
+        } else if (this.draggingNode && this.$store.getters.getSelectedNode) {
           this.nodeUpdatedFlag = true
           let node = this.currentMindMap.nodes.findIndex((nod) => nod.id == this.$store.getters.getSelectedNode.id)
           if (event.touches){
@@ -442,7 +442,7 @@
             line_color : this.nodeColor,
             parent_node: this.nodeParent ? this.nodeParent.id : 0
           }
-          this.$store.commit('setSelectedNode' , { id: ''})
+          this.$store.commit('setSelectedNode' ,null)
           this.undoDone = false
           this.createNode(node)
           this.sendLocals(false)
@@ -608,7 +608,7 @@
         this.sendLocals(true)
       },
       nullifyFlags() {
-        this.$store.commit('setSelectedNode' , { id: ''})
+        this.$store.commit('setSelectedNode' ,null)
         this.dragging     = false
         this.draggingNode = false
         this.editingNode  = null

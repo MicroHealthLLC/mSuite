@@ -116,30 +116,30 @@
           </span>
           <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
             <span v-b-tooltip.hover title="Delete">
-              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
-                :class="{ button_disabled: !getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
+                :class="{ button_disabled: !checkSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
                 @click.stop="deleteSelectedNode">
                 <i class="material-icons delete_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Paste">
-              <a href="javascript:;" role="button" :disabled="(!getSelectedNode || !getCopiedNode)"
-                :class="{ button_disabled: (!getSelectedNode || !getCopiedNode) }"
+              <a href="javascript:;" role="button" :disabled="(!checkSelectedNode || !getCopiedNode)"
+                :class="{ button_disabled: (!checkSelectedNode || !getCopiedNode) }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="pasteCopiedNode">
                 <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Cut">
-              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
-                :class="{ button_disabled: !getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
+                :class="{ button_disabled: !checkSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="cutSelectedNode">
                 <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Copy" class="">
-              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
-                :class="{ button_disabled: !getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
+                :class="{ button_disabled: !checkSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="copySelectedNode">
                 <i class="material-icons copy_icon icons d-flex center_flex"></i>
               </a>
@@ -282,6 +282,10 @@ export default {
     CloneModal
   },
   computed: {
+    checkSelectedNode() {
+      if (this.$store.getters.getSelectedNode && this.$store.getters.getSelectedNode.id == "") this.getSelectedNode = null
+      else this.getSelectedNode = this.$store.getters.getSelectedNode
+    },
     currentMindMap() {
       return this.$store.getters.getMsuite
     },
@@ -468,7 +472,7 @@ export default {
       window.open("/", "_self")
     },
     resetMindmap() {
-      this.$store.commit('setSelectedNode', { id: '' })
+      this.$store.commit('setSelectedNode',null)
       this.$store.dispatch('resetMindmap')
     },
     exportToWord() {
