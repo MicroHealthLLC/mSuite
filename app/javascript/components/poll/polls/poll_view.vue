@@ -41,7 +41,8 @@
         </div>
       </div>
       <div class="my-4">
-        <el-button
+        <!-- <el-button
+        v-if="!childMindmap"
           round
           type="success"
           class="mt-4 py-2 px-3"
@@ -49,27 +50,27 @@
           LAUNCH POLL
         </el-button>
         <el-button
+          v-if="childMindmap"
           round
           type="primary"
           class="ml-4 mt-4 py-2 px-3"
           @click="showResult = !showResult">
           SHOW RESULTS
-        </el-button>
+        </el-button> -->
         <el-button
           round
-          v-if="!childMindmap"
           type="warning"
           class="text-white ml-4 mt-4 py-2 px-3"
           @click="$emit('pollEditData')">
-          EDIT
+          CLOSE
         </el-button>
-        <div class="mt-4" v-else>Poll URL:
+        <!-- <div class="mt-4" v-else>Poll URL:
           <span class="font-weight-bold">
             {{baseURL}}/msuite/{{pollData.url}}
           </span>
           <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(pollData.url)">
           </el-button>
-        </div>
+        </div> -->
       </div>
     </div>
     <poll-results
@@ -79,9 +80,9 @@
     </poll-results>
     <sweet-modal ref="errorModal" class="of_v" icon="error">
       {{ errorMsg }}
-      <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="resetPollVotes()">Reset Poll Votes</button>
+      <!-- <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="resetPollVotes()">Reset Poll Votes</button>
       <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
-      <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button>
+      <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button> -->
     </sweet-modal>
   </div>
 </template>
@@ -177,7 +178,7 @@
       tryAgain(){
         this.$refs['errorModal'].close()
       },
-      resetPollVotes(){
+      /* resetPollVotes(){
         this.pollData.Questions.forEach( data => {
           data.voters = []
           data.answerField.forEach( voters => {
@@ -192,7 +193,7 @@
         let mindmap = { mindmap: { canvas: mycanvas } }
         this.$emit("updateVote", mindmap)
         this.$refs['errorModal'].close()
-      },
+      }, */
       generateRandomURL(){
         this.pollData.url = "Central Idea"
         this.createPollingMap()

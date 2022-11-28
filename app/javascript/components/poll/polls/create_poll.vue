@@ -23,7 +23,7 @@
             </div>
             <el-row :gutter="10">
               <el-col :span="22">
-                <el-input autosize type="textarea" v-model="questions.question" @blur="saveData" :class="questions.question == '' && showError ? 'shake d-block border-red':''"
+                <el-input :disabled="disableFields" autosize type="textarea" v-model="questions.question" @blur="saveData" :class="questions.question == '' && showError ? 'shake d-block border-red':''"
                   placeholder="Type question here..." required>
                 </el-input>
               </el-col>
@@ -35,7 +35,7 @@
               ondragover="event.preventDefault();">
               <el-row :gutter="10" class="mt-2">
                 <el-col :span="22">
-                  <el-input :id="'answer' + index" type="input" @blur="saveData" v-model="answer.text"
+                  <el-input :disabled="disableFields" :id="'answer' + index" type="input" @blur="saveData" v-model="answer.text"
                     :class="(answer.text == '' || answer.text == undefined) && showError ? 'shake d-block border-red':''"
                     placeholder="Type answer here..." required>
                   </el-input>
@@ -52,13 +52,13 @@
             </el-button>
             <div class="mt-2 d-flex">
               <div>Allowed selectable options</div>
-              <el-input-number class="ml-2" size="mini" @change="saveData" v-model="questions.allowedAnswers" :min="1"
+              <el-input-number :disabled="disableFields" class="ml-2" size="mini" @change="saveData" v-model="questions.allowedAnswers" :min="1"
                 :max="questions.answerField.length"></el-input-number>
             </div>
           </div>
         </el-card>
       </div>
-      <el-button round class="mt-4 btn-color py-1" @click="addQuestion">
+      <el-button :disabled="disableFields" round class="mt-4 btn-color py-1" @click="addQuestion">
         Add Question
       </el-button>
       <div class="mt-4 mb-4">
@@ -82,7 +82,24 @@
           {{baseURL}}/msuite/{{poll.url}}
         </span>
         <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(poll.url)"></el-button>
+        <el-button
+        v-if="!disableFields"
+          round
+          type="success"
+          class="mt-4 py-2 px-3"
+          @click="publishMap">
+          LAUNCH POLL
+        </el-button>
+        <el-button
+          v-else
+          round
+          type="danger"
+          class="mt-4 py-2 px-3"
+          @click="resetPollVotes()">
+          RESET POLL VOTES
+        </el-button>
       </div>
+      <div>Votes Cast: {{pollData.Questions[0].voters ? pollData.Questions[0].voters.length : 0}}</div>
       <el-button round class="bg-dark text-light mt-2 py-2 px-3 float-right"
         :class="createPermit ? 'cursor-disabled':''" :disabled="createPermit" @click="createPin()">
         PREVIEW
@@ -90,6 +107,12 @@
     </div>
     <sweet-modal ref="saved_success" class="of_v" icon="success">
       Poll Saved Successfully
+    </sweet-modal>
+    <sweet-modal ref="errorModal" class="of_v" icon="error">
+      {{ errorMsg }}
+      <!-- <button v-if="mindmapExists" slot="button" class="btn btn-secondary mr-2" @click="resetPollVotes()">Reset Poll Votes</button>
+      <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
+      <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button> -->
     </sweet-modal>
   </div>
 </template>
@@ -100,7 +123,7 @@ import DatePicker from 'vue2-datepicker'
 import TemporaryUser from "../../../mixins/temporary_user.js"
 
 export default {
-  props: ["pollData", "currentMindMap"],
+  props: ["pollData", "currentMindMap", "pollEdit"],
   data() {
     return {
       poll: {
@@ -119,6 +142,7 @@ export default {
         url: ''
       },
       showError: false,
+      errorMsg: null,
       format: 'MM/DD/YYYY',
       q_position: null,
       a_position: null,
@@ -134,6 +158,11 @@ export default {
   computed: {
     duedate() {
       return moment(new Date(this.poll.duedate)).format('MM/DD/YYYY')
+    },
+    disableFields() {
+      if (this.pollData && this.pollData.Questions[0].voters.length == 0) {
+        return false
+      } else return true
     }
   },
   mounted() {
@@ -142,17 +171,78 @@ export default {
       this.poll = this.pollData
     }
     this.pollUrl()
+    console.log(this.pollData)
   },
   watch: {
     pollData: {
       handler(value) {
         if (value != null) this.poll = value
         if(this.poll.url == '') this.pollUrl()
+        console.log(this.poll)
       }
     }
   },
   methods: {
+    publishMap() {
+      if (this.checkAllFields()) {
+        this.showError = true
+        this.result_data = []
+        setTimeout(() => {
+          this.showError = false
+        }, 2500)
+        return
+      }
+      this.createPollingMap()
+    },
+    createPollingMap() {
+        let _this = this
+        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then( async (res) => {
+          if(res.data.mindmap.id !== null)
+          {
+            this.pollData.url = res.data.mindmap.unique_key
+            let mycanvas = {
+              pollData  : this.pollData,
+              user      : this.$store.getters.getUser
+            }
+            mycanvas = JSON.stringify(mycanvas)
+            let mindmap = { mindmap: { canvas: mycanvas } }
+            await this.$store.dispatch('updateMSuite', mindmap)
+            this.mindmapExists = true
+            alert("Poll Launched and copying link to clipboard")
+            this.copy(res.data.mindmap.unique_key)
+            this.$emit('pollEditData', true)
+            //window.open(`/msuite/${res.data.mindmap.unique_key}`)
+          }
+        }).catch((error) => {
+          console.log(error.response.data)
+          if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
+          _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
+          /* _this.selectedType = error.response.data.mindmap.mm_type
+          _this.uniqueKey = error.response.data.mindmap.unique_key
+          _this.oldMSuiteName = error.response.data.mindmap.name
+          _this.mindmapName = '' */
+          _this.$refs['errorModal'].open()
+        })
+      },
+      resetPollVotes(){
+        this.pollData.Questions.forEach( data => {
+          data.voters = []
+          data.answerField.forEach( voters => {
+            voters.votes = []
+          })
+        })
+        let mycanvas = {
+          pollData  : this.pollData,
+          user      : this.$store.getters.getUser
+        }
+        mycanvas = JSON.stringify(mycanvas)
+        let mindmap = { mindmap: { canvas: mycanvas } }
+        this.$emit("updateVote", mindmap)
+        this.$emit('pollEditData', true)
+        //this.$refs['errorModal'].close()
+      },
     copy(s) {
+      console.log(s)
       let newURL = `${this.baseURL}/msuite/${s}`
       navigator.clipboard.writeText(newURL)
         .then(() => {

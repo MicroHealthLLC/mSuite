@@ -13,8 +13,10 @@
 
       <create-poll
         v-else
+        :pollEdit="pollEdit"
         :pollData = "pollData"
         :current-mind-map="currentMindMap"
+        @pollEditData="pollEditData"
         @updateVote="updateVote">
       </create-poll>
       <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
