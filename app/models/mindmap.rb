@@ -40,10 +40,12 @@ class Mindmap < ApplicationRecord
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
   before_create :update_canvas, if: :check_mm_type
+  before_create :decrypt_attributes, if: :check_poll_vote
   before_update :encrypt_attributes, if: :check_private?
   before_update :decrypt_attributes, if: :check_is_before_private
   
   def decrypt_attributes
+    decrypt_msuite(self.parent) if check_poll_vote
     decrypt_msuite(self)
   end
   
@@ -53,6 +55,10 @@ class Mindmap < ApplicationRecord
 
   def check_private?
     return true if self.is_private? || self.changes[:is_save]
+  end
+
+  def check_poll_vote
+    return self.parent && self.parent.is_private?
   end
 
   def update_canvas
