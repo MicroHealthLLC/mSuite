@@ -6,7 +6,7 @@
       </div>
       <el-row>
         <el-col :span="22">
-          <el-input class="mt-2" type="textarea" autosize v-model="poll.description" @blur="saveData" placeholder="Add a description here...">
+          <el-input :disabled="disableFields" class="mt-2" type="textarea" autosize v-model="poll.description" @blur="saveData" placeholder="Add a description here...">
           </el-input>
         </el-col>
       </el-row>
@@ -15,7 +15,7 @@
         <el-card class="box-card mt-2 w-75">
           <div draggable="true" @dragstart="dragStartQuestion($event,index)" @drop="dragDropQuestion($event,index)"
             ondragover="event.preventDefault();">
-            <el-button v-if="index != 0" type="danger" class="float-right" icon="el-icon-minus" size="mini" circle v-b-tooltip.hover title="Remove Question"
+            <el-button :disabled="disableFields" v-if="index != 0" type="danger" class="float-right" icon="el-icon-minus" size="mini" circle v-b-tooltip.hover title="Remove Question"
               @click="deleteQuestion(index)">
             </el-button>
             <div class="d-flex mt-2">
@@ -41,13 +41,13 @@
                   </el-input>
                 </el-col>
                 <el-col :span="2">
-                  <el-button v-if="index > 1" type="danger" icon="el-icon-minus" size="mini" circle class="mt-1" v-b-tooltip.hover.right title="Remove Option"
+                  <el-button :disabled="disableFields" v-if="index > 1" type="danger" icon="el-icon-minus" size="mini" circle class="mt-1" v-b-tooltip.hover.right title="Remove Option"
                     @click="delAnswer(questions, answer, index)">
                   </el-button>
                 </el-col>
               </el-row>
             </div>
-            <el-button round class="btn-color mt-3 py-1" @click="addAnswersOpt(questions)">
+            <el-button :disabled="disableFields" round class="btn-color mt-3 py-1" @click="addAnswersOpt(questions)">
               Add Option
             </el-button>
             <div class="mt-2 d-flex">
@@ -83,7 +83,7 @@
         </span>
         <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(poll.url)"></el-button>
         <el-button
-        v-if="!disableFields"
+        v-if="!disableFields && !mindmapExists"
           round
           type="success"
           class="mt-4 py-2 px-3"
@@ -179,6 +179,7 @@ export default {
         if (value != null) this.poll = value
         if(this.poll.url == '') this.pollUrl()
         console.log(this.poll)
+        //console.log(this)
       }
     }
   },
@@ -195,10 +196,12 @@ export default {
       this.createPollingMap()
     },
     createPollingMap() {
+      console.log(this)
         let _this = this
         http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then( async (res) => {
           if(res.data.mindmap.id !== null)
           {
+            this.pollData.isPublished = true
             this.pollData.url = res.data.mindmap.unique_key
             let mycanvas = {
               pollData  : this.pollData,
