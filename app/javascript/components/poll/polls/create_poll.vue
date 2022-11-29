@@ -1,6 +1,7 @@
 <template>
   <div class="overflow-auto maxHeight">
-    <div v-if="!showResult" class="container">
+    <div class="container">
+      <div v-if="!showResult">
       <div class="d-flex">
         <h5>Poll Description&nbsp;</h5><span>(optional)</span>
       </div>
@@ -66,7 +67,7 @@
       <el-button :disabled="disableFields" round class="mt-4 btn-color py-1" @click="addQuestion">
         Add Question
       </el-button>
-      <div class="mt-4 mb-4">
+      <div class="mt-4 mb-2">
         <span>
           Poll End Date
         </span>
@@ -77,13 +78,13 @@
           v-b-tooltip.hover.right title="Clear Date">
         </el-button>
       </div>
-      <div class="mb-4">
+      <div class="mb-3">
         <span>
           Require User Names
         </span>
         <input id="input" type="checkbox" class="userCheck" @change="saveData" v-model='poll.userNameRequire' />
       </div>
-      <div class="mb-2">Poll URL:
+      <div class="mb-1">Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
           {{ baseURL }}/msuite/{{ poll.url }}
         </span>
@@ -93,7 +94,10 @@
           LAUNCH POLL
         </el-button>
       </div>
-      <div>
+      <span class="text-danger" v-if="isPollPublished">
+          Poll has been published. Please copy link above to share.
+      </span>
+      <div class="mt-3">
         <el-button v-if="disableFields" round type="primary"
           class="py-2 px-3" @click="showResult = !showResult">
           SHOW RESULTS
@@ -101,14 +105,11 @@
         <el-button v-if="disableFields" round type="danger" class="ml-4 py-2 px-3" @click="resetPollVotes()">
           RESET POLL VOTES
         </el-button>
-        <span v-if="isPollPublished">
-          Poll has been published. Please copy link above to share.
-        </span>
-        <span v-if="disableFields">Votes Cast:
+        <span class="ml-4" v-if="disableFields">Votes Cast:
           {{ pollData.Questions[0].voters.length }}
         </span>
       </div>
-      <el-button round class="bg-dark text-light mt-2 py-2 px-3 float-right"
+      <el-button round class="bg-dark text-light py-2 px-3 float-right"
         :class="createPermit ? 'cursor-disabled' : ''" :disabled="createPermit" @click="createPin()">
         PREVIEW
       </el-button>
@@ -124,6 +125,7 @@
                 <button slot="button" class="btn btn-secondary mr-2" @click="tryAgain()">Try Again</button>
                 <button slot="button" class="btn btn-info" @click="generateRandomURL()">Create Random URL</button> -->
     </sweet-modal>
+    </div>
   </div>
 </template>
 
@@ -228,7 +230,7 @@ export default {
           await this.$store.dispatch('updateMSuite', mindmap)
           //alert("Poll Launched and copying link to clipboard")
           _this.$refs['saved_success'].open()
-          this.copy(res.data.mindmap.unique_key)
+          this.copy(res.data.mindmap.unique_key, false)
           this.$emit('pollEditData', true)
           //window.open(`/msuite/${res.data.mindmap.unique_key}`)
         }
@@ -260,12 +262,14 @@ export default {
       this.$emit('pollEditData', true)
       //this.$refs['errorModal'].close()
     },
-    copy(s) {
+    copy(s, popup = true) {
       //console.log(s)
       let newURL = `${this.baseURL}/msuite/${s}`
       navigator.clipboard.writeText(newURL)
         .then(() => {
-          alert("Copied to clipboard")
+          if (popup) {
+            alert("Copied to clipboard")
+          }
         })
         .catch(() => {
           alert("Unable to copy")
@@ -309,6 +313,7 @@ export default {
       }
       mycanvas = JSON.stringify(mycanvas)
       let mindmap = { mindmap: { canvas: mycanvas } }
+      this.$emit("pollEditData", false)
       this.$emit("updateVote", mindmap)
     },
     delAnswer(questions, answer, index) {
