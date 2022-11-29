@@ -143,7 +143,7 @@
           JSON.parse(response.data.mindmap.canvas).Questions[0].voters.length > 0) return false
         else return true
       },
-      createPollingMap() {
+      /* createPollingMap() {
         let _this = this
         http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then( async (res) => {
           if(res.data.mindmap.id !== null)
@@ -167,7 +167,7 @@
           _this.mindmapName = ''
           _this.$refs['errorModal'].open()
         })
-      },
+      }, */
       checkDisabled(checked){
         this.ans_count = checked.preview_checked.length
       },
@@ -175,10 +175,10 @@
         if(event.target.checked) event.target.setAttribute("checked", "checked")
         else event.target.removeAttribute("checked")
       },
-      tryAgain(){
+      /*tryAgain(){
         this.$refs['errorModal'].close()
       },
-      /* resetPollVotes(){
+       resetPollVotes(){
         this.pollData.Questions.forEach( data => {
           data.voters = []
           data.answerField.forEach( voters => {
@@ -193,22 +193,12 @@
         let mindmap = { mindmap: { canvas: mycanvas } }
         this.$emit("updateVote", mindmap)
         this.$refs['errorModal'].close()
-      }, */
+      }, 
       generateRandomURL(){
         this.pollData.url = "Central Idea"
         this.createPollingMap()
         this.$refs['errorModal'].close()
-      },
-      copy(s) {
-      let newURL = `${this.baseURL}/msuite/${s}`
-      navigator.clipboard.writeText(newURL)
-        .then(() => {
-          alert("Copied to clipboard")
-        })
-        .catch(() => {
-          alert("Unable to copy")
-        })
-    },
+      },*/
     }
   };
 </script>
