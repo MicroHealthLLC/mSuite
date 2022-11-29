@@ -63,11 +63,15 @@
           @click="$emit('pollEditData')">
           EDIT
         </el-button>
-        <div class="mt-4" v-else>Poll URL:
+        <div
+          v-else-if="childMindmap && children.length > 0"
+          class="mt-4"
+          v-for="child in children"
+          :key="child.id">Poll URL:
           <span class="font-weight-bold">
-            {{baseURL}}/msuite/{{pollData.url}}
+            {{baseURL}}/msuite/{{child.unique_key}}
           </span>
-          <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(pollData.url)">
+          <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(child.unique_key)">
           </el-button>
         </div>
       </div>
@@ -92,7 +96,7 @@
 
   export default {
     name: "Poll",
-    props: ["pollData", "childMindmap"],
+    props: ["pollData", "childMindmap", "children"],
     data() {
       return {
         pollTitle: this.$store.getters.getMsuite.title,
@@ -145,7 +149,7 @@
       createPollingMap() {
         let _this = this
         http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then( async (res) => {
-          if(res.data.mindmap.id !== null)
+          if(res.data.mindmap.id != null)
           {
             this.pollData.url = res.data.mindmap.unique_key
             let mycanvas = {

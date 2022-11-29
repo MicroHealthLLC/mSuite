@@ -77,7 +77,13 @@
         </span>
         <input id="input" type="checkbox" class="userCheck" @change="saveData" v-model='poll.userNameRequire' />
       </div>
-      <div>Poll URL:
+      <div v-if="children.length > 0" v-for="child in children" :key="child.id">Poll URL:
+        <span id="pollURL" class="ml-2 pollURL">
+          {{baseURL}}/msuite/{{child.unique_key}}
+        </span>
+        <el-button class="ml-2" icon="el-icon-document-copy" size="small" circle v-b-tooltip.hover.right title="Copy Link" @click="copy(child.unique_key)"></el-button>
+      </div>
+      <div v-if="children.length <= 0">Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
           {{baseURL}}/msuite/{{poll.url}}
         </span>
@@ -100,7 +106,7 @@ import DatePicker from 'vue2-datepicker'
 import TemporaryUser from "../../../mixins/temporary_user.js"
 
 export default {
-  props: ["pollData", "currentMindMap"],
+  props: ["pollData", "currentMindMap", "children"],
   data() {
     return {
       poll: {
@@ -234,7 +240,7 @@ export default {
       }
     },
     pollUrl() {
-      if (this.poll.url == '') {
+      if (this.poll.url == '' && this.children.length < 1) {
         var url = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         for (var i = 0; i < 15; i++)

@@ -68,6 +68,7 @@ class Mindmap < ApplicationRecord
   def to_json
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
+      children: self.children.map(&:to_json),
       parent: self.parent,
       editable: true
     ).as_json

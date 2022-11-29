@@ -8,6 +8,7 @@
         :graph_array="graph_array"
         :current-mind-map="currentMindMap"
         :child-mindmap="childMindmap"
+        :children="children"
         @pollEditData="pollEditData"
         @updateVote="updateVote"></poll-view>
 
@@ -15,6 +16,7 @@
         v-else
         :pollData = "pollData"
         :current-mind-map="currentMindMap"
+        :children="children"
         @updateVote="updateVote">
       </create-poll>
       <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
@@ -42,7 +44,8 @@
         currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         isReset: false,
-        pollEdit: false
+        pollEdit: false,
+        children: []
       }
     },
     components: {
@@ -66,6 +69,7 @@
           else if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.$store.commit('setMSuite', data.mindmap)
             this.pollData = JSON.parse(data.mindmap.canvas).pollData
+            this.fetchMindmaps()
           }
           else if (data.message === "storage updated" && this.currentMindMap.id === data.content.mindmap_id){
             this.$store.dispatch('setUserEdit'     , data.content.userEdit)
@@ -90,6 +94,7 @@
         this.subscribeCable(this.currentMindMap.id)
         this.$store.dispatch('setExportId', 'poll')
         this.getData()
+        this.fetchMindmaps()
         if(this.dataLoaded) this.exportXLS(0)
       }
       if (this.currentMindMap.canvas == null ){
@@ -102,6 +107,12 @@
       this.exportDef(this.exportXLS)
     },
     methods: {
+      async fetchMindmaps(){
+        let res = await this.$store.dispatch('getMSuite')
+        let response = this.$store.getters.getMsuite
+        this.$store.dispatch('setMindMapId', response.id)
+        this.children = response.children
+      },
       updateVote(data){
         let _this = this
         let id = this.currentMindMap.unique_key
