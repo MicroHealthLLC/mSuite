@@ -106,12 +106,13 @@
         let _this = this
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,data).then( res =>{
-          _this.pollEdit = false
+          _this.pollEditData(false)
           _this.dataLoaded = true
         })
       },
-      pollEditData() {
-        this.pollEdit = true
+      pollEditData(val) {
+        if (val == false) this.pollEdit = false
+        else this.pollEdit = true
       },
       exportXLS(option){
         if(this.pollData){
@@ -159,7 +160,7 @@
         }
       },
       resetPoll(){
-        this.pollEdit = true
+        this.pollEditData(true)
         let data = {
           title: '',
           description: '',
@@ -175,13 +176,17 @@
           showResult: false,
           url: ''
         }
+        let mindmap = this.createMindmapCanvas(data)
+        this.$store.dispatch('updateMSuite', mindmap)
+      },
+      createMindmapCanvas(polling){
         let mycanvas = {
-          pollData  : data,
+          pollData  : polling,
           user      : this.$store.getters.getUser
         }
         mycanvas = JSON.stringify(mycanvas)
         let mindmap = { mindmap: { canvas: mycanvas } }
-        this.$store.dispatch('updateMSuite', mindmap)
+        return mindmap
       }
     },
   }
