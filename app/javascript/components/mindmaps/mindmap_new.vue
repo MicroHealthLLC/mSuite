@@ -604,7 +604,6 @@
         this.$store.commit('setSelectedNode' , { id: ''})
         this.dragging     = false
         this.draggingNode = false
-        this.$store.commit('setCopiedNode' , null)
         this.editingNode  = null
       },
       // =============== STYLING OPERATIONS =====================
@@ -729,9 +728,6 @@
         })
 
         this.sendLocals(false)
-      },
-      deletAllNodes(nodes) {
-        http.put('/msuite/destroy_nodes.json', {nodes: nodes})
       },
       // =============== Node CRUD OPERATIONS =====================
 

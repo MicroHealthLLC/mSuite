@@ -27,11 +27,11 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    update_parent_mindmap() if @mindmap.mm_type == 'pollvote'
-    @mindmap.update(mindmap_params)
-    @mindmap = @mindmap.decrypt_attributes
-    broadcast_actioncable(@mindmap,password_present?)
-    render json: render_mindmap(@mindmap,nil)
+    if @mindmap.update(mindmap_params)
+      @mindmap = @mindmap.decrypt_attributes
+      broadcast_actioncable(@mindmap,password_present?)
+      render json: render_mindmap(@mindmap,nil)
+    end
   end
 
   def show
@@ -46,17 +46,6 @@ class MindmapsController < AuthenticatedController
         format.json { render json: { error: 'The file you were working on was deleted by a user.' } }
         format.html { redirect_to error_404_path }
       end
-    end
-  end
-
-  def destroy_nodes
-    nodes = params[:nodes]
-    nodes.each do |nod|
-      Node.find(nod[:id]).destroy
-    end if nodes.present?
-    respond_to do |format|
-      format.json { render json: { success: true } }
-      format.html {}
     end
   end
 
@@ -104,7 +93,6 @@ class MindmapsController < AuthenticatedController
   end
 
   def destroy
-    del_child_mindmap()
     if check_for_password && @mindmap.destroy
       broadcast_actioncable(@mindmap,'Mindmap Deleted')
       respond_to do |format|
@@ -119,19 +107,6 @@ class MindmapsController < AuthenticatedController
     end
   end
 
-  def del_child_mindmap
-    if @mindmap.mm_type == 'poll' && @mindmap.child
-      @child_mind_map = @mindmap.child
-      if @child_mind_map && @child_mind_map.destroy
-        broadcast_actioncable(@child_mind_map,'Mindmap Deleted')
-      end
-    end
-  end
-
-  def update_parent_mindmap
-    broadcast_actioncable(@mindmap.parent,'Vote Received')
-  end
-
   def compute_child_nodes
     respond_to do |format|
       format.json { render json: { success: true, mindmap: @mindmap.compute_child } }
@@ -141,7 +116,7 @@ class MindmapsController < AuthenticatedController
 
   def delete_empty_msuite
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
-    fetched_mindmap = fetched_mindmap.decrypt_attributes
+    fetched_mindmap = fetched_mindmap.decrypt_attributes if fetched_mindmap
     if check_msuite(fetched_mindmap)
       fetched_mindmap.destroy
       broadcast_actioncable(fetched_mindmap,'Mindmap Deleted')

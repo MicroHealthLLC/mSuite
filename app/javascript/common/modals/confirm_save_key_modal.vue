@@ -101,7 +101,6 @@
           this.startingDays = this.expDaysInput
         }
       })
-      //this.expireDate(this.expDaysInput)
     },
     methods: {
       expireDate (val) {
@@ -120,9 +119,6 @@
           } else if (this.expDaysInput > this.defaultDeleteDays) {
             this.expDaysInput = this.defaultDeleteDays
           }
-          /* if (!this.currentMindMap.will_delete_at) {
-            this.currentMindMap.will_delete_at = this.expDaysInput
-          } */
         }
       },
       onOpen() {
@@ -131,9 +127,6 @@
           this.expDaysInput = this.startingDays
         }
       },
-      onClick() {
-        //this.expireDate(this.expDaysInput)
-      },
       updateInActiveDate () {
         this.$emit("updateInActiveDate", this.currentMindMap)
       },
@@ -141,26 +134,17 @@
         this.$emit("isSave")
       },
       goHome () {
-        // this.expireDate(this.expDaysInput)
+        this.expireDate(this.expDaysInput)
         this.startingDays = this.expDaysInput
         this.is_save()
-        //if(this.findTotalDaysBetweenDates() == this.expDays) this.expireDate(this.deleteAfter)
         this.$emit("changeIsMsuitSaved")
         if(this.isSaveMSuite) this.closeModal()
         else window.open("/", "_self")
       },
       changePrivacy () {
-        // this.expireDate(this.expDaysInput)
-        // this.startingDays = this.expDaysInput
         this.$emit("openPrivacy", this.isSaveMSuite)
       },
       openPrivacy () {
-        /* if (this.isSaveMap == null && this.findTotalDaysBetweenDates() == 5) {
-          this.expireDate(this.expDaysInput)
-        } */
-        /* this.expireDate(this.expDaysInput)
-        this.startingDays = this.expDaysInput */
-        console.log(this.isSaveMSuite)
         if (this.currentMindMap.password == null) {
           this.changePrivacy()
         } else {
