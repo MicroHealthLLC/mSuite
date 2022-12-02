@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 # ruby '2.6.1'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.1.5.1'
+gem 'rails', '7.0.4' #'6.1.6.1' #'~> 5.2.3'
 # Use postgresql as the database for Active Record
 # gem 'pg', '>= 0.18', '< 2.0'
 gem 'mysql2'
@@ -58,7 +58,7 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'dotenv-rails'
-gem 'devise', '~> 4.7.1'
+gem 'devise', '4.8.1' #, '~> 4.7.1'
 gem 'activeadmin'
 gem 'activeadmin_addons'
 gem 'cancancan'
@@ -68,3 +68,6 @@ gem 'serviceworker-rails'
 gem 'webpush'
 gem 'omniauth-rails_csrf_protection', '~> 0.1'
 gem 'deep_cloneable', '~> 3.2.0'
+
+# Upgrade to Rails 7 and Ruby 3.1 changes
+gem 'psych', '< 4'

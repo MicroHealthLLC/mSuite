@@ -77,7 +77,7 @@ class MindmapsController < AuthenticatedController
     unless undoNode.empty?
       myNode = undo_my_node(undoNode)
       if myNode
-        ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "undo mindmap", node: myNode
+        ActionCable.server.broadcast( "web_notifications_channel#{myNode[:mindmap_id]}", {message: "undo mindmap", node: myNode} )
         render json: { success: true, node: myNode }
       end
     end
@@ -87,7 +87,7 @@ class MindmapsController < AuthenticatedController
     redoNode = params[:redoNode]
     myNode = redo_my_node(redoNode)
     if myNode
-      ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "redo mindmap", node: myNode
+      ActionCable.server.broadcast( "web_notifications_channel#{myNode[:mindmap_id]}", { message: "redo mindmap", node: myNode} )
       render json: { success: true, node: myNode }
     end
   end

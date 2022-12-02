@@ -22,7 +22,7 @@ module MindmapConcern
   end
 
   def broadcast_actioncable(mindmap,message)
-    ActionCable.server.broadcast "web_notifications_channel#{mindmap.id}", message: message, mindmap: mindmap
+    ActionCable.server.broadcast("web_notifications_channel#{mindmap.id}", {message: message, mindmap: mindmap})
   end
   
   private
