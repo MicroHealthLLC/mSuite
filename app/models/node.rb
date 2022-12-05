@@ -62,7 +62,7 @@ class Node < ApplicationRecord
   end
 
   def add_errors_to_title(title)
-    nodes = self.nodes.map(&:decryption) unless nodes.empty?
+    nodes = self.mindmap.nodes.map(&:decryption) unless self.mindmap.nodes.empty?
     return if nodes.nil?
     nodes.each do |node|
       errors.add :title, :unprocessable_entity, message: "not unique" if node[:title] == title

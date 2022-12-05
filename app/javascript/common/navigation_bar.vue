@@ -46,7 +46,7 @@
               <i class="material-icons restore_icon icons d-flex center_flex"></i>
             </a>
           </span>
-          <span v-if="checkMSuiteTypes" class="d-flex flex-row-reverse">
+          <span class="d-flex flex-row-reverse">
             <a href="javascript:;" role="button" v-b-tooltip.hover title="Redo"
               class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="redoMindmap">
               <i class="fas fa-redo-alt"></i>
@@ -306,9 +306,6 @@ export default {
     expireDateTime() {
       let x = moment(new Date(this.$store.getters.getMsuite.will_delete_at)).add(1, 'days').format("ddd MMM Do, YYYY")
       return x
-    },
-    checkMSuiteTypes() {
-      return this.mm_type === 'kanban' || this.mm_type === 'tree_chart' || this.mm_type === 'flowmap' || this.mm_type === 'todo' || this.mm_type === 'tree_map' || this.mm_type === 'calendar'
     },
     renderTemporaryUser() {
       if (this.$store.state.userEdit && this.$store.state.temporaryUser) return this.$store.state.temporaryUser

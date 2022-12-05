@@ -15,7 +15,7 @@
         </div>
         <input-field
           v-for="node in currentNodes"
-          v-if="!node.is_disabled && !node.hide_self"
+          v-if="!node.is_disabled && !node.hide_self && node.parent"
           v-model="node.title"
           :key="`${node.id}`"
           :style="getNodeStyle(node)"
@@ -117,6 +117,8 @@
       cutSelNode: Function,
       copySelNode: Function,
       pasteNode: Function,
+      undoMap: Function,
+      redoMap: Function
     },
 
     data() {
@@ -160,6 +162,9 @@
         openVModal        : false,
         centralNotes      : "",
         descEditMode      : false,
+        undoNodes         : [],
+        redoNodes         : [],
+        undoDone          : false,
         editorOption      : {
           modules : {
             toolbar : [
@@ -437,6 +442,7 @@
             parent_node: this.nodeParent ? this.nodeParent.id : 0
           }
           this.$store.commit('setSelectedNode' , { id: ''})
+          this.undoDone = false
           this.createNode(node)
           this.sendLocals(false)
           // this.currentMindMap.nodes.push(node);
@@ -494,7 +500,7 @@
           let CI = this
           if(this.currentMindMap.nodes) {
             this.currentMindMap.nodes.forEach((nod) => {
-            if (nod.is_disabled || nod.hide_self) { return; }
+            if (nod.is_disabled || nod.hide_self || nod.parent == null) { return; }
             if (nod.line_color) {
               ctx.strokeStyle = nod.line_color
             }
@@ -699,6 +705,10 @@
         http.post('/nodes.json', {node: node}).then((res) => {
           this.getMindmap(this.currentMindMap.unique_key)
           this.$store.commit('setSelectedNode' , res.data.node)
+          if (!this.undoDone) {
+            let receivedData = res.data.node
+            this.undoNodes.push({'req': 'addNode', receivedData})
+          }
         }).catch((error) => {
           console.log(error)
         })
@@ -715,8 +725,14 @@
       deleteSelectedNode(is_cut=false) {
         if (!this.$store.getters.getSelectedNode || !this.$store.getters.getSelectedNode.id) { return; }
         let node_id = this.$store.getters.getSelectedNode.id
+        let myNode = this.$store.getters.getSelectedNode
         this.saveCurrentMap()
         http.delete(`/nodes/${node_id}.json`).then((res) => {
+          let receivedNodes = res.data.node
+          if(receivedNodes && receivedNodes.length > 0){
+            this.undoNodes.push({'req': 'deleteNode', receivedNodes})
+          }
+          this.undoNodes.push({'req': 'deleteNode', node: myNode})
           if (res.data.success) {
             this.$store.commit('setSelectedNode' , { id: ''})
             this.getMindmap(this.currentMindMap.unique_key)
@@ -1023,6 +1039,33 @@
 
         return size
       },
+      undoObj(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
+          .then((res) => {
+            this.undoNodes.pop()
+            let req = res.data.node.req
+            let node = res.data.node.node
+            this.redoNodes.push({req, node})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoObj(){
+        http
+          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
+          .then((res) => {
+            this.redoNodes.pop()
+            let req = res.data.node.req
+            let receivedData = res.data.node.node
+            this.undoNodes.push({req, receivedData})
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     },
 
     mounted() {
@@ -1043,6 +1086,8 @@
       this.cutSelNode(this.cutSelectedNode)
       this.copySelNode(this.copySelectedNode)
       this.pasteNode(this.pasteCopiedNode)
+      this.undoMap(this.undoObj)
+      this.redoMap(this.redoObj)
     },
 
     created(){
