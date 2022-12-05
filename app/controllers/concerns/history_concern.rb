@@ -329,4 +329,21 @@ module HistoryConcern
       end
     end
   end
+
+  def undo_my_mindmap(params)
+    my_canvas = params.pop()
+    my_canvas = params[params.length - 1]
+    if (my_canvas.is_a? String) == false && my_canvas[:mindmap]
+      my_canvas = my_canvas[:mindmap][:canvas]
+    elsif my_canvas.is_a? String
+      my_canvas
+    else
+      my_canvas = my_canvas.to_json
+    end
+    @mindmap.update(canvas: my_canvas)
+  end
+  def redo_my_mindmap(params)
+    my_canvas = params.pop()
+    @mindmap.update(canvas: my_canvas)
+  end
 end

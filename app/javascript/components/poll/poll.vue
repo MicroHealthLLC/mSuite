@@ -2,12 +2,14 @@
   <div class="poll-app">
     <div id="poll">
       <create-poll
-        v-if="pollEdit"
+        v-if="!pollEdit"
         :pollEdit="pollEdit"
         :pollData = "pollData"
         :current-mind-map="currentMindMap"
+        :undo-canvas="undoCanvas"
         @pollEditData="pollEditData"
-        @updateVote="updateVote">
+        @updateVote="updateVote"
+        @updateUndoCanvas="updateUndoCanvas">
       </create-poll>
       <poll-view
         class="mt-5"
@@ -19,7 +21,6 @@
         @pollEditData="pollEditData"
         @updateVote="updateVote">
       </poll-view>
-      
       <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
         Sorry, No Data Found
       </sweet-modal>
@@ -38,14 +39,18 @@
   import xlsExport from 'xlsexport'
   export default {
     props: {
-      exportDef : Function
+      exportDef : Function,
+      undoMap: Function,
+      redoMap: Function
     },
     data() {
       return {
         currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         isReset: false,
-        pollEdit: true
+        pollEdit: false,
+        undoCanvas: [],
+        redoCanvas: []
       }
     },
     components: {
@@ -102,6 +107,8 @@
       this.sendLocals(false)
       this.setUserOnMountC()
       this.getUserOnMount()
+      this.undoMap(this.undoObj)
+      this.redoMap(this.redoObj)
       this.exportDef(this.exportXLS)
       console.log(this.pollEdit)
     },
@@ -110,7 +117,7 @@
         let _this = this
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,data).then( res =>{
-          //_this.pollEditData(false)
+          _this.pollEditData(false)
           _this.dataLoaded = true
         })
       },
@@ -191,7 +198,34 @@
         mycanvas = JSON.stringify(mycanvas)
         let mindmap = { mindmap: { canvas: mycanvas } }
         return mindmap
-      }
+      },
+      updateUndoCanvas(mindmap){
+        this.undoCanvas.push(mindmap)
+      },
+      undoObj(){
+        this.undoDone = true
+        http
+          .post(`/msuite/${this.$store.getters.getMsuite.unique_key}/undo_mindmap.json`, { undoCanvas: this.undoCanvas })
+          .then((res) => {
+            let canvas = this.undoCanvas.pop()
+            if (typeof(canvas) == 'string') this.redoCanvas.push(canvas)
+            else this.redoCanvas.push(canvas.mindmap.canvas)
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
+      redoObj(){
+        http
+          .put(`/msuite/${this.$store.getters.getMsuite.unique_key}/redo_mindmap.json`, { redoCanvas: this.redoCanvas })
+          .then((res) => {
+            let canvas = this.redoCanvas.pop()
+            this.undoCanvas.push(canvas)
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      },
     },
   }
 </script>

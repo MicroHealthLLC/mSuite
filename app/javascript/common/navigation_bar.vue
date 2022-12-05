@@ -308,7 +308,7 @@ export default {
       return x
     },
     checkMSuiteTypes() {
-      return this.mm_type === 'kanban' || this.mm_type === 'tree_chart' || this.mm_type === 'flowmap' || this.mm_type === 'todo' || this.mm_type === 'tree_map' || this.mm_type === 'calendar'
+      return this.mm_type === 'kanban' || this.mm_type === 'tree_chart' || this.mm_type === 'flowmap' || this.mm_type === 'todo' || this.mm_type === 'tree_map' || this.mm_type === 'calendar' || this.mm_type === 'poll' || this.mm_type === 'whiteboard' || this.mm_type === 'spreadsheet' || this.mm_type === 'Notepad'
     },
     renderTemporaryUser() {
       if (this.$store.state.userEdit && this.$store.state.temporaryUser) return this.$store.state.temporaryUser

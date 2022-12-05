@@ -66,18 +66,6 @@
           </span>
           <span class="ml-1">Text</span>
         </div>
-        <div @click="redoCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
-          <span class="material-icons">
-            redo
-          </span>
-          <span class="ml-1">Redo</span>
-        </div>
-        <div @click="undoCanvas" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
-          <span class="material-icons">
-            undo
-          </span>
-          <span class="ml-1">Undo</span>
-        </div>
         <div @click="bringForward" class="rounded-0 pl-1 btn whiteboard-btns border pointer d-flex">
           <span class="material-icons">
             arrow_outward
@@ -123,7 +111,9 @@
     mixins: [Common, TemporaryUser],
     props: {
       resetBefore: Function,
-      saveBefore: Function
+      saveBefore: Function,
+      undoMap: Function,
+      redoMap: Function,
     },
     data() {
       return {
@@ -606,6 +596,8 @@
       this.getUserOnMount()
       this.resetBefore(this.beforeReset)
       this.saveBefore(this.beforeSave)
+      this.undoMap(this.undoCanvas)
+      this.redoMap(this.redoCanvas)
     },
   }
 </script>
