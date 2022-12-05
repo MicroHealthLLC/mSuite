@@ -289,7 +289,8 @@ export default {
       if (this.$store.state.userEdit && this.$store.state.userList.length > 0) return this.$store.state.userList
     },
     mSuiteTitle() {
-      return this.mSuiteName
+      if (this.mm_type == 'pollvote') return this.$store.getters.getMsuiteParent.title
+      else return this.mSuiteName
     },
     selectedNode(){
       return this.$store.getters.getSelectedNode
@@ -298,7 +299,7 @@ export default {
       return this.$store.getters.getCopiedNode
     },
     pollExpDate() {
-      let duedate = JSON.parse(this.currentMindMap.canvas).duedate
+      let duedate = JSON.parse(this.$store.getters.getMsuiteParent.canvas).pollData.duedate
       let pollDuedate = moment(new Date(duedate)).format('DD MMM YYYY')
       if (pollDuedate == 'Invalid date') pollDuedate = "Never"
       return pollDuedate

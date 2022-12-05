@@ -111,6 +111,7 @@
             window.open('/','_self')
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.parent_id === data.mindmap.id){
+            this.$store.commit('setMsuiteParent', data.mindmap)
             let poll = JSON.parse(data.mindmap.canvas).pollData
             this.voted(poll)
             if(!this.returnFun){
