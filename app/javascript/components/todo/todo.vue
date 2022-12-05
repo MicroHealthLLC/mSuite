@@ -186,8 +186,7 @@
           } else if (data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id) {
             this.$store.commit('setMSuite', data.mindmap)
             this.currentMindMap = data.mindmap
-            this.undoNodes = []
-            this.redoNodes = []
+            this.resetMindmap()
             this.fetchToDos()
           }
           else {
@@ -501,18 +500,10 @@
         }
       },
       resetMindmap() {
-        http
-          .get(`/msuite/${this.currentMindMap.unique_key}/reset_mindmap.json`)
-          .then((res) => {
-            this.currentMindMap.nodes = []
-            this.undoNodes = []
-            this.redoNodes = []
-            this.cancelChildObj()
-            this.completedTasks = false
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        this.undoNodes = []
+        this.redoNodes = []
+        this.cancelChildObj()
+        this.completedTasks = false
       },
       undoObj(){
         this.undoDone = true
