@@ -39,6 +39,7 @@ class Mindmap < ApplicationRecord
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
+  after_create  :decrypt_attributes, if: :check_private?
   before_create :update_canvas, if: :check_mm_type
   before_create :decrypt_attributes, if: :check_poll_vote
   before_update :encrypt_attributes, if: :check_private?
