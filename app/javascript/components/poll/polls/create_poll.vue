@@ -308,6 +308,7 @@ export default {
     },
     savePoll(request) {
       let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
+      this.$emit("pollEditData", false)
       this.$emit("updateVote", mindmap)
     },
     delAnswer(questions, answer, index) {
