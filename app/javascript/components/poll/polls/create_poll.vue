@@ -137,7 +137,7 @@ import PollResults from "./poll_view_results/poll_results"
 
 
 export default {
-  props: ["pollData", "currentMindMap", "pollEdit"],
+  props: ["pollData", "undoCanvas", "currentMindMap", "pollEdit"],
   data() {
     return {
       poll: {
@@ -307,13 +307,7 @@ export default {
       this.savePoll()
     },
     savePoll(request) {
-      let mycanvas = {
-        pollData: this.poll,
-        user: this.$store.getters.getUser
-      }
-      mycanvas = JSON.stringify(mycanvas)
-      let mindmap = { mindmap: { canvas: mycanvas } }
-      this.$emit("pollEditData", false)
+      let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
       this.$emit("updateVote", mindmap)
     },
     delAnswer(questions, answer, index) {
@@ -347,16 +341,18 @@ export default {
         this.saveData()
       }
     },
-    pollUrl() {
+    async pollUrl() {
+      let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
       if (this.poll.url == '') {
         var url = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         for (var i = 0; i < 15; i++)
           url += possible.charAt(Math.floor(Math.random() * possible.length));
         this.poll.url = url
-        let mindmap = this.createMindmapCanvas(null)
-        this.$store.dispatch('updateMSuite', mindmap)
+        mindmap = this.createMindmapCanvas(null)
+        await this.$store.dispatch('updateMSuite', mindmap)
       }
+      this.$emit('updateUndoCanvas',mindmap)
     },
     checkAllFields() {
       let _this = this
@@ -377,9 +373,12 @@ export default {
       });
       return result_value
     },
-    saveData() {
+    saveData(){
+      let _this = this
       let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
-      this.$store.dispatch('updateMSuite', mindmap)
+      this.$store.dispatch('updateMSuite', mindmap).then(res => {
+        _this.$emit('updateUndoCanvas',mindmap)
+      })
       this.sendLocals(false)
     },
     createMindmapCanvas(tUser) {

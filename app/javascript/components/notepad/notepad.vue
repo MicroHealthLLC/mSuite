@@ -23,7 +23,7 @@
         temporaryUser  : '',
       }
     },
-    props:['exportDoc'],
+    props:['exportDoc', 'undoMap', 'redoMap'],
     mixins: [TemporaryUser],
     channels: {
       WebNotificationsChannel: {
@@ -82,7 +82,6 @@
       createEditor(){
         this.qeditor = new Quill('#notepad', {
           modules:{
-            
             toolbar: [
               ['bold','italic','underline','strike'],
               ['blockquote','code-block'],
@@ -94,7 +93,12 @@
               [{'header': [1, 2, 3, 4, 5, 6, false] }],
               [{'color': [] }, {'background': [] }],
               [{'font': [] }],
-              [{ align:'' }, {'align': 'center'},{'align': 'right'},{'align': 'justify'}] ]
+              [{ align:'' }, {'align': 'center'},{'align': 'right'},{'align': 'justify'}] ],
+            history: {
+              delay: 1000,
+              maxStack: 500,
+              userOnly: true
+            }
           },
           theme: 'snow'
         });
@@ -207,6 +211,12 @@
           el.style.fontWeight = 'bold'
         });
       },
+      undoNotepad(){
+        this.qeditor.history.undo()
+      },
+      redoNotepad(){
+        this.qeditor.history.redo()
+      }
     },
     mounted: async function()  {
       this.subscribeCable(this.currentMindMap.id)
@@ -219,6 +229,8 @@
       this.qeditor.setContents(this.content)
       this.getUserOnMount()
       this.exportDoc(this.exportToDocument)
+      this.undoMap(this.undoNotepad)
+      this.redoMap(this.redoNotepad)
     },
     updated() {
       this.strongTagStyleBold()
