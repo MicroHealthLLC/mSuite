@@ -2,7 +2,7 @@
   <div class="poll-app">
     <div id="poll">
       <create-poll
-        v-if="!pollEdit"
+        v-if="pollEdit"
         :pollEdit="pollEdit"
         :pollData = "pollData"
         :current-mind-map="currentMindMap"
@@ -48,7 +48,7 @@
         currentMindMap: this.$store.getters.getMsuite,
         dataLoaded: false,
         isReset: false,
-        pollEdit: false,
+        pollEdit: true,
         undoCanvas: [],
         redoCanvas: []
       }
@@ -117,7 +117,7 @@
         let _this = this
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,data).then( res =>{
-          _this.pollEditData(false)
+          //_this.pollEditData(false)
           _this.dataLoaded = true
         })
       },
