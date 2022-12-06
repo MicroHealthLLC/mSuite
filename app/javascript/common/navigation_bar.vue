@@ -285,6 +285,7 @@ export default {
     checkSelectedNode() {
       if (this.$store.getters.getSelectedNode && this.$store.getters.getSelectedNode.id == "") this.getSelectedNode = null
       else this.getSelectedNode = this.$store.getters.getSelectedNode
+      return this.getSelectedNode
     },
     currentMindMap() {
       return this.$store.getters.getMsuite
