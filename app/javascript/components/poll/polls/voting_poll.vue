@@ -9,33 +9,33 @@
             All Questions require atleast one answer. Questions that allow more than one answer will have checkboxes, with the allowed selectable options indicated.
           </span>
         </div>
-        <div class="mt-3" v-for="(questions,index) in pollData.Questions">
+        <div class="mt-3" v-for="(question, index) in pollData.Questions">
           <h5>
-            {{ index + 1 }}. {{ questions.question }}
+            {{ index + 1 }}. {{ question.question }}
           </h5>
           <span
-            v-if="questions.allowedAnswers > 1"
+            v-if="question.allowedAnswers > 1"
             class="ml-4"
             :class="errorTriggered ? 'shake d-block border-danger':''">
-            Allowed selectable options: {{ questions.allowedAnswers }}
+            Allowed selectable options: {{ question.allowedAnswers }}
           </span>
-          <div class="mt-2 ml-4" v-for="(answers, index) in questions.answerField">
+          <div class="mt-2 ml-4" v-for="(answers, index) in question.answerField">
             <input
-              v-if="questions.allowedAnswers > 1"
+              v-if="question.allowedAnswers > 1"
               type="checkbox"
-              :name="questions.question"
+              :name="question.question"
               :value="answers"
-              v-model="questions.checked"
-              :disabled="questions.checked.length >= questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
-              @change="checkAnswers(questions.checked)"
+              v-model="question.checked"
+              :disabled="question.checked.length >= question.allowedAnswers && question.checked.indexOf(answers) == -1 ? true : false"
+              @change="checkAnswers(question.checked)"
               @click="checkCheckedAns($event)" />
             <input
               v-else
               type="radio"
-              :name="questions.question"
+              :name="question.question"
               :value="answers"
-              v-model="questions.checked"
-              @change="checkAnswers(questions.checked)"
+              v-model="question.checked"
+              @change="checkAnswers(question.checked)"
               @click="checkCheckedAns($event)" />
             <span>
               {{ answers.text }}
@@ -150,13 +150,14 @@
         this.pollData.Questions.forEach( question => {
           question.checked = []
         })
+        $('input:checkbox').prop("checked", false)
       },
       checkAnswers(check){
-        this.pollData.Questions.forEach( data => {
-          if ( (check[0] && check[0].text) || check.text){
+        this.pollData.Questions.forEach(data => {
+          if ((check[0] && check[0].text) || check.text){
             this.loopBreaked = false
           } else this.loopBreaked = true
-        } )
+        })
       },
       submitVote(){
         let _this = this
@@ -227,8 +228,6 @@
         } else this.returnFun = false
       },
       checkCheckedAns(event){
-        if(event.target.checked) event.target.setAttribute("checked", "checked")
-        else event.target.removeAttribute("checked")
       },
     }
   };
