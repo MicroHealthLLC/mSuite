@@ -599,7 +599,6 @@
           })
       },
       redoObj(){
-        this.redoDone = true
         http
           .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
           .then((res) => {

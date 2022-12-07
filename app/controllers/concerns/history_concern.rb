@@ -42,6 +42,8 @@ module HistoryConcern
                 parent_node: arrayNode[:parent_node],
                 startdate: arrayNode[:startdate],
                 description: arrayNode[:description],
+                position_x: arrayNode[:position_x],
+                position_y: arrayNode[:position_y],
                 duedate: duedate,
                 is_disabled: is_disabled,
                 stage_id: stageID
@@ -62,6 +64,8 @@ module HistoryConcern
             line_color: paramNode[:line_color],
             mindmap_id: paramNode[:mindmap_id],
             parent_node: paramNode[:parent_node],
+            position_x: paramNode[:position_x],
+            position_y: paramNode[:position_y],
             duedate: duedate,
             is_disabled: is_disabled
           ]))
@@ -80,16 +84,20 @@ module HistoryConcern
                 else
                   stageID = nil
                 end
-                childCreatedNode.push(Node.create([
+                node_child = Node.new(
                   id: arrayNode[:id],
                   title:  arrayNode[:title],
                   line_color: arrayNode[:line_color],
                   mindmap_id: arrayNode[:mindmap_id],
                   parent_node: arrayNode[:parent_node],
+                  position_x: arrayNode[:position_x],
+                  position_y: arrayNode[:position_y],
                   duedate: duedate,
                   is_disabled: is_disabled,
                   stage_id: stageID
-                ]))
+                )
+                node_child.decryption.save
+                childCreatedNode.push(node_child)
               end
             end
           end
@@ -117,6 +125,8 @@ module HistoryConcern
             parent_node: paramNode[:parent_node],
             startdate: paramNode[:startdate],
             description: paramNode[:description],
+            position_x: paramNode[:position_x],
+            position_y: paramNode[:position_y],
             duedate: duedate,
             stage_id: stageID,
             is_disabled: is_disabled
@@ -272,7 +282,7 @@ module HistoryConcern
         else
           stageID = nil
         end
-        createdNode = Node.create([
+        createdNode = Node.new(
           id: myNode[:node][:id],
           title:  myNode[:node][:title],
           line_color: myNode[:node][:line_color],
@@ -280,10 +290,13 @@ module HistoryConcern
           parent_node: myNode[:node][:parent_node],
           startdate: myNode[:node][:startdate],
           description: myNode[:node][:description],
+          position_x: myNode[:node][:position_x],
+          position_y: myNode[:node][:position_y],
           stage_id: stageID,
           duedate: duedate,
           is_disabled: is_disabled
-        ])
+        )
+        createdNode.decryption.save
         nodeObj = ({
           req: 'addNode',
           node: createdNode,
@@ -328,5 +341,22 @@ module HistoryConcern
       else {}
       end
     end
+  end
+
+  def undo_my_mindmap(params)
+    my_canvas = params.pop()
+    my_canvas = params[params.length - 1]
+    if (my_canvas.is_a? String) == false && my_canvas[:mindmap]
+      my_canvas = my_canvas[:mindmap][:canvas]
+    elsif my_canvas.is_a? String
+      my_canvas
+    else
+      my_canvas = my_canvas.to_json
+    end
+    @mindmap.update(canvas: my_canvas)
+  end
+  def redo_my_mindmap(params)
+    my_canvas = params.pop()
+    @mindmap.update(canvas: my_canvas)
   end
 end

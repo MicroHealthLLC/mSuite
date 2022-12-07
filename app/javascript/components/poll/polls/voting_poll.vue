@@ -111,8 +111,15 @@
             window.open('/','_self')
           }
           else if (data.message === "Mindmap Updated" && this.currentMindMap.parent_id === data.mindmap.id){
-            this.pollData = JSON.parse(data.mindmap.canvas).pollData
-            this.voted()
+            this.$store.commit('setMsuiteParent', data.mindmap)
+            let poll = JSON.parse(data.mindmap.canvas).pollData
+            this.voted(poll)
+            if(!this.returnFun){
+              this.pollData.Questions.forEach((question, index) => {
+                poll.Questions[index].checked = question.checked
+              })
+            this.pollData = poll
+            }
           }
         }
       }
@@ -188,6 +195,7 @@
           }
         })
         if ( !this.returnFun && !this.errorTriggered && !this.loopBreaked){
+
           let mycanvas = {
             pollData  : this.pollData,
             user      : this.$store.getters.getUser
@@ -202,8 +210,10 @@
           this.errorTriggered = true
         }
       },
-      voted(){
-        this.pollData.Questions.forEach( question => {
+      voted(poll){
+        let voteData = this.pollData
+        if (poll) voteData = poll
+        voteData.Questions.forEach( question => {
           if (question.voters.length > 0){
             question.voters.forEach(voter => {
               if(voter == this.$store.state.user_id) this.returnFun = true

@@ -25,7 +25,9 @@
   import '../../common/plotly_renderers.min.js' 
   export default {
     props: {
-      exportDef : Function
+      exportDef : Function,
+      undoMap   : Function,
+      redoMap   : Function
     },
     data() {
       return {
@@ -349,6 +351,12 @@
         this.showPiviotTable = false
         $("#pivot_table").remove()
         this.createSheet(this.currentMindMap.canvas)
+      },
+      undoTable(){
+        this.table.undo()
+      },
+      redoTable(){
+        this.table.redo()
       }
     },
     created() {
@@ -367,6 +375,8 @@
 
       this.getUserOnMount()
       this.exportDef(this.exportXLS)
+      this.undoMap(this.undoTable)
+      this.redoMap(this.redoTable)
     },
   }
 </script>
