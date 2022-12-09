@@ -43,6 +43,7 @@
     "node-fetch": "^2.6.7",
     "nth-check": "^2.0.1",
     "pivottable": "^2.23.0",
+    "qs": "^6.11.0",
     "quill": "^1.3.7",
     "quill-delta": "^5.0.0",
     "scss-tokenizer": "^0.4.3",
