@@ -76,13 +76,13 @@
   import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
-
+  import History from "../../mixins/history.js"
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
 
   export default {
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     data() {
       return {
         currentMindMap: this.$store.getters.getMsuite,
@@ -760,43 +760,32 @@
         return is_val
       },
       //=====================OTHER FUNCTIONS ==============================//
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let req = res.data.node.req
-            let node = null
-            node = res.data.node.node
-            if(req === 'addStage' || req === 'deleteStage'){
-              this.redoNodes.push({req, stage: node, nodes: res.data.node.childNode})
-            } else {
-              this.redoNodes.push({req, node})
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          let req  = undoObj.req
+          let node = undoObj.node
+          if(req === 'addStage' || req === 'deleteStage'){
+            this.redoNodes.push({req, stage: node, nodes: undoObj.childNode})
+          } else {
+            this.redoNodes.push({req, node})
+          }
+        }
       },
-      redoObj(){
-        this.redoDone = true
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let req = res.data.node.req
-            let receivedData =null
-            receivedData = res.data.node.node
-            if(req === 'addStage' || req === 'deleteStage'){
-              this.undoNodes.push({req, stage: receivedData, nodes: res.data.node.childNode})
-            } else {
-              this.undoNodes.push({req, node: receivedData})
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          let receivedData = redoObj.node
+          let req = redoObj.req
+          if(req === 'addStage' || req === 'deleteStage'){
+            this.undoNodes.push({req, stage: receivedData, nodes: redoObj.childNode})
+          } else {
+            this.undoNodes.push({req, node: receivedData})
+          }
+        }
       },
     }
   }

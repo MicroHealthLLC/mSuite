@@ -40,6 +40,7 @@
   import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import History from "../../mixins/history.js"
 
   export default {
     components: {
@@ -51,7 +52,7 @@
       undoMap: Function,
       redoMap: Function
     },
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     data: function () {
       // Define properties which will use in the widget
       return {
@@ -584,33 +585,23 @@
         this.addChildTreeMap = true
 
       },
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let req = res.data.node.req
-            let node = res.data.node.node
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          this.redoNodes.push({req: undoObj.req, node: undoObj.node})
+        }
       },
-      redoObj(){
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let req = res.data.node.req
-            let receivedData = res.data.node.node
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      }
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          let receivedData = redoObj.node
+          let req = redoObj.req
+          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+        }
+      },
     }
   }
 </script>

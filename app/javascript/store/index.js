@@ -35,7 +35,9 @@ const store = new Vuex.Store({
     selectedNode   : null,
     copiedNode     : null,
     error          : null,
-    msuiteParent   : null
+    msuiteParent   : null,
+    undoNode       : null,
+    redoNode       : null,
   },
   mutations:{
     setMSuite (state, payload){
@@ -93,7 +95,13 @@ const store = new Vuex.Store({
     },
     setMsuiteParent(state, payload) {
       state.msuiteParent = payload
-    }
+    },
+    setUndoNode(state, payload) {
+      state.undoNode = payload
+    },
+    setRedoNode(state, payload) {
+      state.redoNode = payload
+    },
   },
   getters: {
     getMindmapId(state) {
@@ -140,6 +148,12 @@ const store = new Vuex.Store({
     },
     getMsuiteParent(state) {
       return state.msuiteParent
+    },
+    getUndoNode(state) {
+      return state.undoNode
+    },
+    getRedoNode(state) {
+      return state.redoNode
     }
   },
   actions: {
@@ -196,6 +210,24 @@ const store = new Vuex.Store({
       } else {
         await HTTP.post('/stages/reset_stages', { mindmap_id: state.mSuite.id })
       }
+    },
+    async undoMindmapNodes ({ commit, state }, nodes) {
+      await HTTP.post(`/msuite/${state.mSuite.unique_key}/undo_mindmap.json`, { undoNode: nodes })
+        .then((res) => {
+          commit('setUndoNode', res.data.undoObj)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+    async redoMindmapNodes ({ commit, state }, nodes) {
+      await HTTP.put(`/msuite/${state.mSuite.unique_key}/redo_mindmap.json`, { redoNode: nodes })
+        .then((res) => {
+          commit('setRedoNode', res.data.redoObj)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     },
     setScaleFactor({ commit }, scaleFactor){
       commit('setScaleFactor', scaleFactor)
