@@ -34,7 +34,8 @@ const store = new Vuex.Store({
     canvas         : '{"version":"4.6.0","objects":[]}',
     selectedNode   : null,
     copiedNode     : null,
-    error          : null
+    error          : null,
+    msuiteParent   : null
   },
   mutations:{
     setMSuite (state, payload){
@@ -90,6 +91,9 @@ const store = new Vuex.Store({
     setError(state, payload){
       state.error = payload
     },
+    setMsuiteParent(state, payload) {
+      state.msuiteParent = payload
+    }
   },
   getters: {
     getMindmapId(state) {
@@ -133,6 +137,9 @@ const store = new Vuex.Store({
     },
     getError (state) {
       return state.error
+    },
+    getMsuiteParent(state) {
+      return state.msuiteParent
     }
   },
   actions: {

@@ -3,7 +3,7 @@ class MindmapsController < AuthenticatedController
   include HistoryConcern, MindmapConcern
   #before_action :authenticate_user!, except: [:index, :show, :compute_child_nodes]
   #before_action :set_access_user
-  before_action :set_mindmap, only: [:update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map]
+  before_action :set_mindmap, only: [:update, :show, :compute_child_nodes, :reset_mindmap, :destroy, :clone_map, :undo_mindmap, :redo_mindmap]
   before_action :verify_password, only: :show
   prepend_before_action :check_password_update, only: :update
 
@@ -73,22 +73,34 @@ class MindmapsController < AuthenticatedController
   end
 
   def undo_mindmap
-    undoNode = params[:undoNode]
-    unless undoNode.empty?
+    undoNode = params[:undoNode] if params[:undoNode]
+    undo_mindmap = params[:undoCanvas] if params[:undoCanvas]
+    if undoNode
       myNode = undo_my_node(undoNode)
       if myNode
         ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "undo mindmap", node: myNode
         render json: { success: true, node: myNode }
       end
+    else
+      myMindmap = undo_my_mindmap(undo_mindmap)
+      broadcast_actioncable(@mindmap,'Mindmap Updated')
+      render json: { success: true, canvas: @mindmap.canvas }
     end
   end
 
   def redo_mindmap
-    redoNode = params[:redoNode]
-    myNode = redo_my_node(redoNode)
-    if myNode
-      ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "redo mindmap", node: myNode
-      render json: { success: true, node: myNode }
+    redoNode = params[:redoNode] if params[:redoNode]
+    redo_mindmap = params[:redoCanvas] if params[:redoCanvas]
+    if redoNode
+      myNode = redo_my_node(redoNode)
+      if myNode
+        ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "redo mindmap", node: myNode
+        render json: { success: true, node: myNode }
+      end
+    else
+      myMindmap = redo_my_mindmap(redo_mindmap)
+      broadcast_actioncable(@mindmap,'Mindmap Updated')
+      render json: { success: true, canvas: @mindmap.canvas }
     end
   end
 
