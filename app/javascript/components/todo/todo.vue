@@ -115,14 +115,12 @@
   import TodoMap from "./TodoMap";
   import TemporaryUser from "../../mixins/temporary_user.js"
   import Common from "../../mixins/common.js"
+  import History from "../../mixins/history.js"
 
   export default {
     props: {
       undoMap: Function,
       redoMap: Function
-    },
-    components: {
-      draggable
     },
     data() {
       return {
@@ -160,9 +158,10 @@
     components: {
       TodoMap,
       ToggleButton,
-      DatePicker
+      DatePicker,
+      draggable
     },
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -505,32 +504,20 @@
         this.cancelChildObj()
         this.completedTasks = false
       },
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let node = res.data.node.node
-            let req = res.data.node.req
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          this.redoNodes.push({req: undoObj.req, node: undoObj.node})
+        }
       },
-      redoObj(){
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let receivedData = res.data.node.node
-            let req = res.data.node.req
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+        }
       },
     },
     computed: {

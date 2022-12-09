@@ -95,6 +95,7 @@
   import ExportToWordModal from "./modals/export_to_word_modal"
   import http from "../../common/http"
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import History from "../../mixins/history.js"
 
   export default {
     components: {
@@ -106,7 +107,7 @@
       ExportToWordModal,
     },
 
-    mixins: [TemporaryUser],
+    mixins: [TemporaryUser, History],
     props: {
       zmInScale: Function,
       zmOutScale: Function,
@@ -1039,33 +1040,25 @@
 
         return size
       },
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let req = res.data.node.req
-            let node = res.data.node.node
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          let req  = undoObj.req
+          let node = undoObj.node
+          this.redoNodes.push({req, node})
+        }
       },
-      redoObj(){
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let req = res.data.node.req
-            let receivedData = res.data.node.node
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      }
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          let receivedData = redoObj.node
+          let req = redoObj.req
+          this.undoNodes.push({req, receivedData})
+        }
+      },
     },
 
     mounted() {
