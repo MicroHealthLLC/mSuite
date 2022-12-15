@@ -358,7 +358,7 @@
         this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
           this.myTodos.push(result.data.node)
-          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           this.showModalTodo = false
           this.clearTodoObj()
           this.sendLocals(false)
@@ -392,7 +392,7 @@
         }
         this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
-          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           this.showChildModalTodo = false
           this.clearTodoObj()
           this.sendLocals(false)
@@ -421,20 +421,11 @@
 
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === todo.id) {
-              this.undoNodes[index]['receivedData'].title = todo.title
-              this.undoNodes[index]['receivedData'].startdate = todo.duedate
-              this.undoNodes[index]['receivedData'].duedate = todo.duedate
-              this.undoNodes[index]['receivedData'].is_disabled = completed
-              }
-            } else {
-              if(element['node'].id === todo.id) {
+            if(element['node'].id === todo.id) {
               this.undoNodes[index]['node'].title = todo.title
               this.undoNodes[index]['node'].startdate = todo.duedate
               this.undoNodes[index]['node'].duedate = todo.duedate
               this.undoNodes[index]['node'].is_disabled = completed
-              }
             }
           });
         } else {
@@ -516,7 +507,7 @@
         let redoObj = await this.redoNode(this.redoNodes)
         if(redoObj){
           this.redoNodes.pop()
-          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+          this.undoNodes.push({req: redoObj.req, 'node': redoObj.node})
         }
       },
     },

@@ -708,7 +708,7 @@
           this.$store.commit('setSelectedNode' , res.data.node)
           if (!this.undoDone) {
             let receivedData = res.data.node
-            this.undoNodes.push({'req': 'addNode', receivedData})
+            this.undoNodes.push({'req': 'addNode', 'node' : receivedData})
           }
         }).catch((error) => {
           console.log(error)
@@ -731,7 +731,7 @@
         http.delete(`/nodes/${node_id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
-            this.undoNodes.push({'req': 'deleteNode', receivedNodes})
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
           this.undoNodes.push({'req': 'deleteNode', node: myNode})
           if (res.data.success) {
@@ -1056,7 +1056,7 @@
           this.redoNodes.pop()
           let receivedData = redoObj.node
           let req = redoObj.req
-          this.undoNodes.push({req, receivedData})
+          this.undoNodes.push({req, 'node':receivedData})
         }
       },
     },
