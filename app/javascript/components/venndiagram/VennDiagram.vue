@@ -254,8 +254,7 @@
         this.selectedSet = event.point
         let getNode = this.savedSets.find( n => {
           let title = n.description
-          if (n.title != '') title = n.title
-          if (title === this.selectedSet.name) return n
+          if (title === this.selectedSet.sets.join(",")) return n
         })
         this.selectedSet.nodeId = getNode.id
         this.openEditBox = true
