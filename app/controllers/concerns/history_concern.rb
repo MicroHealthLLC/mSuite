@@ -228,6 +228,13 @@ module HistoryConcern
           mindmap_id: current_mindmap_id
         })
         return nodeObj
+      elsif params[params.length - 1][:req] == 'cutNode'
+        myNode = params.pop()
+        node = Node.find_by(id: myNode[:node][:id])
+        current_mindmap_id = myNode[:node][:mindmap_id]
+        updatedNode = node.update(is_disabled: false)
+        nodeObj = node_obj 'cutNode',updatedNode,current_mindmap_id
+        return nodeObj
       end
     end
   end
