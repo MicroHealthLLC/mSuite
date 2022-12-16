@@ -19,7 +19,7 @@ class Node < ApplicationRecord
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
-  validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
+  validates_uniqueness_of :title, :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
 
   def decryption

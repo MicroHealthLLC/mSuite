@@ -177,6 +177,10 @@
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
+          else {
+            this.calendar.store.getState().calendar.events.internalMap.clear()
+            this.fetchEvents()
+          }
         }
       }
     },
@@ -363,7 +367,7 @@
           }
         let _this = this
         await http.post('/nodes.json', data).then((result) => {
-          _this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          _this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           _this.currentNodeId = result.data.node.id
         })
       },
@@ -382,23 +386,12 @@
           }
           if(this.undoNodes.length > 0) {
             this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === eventObj.id) {
-                this.undoNodes[index]['receivedData'].title = data.title
-                this.undoNodes[index]['receivedData'].description = data.description
-                this.undoNodes[index]['receivedData'].startdate = data.startdate
-                this.undoNodes[index]['receivedData'].duedate = data.duedate
-                this.undoNodes[index]['receivedData'].hide_children = data.hide_children
-              }
-            } 
-            else {
-                if(element['node'].id === eventObj.id) {
-                  this.undoNodes[index]['node'].title = data.title
-                  this.undoNodes[index]['node'].description = data.description
-                  this.undoNodes[index]['node'].startdate = data.startdate
-                  this.undoNodes[index]['node'].duedate = data.duedate
-                  this.undoNodes[index]['node'].hide_children = data.isAllday
-                }
+            if(element['node'].id === eventObj.id) {
+              this.undoNodes[index]['node'].title = data.title
+              this.undoNodes[index]['node'].description = data.description
+              this.undoNodes[index]['node'].startdate = data.startdate
+              this.undoNodes[index]['node'].duedate = data.duedate
+              this.undoNodes[index]['node'].hide_children = data.isAllday
             }
           });
         }
@@ -525,7 +518,7 @@
         if(redoObj){
           this.toggleCalendarView()
           this.redoNodes.pop()
-          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+          this.undoNodes.push({req: redoObj.req, 'node': redoObj.node})
         }
       },
       closeModelPicker(){

@@ -165,7 +165,7 @@
           if(res.data.node.id){
             this.updateVennUser()
             this.sendLocals()
-            this.undoNodes.push({req: 'addNode', receivedData: res.data.node})
+            this.undoNodes.push({req: 'addNode', 'node': res.data.node})
           } else {
             this.$refs["dataErrorModal"].open()
           }
@@ -182,20 +182,11 @@
         }
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === this.selectedSet.nodeId) {
-                this.undoNodes[index]['receivedData'].title = mySet.title
-                this.undoNodes[index]['receivedData'].position = mySet.position
-                this.undoNodes[index]['receivedData'].description = mySet.description
-                this.undoNodes[index]['receivedData'].line_color = mySet.line_color
-              }
-            } else {
-              if(element['node'].id === this.selectedSet.nodeId) {
-                this.undoNodes[index]['node'].title = mySet.title
-                this.undoNodes[index]['node'].position = mySet.position
-                this.undoNodes[index]['node'].description = mySet.description
-                this.undoNodes[index]['node'].line_color = mySet.line_color
-              }
+            if(element['node'].id === this.selectedSet.nodeId) {
+              this.undoNodes[index]['node'].title = mySet.title
+              this.undoNodes[index]['node'].position = mySet.position
+              this.undoNodes[index]['node'].description = mySet.description
+              this.undoNodes[index]['node'].line_color = mySet.line_color
             }
           });
         } else {
@@ -263,8 +254,7 @@
         this.selectedSet = event.point
         let getNode = this.savedSets.find( n => {
           let title = n.description
-          if (n.title != '') title = n.title
-          if (title === this.selectedSet.name) return n
+          if (title === this.selectedSet.sets.join(",")) return n
         })
         this.selectedSet.nodeId = getNode.id
         this.openEditBox = true
@@ -292,7 +282,7 @@
         let redoObj = await this.redoNode(this.redoNodes)
         if(redoObj){
           this.redoNodes.pop()
-          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+          this.undoNodes.push({req: redoObj.req, 'node': redoObj.node})
         }
       },
     }

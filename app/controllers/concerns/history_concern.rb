@@ -4,174 +4,51 @@ module HistoryConcern
   def undo_my_node(params)
     if params.length > 0
       if params[params.length - 1][:req] == 'deleteNode'
-        myNode = params.pop()
+        request = 'deleteNode'
+        myNode  = params.pop()
         if params.length > 0
-          if params[params.length - 1][:receivedNodes]
-            childNodes = params[params.length - 1][:receivedNodes]
-          else
-            childNodes = params[params.length - 1][:node]
-          end
+          childNodes = params[params.length - 1][:node]
         end
         childCreatedNode = []
-        paramNode = nil
-        if myNode[:node]
-          paramNode = myNode[:node]
-        else
-          paramNode = myNode[:receivedData]
-        end
+        paramNode = myNode[:node]
         if paramNode.is_a? Array
           paramNode.each do |arrayNode|
             if Node.find_by(id: arrayNode[:id]) == nil
-              if ((arrayNode[:is_disabled]) || (arrayNode[:duedate]))
-                duedate = arrayNode[:duedate]
-                is_disabled = arrayNode[:is_disabled]
-              else
-                duedate = ''
-                is_disabled = false
-              end
-              if arrayNode[:stage_id]
-                stageID = arrayNode[:stage_id]
-              else
-                stageID = nil
-              end
-              childCreatedNode.push(Node.create([
-                id: arrayNode[:id],
-                title:  arrayNode[:title],
-                line_color: arrayNode[:line_color],
-                mindmap_id: arrayNode[:mindmap_id],
-                parent_node: arrayNode[:parent_node],
-                startdate: arrayNode[:startdate],
-                description: arrayNode[:description],
-                position: arrayNode[:position],
-                position_x: arrayNode[:position_x],
-                position_y: arrayNode[:position_y],
-                duedate: duedate,
-                is_disabled: is_disabled,
-                stage_id: stageID
-              ]))
+              childCreatedNode.push(create_node arrayNode)
             end
           end
         elsif ((childNodes.is_a? Array) && (childNodes[0][:stage_id] == nil))
-          if ((paramNode[:is_disabled]) || (paramNode[:duedate]))
-            duedate = paramNode[:duedate]
-            is_disabled = paramNode[:is_disabled]
-          else
-            duedate = ''
-            is_disabled = false
-          end
-          childCreatedNode.push(Node.create([
-            id: paramNode[:id],
-            title:  paramNode[:title],
-            line_color: paramNode[:line_color],
-            mindmap_id: paramNode[:mindmap_id],
-            parent_node: paramNode[:parent_node],
-            position_x: paramNode[:position_x],
-            position_y: paramNode[:position_y],
-            duedate: duedate,
-            is_disabled: is_disabled
-          ]))
+          childCreatedNode.push(create_node paramNode)
           childNodes.each do |arrayNode|
             if arrayNode[:id] != paramNode[:id]
               if Node.find_by(id: arrayNode[:id]) == nil
-                if ((arrayNode[:duedate]) || (arrayNode[:is_disabled]))
-                  duedate = arrayNode[:duedate]
-                  is_disabled = arrayNode[:is_disabled]
-                else
-                  duedate = ''
-                  is_disabled = false
-                end
-                if paramNode[:stage_id]
-                  stageID = paramNode[:stage_id]
-                else
-                  stageID = nil
-                end
-                node_child = Node.new(
-                  id: arrayNode[:id],
-                  title:  arrayNode[:title],
-                  line_color: arrayNode[:line_color],
-                  mindmap_id: arrayNode[:mindmap_id],
-                  parent_node: arrayNode[:parent_node],
-                  position_x: arrayNode[:position_x],
-                  position_y: arrayNode[:position_y],
-                  duedate: duedate,
-                  is_disabled: is_disabled,
-                  stage_id: stageID
-                )
+                node_child = new_node arrayNode
                 node_child.decryption.save
                 childCreatedNode.push(node_child)
               end
             end
           end
         elsif paramNode != nil
-          if paramNode[:is_disabled]
-            duedate = paramNode[:duedate]
-            is_disabled = paramNode[:is_disabled]
-          else
-            duedate = nil
-            is_disabled = false
-          end
-          if paramNode[:stage_id]
-            stageID = paramNode[:stage_id]
-          else
-            stageID = nil
-          end
-          if paramNode[:startdate]
-            duedate = paramNode[:duedate]
-          end
-          createdNode = Node.create([
-            id: paramNode[:id],
-            title:  paramNode[:title],
-            line_color: paramNode[:line_color],
-            mindmap_id: paramNode[:mindmap_id],
-            parent_node: paramNode[:parent_node],
-            startdate: paramNode[:startdate],
-            description: paramNode[:description],
-            position: paramNode[:position],
-            position_x: paramNode[:position_x],
-            position_y: paramNode[:position_y],
-            duedate: duedate,
-            stage_id: stageID,
-            is_disabled: is_disabled
-            ])
+          createdNode = create_node paramNode
         end
         if paramNode.is_a? Array
-          nodeObj = ({
-            req: 'deleteNode',
-            node: childCreatedNode,
-            mindmap_id: paramNode[0][:mindmap_id]
-          })
+          nodeObj = node_obj request,childCreatedNode,paramNode[0][:mindmap_id]
         elsif childCreatedNode.length > 0
-          nodeObj = ({
-            req: 'deleteNode',
-            node: childCreatedNode,
-            mindmap_id: paramNode[:mindmap_id]
-            })
+          nodeObj = node_obj request,childCreatedNode,paramNode[:mindmap_id]
         elsif paramNode != nil
-          nodeObj = ({
-            req: 'deleteNode',
-            node: createdNode,
-            mindmap_id: paramNode[:mindmap_id]
-          })
+          nodeObj = node_obj request,createdNode,paramNode[:mindmap_id]
         end
         return nodeObj
       elsif params[params.length - 1][:req] == 'addNode'
         myNode = params.pop()
-        if myNode[:receivedData].is_a? Array
-          checkNode = Node.find(myNode[:receivedData][0][:id])
-        elsif myNode[:receivedData]
-          checkNode = Node.find(myNode[:receivedData][:id])
-        else
-          checkNode = Node.find(myNode[:node][0][:id])
+        deletedNode = nil
+        if myNode[:node].is_a? Array
+          deletedNode = Node.destroy(myNode[:node][0][:id])
+        elsif myNode[:node]
+          deletedNode = Node.destroy(myNode[:node][:id])
         end
-        if checkNode != nil
-          deletedNode = checkNode.destroy()
-          nodeObj = ({
-            req: 'addNode',
-            node: deletedNode,
-            mindmap_id: checkNode[:mindmap_id]
-          })
-          return nodeObj
-        end
+        nodeObj = node_obj 'addNode',deletedNode,deletedNode[:mindmap_id]
+        return nodeObj
       elsif params[params.length - 1][:req] == 'deleteStage'
         myStage = params.pop()
         if myStage[:stage].is_a? Array
@@ -180,13 +57,7 @@ module HistoryConcern
           currentStage = myStage[:stage]
           stageNodes = myStage[:nodes]
         end
-        createdStage = Stage.create([
-          id: currentStage[:id],
-          title:  currentStage[:title],
-          stage_color: currentStage[:stage_color],
-          mindmap_id: currentStage[:mindmap_id],
-          position: currentStage[:position]
-        ])
+        createdStage = create_stage currentStage
         if stageNodes.is_a? Array
           childStages = []
           stageNodes.each do |arrayNode|
@@ -195,14 +66,7 @@ module HistoryConcern
             else
               stageChild = arrayNode
             end
-            childStages.push(Node.create([
-              id: stageChild[:id],
-              title:  stageChild[:title],
-              line_color: stageChild[:line_color],
-              mindmap_id: stageChild[:mindmap_id],
-              parent_node: stageChild[:parent_node],
-              stage_id: stageChild[:stage_id]
-            ]))
+            childStages.push(create_node stageChild)
           end
         end
         nodeObj = ({
@@ -222,11 +86,14 @@ module HistoryConcern
           current_mindmap_id = myStage[:stage][:mindmap_id]
         end
         deletedStage = stage.destroy()
-        nodeObj = ({
-          req: 'addStage',
-          node: deletedStage,
-          mindmap_id: current_mindmap_id
-        })
+        nodeObj = node_obj 'addStage',deletedStage,current_mindmap_id
+        return nodeObj
+      elsif params[params.length - 1][:req] == 'cutNode'
+        myNode = params.pop()
+        node = Node.find_by(id: myNode[:node][:id])
+        current_mindmap_id = myNode[:node][:mindmap_id]
+        updatedNode = node.update(is_disabled: false)
+        nodeObj = node_obj 'cutNode',updatedNode,current_mindmap_id
         return nodeObj
       end
     end
@@ -251,60 +118,22 @@ module HistoryConcern
             node.decryption
             deletedNodes.push(node.destroy())
           end
-          nodeObj = ({
-            req: 'deleteNode',
-            node: deletedNodes,
-            mindmap_id: current_mindmap_id
-          })
+          nodeObj = node_obj 'deleteNode',deletedNodes,current_mindmap_id
           return nodeObj
         else
           paramNode = myNode[:node]
           if paramNode && Node.find(paramNode[:id]) != nil
             node = Node.find(paramNode[:id])
             deletedNode = node.destroy()
-            nodeObj = ({
-              req: 'deleteNode',
-              node: deletedNode,
-              mindmap_id: node[:mindmap_id]
-            })
+            nodeObj = node_obj 'deleteNode',deletedNode,node[:mindmap_id]
             return nodeObj
           end
         end
       elsif params[params.length - 1][:req] == 'addNode'
         myNode = params.pop()
-        if ((myNode[:node][:is_disabled]) || (myNode[:node][:duedate]))
-          duedate = myNode[:node][:duedate]
-          is_disabled = myNode[:node][:is_disabled]
-        else
-          duedate = nil
-          is_disabled = false
-        end
-        if myNode[:node][:stage_id]
-          stageID = myNode[:node][:stage_id]
-        else
-          stageID = nil
-        end
-        createdNode = Node.new(
-          id: myNode[:node][:id],
-          title:  myNode[:node][:title],
-          line_color: myNode[:node][:line_color],
-          mindmap_id: myNode[:node][:mindmap_id],
-          parent_node: myNode[:node][:parent_node],
-          startdate: myNode[:node][:startdate],
-          description: myNode[:node][:description],
-          position: myNode[:node][:position],
-          position_x: myNode[:node][:position_x],
-          position_y: myNode[:node][:position_y],
-          stage_id: stageID,
-          duedate: duedate,
-          is_disabled: is_disabled
-        )
+        createdNode = new_node myNode[:node]
         createdNode.decryption.save
-        nodeObj = ({
-          req: 'addNode',
-          node: createdNode,
-          mindmap_id: myNode[:node][:mindmap_id]
-        })
+        nodeObj = node_obj 'addNode',createdNode,myNode[:node][:mindmap_id]
         return nodeObj
       elsif params[params.length - 1][:req] == 'deleteStage'
         myStage = params.pop()
@@ -328,18 +157,8 @@ module HistoryConcern
         return nodeObj
       elsif params[params.length - 1][:req] == 'addStage'
         myStage = params.pop()
-        createdStage = Stage.create([
-          id: myStage[:stage][:id],
-          title:  myStage[:stage][:title],
-          stage_color: myStage[:stage][:stage_color],
-          mindmap_id: myStage[:stage][:mindmap_id],
-          position: myStage[:stage][:position]
-        ])
-        nodeObj = ({
-          req: 'addStage',
-          node: createdStage,
-          mindmap_id: myStage[:stage][:mindmap_id]
-        })
+        createdStage = create_stage myStage[:stage]
+        nodeObj = node_obj 'addStage',createdStage,myStage[:stage][:mindmap_id]
         return nodeObj
       else {}
       end
@@ -361,5 +180,61 @@ module HistoryConcern
   def redo_my_mindmap(params)
     my_canvas = params.pop()
     @mindmap.update(canvas: my_canvas)
+  end
+
+  private
+
+  def create_node(arrayNode)
+    node = Node.create(
+      id: arrayNode[:id],
+      title:  arrayNode[:title],
+      line_color: arrayNode[:line_color],
+      mindmap_id: arrayNode[:mindmap_id],
+      parent_node: arrayNode[:parent_node],
+      startdate: arrayNode[:startdate],
+      description: arrayNode[:description],
+      position: arrayNode[:position],
+      position_x: arrayNode[:position_x],
+      position_y: arrayNode[:position_y],
+      duedate: arrayNode[:duedate],
+      is_disabled: arrayNode[:is_disabled],
+      stage_id: arrayNode[:stage_id]
+    )
+    return node
+  end
+  def new_node(arrayNode)
+    node = Node.new(
+      id: arrayNode[:id],
+      title:  arrayNode[:title],
+      line_color: arrayNode[:line_color],
+      mindmap_id: arrayNode[:mindmap_id],
+      parent_node: arrayNode[:parent_node],
+      startdate: arrayNode[:startdate],
+      description: arrayNode[:description],
+      position: arrayNode[:position],
+      position_x: arrayNode[:position_x],
+      position_y: arrayNode[:position_y],
+      duedate: arrayNode[:duedate],
+      is_disabled: arrayNode[:is_disabled],
+      stage_id: arrayNode[:stage_id]
+    )
+    return node
+  end
+  def create_stage(stage)
+    stage = Stage.create(
+      id: stage[:id],
+      title:  stage[:title],
+      stage_color: stage[:stage_color],
+      mindmap_id: stage[:mindmap_id],
+      position: stage[:position]
+    )
+    return stage
+  end
+  def node_obj(req,obj,m_id)
+    return ({
+      req: req,
+      node: obj,
+      mindmap_id: m_id
+    })
   end
 end

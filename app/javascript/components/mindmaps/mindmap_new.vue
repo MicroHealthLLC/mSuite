@@ -204,7 +204,7 @@
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else {
-            this.getMindmap(this.currentMindMap.unique_key)
+            this.getMindmap()
             if (data.node) this.$store.commit('setSelectedNode' , data.node)
           }
         }
@@ -253,7 +253,7 @@
         this.loading = false
       },
       // =============== GETTING MAP =====================
-      getMindmap: async function(id) {
+      getMindmap: async function() {
         await this.$store.dispatch('getMSuite')
         let res = await this.$store.getters.getDataMsuite
 
@@ -265,7 +265,7 @@
         this.currentMindMap = res.mindmap
         this.currentNodes   = res.mindmap.nodes
 
-        setTimeout(this.drawLines, 100)
+        setTimeout(this.drawLines, 120)
         this.updateQuery()
         this.loading = false
       },
@@ -299,8 +299,8 @@
       // =============== GETTING MAP =====================
 
       // =============== MODALS OPEN/CLOSE/OPERATIONS =====================
-      openPreviousMap(key) {
-        this.getMindmap(key)
+      openPreviousMap() {
+        this.getMindmap()
       },
       openNewMap() {
         this.removeLines()
@@ -616,14 +616,16 @@
       // =============== STYLING OPERATIONS =====================
 
       // =============== Node CRUD OPERATIONS =====================
-      cutSelectedNode() {
+      async cutSelectedNode() {
+        let _this = this
         if (!this.$store.getters.getSelectedNode) { return; }
         this.$store.commit('setCopiedNode' , this.$store.getters.getSelectedNode)
         this.$store.commit('setCopiedNodeDisabled' , true)
         this.cutFlag                = true
         this.saveCurrentMap()
-        http.put(`/nodes/${this.$store.getters.getCopiedNode.id}.json`, {node: this.$store.getters.getCopiedNode}).then((res) => {
-          this.$store.commit('setSelectedNode' , null)
+        await http.put(`/nodes/${this.$store.getters.getCopiedNode.id}.json`, {node: this.$store.getters.getCopiedNode}).then((res) => {
+          _this.undoNodes.push({'req': 'cutNode', 'node' : this.$store.getters.getCopiedNode})
+          _this.$store.commit('setSelectedNode' , null)
         }).catch((error) => {
           console.log(error)
         })
@@ -633,7 +635,8 @@
         this.$store.commit('setCopiedNode' , this.$store.getters.getSelectedNode)
         this.$store.commit('setSelectedNode' , null)
       },
-      pasteCopiedNode() {
+      async pasteCopiedNode() {
+        let _this = this
         if (!this.$store.getters.getCopiedNode) { return; }
         let new_parent = 0
 
@@ -658,26 +661,23 @@
         this.drawNewLine(dupNode)
         this.$store.commit('setCopiedNode' , null)
         this.saveCurrentMap()
-
         if (this.cutFlag) {
           dupNode.is_disabled = false
 
-          http
+          await http
             .put(`/nodes/${dupNode.id}.json`, {node: dupNode})
             .then((res) => {
-              this.getMindmap(this.currentMindMap.unique_key)
-              this.cutFlag      = false
-              this.$store.commit('setSelectedNode' , res.data.node)
+              _this.cutFlag = false
+              _this.$store.commit('setSelectedNode' , res.data.node)
             }).catch((error) => {
               console.log(error)
             })
         }
         else {
-          http
+          await http
             .post('/nodes.json', {node: dupNode, duplicate_child_nodes: dupNode.id})
             .then((res) => {
-              this.getMindmap(this.currentMindMap.unique_key)
-              this.$store.commit('setSelectedNode' ,null)
+              _this.$store.commit('setSelectedNode' , res.data.node)
             }).catch((error) => {
               console.log(error)
             })
@@ -704,11 +704,11 @@
         node['mindmap_id'] = this.currentMindMap.id
         this.saveCurrentMap()
         http.post('/nodes.json', {node: node}).then((res) => {
-          this.getMindmap(this.currentMindMap.unique_key)
+          this.getMindmap()
           this.$store.commit('setSelectedNode' , res.data.node)
           if (!this.undoDone) {
             let receivedData = res.data.node
-            this.undoNodes.push({'req': 'addNode', receivedData})
+            this.undoNodes.push({'req': 'addNode', 'node' : receivedData})
           }
         }).catch((error) => {
           console.log(error)
@@ -731,12 +731,12 @@
         http.delete(`/nodes/${node_id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
-            this.undoNodes.push({'req': 'deleteNode', receivedNodes})
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
           this.undoNodes.push({'req': 'deleteNode', node: myNode})
           if (res.data.success) {
-            this.$store.commit('setSelectedNode' ,null)
-            this.getMindmap(this.currentMindMap.unique_key)
+            this.$store.commit('setSelectedNode' , { id: ''})
+            this.getMindmap()
           } else {
             console.log("Unable to delete node")
           }
@@ -1056,7 +1056,7 @@
           this.redoNodes.pop()
           let receivedData = redoObj.node
           let req = redoObj.req
-          this.undoNodes.push({req, receivedData})
+          this.undoNodes.push({req, 'node':receivedData})
         }
       },
     },
