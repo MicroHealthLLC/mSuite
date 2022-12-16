@@ -269,16 +269,9 @@
       updateSelectedNode: async function(obj){
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === obj.id) {
-                this.undoNodes[index]['receivedData'].title = obj.title
-                this.undoNodes[index]['receivedData'].line_color = obj.line_color
-              } else if(element['node']) {
-                if(element['node'].id === obj.id) {
-                  this.undoNodes[index]['node'].title = obj.title
-                  this.undoNodes[index]['node'].line_color = obj.line_color
-                }
-              }
+            if(element['node'].id === obj.id) {
+              this.undoNodes[index]['node'].title = obj.title
+              this.undoNodes[index]['node'].line_color = obj.line_color
             }
           });
         } else {
@@ -299,7 +292,7 @@
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
-            this.undoNodes.push({'req': 'deleteNode', receivedNodes})
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
           if (!this.undoDone) {
             let myNode = {
@@ -347,7 +340,7 @@
           }
           if (!this.undoDone) {
             let receivedData = res.data.node
-            _this.undoNodes.push({'req': 'addNode', receivedData})
+            _this.undoNodes.push({'req': 'addNode', 'node': receivedData})
           }
           // success modal display
         }).catch(err => {
@@ -597,9 +590,7 @@
         let redoObj = await this.redoNode(this.redoNodes)
         if(redoObj){
           this.redoNodes.pop()
-          let receivedData = redoObj.node
-          let req = redoObj.req
-          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+          this.undoNodes.push({req: redoObj.req, node: redoObj.node})
         }
       },
     }

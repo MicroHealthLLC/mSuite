@@ -232,8 +232,8 @@ class MindmapsController < AuthenticatedController
     end
 
     def check_password_update
-      @mindmap = Mindmap.find_by(unique_key: params[:id])
       if params[:mindmap][:password].present? && params[:old_password]
+        @mindmap = Mindmap.find_by(unique_key: params[:id])
         unless @mindmap.password.present? && @mindmap.check_password(params[:old_password]) || @mindmap.password.blank?
           render json: { error: "Password Mismatched" }
         else

@@ -434,7 +434,7 @@
         http.post(`/nodes.json`, data).then((res) => {
           if (!this.undoDone) {
             let receivedData = res.data.node
-            _this.undoNodes.push({'req': 'addNode', receivedData})
+            _this.undoNodes.push({'req': 'addNode', 'node':receivedData})
           }
           _this.addNodeTree = false
           if(res.data.node.id == null){
@@ -448,17 +448,10 @@
       async updateTreeChartNode(obj){
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === obj.id) {
-              this.undoNodes[index]['receivedData'].title = obj.title
-              this.undoNodes[index]['receivedData'].line_color = obj.line_color
-              }
-            } else {
-              if(element['node'].id === obj.id) {
-              this.undoNodes[index]['node'].title = obj.title
-              this.undoNodes[index]['node'].line_color = obj.line_color
-              }
-            }
+          if(element['node'].id === obj.id) {
+            this.undoNodes[index]['node'].title = obj.title
+            this.undoNodes[index]['node'].line_color = obj.line_color
+          }
           });
         } else {
           this.undoNodes.push({'req': 'addNode', node: obj})
@@ -527,7 +520,7 @@
         let redoObj = await this.redoNode(this.redoNodes)
         if(redoObj){
           this.redoNodes.pop()
-          this.undoNodes.push({req: redoObj.req, receivedData: redoObj.node})
+          this.undoNodes.push({req: redoObj.req, node: redoObj.node})
         }
       },
     },

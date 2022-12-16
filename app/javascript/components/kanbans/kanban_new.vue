@@ -506,7 +506,7 @@
         .post(`/nodes.json`, data)
         .then((res) => {
           this.blocks.push(res.data.node)
-          this.undoNodes.push({'req': 'addNode', receivedData: res.data.node})
+          this.undoNodes.push({'req': 'addNode', 'node': res.data.node})
           this.sendLocals(false)
           this.updateKanbanUser()
         })
@@ -715,7 +715,7 @@
             this.blocks = this.blocks.filter(blk => blk.id !== block.id)
             let receivedNodes = response.data.node
             if(receivedNodes && receivedNodes.length > 0){
-              this.undoNodes.push({'req': 'deleteNode', node: receivedNodes})
+              this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
             }
             if (!this.undoDone || true) {
               let myNode = {
@@ -778,12 +778,10 @@
         let redoObj = await this.redoNode(this.redoNodes)
         if(redoObj){
           this.redoNodes.pop()
-          let receivedData = redoObj.node
-          let req = redoObj.req
-          if(req === 'addStage' || req === 'deleteStage'){
-            this.undoNodes.push({req, stage: receivedData, nodes: redoObj.childNode})
+          if(redoObj.req === 'addStage' || redoObj.req === 'deleteStage'){
+            this.undoNodes.push({req: redoObj.req, stage: redoObj.node, nodes: redoObj.childNode})
           } else {
-            this.undoNodes.push({req, node: receivedData})
+            this.undoNodes.push({req: redoObj.req, node: redoObj.node})
           }
         }
       },
