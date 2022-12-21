@@ -1,69 +1,67 @@
 <template>
-  <div v-if="!loading">
-    <div class="row kanban_board" id="kanban-board">
-      <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
-        <div v-for="stage, index in computedStages" :slot="stage" :key="index" class="w-100 font-serif" >
-          <div class="w-100 mb-2" :id="'stage_'+index">
-            <div class="d-inline-block w-100 block">
-              <div class="pointer w-100 d-flex">
-                <div @click="updateStage(stage)" class="w-75">
-                  <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class="border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
-                </div>
-                <div class="d-flex w-25 justify-content-end">
-                  <div class="pointer" @click="stage.length > 0 ? selectedElementBg(stage,$event) : '' ">
-                    <i class="fas fa-eye-dropper color-picker mt-1 icon-opacity" title="Color Picker"></i>
-                  </div>
-                  <div class="pointer text-center" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
-                      <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
-                  </div>
-                  <div class="pointer" @click="deleteStageConfirm(stage)">
-                    <i class="fas ml-2 fa-times mt-1 icon-delete-stage" title="Delete Stage"></i>
-                  </div>
-                </div>
+  <div class="row kanban_board" id="kanban-board">
+    <kanban-board :stages="computedStages" :blocks="blocks" :config="config" @update-block="updateBlockPosition">
+      <div v-for="stage, index in computedStages" :slot="stage" :key="index" class="w-100 font-serif" >
+        <div class="w-100 mb-2" :id="'stage_'+index">
+          <div class="d-inline-block w-100 block">
+            <div class="pointer w-100 d-flex">
+              <div @click="updateStage(stage)" class="w-75">
+                <textarea-autosize @keydown.enter.prevent.native :id="index" :rows="1" type="text" v-debounce:3000ms="blurEvent" :value="stage" class="border-0 stage-title" @blur.native="newStageTitle($event)" placeholder="Enter Stage Title" />
               </div>
-            </div>
-          </div>
-          <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100" title="Add a Task">
-            <a role="button" class="bg-transparent border-0 pe-none">
-              <i class="fas fa-solid fa-list position-absolute mt-1 text-secondary"></i>
-              <span class="task_plus ml-4"> Add a Task </span>
-            </a>
-          </div>
-        </div>
-        <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
-          <div :id="'block' + block.id" class="d-inline-block w-100 block">
-            <div class="pointer w-100 d-flex" @click="selectedNode(index)">
-              <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add text here" />
-              <div class="pointer float-right">
-                <div @click="deleteBlockConfirm(block)">
-                  <i class="fas ml-2 fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
+              <div class="d-flex w-25 justify-content-end">
+                <div class="pointer" @click="stage.length > 0 ? selectedElementBg(stage,$event) : '' ">
+                  <i class="fas fa-eye-dropper color-picker mt-1 icon-opacity" title="Color Picker"></i>
                 </div>
-                <div @click="selectedElementBg(block,$event)">
-                  <i class="fas fa-eye-dropper text-muted color-picker ml-2 icon-opacity" title="Color Picker"></i>
+                <div class="pointer text-center" @click="stage.length > 0 ? addNewStage(stage,index) : ''">
+                    <i class="fas fa-plus mt-1 add-icon icon-opacity" title="Add Stage"></i>
                 </div>
-                <div>
-                  <i class="fas fa-arrows-alt text-secondary position-relative ml-2 icon-opacity" title="Drag Task"></i>
+                <div class="pointer" @click="deleteStageConfirm(stage)">
+                  <i class="fas ml-2 fa-times mt-1 icon-delete-stage" title="Delete Stage"></i>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </kanban-board>
-      <div v-if="colorSelected">
-        <div class="card p-0 border-none color-picker-placement">
-          <color-palette
-            :selected-node="selectedStage"
-            :selected-block="selectedBlock"
-            :nodes="allStages"
-            :currentMindMap="currentMindMap"
-            :customPallete="customPallete"
-            :uniqueColors="uniqueColors"
-            @updateColorNode="updateColor"
-            @saveNodeColor="saveNodeColor"
-            @closeModelPicker="closeModelPicker"
-            @updateTreeChartNode="updateStageRequest"
-            ></color-palette>
+        <div v-if="stage !== '' " @mouseover="hover_addtask = index" @mouseleave="hover_addtask = '' " :class="hover_addtask === index ? 'hover_task rounded' : ''" @click.prevent="addBlockToStage(stage)" class="pointer d-inline-block w-100" title="Add a Task">
+          <a role="button" class="bg-transparent border-0 pe-none">
+            <i class="fas fa-solid fa-list position-absolute mt-1 text-secondary"></i>
+            <span class="task_plus ml-4"> Add a Task </span>
+          </a>
         </div>
+      </div>
+      <div v-for="block,index in blocks" :slot="block.id" :key="block.id">
+        <div :id="'block' + block.id" class="d-inline-block w-100 block">
+          <div class="pointer w-100 d-flex" @click="selectedNode(index)">
+            <textarea-autosize @keydown.enter.prevent.native :rows="1" type="text" v-debounce:3000ms="blurEvent" v-model="block.title" @blur.native="updateBlock(block, $event, index)" class=" border-0 resize-text block-title" placeholder="Add text here" />
+            <div class="pointer float-right">
+              <div @click="deleteBlockConfirm(block)">
+                <i class="fas ml-2 fa-times text-danger position-relative icon-opacity ml-2" title="Delete Task"></i>
+              </div>
+              <div @click="selectedElementBg(block,$event)">
+                <i class="fas fa-eye-dropper text-muted color-picker ml-2 icon-opacity" title="Color Picker"></i>
+              </div>
+              <div>
+                <i class="fas fa-arrows-alt text-secondary position-relative ml-2 icon-opacity" title="Drag Task"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </kanban-board>
+    <div v-if="colorSelected">
+      <div class="card p-0 border-none color-picker-placement">
+        <color-palette
+          :selected-node="selectedStage"
+          :selected-block="selectedBlock"
+          :nodes="allStages"
+          :currentMindMap="currentMindMap"
+          :customPallete="customPallete"
+          :uniqueColors="uniqueColors"
+          @updateColorNode="updateColor"
+          @saveNodeColor="saveNodeColor"
+          @closeModelPicker="closeModelPicker"
+          @updateTreeChartNode="updateStageRequest"
+          ></color-palette>
       </div>
     </div>
   </div>
@@ -85,8 +83,6 @@
     mixins: [Common, TemporaryUser, History],
     data() {
       return {
-        currentMindMap: this.$store.getters.getMsuite,
-        loading: true,
         new_stage: false,
         color: {hex: ''},
         allStages: [],
@@ -143,14 +139,11 @@
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else if(data.message === "Stage Reset"){
-            this.$store.commit('setMSuite', data.mindmap)
-            this.currentMindMap = this.$store.getters.getMsuite,
             this.getMindmap()
             this.mountKanBan()
           }
           else {
-            await this.getAllStages()
-            await this.getAllNodes()
+            this.getMindmap()
             if(data.message === "Stage Updated"){
               this.allStages = data.stages
               this.updateBackgroundColors()
@@ -167,18 +160,16 @@
       this.$store.dispatch('setMindMapId', this.$store.getters.getMsuite.id)
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
-      if (this.$route.params.key) {
-        this.getMindmap()
-        if (this.currentMindMap.canvas !=null){
-          this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
-          this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
-          this.setUserOnMount()
-        }
-        else{
-          this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
-          this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
-          this.$store.dispatch('emptyUserList')
-        }
+      await this.getMindmap()
+      if (this.currentMindMap.canvas !=null){
+        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+        this.setUserOnMount()
+      }
+      else{
+        this.$store.dispatch('setUserEdit', this.currentMindMap.canvas)
+        this.$store.dispatch('setTemporaryUser', this.currentMindMap.canvas)
+        this.$store.dispatch('emptyUserList')
       }
       this.mountKanBan()
       this.getUserOnMount()
@@ -191,11 +182,22 @@
       ColorPalette
     },
     computed: {
+      currentMindMap() {
+        return this.$store.getters.getMsuite
+      },
       computedStages() {
         return this.allStages.map(stage => stage.title.length > 0 ? stage.title : '')
       },
       checkTempDelete() {
         return this.allStages.some(stage => stage.title === '')
+      }
+    },
+    watch: {
+      currentMindMap: {
+        handler(value){
+          this.allStages = value.stages
+          this.blocks = value.nodes
+        }, deep: true
       }
     },
     methods: {
@@ -251,8 +253,24 @@
       },
       //=====================GETTING MINDMAP==============================//
       getMindmap: async function(){
-        await this.getAllStages()
-        await this.getAllNodes()
+        await this.$store.dispatch('getMSuite')
+        this.updateBackgroundColors()
+        this.updateColors()
+      },
+      updateColors(){
+        this.mapColors = []
+        this.uniqueColors = []
+        this.getColorNode('.drag-column')
+        this.getColorNode('.block-title')
+        this.updateBlockColors()
+        Object.values(this.allStages).forEach(stage => {
+          this.mapColors.push(stage.stage_color)
+        })
+        Object.values(this.blocks).forEach(block => {
+          this.mapColors.push(block.line_color)
+        })
+        this.uniqueColors = this.getUniqueColors(this.mapColors)
+        this.new_stage = false
       },
       // =====================STAGES CRUD OPERATIONS==============================//
       updateStageRequest(obj){
@@ -397,33 +415,6 @@
         this.colorSelected = false
         this.selectedElement = null
       },
-      async getAllStages() {
-        await http
-        .get(`/stages.json?mindmap_id=${this.currentMindMap.id}`)
-        .then( async (res) => {
-          this.allStages = res.data.stages
-          if(this.allStages.length == 3 &&
-              this.allStages[0].title == 'TO DO' &&
-              this.allStages[1].title == 'IN PROGRESS' &&
-              this.allStages[2].title == 'DONE'){
-            this.$store.dispatch('setNodeNumber', 0)
-          }
-          this.mapColors = []
-          this.uniqueColors = []
-          setTimeout(()=>{
-            this.getColorNode('.drag-column')
-          },1400)
-          Object.values(this.allStages).forEach(stage => {
-            this.mapColors.push(stage.stage_color);
-          });
-          this.uniqueColors = this.getUniqueColors(this.mapColors);
-          this.new_stage = false
-          })
-        .catch((err) => {
-          console.log(err)
-        })
-
-      },
       addNewStage(stage, stage_index){
         if (this.new_stage) {
           return;
@@ -473,7 +464,6 @@
             val = val + '0'
             this.createNewStage(val)
           } else {
-            this.allStages.splice(index, 1, res.data.stage)
             this.new_stage = false
             this.stage = null
             this.selectedElement = null
@@ -505,7 +495,6 @@
         http
         .post(`/nodes.json`, data)
         .then((res) => {
-          this.blocks.push(res.data.node)
           this.undoNodes.push({'req': 'addNode', 'node': res.data.node})
           this.sendLocals(false)
           this.updateKanbanUser()
@@ -563,8 +552,7 @@
           this.$refs['duplicateStageModal'].open()
           let index = this.allStages.findIndex(stg => stg.id === this.stage.id)
           this.allStages[index].title = ''
-          this.getAllStages()
-          this.getAllNodes()
+          this.getMindmap()
           this.sendLocals(false)
           return
         }
@@ -576,8 +564,7 @@
           this.getColorNode('.drag-column')
           if (val.length < 1){
             this.allStages[index].title = ''
-            this.getAllStages()
-            await this.getAllNodes()
+            this.getMindmap()
             this.sendLocals(false)
           }
           else if (index > -1) {
@@ -645,26 +632,6 @@
         }
         this.updateKanbanUser()
         return http.patch(`/nodes/${obj.id}.json`,data)
-      },
-      async getAllNodes(){
-        await http
-        .get(`/nodes.json?mindmap_id=${this.currentMindMap.id}`)
-        .then((res) => {
-          this.blocks = res.data.nodes
-          this.new_stage = false
-          this.loading = false
-          setTimeout(()=>{
-            this.updateBlockColors()
-          })
-          this.getColorNode('.block-title')
-          Object.values(this.blocks).forEach(block => {
-            this.mapColors.push(block.line_color);
-          });
-          this.uniqueColors = this.getUniqueColors(this.mapColors);
-        })
-        .catch((err) => {
-          console.log(err)
-        })
       },
 
       async updateBlockPosition(id, status, position) {
