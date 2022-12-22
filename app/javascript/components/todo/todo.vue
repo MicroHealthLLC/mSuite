@@ -19,13 +19,16 @@
               v-model="completedTasks" 
               width = "115"
               height = "28"/>
+              <div class="lock-container">
+                <toggle-button class="toggle-drag" v-if="isMobile" v-model="dragLocked" :labels="{checked: 'Drag Locked', unchecked: 'Drag Unlocked'}" width="100"/>
+              </div>
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable class="list-group" group="people" :list="sortedTodos" :move="checkMove"
+                <draggable class="list-group" :disabled="dragLocked" group="people" :list="sortedTodos" :move="checkMove"
                   @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false" v-bind="dragOptions">
                   <transition-group type="transition" :name="!drag ? 'list' : null">
                     <div v-for="(todo) in sortedTodos" :key="todo.id">
-                      <todo-map :node="todo" :selectedTodo="selectedTodo" :completedTasks="completedTasks"
+                      <todo-map :node="todo" :selectedTodo="selectedTodo" :dragLocked="dragLocked" :completedTasks="completedTasks"
                         :editInProgress="editInProgress" :current-mind-map="currentMindMap" @updateTodo="updateTodo"
                         @toggleChildModal="toggleChildModal" @toggleDeleteTodo="toggleDeleteTodo" @showInputField="showInputField"
                         @blurEvent="blurEvent" @clearTodoEditObj="clearTodoEditObj"></todo-map>
@@ -61,7 +64,7 @@
                   </transition-group>
                 </draggable>
               </b-list-group>
-              <b-list-group-item v-if="!showChildModalTodo" class="mb-5">
+              <b-list-group-item v-if="!showChildModalTodo" class="mb-2">
                 <div class="relative flex h-full">
                   <div class="container relative max-w-xl mt-20 h-min">
                     <b-form @submit.prevent="addTodo()">
@@ -96,6 +99,9 @@
                 </div>
               </b-list-group-item>
             </div>
+            <!-- <div class="lock-container">
+                <toggle-button class="toggle-drag" v-if="!isMobile" v-model="dragLocked" :labels="{checked: 'Drag Locked', unchecked: 'Drag Unlocked'}" width="100"/>
+              </div> -->
           </div>
         </div>
       </div>
@@ -116,6 +122,7 @@
   import TemporaryUser from "../../mixins/temporary_user.js"
   import Common from "../../mixins/common.js"
   import History from "../../mixins/history.js"
+  import { isMobile } from 'mobile-device-detect'
 
   export default {
     props: {
@@ -152,7 +159,8 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
-        drag: false
+        drag: false,
+        dragLocked: isMobile ? true : false,
       }
     },
     components: {
@@ -546,6 +554,7 @@
 
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
+
     },
     watch: {
       mSuite: {

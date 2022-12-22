@@ -70,7 +70,7 @@
       </div>
     </b-list-group-item>
     <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :list="sortedChildTodos" @change="(e) => handleEnd(e, sortedChildTodos)" group="people" @start="drag = true" @end="drag = false" v-bind="dragOptions">
+      <draggable class="list-group" :disabled="dragLocked" :list="sortedChildTodos" @change="(e) => handleEnd(e, sortedChildTodos)" group="people" @start="drag = true" @end="drag = false" v-bind="dragOptions">
         <transition-group type="transition" :name="!drag ? 'list' : null">
         <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
           <div class="flex" v-if="selectedTodo.id != child.id">
@@ -153,6 +153,7 @@
       selectedTodo: Object,
       completedTasks: Boolean,
       editInProgress: Boolean,
+      dragLocked: Boolean,
       currentMindMap: null
     },
     data() {

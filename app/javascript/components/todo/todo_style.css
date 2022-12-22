@@ -78,7 +78,15 @@
   .list-move {
     transition: transform 0.5s;
   }
-
+  .lock-container {
+    position: relative;
+    margin-bottom: 40px !important;
+  }
+  .toggle-drag {
+    position: absolute !important;
+    right: 0 !important;
+    
+  }
   .svg-inline--fa, .fa-plus{
     height: 0.93rem !important;
   }
