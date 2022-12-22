@@ -24,6 +24,8 @@
     "fabric-history": "^1.6.0",
     "follow-redirects": "1.14.8",
     "glob-parent": "^5.1.2",
+    "highcharts": "^10.3.2",
+    "highcharts-vue": "^1.4.0",
     "highlight.js": "^10.4.1",
     "html2canvas": "^1.4.0",
     "jimp": "^0.9.3",

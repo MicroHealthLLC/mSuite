@@ -115,14 +115,12 @@
   import TodoMap from "./TodoMap";
   import TemporaryUser from "../../mixins/temporary_user.js"
   import Common from "../../mixins/common.js"
+  import History from "../../mixins/history.js"
 
   export default {
     props: {
       undoMap: Function,
       redoMap: Function
-    },
-    components: {
-      draggable
     },
     data() {
       return {
@@ -160,9 +158,10 @@
     components: {
       TodoMap,
       ToggleButton,
-      DatePicker
+      DatePicker,
+      draggable
     },
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     channels: {
       WebNotificationsChannel: {
         received(data) {
@@ -359,7 +358,7 @@
         this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
           this.myTodos.push(result.data.node)
-          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           this.showModalTodo = false
           this.clearTodoObj()
           this.sendLocals(false)
@@ -393,7 +392,7 @@
         }
         this.updateTodoUser()
         http.post(`/nodes.json`, data).then((result) => {
-          this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           this.showChildModalTodo = false
           this.clearTodoObj()
           this.sendLocals(false)
@@ -422,20 +421,11 @@
 
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === todo.id) {
-              this.undoNodes[index]['receivedData'].title = todo.title
-              this.undoNodes[index]['receivedData'].startdate = todo.duedate
-              this.undoNodes[index]['receivedData'].duedate = todo.duedate
-              this.undoNodes[index]['receivedData'].is_disabled = completed
-              }
-            } else {
-              if(element['node'].id === todo.id) {
+            if(element['node'].id === todo.id) {
               this.undoNodes[index]['node'].title = todo.title
               this.undoNodes[index]['node'].startdate = todo.duedate
               this.undoNodes[index]['node'].duedate = todo.duedate
               this.undoNodes[index]['node'].is_disabled = completed
-              }
             }
           });
         } else {
@@ -505,32 +495,20 @@
         this.cancelChildObj()
         this.completedTasks = false
       },
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let node = res.data.node.node
-            let req = res.data.node.req
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          this.redoNodes.push({req: undoObj.req, node: undoObj.node})
+        }
       },
-      redoObj(){
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let receivedData = res.data.node.node
-            let req = res.data.node.req
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          this.undoNodes.push({req: redoObj.req, 'node': redoObj.node})
+        }
       },
     },
     computed: {

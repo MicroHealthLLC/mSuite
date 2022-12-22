@@ -106,9 +106,10 @@
   import Chance from 'chance'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import History from "../../mixins/history.js"
 
   export default {
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     data() {
       return {
         currentMindMap      : this.$store.getters.getMsuite,
@@ -175,6 +176,10 @@
             this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
+          }
+          else {
+            this.calendar.store.getState().calendar.events.internalMap.clear()
+            this.fetchEvents()
           }
         }
       }
@@ -362,7 +367,7 @@
           }
         let _this = this
         await http.post('/nodes.json', data).then((result) => {
-          _this.undoNodes.push({req: 'addNode', receivedData: result.data.node})
+          _this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           _this.currentNodeId = result.data.node.id
         })
       },
@@ -381,23 +386,12 @@
           }
           if(this.undoNodes.length > 0) {
             this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === eventObj.id) {
-                this.undoNodes[index]['receivedData'].title = data.title
-                this.undoNodes[index]['receivedData'].description = data.description
-                this.undoNodes[index]['receivedData'].startdate = data.startdate
-                this.undoNodes[index]['receivedData'].duedate = data.duedate
-                this.undoNodes[index]['receivedData'].hide_children = data.hide_children
-              }
-            } 
-            else {
-                if(element['node'].id === eventObj.id) {
-                  this.undoNodes[index]['node'].title = data.title
-                  this.undoNodes[index]['node'].description = data.description
-                  this.undoNodes[index]['node'].startdate = data.startdate
-                  this.undoNodes[index]['node'].duedate = data.duedate
-                  this.undoNodes[index]['node'].hide_children = data.isAllday
-                }
+            if(element['node'].id === eventObj.id) {
+              this.undoNodes[index]['node'].title = data.title
+              this.undoNodes[index]['node'].description = data.description
+              this.undoNodes[index]['node'].startdate = data.startdate
+              this.undoNodes[index]['node'].duedate = data.duedate
+              this.undoNodes[index]['node'].hide_children = data.isAllday
             }
           });
         }
@@ -510,33 +504,22 @@
           }
         });
       },
-      undoEvent(){
+      async undoEvent(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.toggleCalendarView()
-            this.undoNodes.pop()
-            let node = res.data.node.node
-            let req = res.data.node.req
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.toggleCalendarView()
+          this.undoNodes.pop()
+          this.redoNodes.push({req: undoObj.req, node: undoObj.node})
+        }
       },
-      redoEvent(){
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let receivedData = res.data.node.node
-            let req = res.data.node.req
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+      async redoEvent(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.toggleCalendarView()
+          this.redoNodes.pop()
+          this.undoNodes.push({req: redoObj.req, 'node': redoObj.node})
+        }
       },
       closeModelPicker(){
         this.colorSelected = false
