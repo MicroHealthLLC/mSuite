@@ -118,6 +118,7 @@ class Mindmap < ApplicationRecord
 
   def reset_mindmap
     self.nodes.destroy_all
+    self.stages.destroy_all
     self.children.destroy_all
     self.node_files.map(&:purge)
     self.assign_attributes(

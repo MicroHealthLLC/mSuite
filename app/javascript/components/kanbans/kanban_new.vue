@@ -140,7 +140,6 @@
           }
           else if(data.message === "Stage Reset"){
             this.getMindmap()
-            this.mountKanBan()
           }
           else {
             this.getMindmap()
@@ -246,10 +245,10 @@
           }, 1500)
         })
       },
-      async updateKanbanUser(){
-        await http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+      updateKanbanUser(){
+        http.put(`/msuite/${this.currentMindMap.unique_key}`, {
           canvas: this.$store.state.userEdit
-          });
+        });
       },
       //=====================GETTING MINDMAP==============================//
       getMindmap: async function(){
@@ -257,11 +256,11 @@
         this.updateBackgroundColors()
         this.updateColors()
       },
-      updateColors(){
+      async updateColors(){
         this.mapColors = []
         this.uniqueColors = []
-        this.getColorNode('.drag-column')
-        this.getColorNode('.block-title')
+        await this.getColorNode('.drag-column')
+        await this.getColorNode('.block-title')
         this.updateBlockColors()
         Object.values(this.allStages).forEach(stage => {
           this.mapColors.push(stage.stage_color)
