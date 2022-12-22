@@ -10,7 +10,8 @@
           </div>
           <div class="container relative max-w-lg pt-6 mx-auto">
             <p class="text-slate-600 text-center">Your Todos</p>
-            <toggle-button 
+            <toggle-button
+              v-if="!isMobile"
               class="toggleButton mb-3"
               :value="true" 
               color="#82C7EB" 
@@ -20,6 +21,14 @@
               width = "115"
               height = "28"/>
               <div class="lock-container">
+                <toggle-button
+                  v-if="isMobile"
+                  :value="true" 
+                  color="#82C7EB" 
+                  :sync="true" 
+                  :labels="{checked: 'Actionable', unchecked: 'All Tasks'}" 
+                  v-model="completedTasks"
+                  width="100"/>
                 <toggle-button class="toggle-drag" v-if="isMobile" v-model="dragLocked" :labels="{checked: 'Drag Locked', unchecked: 'Drag Unlocked'}" width="100"/>
               </div>
             <div>

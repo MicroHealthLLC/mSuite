@@ -31,6 +31,8 @@
     letter-spacing: 1px;
     color: grey !important;
   }
+  .mobile-toggle-btn {
+  }
   .v-switch-core {
     background-color: red !important;
   }
@@ -80,7 +82,7 @@
   }
   .lock-container {
     position: relative;
-    margin-bottom: 40px !important;
+    /* margin-bottom: 40px !important; */
   }
   .toggle-drag {
     position: absolute !important;
