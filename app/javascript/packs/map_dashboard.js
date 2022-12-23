@@ -14,6 +14,10 @@ import vueDebounce from 'vue-debounce'
 import VueTextareaAutosize from 'vue-textarea-autosize'
 import VueCookies from 'vue-cookies';
 import moment from 'moment';
+import Hightcharts from "highcharts";
+import vennInit from "highcharts/modules/venn";
+import HighchartsVue from "highcharts-vue";
+
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
 Vue.use(ActionCableVue, {
@@ -22,6 +26,9 @@ Vue.use(ActionCableVue, {
   connectionUrl: `${base_url}/cable`,
   connectImmediately: true
 })
+
+vennInit(Hightcharts)
+Vue.use(HighchartsVue)
 Vue.use(Vuex);
 Vue.use(ElementUI);
 Vue.use(VueTextareaAutosize)

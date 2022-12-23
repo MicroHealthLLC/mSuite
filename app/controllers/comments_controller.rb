@@ -4,7 +4,7 @@ class CommentsController < AuthenticatedController
 
   def create
     @comment = Comment.create(comment_params)
-    ActionCable.server.broadcast "web_comments_channel#{@comment.mindmap.id}", message: "Comment Created", comment: @comment
+    ActionCable.server.broadcast( "web_comments_channel#{@comment.mindmap.id}", {message: "Comment Created", comment: @comment})
     respond_to do |format|
       format.json { render json: {comment: @comment} }
       format.html { }
@@ -13,7 +13,7 @@ class CommentsController < AuthenticatedController
 
   def update
     if @comment.update(comment_params)
-      ActionCable.server.broadcast "web_comments_channel#{@comment.mindmap.id}", message: "Comment Updated", comment: @comment
+      ActionCable.server.broadcast( "web_comments_channel#{@comment.mindmap.id}", {message: "Comment Updated", comment: @comment})
       respond_to do |format|
         format.json { render json: {comment: @comment} }
         format.html { }
@@ -32,7 +32,7 @@ class CommentsController < AuthenticatedController
   def destroy
     if @comment.destroy
       delete_child_comments Comment.where(parent_comment: @comment.id)
-      ActionCable.server.broadcast "web_comments_channel#{@comment.mindmap.id}", message: "Comment Deleted", comment: @comment
+      ActionCable.server.broadcast( "web_comments_channel#{@comment.mindmap.id}", {message: "Comment Deleted", comment: @comment} )
       respond_to do |format|
         format.json { render json: {success: true} }
         format.html { }

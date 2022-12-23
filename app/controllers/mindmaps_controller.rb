@@ -78,8 +78,8 @@ class MindmapsController < AuthenticatedController
     if undoNode
       myNode = undo_my_node(undoNode)
       if myNode
-        ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "undo mindmap", node: myNode
-        render json: { success: true, node: myNode }
+        ActionCable.server.broadcast( "web_notifications_channel#{myNode[:mindmap_id]}", {message: "undo mindmap", node: myNode} )
+        render json: { success: true, undoObj: myNode }
       end
     else
       myMindmap = undo_my_mindmap(undo_mindmap)
@@ -94,8 +94,8 @@ class MindmapsController < AuthenticatedController
     if redoNode
       myNode = redo_my_node(redoNode)
       if myNode
-        ActionCable.server.broadcast "web_notifications_channel#{myNode[:mindmap_id]}", message: "redo mindmap", node: myNode
-        render json: { success: true, node: myNode }
+        ActionCable.server.broadcast( "web_notifications_channel#{myNode[:mindmap_id]}", { message: "redo mindmap", node: myNode} )
+        render json: { success: true, redoObj: myNode }
       end
     else
       myMindmap = redo_my_mindmap(redo_mindmap)
@@ -232,8 +232,8 @@ class MindmapsController < AuthenticatedController
     end
 
     def check_password_update
-      @mindmap = Mindmap.find_by(unique_key: params[:id])
       if params[:mindmap][:password].present? && params[:old_password]
+        @mindmap = Mindmap.find_by(unique_key: params[:id])
         unless @mindmap.password.present? && @mindmap.check_password(params[:old_password]) || @mindmap.password.blank?
           render json: { error: "Password Mismatched" }
         else
