@@ -42,7 +42,8 @@ class NodesController < AuthenticatedController
 
   def destroy
     if @node.destroy
-      delNodes = delete_child_nodes Node.where(parent_node: @node.id)
+      delNodes = []
+      delNodes = delete_child_nodes @node.children if @node.children
       delNodes = @node if @node.mindmap.mm_type == 'calendar'
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
@@ -93,10 +94,8 @@ class NodesController < AuthenticatedController
   end
 
   def delete_child_nodes nodes
-    return if nodes.length == 0
-
     nodes.each do |nod|
-      delete_child_nodes Node.where(parent_node: nod.id)
+      delete_child_nodes nod.children
       $deleted_child_nodes.push(nod.destroy)
     end
     return $deleted_child_nodes

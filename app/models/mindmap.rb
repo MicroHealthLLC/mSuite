@@ -34,7 +34,7 @@ class Mindmap < ApplicationRecord
   enum status: { active: 0, archived: 1 }
   enum is_save: { is_public: 0, is_private: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
-  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11}
+  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11, venndiagram: 12}
   
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
@@ -76,6 +76,7 @@ class Mindmap < ApplicationRecord
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
       parent: self.parent,
+      stages: self.stages,
       editable: true
     ).as_json
   end
@@ -117,6 +118,7 @@ class Mindmap < ApplicationRecord
 
   def reset_mindmap
     self.nodes.destroy_all
+    self.stages.destroy_all
     self.children.destroy_all
     self.node_files.map(&:purge)
     self.assign_attributes(

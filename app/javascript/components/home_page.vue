@@ -29,6 +29,7 @@
                 <i class="far fa-poll-h mm-icon mt-3" v-if="type.key == 'poll'"></i>
                 <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
                 <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
+                <i class="mx-auto fad fa-chart-pie mm-icon mt-3" v-if="type.key == 'venndiagram'"></i>
                 <span class="text-center icon-text">{{type.value}}</span>
               </div>
             </div>
@@ -64,7 +65,8 @@
           { key: 'Notepad', value: 'Notepad', imgsrc: "" },
           { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" },
           { key: 'poll', value: 'Poll', imgsrc: "" },
-          { key: 'calendar', value: 'Calendar', imgsrc: "" }
+          { key: 'calendar', value: 'Calendar', imgsrc: "" },
+          { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" }
         ]
       }
     },
