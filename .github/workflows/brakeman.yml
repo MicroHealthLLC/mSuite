@@ -1,22 +1,16 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 # This workflow integrates Brakeman with GitHub's Code Scanning feature
 # Brakeman is a static analysis security vulnerability scanner for Ruby on Rails applications
 
 name: Brakeman Scan
 
+# This section configures the trigger for the workflow. Feel free to customize depending on your convention
 on:
   push:
-    branches: [ master ]
+    branches: [ "master", "main", "release" ]
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ master release]
+    branches: [ "master", "main", "release" ]
   schedule:
     - cron: '35 15 * * 6'
-
 jobs:
   brakeman-scan:
     name: Brakeman Scan
@@ -24,13 +18,13 @@ jobs:
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     # Customize the ruby version depending on your needs
     - name: Setup Ruby
-      uses: ruby/setup-ruby@f20f1eae726df008313d2e0d78c5e602562a1bcf
+      uses: actions/setup-ruby@v1
       with:
-        ruby-version: '2.6.6'
+        ruby-version: '3.1.0'
 
     - name: Setup Brakeman
       env:
