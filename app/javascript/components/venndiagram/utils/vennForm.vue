@@ -34,7 +34,7 @@
       </b-row>
     </b-form>
     <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
-      Value must be greater than 0
+      {{ msgErr }}
     </sweet-modal>
   </div>
 </template>
@@ -42,6 +42,7 @@
   export default{
     data(){
       return {
+        msgErr: '',
         dataSet: {
           sets: '',
           value: 0,
@@ -51,12 +52,30 @@
     },
     methods: {
       addNewValue(){
-        if(this.dataSet.value > 0){
+        if(this.dataSet.value > 0 && this.dataSet.sets != ''){
+          if(this.dataSet.sets.includes(',')){
+            if(this.dataSet.name  != ''){
+              this.$emit("addNewValue", this.dataSet)
+              this.afterSaveReset()
+            } else {
+              this.msgErr = 'Name also Required'
+              this.$refs["dataErrorModal"].open()
+              return
+            }
+          } else {
           this.$emit("addNewValue", this.dataSet)
-          this.dataSet.sets  = ''
-          this.dataSet.name  = ''
-          this.dataSet.value = 0
-        } else this.$refs["dataErrorModal"].open()
+          this.afterSaveReset()
+          }
+        } else if(this.dataSet.value < 1){
+          this.msgErr = 'Number must be greater than 0.'
+          this.$refs["dataErrorModal"].open()
+        } else {
+          this.msgErr = "Sets must be Unique."
+          this.$refs["dataErrorModal"].open()
+        }
+      },
+      afterSaveReset(){
+        this.dataSet = {sets: '', name: '', value: 0}
       }
     }
   }
