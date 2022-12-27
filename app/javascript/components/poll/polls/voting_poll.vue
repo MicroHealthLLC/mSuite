@@ -26,8 +26,7 @@
               :name="questions.question"
               :value="answers"
               v-model="questions.checked"
-              :disabled="questions.checked.length >= questions.allowedAnswers && questions.checked.indexOf(answers) == -1 ? true:false"
-              @change="checkAnswers(questions.checked)"
+              :disabled="questions.checked.length >= questions.allowedAnswers && questions.checked.indexOf(answers) == -1"
               @click="checkCheckedAns($event)" />
             <input
               v-else
@@ -35,7 +34,6 @@
               :name="questions.question"
               :value="answers"
               v-model="questions.checked"
-              @change="checkAnswers(questions.checked)"
               @click="checkCheckedAns($event)" />
             <span>
               {{ answers.text }}
@@ -55,14 +53,6 @@
             type="warning"
             class="text-white ml-4 mt-4 py-1 px-3"
             @click="resetData">RESET</el-button>
-          <!-- <button
-            class="btn btn-success mt-4 py-0 px-3 rounded-0"
-            @click="submitVote">
-            SUBMIT
-          </button>
-          <button
-            class="btn btn-warning text-white ml-4 mt-4 py-0 px-3 rounded-0"
-            @click="resetData">RESET</button> -->
         </div>
       </div>
       <section v-else-if="!validForVote" class="container">
@@ -114,12 +104,6 @@
             this.$store.commit('setMsuiteParent', data.mindmap)
             let poll = JSON.parse(data.mindmap.canvas).pollData
             this.voted(poll)
-            if(!this.returnFun){
-              this.pollData.Questions.forEach((question, index) => {
-                poll.Questions[index].checked = question.checked
-              })
-            this.pollData = poll
-            }
           }
         }
       }
@@ -130,9 +114,6 @@
         this.subscribeCable(this.currentMindMap.parent_id)
         this.$store.dispatch('setExportId', 'poll-vote')
         this.voted()
-        this.pollData.Questions.forEach( question => {
-          question.checked = []
-        })
         if (this.pollData.duedate == '' || this.pollData.duedate == undefined) this.validForVote = true
         else if (new Date() < new Date(this.pollData.duedate)) this.validForVote = true
         else this.validForVote = false
