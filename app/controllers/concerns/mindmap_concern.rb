@@ -50,7 +50,7 @@ module MindmapConcern
     
     def update_calendar_todo_dates(changed_month,changed_year)
       @clone_msuite.nodes.each do |node|
-        node.startdate = node.startdate.change(year:changed_year, month: changed_month) if @clone_msuite.mm_type =='calendar'
+        node.startdate = node.startdate.change(year:changed_year, month: changed_month)
         node.duedate = node.duedate.change(year:changed_year, month: changed_month) if node.duedate != nil
       end
     end
