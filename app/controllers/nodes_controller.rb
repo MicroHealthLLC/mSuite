@@ -11,7 +11,7 @@ class NodesController < AuthenticatedController
     @node = @node.decryption
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
     duplicate_child_nodes if params[:duplicate_child_nodes].present?
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is created", node: @node }
+    ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is created", node: @node } )
     respond_to do |format|
       format.json { render json: {node: @node}}
       format.html { }
@@ -25,7 +25,7 @@ class NodesController < AuthenticatedController
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
     @node = @node.decryption
     update_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node}
+    ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node} )
     respond_to do |format|
       format.json { render json: {node: @node}}
       format.html { }
@@ -48,7 +48,7 @@ class NodesController < AuthenticatedController
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
-      ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node }
+      ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node })
       respond_to do |format|
         format.json { render json: {success: true, node: delNodes}}
         format.html { }
@@ -65,7 +65,7 @@ class NodesController < AuthenticatedController
     @flag = params[:flag]
     @node.update_column('hide_children', @flag)
     hide_show_nested_children(Node.where(parent_node: @node.id))
-    ActionCable.server.broadcast "web_notifications_channel#{@node.mindmap_id}", message: "Node is updated", node: @node, mindmap: @mindmap
+    ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node, mindmap: @mindmap})
     respond_to do |format|
       format.json { render json: {success: true, node: @node}}
       format.html { }
