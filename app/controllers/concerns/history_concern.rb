@@ -14,11 +14,15 @@ module HistoryConcern
         if paramNode.is_a? Array
           paramNode.each do |arrayNode|
             if Node.find_by(id: arrayNode[:id]) == nil
-              childCreatedNode.push(create_node arrayNode)
+              node_child = new_node arrayNode
+              node_child.decryption.save
+              childCreatedNode.push(node_child)
             end
           end
         elsif ((childNodes.is_a? Array) && (childNodes[0][:stage_id] == nil))
-          childCreatedNode.push(create_node paramNode)
+          node_child = new_node paramNode
+          node_child.decryption.save
+          childCreatedNode.push(node_child)
           childNodes.each do |arrayNode|
             if arrayNode[:id] != paramNode[:id]
               if Node.find_by(id: arrayNode[:id]) == nil
@@ -29,7 +33,9 @@ module HistoryConcern
             end
           end
         elsif paramNode != nil
-          createdNode = create_node paramNode
+          my_node = new_node paramNode
+          my_node.decryption.save
+          createdNode = my_node
         end
         if paramNode.is_a? Array
           nodeObj = node_obj request,childCreatedNode,paramNode[0][:mindmap_id]
@@ -57,7 +63,9 @@ module HistoryConcern
           currentStage = myStage[:stage]
           stageNodes = myStage[:nodes]
         end
-        createdStage = create_stage currentStage
+        createdStage = new_stage currentStage
+        createdStage.decryption.save
+
         if stageNodes.is_a? Array
           childStages = []
           stageNodes.each do |arrayNode|
@@ -66,7 +74,9 @@ module HistoryConcern
             else
               stageChild = arrayNode
             end
-            childStages.push(create_node stageChild)
+            child_stage = new_node stageChild
+            child_stage.decryption.save
+            childStages.push(child_stage)
           end
         end
         nodeObj = ({
@@ -157,7 +167,8 @@ module HistoryConcern
         return nodeObj
       elsif params[params.length - 1][:req] == 'addStage'
         myStage = params.pop()
-        createdStage = create_stage myStage[:stage]
+        createdStage = new_stage myStage[:stage]
+        createdStage.decryption.save
         nodeObj = node_obj 'addStage',createdStage,myStage[:stage][:mindmap_id]
         return nodeObj
       else {}
@@ -184,24 +195,6 @@ module HistoryConcern
 
   private
 
-  def create_node(arrayNode)
-    node = Node.create(
-      id: arrayNode[:id],
-      title:  arrayNode[:title],
-      line_color: arrayNode[:line_color],
-      mindmap_id: arrayNode[:mindmap_id],
-      parent_node: arrayNode[:parent_node],
-      startdate: arrayNode[:startdate],
-      description: arrayNode[:description],
-      position: arrayNode[:position],
-      position_x: arrayNode[:position_x],
-      position_y: arrayNode[:position_y],
-      duedate: arrayNode[:duedate],
-      is_disabled: arrayNode[:is_disabled],
-      stage_id: arrayNode[:stage_id]
-    )
-    return node
-  end
   def new_node(arrayNode)
     node = Node.new(
       id: arrayNode[:id],
@@ -220,8 +213,8 @@ module HistoryConcern
     )
     return node
   end
-  def create_stage(stage)
-    stage = Stage.create(
+  def new_stage(stage)
+    stage = Stage.new(
       id: stage[:id],
       title:  stage[:title],
       stage_color: stage[:stage_color],
