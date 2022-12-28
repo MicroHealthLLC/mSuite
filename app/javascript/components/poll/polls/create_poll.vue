@@ -398,6 +398,6 @@ export default {
 <style lang="scss">
 @import "./check_box.scss";
 </style>
-<style scoped>
-@import './poll.css'
+<style lang="scss" scoped>
+@import './poll.scss'
 </style>

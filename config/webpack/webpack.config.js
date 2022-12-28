@@ -3,8 +3,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require('webpack')
 const dotenv = require('dotenv')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
-console.log("********************THIS IS WEBPACK CONFIG")
+const FilterWarningsPlugin = require("webpack-filter-warnings-plugin");
 
 dotenv.config();
 
@@ -18,7 +17,7 @@ module.exports = merge({
       },
       {
         test: /\.css$/i,
-        use: ['css-loader', 'style-loader', 'sass-loader'],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       }
     ]
   },
@@ -28,8 +27,14 @@ module.exports = merge({
       'process.env': JSON.stringify(process.env)
    }),
    new MiniCssExtractPlugin({
+    filename: "[name].[chunkhash:5].css",
+    chunkFilename: "[name].chunk.[chunkhash:5].css",
     ignoreOrder: true
   }),
+  new FilterWarningsPlugin({
+    exclude:
+      /mini-css-extract-plugin[^]*Conflicting order. Following module has been added:/,
+  })
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.vue', '.css'],

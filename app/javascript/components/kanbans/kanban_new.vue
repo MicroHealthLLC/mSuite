@@ -755,6 +755,6 @@
   }
 </script>
 
-<style>
+<style lang="scss" scoped>
   @import "./styles/kanban_new.scss";
 </style>

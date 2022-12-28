@@ -234,6 +234,6 @@
   };
 </script>
 
-<style scoped>
-  @import './poll.css'
+<style lang="scss" scoped>
+  @import './poll.scss'
 </style>
