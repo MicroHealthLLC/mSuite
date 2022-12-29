@@ -183,6 +183,7 @@
             ],
             allowedAnswers: 0,
             voters: [],
+            checked: [],
           }],
           showResult: false,
           url: ''
