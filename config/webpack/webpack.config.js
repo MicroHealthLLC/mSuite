@@ -30,11 +30,11 @@ module.exports = merge({
     filename: "[name].[chunkhash:5].css",
     chunkFilename: "[name].chunk.[chunkhash:5].css",
     ignoreOrder: true
-  }),
-  new FilterWarningsPlugin({
-    exclude:
-      /mini-css-extract-plugin[^]*Conflicting order. Following module has been added:/,
-  })
+    }),
+    new FilterWarningsPlugin({
+      exclude:
+        /mini-css-extract-plugin[^]*Conflicting order. Following module has been added:/,
+    })
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.vue', '.css'],

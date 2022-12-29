@@ -134,7 +134,7 @@ import http from "../../../common/http"
 import DatePicker from 'vue2-datepicker'
 import TemporaryUser from "../../../mixins/temporary_user.js"
 import PollResults from "./poll_view_results/poll_results"
-
+import './poll.css'
 
 export default {
   props: ["pollData", "undoCanvas", "currentMindMap", "pollEdit"],
@@ -397,7 +397,4 @@ export default {
 
 <style lang="scss">
 @import "./check_box.scss";
-</style>
-<style lang="scss" scoped>
-@import './poll.scss'
 </style>

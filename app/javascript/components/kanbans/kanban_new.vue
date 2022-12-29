@@ -75,6 +75,7 @@
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
   import History from "../../mixins/history.js"
+  import "./styles/kanban_new.css";
 
   var autoScroll = require('dom-autoscroller');
   Vue.use(vueKanban);
@@ -754,7 +755,3 @@
     }
   }
 </script>
-
-<style lang="scss" scoped>
-  @import "./styles/kanban_new.scss";
-</style>

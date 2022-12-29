@@ -107,6 +107,7 @@
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
   import History from "../../mixins/history.js"
+  import "./calendar.css";
 
   export default {
     mixins: [Common, TemporaryUser, History],
@@ -607,6 +608,3 @@
     }
   }
 </script>
-<style lang="scss" scoped>
-  @import "./calendar.scss";
-</style>
