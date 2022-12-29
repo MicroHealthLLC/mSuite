@@ -311,7 +311,7 @@
       submitChildNode: async function (obj) {
 
         let _this = this
-        if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
+        if(this.nodes.length > 0 && this.$store.state.nodeNumber != 'NaN'){
           this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
           this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
@@ -369,7 +369,7 @@
       },
       getTreeMap: async function(){
         let res = await this.$store.dispatch('getMSuite')
-        let response = this.$store.getters.getMsuite
+        let response = await this.$store.getters.getMsuite
         this.$store.dispatch('setMindMapId', response.id)
         this.parent_nodes.label = response.name
         this.currentMindMap.id = response.id
