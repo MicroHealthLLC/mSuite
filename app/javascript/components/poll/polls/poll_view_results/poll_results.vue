@@ -37,6 +37,7 @@
   import 'jquery-ui-bundle/jquery-ui.css'
   import '../../../../common/plotly.js'
   import '../../../../common/plotly_renderers.min.js'
+  import '../poll.css'
 
   export default {
     name: 'Poll Results',
@@ -137,6 +138,3 @@
     }
   }
 </script>
-<style scoped>
-  @import '../poll.css'
-</style>
