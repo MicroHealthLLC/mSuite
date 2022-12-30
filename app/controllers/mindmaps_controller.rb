@@ -29,6 +29,7 @@ class MindmapsController < AuthenticatedController
   def update
     if @mindmap.update(mindmap_params)
       @mindmap = @mindmap.decrypt_attributes
+      @mindmap.password_check
       broadcast_actioncable(@mindmap,password_present?)
       render json: render_mindmap(@mindmap,nil)
     end

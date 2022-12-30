@@ -193,7 +193,7 @@
     </sweet-modal>
     <reset-map-modal ref="reset-map-modal" @reset-mindmap="resetMindmap"></reset-map-modal>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"
-      @password_mismatched="$refs['passwordMismatched'].open()" :password="password" :isSaveMSuite="isSaveMSuite">
+      @password_mismatched="$refs['passwordMismatched'].open()" :isSaveMSuite="isSaveMSuite">
     </make-private-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
@@ -359,8 +359,8 @@ export default {
       this.sendLocals(false)
       this.checkMindmapType()
       this.currentMindMap.is_save = 'is_public'
-      this.currentMindMap.password = null
       this.$store.dispatch('updateMSuite', this.currentMindMap)
+      if(this.currentMindMap.password) location.reload()
     },
     deleteMap() {
       this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()

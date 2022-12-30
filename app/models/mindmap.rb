@@ -143,6 +143,10 @@ class Mindmap < ApplicationRecord
     # self.will_delete_at = ENV['DELETE_AFTER'].to_i.days.from_now if (self.will_delete_at == ENV['EXP_DAYS'].to_i.days.from_now.to_date)
   end
 
+  def password_check
+    self.update(password: nil) if self.is_save == "is_public" && self.password != nil
+  end
+
   private
 
   def compute_child_nodes(node)
