@@ -135,5 +135,7 @@
   "browserslist": [
     "defaults"
   ],
-  "devDependencies": {}
+  "devDependencies": {
+    "@webpack-cli/serve": "^2.0.1"
+  }
 }
