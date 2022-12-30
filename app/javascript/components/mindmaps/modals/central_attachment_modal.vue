@@ -83,7 +83,7 @@
 </script>
 
 <style lang=scss scoped>
-  #central-attachment-modal /deep/ .sweet-modal {
+  #central-attachment-modal ::v-deep .sweet-modal {
     min-width: 800px;
     .sweet-content {
       padding-top: 1.5em;
@@ -91,13 +91,13 @@
     }
   }
 
-  #central-attachment-modal /deep/ .ql-container {
+  #central-attachment-modal ::v-deep .ql-container {
     height: 40vh;
     max-height: 40vh;
     border-top: 1px solid #ccc;
   }
 
-  #central-attachment-modal /deep/ .ql-toolbar {
+  #central-attachment-modal ::v-deep .ql-toolbar {
     display: none;
   }
 

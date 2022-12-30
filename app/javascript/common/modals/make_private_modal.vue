@@ -35,9 +35,9 @@
 
   export default{
     name: "makePrivateModal",
-    props: ['password'],
     data(){
       return{
+        password: JSON.parse(JSON.stringify(this.$store.getters.getMsuite.password)),
         old_password: "",
         new_password: "",
         confirm_password: "",

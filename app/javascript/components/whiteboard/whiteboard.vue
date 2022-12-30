@@ -104,7 +104,7 @@
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
 
-  import { fabric } from './fabric.js'
+  import { fabric } from 'fabric'
   import 'fabric-history';
 
   export default {

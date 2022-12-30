@@ -9,6 +9,7 @@
 </template>
 
 <script>
+  import "../common/styles/permanent_lock.css"
   export default {
     mounted() {
       this.$refs['lockModal'].open()
@@ -27,6 +28,3 @@
     }
   }
 </script>
-<style lang="scss" scoped>
-  @import "../common/styles/permanent_lock.scss"
-</style>

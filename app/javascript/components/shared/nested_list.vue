@@ -118,7 +118,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .list-item:hover {
     padding: 5px !important;
     border: 1px dashed #ccc;
