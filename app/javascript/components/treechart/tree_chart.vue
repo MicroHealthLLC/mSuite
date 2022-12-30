@@ -70,6 +70,7 @@
   import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import History from "../../mixins/history.js"
 
   Vue.config.warnHandler = function(msg, vm, info) {}
   export default {
@@ -129,7 +130,7 @@
         temporaryUser: '',
       }
     },
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     mounted: async function(){
       this.subscribeCable(this.$store.getters.getMsuite.id)
       this.$store.dispatch('setExportId', 'treeChartObj')
@@ -433,7 +434,7 @@
         http.post(`/nodes.json`, data).then((res) => {
           if (!this.undoDone) {
             let receivedData = res.data.node
-            _this.undoNodes.push({'req': 'addNode', receivedData})
+            _this.undoNodes.push({'req': 'addNode', 'node':receivedData})
           }
           _this.addNodeTree = false
           if(res.data.node.id == null){
@@ -447,17 +448,10 @@
       async updateTreeChartNode(obj){
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === obj.id) {
-              this.undoNodes[index]['receivedData'].title = obj.title
-              this.undoNodes[index]['receivedData'].line_color = obj.line_color
-              }
-            } else {
-              if(element['node'].id === obj.id) {
-              this.undoNodes[index]['node'].title = obj.title
-              this.undoNodes[index]['node'].line_color = obj.line_color
-              }
-            }
+          if(element['node'].id === obj.id) {
+            this.undoNodes[index]['node'].title = obj.title
+            this.undoNodes[index]['node'].line_color = obj.line_color
+          }
           });
         } else {
           this.undoNodes.push({'req': 'addNode', node: obj})
@@ -514,32 +508,20 @@
         this.getColorNode('.rich-media-node')
         this.$refs.refTree.collapseEnabled = false
       },
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.$store.getters.getMsuite.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let node = res.data.node.node
-            let req = res.data.node.req
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          this.redoNodes.push({req: undoObj.req, node: undoObj.node})
+        }
       },
-      redoObj(){
-        http
-          .put(`/msuite/${this.$store.getters.getMsuite.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let receivedData = res.data.node.node
-            let req = res.data.node.req
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          this.undoNodes.push({req: redoObj.req, node: redoObj.node})
+        }
       },
     },
     channels: {

@@ -12,7 +12,7 @@ class StagesController < AuthenticatedController
         format.html { }
       end
     else
-      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Created", stage: @stage
+      ActionCable.server.broadcast( "web_notifications_channel#{@stage.mindmap.id}", {message: "Stage Created", stage: @stage} )
       respond_to do |format|
         format.json { render json: {stage: @stage} }
         format.html { }
@@ -23,7 +23,7 @@ class StagesController < AuthenticatedController
   def update
     @stages = Stage.where(mindmap_id: @stage.mindmap_id)
     @stage.update(stage_params)
-    ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Updated", stage: @stage.decryption, stages: @stages.map(&:decryption)
+    ActionCable.server.broadcast( "web_notifications_channel#{@stage.mindmap.id}", {message: "Stage Updated", stage: @stage.decryption, stages: @stages.map(&:decryption)} )
     respond_to do |format|
       format.json { render json: {stage: @stage} }
       format.html { }
@@ -42,7 +42,7 @@ class StagesController < AuthenticatedController
     stageNodes = @stage.nodes.to_json
     if @stage.destroy
       stageNodes = JSON.parse(stageNodes)
-      ActionCable.server.broadcast "web_notifications_channel#{@stage.mindmap.id}", message: "Stage Deleted", stage: @stage
+      ActionCable.server.broadcast( "web_notifications_channel#{@stage.mindmap.id}", { message: "Stage Deleted", stage: @stage })
       respond_to do |format|
         format.json { render json: {success: true, stage: @stage, nodes: stageNodes} }
         format.html { }
@@ -58,11 +58,9 @@ class StagesController < AuthenticatedController
   def reset_stages
     @mindmap.reset_mindmap
     @mindmap = @mindmap.decrypt_attributes
-    @nodes = Node.where(mindmap_id: params[:mindmap_id])
-    Stage.where(mindmap_id: params[:mindmap_id]).delete_all
     @mindmap.stages.create([{title:'TO DO'},{title:'IN PROGRESS'},{title:'DONE'}])
     @stages = Stage.where(mindmap_id: params[:mindmap_id])
-    ActionCable.server.broadcast "web_notifications_channel#{@mindmap.id}", message: "Stage Reset", stages: @stages, mindmap: @mindmap, nodes: @nodes
+    ActionCable.server.broadcast( "web_notifications_channel#{@mindmap.id}", { message: "Stage Reset", stages: @stages, mindmap: @mindmap, nodes: @nodes} )
     respond_to do |format|
       format.json { render json: {stages: @stages, mindmap: @mindmap, nodes: @nodes} }
       format.html { }

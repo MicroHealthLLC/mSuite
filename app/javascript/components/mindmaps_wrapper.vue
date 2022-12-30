@@ -57,6 +57,7 @@
   import Poll from "./poll/poll"
   import VotingPoll from "./poll/polls/voting_poll"
   import Calendar from "./calendar/calendar"
+  import VennDiagram from "./venndiagram/VennDiagram"
   import { newEventSource } from 'vue-parent-emit'
 
   export default {
@@ -74,7 +75,8 @@
       SpreadSheet,
       Poll,
       VotingPoll,
-      Calendar
+      Calendar,
+      VennDiagram
     },
     data() {
       return {
@@ -147,6 +149,8 @@
                   return "VotingPoll"
                 case "calendar":
                   return "Calendar"
+                case "venndiagram":
+                  return "VennDiagram"
                 default:
                   return "MindmapView"
               }

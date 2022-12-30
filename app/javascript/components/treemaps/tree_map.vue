@@ -40,6 +40,7 @@
   import ColorPalette from '../../common/modals/color_palette_modal'
   import Common from "../../mixins/common.js"
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import History from "../../mixins/history.js"
 
   export default {
     components: {
@@ -51,7 +52,7 @@
       undoMap: Function,
       redoMap: Function
     },
-    mixins: [Common, TemporaryUser],
+    mixins: [Common, TemporaryUser, History],
     data: function () {
       // Define properties which will use in the widget
       return {
@@ -268,16 +269,9 @@
       updateSelectedNode: async function(obj){
         if(this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
-            if(element['receivedData']){
-              if(element['receivedData'].id === obj.id) {
-                this.undoNodes[index]['receivedData'].title = obj.title
-                this.undoNodes[index]['receivedData'].line_color = obj.line_color
-              } else if(element['node']) {
-                if(element['node'].id === obj.id) {
-                  this.undoNodes[index]['node'].title = obj.title
-                  this.undoNodes[index]['node'].line_color = obj.line_color
-                }
-              }
+            if(element['node'].id === obj.id) {
+              this.undoNodes[index]['node'].title = obj.title
+              this.undoNodes[index]['node'].line_color = obj.line_color
             }
           });
         } else {
@@ -298,7 +292,7 @@
         await http.delete(`/nodes/${obj.id}.json`).then((res) => {
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
-            this.undoNodes.push({'req': 'deleteNode', receivedNodes})
+            this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
           if (!this.undoDone) {
             let myNode = {
@@ -317,7 +311,7 @@
       submitChildNode: async function (obj) {
 
         let _this = this
-        if(this.nodes.length > 1 && this.$store.state.nodeNumber != 'NaN'){
+        if(this.nodes.length > 0 && this.$store.state.nodeNumber != 'NaN'){
           this.$store.dispatch('setNodeNumber', parseInt(this.$store.state.nodeNumber) + 1)
         } else {
           this.$store.dispatch('setNodeNumber', this.nodeNumber + 1)
@@ -346,7 +340,7 @@
           }
           if (!this.undoDone) {
             let receivedData = res.data.node
-            _this.undoNodes.push({'req': 'addNode', receivedData})
+            _this.undoNodes.push({'req': 'addNode', 'node': receivedData})
           }
           // success modal display
         }).catch(err => {
@@ -375,7 +369,7 @@
       },
       getTreeMap: async function(){
         let res = await this.$store.dispatch('getMSuite')
-        let response = this.$store.getters.getMsuite
+        let response = await this.$store.getters.getMsuite
         this.$store.dispatch('setMindMapId', response.id)
         this.parent_nodes.label = response.name
         this.currentMindMap.id = response.id
@@ -584,33 +578,21 @@
         this.addChildTreeMap = true
 
       },
-      undoObj(){
+      async undoObj(){
         this.undoDone = true
-        http
-          .post(`/msuite/${this.currentMindMap.unique_key}/undo_mindmap.json`, { undoNode: this.undoNodes })
-          .then((res) => {
-            this.undoNodes.pop()
-            let req = res.data.node.req
-            let node = res.data.node.node
-            this.redoNodes.push({req, node})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        let undoObj = await this.undoNode(this.undoNodes)
+        if(undoObj){
+          this.undoNodes.pop()
+          this.redoNodes.push({req: undoObj.req, node: undoObj.node})
+        }
       },
-      redoObj(){
-        http
-          .put(`/msuite/${this.currentMindMap.unique_key}/redo_mindmap.json`, { redoNode: this.redoNodes })
-          .then((res) => {
-            this.redoNodes.pop()
-            let req = res.data.node.req
-            let receivedData = res.data.node.node
-            this.undoNodes.push({req, receivedData})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      }
+      async redoObj(){
+        let redoObj = await this.redoNode(this.redoNodes)
+        if(redoObj){
+          this.redoNodes.pop()
+          this.undoNodes.push({req: redoObj.req, node: redoObj.node})
+        }
+      },
     }
   }
 </script>

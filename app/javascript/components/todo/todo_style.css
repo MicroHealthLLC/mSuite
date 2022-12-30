@@ -1,116 +1,158 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
-  body {
-    scrollbar-width: none;
-    -ms-overflow-style: none;  /* IE and Edge */
-  }
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  body::-webkit-scrollbar {
-    display: none;
-  }
-  .line-through{
-    text-decoration: line-through;
-    color: #6E778F;
-  }
-  .addTodo{
-    color: #3CA556;
-    cursor: pointer;
-  }
-  .deleteTodo{
-    color: #D1727F;
-    cursor: pointer;
-  }
-  .deleteChild{
-    color: #D1727F;
-    cursor: pointer;
-    position: absolute;
-    left: 86%;
-  }
-  .toggleButton{
-    margin-left: 45.8%;
-    font-size: 15px;
-    letter-spacing: 1px;
-    color: grey !important;
-  }
-  .v-switch-core {
-    background-color: red !important;
-  }
-  .dueDatePxicker{
-    position: relative;
-    left: 150%;
-  }
-  .parentGroup{
-    max-height:85vh;
-  }
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .parentGroup::-webkit-scrollbar-x {
-    display: none;
-  }
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .parentGroup {
-    overflow-x: hidden;
-  }
-  .list-group-item{
-    /* animation: list 0.5s ease; */
-    font-family: 'Poppins', sans-serif;
-    /* transition: all 0.5s ease; */
-    margin-bottom: 0.22rem;
-    padding: 0.55rem 1.25rem;
-    border-radius: 0px !important;
-    border-bottom: 1px solid #dee2e6 !important;
-  }
-  .list-group-item:hover{
-      background-image: linear-gradient(to bottom right, #dc8f3530, #a3c8562b);
-      cursor: pointer;
-  }
-  .todo-field{
-    margin-left: -3%;
-  }
-  .child-field{
-    margin-bottom: 0%;
-  }
-  .shake {
-    animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-    transform: translate3d(0, 0, 0);
-  }
-  .fa-undo-alt{
-    color: white;
-  }
-  .list-move {
-    transition: transform 0.5s;
+
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.line-through {
+  text-decoration: line-through;
+  color: #6E778F;
+}
+
+.addTodo {
+  color: #3CA556;
+  cursor: pointer;
+}
+
+.deleteTodo {
+  color: #D1727F;
+  cursor: pointer;
+}
+
+.deleteChild {
+  color: #D1727F;
+  cursor: pointer;
+  position: absolute;
+  left: 86%;
+}
+
+.toggleButton {
+  margin-left: 45.8%;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: grey !important;
+}
+
+.mobile-toggle-btn {}
+
+.v-switch-core {
+  background-color: red !important;
+}
+
+.dueDatePxicker {
+  position: relative;
+  left: 150%;
+}
+
+.parentGroup {
+  max-height: 85vh;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.parentGroup::-webkit-scrollbar-x {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.parentGroup {
+  overflow-x: hidden;
+}
+
+.list-group-item {
+  /* animation: list 0.5s ease; */
+  font-family: 'Poppins', sans-serif;
+  /* transition: all 0.5s ease; */
+  margin-bottom: 0.22rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 0px !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+.list-group-item:hover {
+  background-image: linear-gradient(to bottom right, #dc8f3530, #a3c8562b);
+  cursor: pointer;
+}
+
+.todo-field {
+  margin-left: -3%;
+}
+
+.child-field {
+  margin-bottom: 0%;
+}
+
+.shake {
+  animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform: translate3d(0, 0, 0);
+}
+
+.fa-undo-alt {
+  color: white;
+}
+
+.list-move {
+  transition: transform 0.5s;
+}
+
+.lock-container {
+  position: relative;
+  /* margin-bottom: 40px !important; */
+}
+
+.toggle-drag {
+  position: absolute !important;
+  right: 0 !important;
+
+}
+
+.svg-inline--fa,
+.fa-plus {
+  height: 0.93rem !important;
+}
+
+@keyframes list {
+  from {
+    top: 200px;
   }
 
-  .svg-inline--fa, .fa-plus{
-    height: 0.93rem !important;
+  to {
+    top: 0px;
   }
-  @keyframes list {
-    from {top: 200px;}
-    to {top: 0px;}
-  }
-  @keyframes shake {
-    10%,
-    90% {
-      transform: translate3d(-1px, 0, 0);
-    }
+}
 
-    20%,
-    80% {
-      transform: translate3d(2px, 0, 0);
-    }
+@keyframes shake {
 
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-4px, 0, 0);
-    }
-
-    40%,
-    60% {
-      transform: translate3d(4px, 0, 0);
-    }
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
   }
 
-  .vue-js-switch .v-switch-label.v-right {
-    right: 10px;
-    color: #000 !important;
-    font-weight: 900 !important;
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+.vue-js-switch .v-switch-label.v-right {
+  right: 10px;
+  color: #000 !important;
+  font-weight: 900 !important;
 }
