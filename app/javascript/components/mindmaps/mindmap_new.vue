@@ -357,6 +357,7 @@
         this.sendLocals(true)
       },
       startDragNode(event, node) {
+        if(this.editingNode != node) this.editingNode = null
         this.$store.commit('setSelectedNode' , node)
         if (!this.currentMindMap.editable) return false
         if (event.touches){
@@ -668,6 +669,7 @@
             .put(`/nodes/${dupNode.id}.json`, {node: dupNode})
             .then((res) => {
               _this.cutFlag = false
+              _this.editingNode  = null
               _this.$store.commit('setSelectedNode' , res.data.node)
             }).catch((error) => {
               console.log(error)
@@ -677,6 +679,7 @@
           await http
             .post('/nodes.json', {node: dupNode, duplicate_child_nodes: dupNode.id})
             .then((res) => {
+              _this.editingNode  = null
               _this.$store.commit('setSelectedNode' , res.data.node)
             }).catch((error) => {
               console.log(error)
@@ -705,6 +708,7 @@
         this.saveCurrentMap()
         http.post('/nodes.json', {node: node}).then((res) => {
           this.getMindmap()
+          this.editingNode  = null
           this.$store.commit('setSelectedNode' , res.data.node)
           if (!this.undoDone) {
             let receivedData = res.data.node
