@@ -105,6 +105,12 @@
             this.$store.commit('setMsuiteParent', data.mindmap)
             let poll = JSON.parse(data.mindmap.canvas).pollData
             this.voted(poll)
+            if(!this.returnFun){
+              this.pollData.Questions.forEach((question, index) => {
+                poll.Questions[index].checked = question.checked
+              })
+            this.pollData = poll
+            }
           }
         }
       }
