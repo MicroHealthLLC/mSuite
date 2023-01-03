@@ -10,7 +10,8 @@ Rails.application.configure do
   # Rake tasks automatically ignore this option for performance.
   config.eager_load = true
   # config.web_socket_server_url = 'ws://localhost/cable'
-  #config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
+  config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
+  config.action_cable.url = "wss://#{ENV['RAILS_WEBSOCKET_HOST']}/cable"
   config.action_cable.disable_request_forgery_protection = true
 
   # Full error reports are disabled and caching is turned on.

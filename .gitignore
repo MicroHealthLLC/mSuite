@@ -26,6 +26,7 @@ package-lock.json
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 /config/database.yml
+/config/cable.yml
 
 **/.DS_Store
 .DS_Store
