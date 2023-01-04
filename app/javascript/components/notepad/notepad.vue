@@ -149,6 +149,7 @@
           })
           if (source == 'user') {
             setTimeout(() => {
+              _this.strongTagStyleBold()
               change = change.compose(delta)
               if (change.length() > 0) {
                 _this.sendLocals(true)
