@@ -26,7 +26,7 @@ const base_url = document.querySelector('meta[name="action-cable-url"]').content
 Vue.use(ActionCableVue, {
   debug: true,
   debugLevel: 'error',
-  connectionUrl: `${base_url}/cable`,
+  connectionUrl: `${base_url}`,
   connectImmediately: true
 })
 
