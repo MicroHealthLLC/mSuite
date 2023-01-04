@@ -115,6 +115,9 @@
         this.subscribeCable(this.currentMindMap.parent_id)
         this.$store.dispatch('setExportId', 'poll-vote')
         this.voted()
+        if(!this.returnFun){
+          this.resetData()
+        }
         if (this.pollData.duedate == '' || this.pollData.duedate == undefined) this.validForVote = true
         else if (new Date() < new Date(this.pollData.duedate)) this.validForVote = true
         else this.validForVote = false
