@@ -177,14 +177,14 @@
         http.get(`/msuite/${id}/reset_mindmap.json`)
       },
       exportToDocument(option) {
-        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
+        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body style='font-family: sans-serif;'>"
         var postHtml = "</body></html>"
         let deltaOps = this.qeditor.getContents();
         var cfg = {
           inlineStyles: {
            font: {
               'serif': 'font-family: Georgia, Times New Roman, serif',
-              'monospace': 'font-family: Monaco, Courier New, monospace'
+              'monospace': "font-family: Monaco, Comic Sans MS, monospace"
             },
             size: {
               'small': 'font-size: 0.75em',
