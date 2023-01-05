@@ -40,7 +40,7 @@ Rails.application.configure do
   config.active_record.verbose_query_logs = true
   
   config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
-  config.action_cable.url = "ws://#{ENV['RAILS_WEBSOCKET_HOST']}/cable"
+  # config.action_cable.url = "ws://#{ENV['RAILS_WEBSOCKET_HOST']}:#{ENV['RAILS_WEBSOCKET_PORT']}/cable"
 
   config.action_cable.disable_request_forgery_protection = true
   # Debug mode disables concatenation and preprocessing of assets.
