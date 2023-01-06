@@ -276,7 +276,7 @@
   .ql-editor .ql-size-small::before {
     font-size: 0.75em;
   }
-  .ql-editor strong{
+  /* .ql-editor strong{
      font-weight:bold;
- }
+ } */
 </style>
