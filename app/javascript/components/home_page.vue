@@ -1,5 +1,6 @@
 <template>
   <div class="filter">
+    <HomeNavbar />
     <Recaptcha v-if="is_config && !fromCaptcha"></Recaptcha>
     <div class="main_div" v-else>
       <div class="container-fluid pl-0">
@@ -47,7 +48,7 @@
   import Recaptcha from './recaptcha';
   import Beta from './beta';
   import CookieLaw from 'vue-cookie-law';
-  import http from '../common/http'
+  import HomeNavbar from '../common/navbar/home_navbar'
   export default {
     data() {
       return {
@@ -70,7 +71,7 @@
         ]
       }
     },
-    components: { CookieLaw, Recaptcha, Beta },
+    components: { CookieLaw, Recaptcha, Beta, HomeNavbar },
     methods: {
       createNewMap(key) {
         this.$store.dispatch('createMsuite', key)
@@ -98,7 +99,7 @@
   .main_div {
     position: absolute;
     width: 100%;
-    height: 91.2vh;
+    height: 100vh;
     background:  linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../assets/images/landing_bg.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
