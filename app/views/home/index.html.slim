@@ -8,6 +8,12 @@
   |Vue.prototype.$google_recaptcha_site_key = "#{Setting.first.google_recaptcha_site_key}"
     Vue.prototype.$beta_status = "#{Setting.first.beta_status}"
     Vue.prototype.$beta_url = "#{Setting.first.beta_url}"
+    Vue.prototype.$about_url = "#{Setting.first.about_url}"
+    Vue.prototype.$public_url = "#{Setting.first.public_url}"
+    Vue.prototype.$terms_url = "#{Setting.first.terms_url}"
+    Vue.prototype.$terms_url = "#{Setting.first.terms_url}"
+    Vue.prototype.$privacy_url = "#{Setting.first.privacy_url}"
+    Vue.prototype.$user_login = "#{current_user&.admin?}"
 
 = javascript_pack_tag "home_page", async: true
 = stylesheet_pack_tag "home_page"

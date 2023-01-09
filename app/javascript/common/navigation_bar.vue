@@ -655,27 +655,13 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../components/mindmaps/styles/mindmap_new.scss";
+  @import "../components/mindmaps/styles/mindmap_new.scss";
+  @import "./styles/navigation_style.scss";
 
-.mindmap-title {
-  resize: none
-}
-
-@media (min-width: 1000px) and (max-width: 1280px) {
-  .navbar_buttons {
-    padding-right: 0px !important;
+  .mindmap-title {
+    resize: none
   }
-
-  .navbar_button {
-    margin-right: 0.5rem !important;
+  input:focus {
+    outline: none;
   }
-
-  .navbar_icon {
-    margin-left: 0rem !important;
-  }
-}
-
-input:focus {
-  outline: none;
-}
 </style>
