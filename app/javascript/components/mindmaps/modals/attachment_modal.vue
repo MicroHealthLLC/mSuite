@@ -101,7 +101,7 @@ export default {
 </script>
 
 <style lang=scss scoped>
-  #attachment-modal /deep/ .sweet-modal {
+  #attachment-modal ::v-deep .sweet-modal {
     min-width: 800px;
     .sweet-content {
       padding-top: 1.5em;
@@ -109,13 +109,13 @@ export default {
     }
   }
 
-  #attachment-modal /deep/ .ql-container {
+  #attachment-modal ::v-deep .ql-container {
     height: 40vh;
     max-height: 40vh;
     border-top: 1px solid #ccc;
   }
 
-  #attachment-modal /deep/ .ql-toolbar {
+  #attachment-modal ::v-deep .ql-toolbar {
     display: none;
   }
 

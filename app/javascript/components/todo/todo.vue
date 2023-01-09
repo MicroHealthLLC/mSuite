@@ -558,6 +558,6 @@ export default {
   }
 }
 </script>
-<style scoped>
-@import "./todo_style.css";
+<style  lang="scss" scoped>
+@import "./todo_style.scss";
 </style>

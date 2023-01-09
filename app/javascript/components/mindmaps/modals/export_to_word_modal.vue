@@ -30,7 +30,7 @@
 </script>
 
 <style lang=scss scoped>
-  #export-word-modal /deep/ .sweet-modal {
+  #export-word-modal ::v-deep .sweet-modal {
     min-width: 800px;
   }
 </style>

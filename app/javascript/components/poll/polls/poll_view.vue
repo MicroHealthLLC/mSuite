@@ -90,6 +90,7 @@
 <script>
   import http from "../../../common/http"
   import PollResults from "./poll_view_results/poll_results"
+  import './poll.css'
 
   export default {
     name: "Poll",
@@ -202,7 +203,3 @@
     }
   };
 </script>
-
-<style scoped>
-  @import './poll.css'
-</style>

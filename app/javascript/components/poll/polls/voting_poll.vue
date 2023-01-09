@@ -76,7 +76,8 @@
 <script>
   import http from "../../../common/http"
   import TemporaryUser from "../../../mixins/temporary_user.js"
-
+  import './poll.css'
+  
   export default {
     name: "Poll",
     mixins: [TemporaryUser],
@@ -104,6 +105,12 @@
             this.$store.commit('setMsuiteParent', data.mindmap)
             let poll = JSON.parse(data.mindmap.canvas).pollData
             this.voted(poll)
+            if(!this.returnFun){
+              this.pollData.Questions.forEach((question, index) => {
+                poll.Questions[index].checked = question.checked
+              })
+            this.pollData = poll
+            }
           }
         }
       }
@@ -114,6 +121,9 @@
         this.subscribeCable(this.currentMindMap.parent_id)
         this.$store.dispatch('setExportId', 'poll-vote')
         this.voted()
+        if(!this.returnFun){
+          this.resetData()
+        }
         if (this.pollData.duedate == '' || this.pollData.duedate == undefined) this.validForVote = true
         else if (new Date() < new Date(this.pollData.duedate)) this.validForVote = true
         else this.validForVote = false
@@ -214,7 +224,3 @@
     }
   };
 </script>
-
-<style scoped>
-  @import './poll.css'
-</style>

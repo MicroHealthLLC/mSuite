@@ -597,7 +597,7 @@
   }
 </script>
 
-<style>
+<style  lang="scss">
   @import "./tree_map.scss";
 </style>
 <style scoped>

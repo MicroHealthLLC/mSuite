@@ -85,15 +85,15 @@ class Node < ApplicationRecord
   def to_json
     parent = ''
     if self.parent_node == 0 || self.parent_node == nil
-      parent = Mindmap.find_by_id(self.mindmap_id)&.name
+      parent = self.mindmap.name
       parent = EncryptionService.decrypt(parent) if self.mindmap.is_private?
     else
-      parent = Node.find_by_id(self.parent_node)&.title
+      parent = self.parent.title
       parent = EncryptionService.decrypt(parent) if self.mindmap.is_private?
     end
     status = stage.try(:title)
     status = EncryptionService.decrypt(status) if status && self.mindmap.is_private?
-    self.as_json.merge(status: status, parent: parent).as_json
+    self.as_json.merge(status: status, parent: parent, children: children).as_json
   end
 
   def parent_changed

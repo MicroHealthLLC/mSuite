@@ -116,30 +116,30 @@
           </span>
           <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
             <span v-b-tooltip.hover title="Delete">
-              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
-                :class="{ button_disabled: !getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
+                :class="{ button_disabled: !checkSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex"
                 @click.stop="deleteSelectedNode">
                 <i class="material-icons delete_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Paste">
-              <a href="javascript:;" role="button" :disabled="(!getSelectedNode || !getCopiedNode)"
-                :class="{ button_disabled: (!getSelectedNode || !getCopiedNode) }"
+              <a href="javascript:;" role="button" :disabled="(!checkSelectedNode || !getCopiedNode)"
+                :class="{ button_disabled: (!checkSelectedNode || !getCopiedNode) }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="pasteCopiedNode">
                 <i class="fa fa-paste paste_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Cut">
-              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
-                :class="{ button_disabled: !getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
+                :class="{ button_disabled: !checkSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="cutSelectedNode">
                 <i class="fa fa-cut cut_icon icons d-flex center_flex"></i>
               </a>
             </span>
             <span v-b-tooltip.hover title="Copy" class="">
-              <a href="javascript:;" role="button" :disabled="!getSelectedNode"
-                :class="{ button_disabled: !getSelectedNode }"
+              <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
+                :class="{ button_disabled: !checkSelectedNode }"
                 class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" @click.stop="copySelectedNode">
                 <i class="material-icons copy_icon icons d-flex center_flex"></i>
               </a>
@@ -193,7 +193,7 @@
     </sweet-modal>
     <reset-map-modal ref="reset-map-modal" @reset-mindmap="resetMindmap"></reset-map-modal>
     <make-private-modal ref="make-private-modal" @password-apply="passwordProtect"
-      @password_mismatched="$refs['passwordMismatched'].open()" :password="password" :isSaveMSuite="isSaveMSuite">
+      @password_mismatched="$refs['passwordMismatched'].open()" :isSaveMSuite="isSaveMSuite">
     </make-private-modal>
     <sweet-modal ref="errorModal" class="of_v" icon="error" title="Password Error">
       Incorrect Password, Please Try Again!
@@ -282,6 +282,11 @@ export default {
     CloneModal
   },
   computed: {
+    checkSelectedNode() {
+      if (this.$store.getters.getSelectedNode && this.$store.getters.getSelectedNode.id == "") this.getSelectedNode = null
+      else this.getSelectedNode = this.$store.getters.getSelectedNode
+      return this.getSelectedNode
+    },
     currentMindMap() {
       return this.$store.getters.getMsuite
     },
@@ -354,8 +359,8 @@ export default {
       this.sendLocals(false)
       this.checkMindmapType()
       this.currentMindMap.is_save = 'is_public'
-      this.currentMindMap.password = null
       this.$store.dispatch('updateMSuite', this.currentMindMap)
+      if(this.currentMindMap.password) location.reload()
     },
     deleteMap() {
       this.$refs['delete-map-modal'].$refs['deleteMapModal'].open()
@@ -468,7 +473,7 @@ export default {
       window.open("/", "_self")
     },
     resetMindmap() {
-      this.$store.commit('setSelectedNode', { id: '' })
+      this.$store.commit('setSelectedNode',null)
       this.$store.dispatch('resetMindmap')
     },
     exportToWord() {
@@ -650,27 +655,13 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../components/mindmaps/styles/mindmap_new.scss";
+  @import "../components/mindmaps/styles/mindmap_new.scss";
+  @import "./styles/navigation_style.scss";
 
-.mindmap-title {
-  resize: none
-}
-
-@media (min-width: 1000px) and (max-width: 1280px) {
-  .navbar_buttons {
-    padding-right: 0px !important;
+  .mindmap-title {
+    resize: none
   }
-
-  .navbar_button {
-    margin-right: 0.5rem !important;
+  input:focus {
+    outline: none;
   }
-
-  .navbar_icon {
-    margin-left: 0rem !important;
-  }
-}
-
-input:focus {
-  outline: none;
-}
 </style>

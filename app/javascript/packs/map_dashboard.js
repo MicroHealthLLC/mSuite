@@ -20,6 +20,9 @@ import HighchartsVue from "highcharts-vue";
 
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
 
+// const base_url = document.querySelector('meta[name="action-cable-url"]').content
+
+
 Vue.use(ActionCableVue, {
   debug: true,
   debugLevel: 'error',
