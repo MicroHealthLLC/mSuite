@@ -4,7 +4,7 @@
       <highcharts id="venndiagram" :options="chartOptions" :key="componentKey"/>
     </div>
     <div class="d-flex flex-row justify-content-end position-relative z-index-inherit bottom-4 right-1">
-      <b-button v-b-tooltip.hover title="Add" type="submit" variant="success" @click="addValue"> <i class="fas fa-plus"></i> </b-button>
+      <b-button v-b-tooltip.hover title="Add" type="submit" variant="success" @click="addValue"> <i class="fas fa-plus"></i>Add Value</b-button>
     </div>
     <venn-form v-if="addBar" @addNewValue="addNewValue"></venn-form>
     <venn-popup
@@ -139,12 +139,14 @@
         this.addBar = true
       },
       addNewValue(dataSet){
+        console.log(dataSet)
         let dataArray  = dataSet.sets.split(",").map(String);
         let dataValue  = parseFloat(dataSet.value)
         let createData = {
           sets : dataArray,
           value: dataValue
         }
+        console.log(createData)
         if (dataSet.name != '') createData.name = dataSet.name
         this.addBar = false
         this.addNewSet(createData, dataSet)
@@ -243,6 +245,7 @@
         })
         var uniqueData = dataReceived.filter((v, i, a) => a.indexOf(v) === i);
         this.data = uniqueData
+        console.log(this.data)
         this.forceRerender()
       },
       async updateVennUser(){
@@ -285,6 +288,13 @@
           this.undoNodes.push({req: redoObj.req, 'node': redoObj.node})
         }
       },
+    },
+    watch: {
+      vennData() {
+        if (this.vennData) {
+          console.log(this.vennData)
+        }
+      }
     }
   };
 </script>

@@ -12,7 +12,6 @@
         </b-col>
         <b-col cols="2">
             <b-form-input
-              id="input"
               class="w-100"
               v-model='dataSet.value'
               placeholder="value"
@@ -21,7 +20,6 @@
         </b-col>
         <b-col cols="3">
             <b-form-input
-              id="input"
               class="w-100"
               v-model='dataSet.name'
               placeholder="Enter Name of New Set"
