@@ -253,9 +253,10 @@
         }
         else if(this.addNodeTree) {
           if(objNode.title) {
+            let paleteColor = ['#bcd4de','#b1d0d8','#a5ccd1','#c6dde0','#e7edee','#d4dcde','#c0cbce','#98a8ae','#abb5ba','#bec1c5']
             objNode.parent_node = this.nodeTemp.parent_node
             objNode.mindmap_id = this.$store.getters.getMsuite.id
-            objNode.line_color = '#EBECF0'
+            objNode.line_color = paleteColor[this.nodes.length]
             this.undoDone = false
             this.submitChildNode(objNode)
           }else if(objNode.title.replace(/\s/g, '') == '') {

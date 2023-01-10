@@ -162,6 +162,7 @@
              return
           } else {
             this.errorTriggered = false
+            this.loopBreaked = false
             question.voters.push(this.$store.state.user_id)
             if ( question.checked.length == undefined ) {
               if ( question.answerField[question.checked.value - 1].votes == null){

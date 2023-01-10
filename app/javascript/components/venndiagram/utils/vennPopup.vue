@@ -5,7 +5,7 @@
         <label>Name:</label>
       </b-col>
       <b-col sm="9">
-        <input class="" type ="text" v-model="selectedSet.name"></input>
+        <input class="" type ="text" v-model="selectedSet.name"/>
       </b-col>
     </b-row>
 
@@ -14,7 +14,7 @@
         <label>Value:</label>
       </b-col>
       <b-col sm="9">
-        <input class="mt-1" type ="number" v-model="selectedSet.value"></input>
+        <input class="mt-1" type ="number" v-model="selectedSet.value"/>
       </b-col>
     </b-row>
 
@@ -23,7 +23,7 @@
         <label>Sets:</label>
       </b-col>
       <b-col sm="9">
-        <input class="mt-1" type ="text" v-model="selectedSet.sets"></input>
+        <input class="mt-1" type ="text" v-model="selectedSet.sets"/>
       </b-col>
     </b-row>
 

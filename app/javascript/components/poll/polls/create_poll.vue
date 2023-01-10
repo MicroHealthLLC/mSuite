@@ -78,12 +78,6 @@
           v-b-tooltip.hover.right title="Clear Date">
         </el-button>
       </div>
-      <div class="mb-3">
-        <span>
-          Require User Names
-        </span>
-        <input id="input" type="checkbox" class="userCheck" @change="saveData" v-model='poll.userNameRequire' />
-      </div>
       <div class="mb-1">Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
           {{ baseURL }}/msuite/{{ poll.url }}

@@ -62,6 +62,7 @@
               if(this.temporaryUser !=this.$store.getters.getUser){
                   this.qeditor.blur()
                   this.qeditor.setContents(new Delta(this.content))
+                  this.strongTagStyleBold()
                   element.scrollTop = notepadHeight
               }
             }
