@@ -85,7 +85,6 @@
         undoNodes: [],
         redoNodes: [],
         undoDone: false,
-        nodeSample: {label: 'Enter new node',parent_label: '',color: '#CCBBBB'},
         saveElement: false,
         parent_nodes: {
           label: 'centralized',
@@ -574,9 +573,10 @@
         this.setNodeSelected(value)
         if(this.child_node) this.nodeSample.parent_label = this.child_node.id
         this.undoDone = false
+        let paleteColor = ['#bcd4de','#b1d0d8','#a5ccd1','#c6dde0','#e7edee','#d4dcde','#c0cbce','#98a8ae','#abb5ba','#bec1c5']
+        this.nodeSample.color = paleteColor[this.nodes.length]
         this.submitChildNode(this.nodeSample)
         this.addChildTreeMap = true
-
       },
       async undoObj(){
         this.undoDone = true
