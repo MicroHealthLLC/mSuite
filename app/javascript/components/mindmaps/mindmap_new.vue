@@ -1,5 +1,10 @@
 <template>
   <div class="map-container">
+    <Captions
+      style="width: 45%; left: 20%;"
+      :heading="'Welcome to mindmap'"
+      :msg="'Hello there, it seems like you are new here! These bubbles will guide you through the app.'"
+      :mainBubble="true"/>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit"  @touchstart.stop="slideInit" @touchmove.prevent="slideTheCanvas" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false" @touchend="isSlideDown = false">
       <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" @touchmove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
@@ -12,6 +17,11 @@
           </div>
           <span v-if="currentMindMap.editable" @mousedown.prevent.stop="startDrag" @touchstart.prevent.stop="startDrag" class="start_dot"></span>
           <textarea type="text" ref="central_idea" @input="updateCentralIdea" v-on:keyup.enter="saveCurrentMap" @blur="saveCurrentMap" v-model="centralIdea" class="shadow-lg central_idea" :style="C_centralIdeaStyle" :readOnly="!currentMindMap.editable" />
+          <Captions
+            style="width: 100%;"
+            :heading="centralIdea == 'Central Idea' ? 'This is where you start - your main idea':'Creating new ideas'"
+            :msg="centralIdea == 'Central Idea' ? 'Double click the idea to change what it says. This will be the main topic of your mind map.':`Now it's time to build your mind map. Move your mouse over the idea, click and then drag the red circle away from the root. This is how you create a new branch.`"
+            :mainBubble="false"/>
         </div>
         <input-field
           v-for="node in currentNodes"
@@ -36,6 +46,11 @@
           @open-attachment="openAttachments($event)"
           class="pos_abs input_field">
         </input-field>
+        <Captions
+          v-if="currentNodes.length == 1"
+          :heading="'Your first branch'"
+          :msg="'Great! This is easy, right? The red circle is your most important tool. Now, you can move your idea around by dragging it or double click to change the text again.'"
+          :mainBubble="false"/>
         <canvas id="map-canvas" class="has_bg" :width="windowWidth" :height="windowHeight" @click.stop="nullifyFlags"></canvas>
       </section>
     </div>
@@ -96,6 +111,7 @@
   import http from "../../common/http"
   import TemporaryUser from "../../mixins/temporary_user.js"
   import History from "../../mixins/history.js"
+  import Captions from "../wcag/captions"
 
   export default {
     components: {
@@ -105,6 +121,7 @@
       AttachmentModal,
       CentralAttachmentModal,
       ExportToWordModal,
+      Captions,
     },
 
     mixins: [TemporaryUser, History],
