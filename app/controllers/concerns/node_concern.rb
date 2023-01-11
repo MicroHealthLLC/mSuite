@@ -64,7 +64,6 @@ module NodeConcern
 
   def duplicate_child_nodes
     @node.duplicate_attributes(params[:duplicate_child_nodes])
-    @node.duplicate_files(params[:duplicate_child_nodes])
     dup_nodes = Node.where(parent_node: params[:duplicate_child_nodes]).where.not(id: @node.id)
     Node.duplicate_child_nodes(dup_nodes, @node) if dup_nodes.present?
   end
