@@ -85,7 +85,7 @@ class Node < ApplicationRecord
     parent_name = ''
     if self.parent_node == 0 || self.parent_node == nil
       parent_name = self.mindmap.name
-      parent_name = EncryptionService.decrypt(parent) if self.mindmap.is_private?
+      parent_name = EncryptionService.decrypt(parent_name) if self.mindmap.is_private?
     else
       parent_name = self.parent&.title
       parent_name = EncryptionService.decrypt(parent) if self.mindmap.is_private?
