@@ -805,7 +805,7 @@
         if (new_parent) {
           let new_p    = this.currentMindMap.nodes.filter((nod) => nod.id == new_parent)[0]
           if(new_p.children.length > 0){
-            new_location = [new_p.children[new_p.children.length - 1].position_x + 120, new_p.children[new_p.children.length - 1].position_y]
+            new_location = [new_p.children[new_p.children.length - 1].position_x + 120, new_p.children[new_p.children.length - 1].position_y - 80]
           } else new_location = [new_p.position_x, new_p.position_y - 100]
 
           for (;;) {
