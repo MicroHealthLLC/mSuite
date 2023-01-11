@@ -108,7 +108,8 @@
     beforeCreate: async function() {
       await this.$store.dispatch('getMSuite')
       this.is_verified = this.$store.getters.getDataMsuite.is_verified
-      this.failedPasswordAttempts = this.$store.getters.getMsuite.failed_password_attempts
+      if(this.$store.getters.getMsuite) this.failedPasswordAttempts = this.$store.getters.getMsuite.failed_password_attempts
+      else window.open("/","_self")
       this.lockTime = this.$store.getters.getMsuite.lockout_period
       this.$store.commit('setMsuiteParent', this.$store.getters.getMsuite.parent)
       await this.checkAttempts()
