@@ -3,19 +3,22 @@
     <div class="w-100">
       <highcharts id="venndiagram" :options="chartOptions" :key="componentKey"/>
     </div>
-    <div class="d-flex flex-row justify-content-end position-relative z-index-inherit bottom-4 right-1">
-      <b-button v-b-tooltip.hover title="Add" type="submit" variant="success" @click="addValue"> <i class="fas fa-plus"></i>Add Value</b-button>
-    </div>
-    <div>
-      <h3>Instructions:</h3>
-      <p>1.) Add main Venn Circles</p>
-      <p>2.) Create links using existing circles seperated by a comma</p>
-      <p>Note: Main circles must have larger value than links</p>
-    </div>
-    <div v-for="d in data">
-      <p>{{ d.name }} - {{ d.sets }} - {{ d.value }}</p>
-    </div>
-    <venn-form v-if="addBar" @addNewValue="addNewValue"></venn-form>
+    <!-- <div class="d-flex flex-row justify-content-end position-relative z-index-inherit bottom-4 right-1">
+       <b-button v-b-tooltip.hover title="Add" type="submit" variant="success" @click="addValue"> <i
+          class="fas fa-plus"></i>Add Value</b-button> 
+    </div> -->
+    <!-- <div class="text-left mb-4">
+      <b-button id="popover-target-1" variant="info" pill="true" size="sm">
+        Instructions
+      </b-button>
+      <b-popover target="popover-target-1" triggers="hover" placement="left">
+        <template #title>Instructions</template>
+        <p>First, add main sets</p>
+        <p>Then, create links using existing sets seperated by a comma</p>
+        <p>Note: Main sets must have a larger value than links</p>
+      </b-popover>
+    </div> -->
+    <venn-form v-if="addBar" @addNewValue="addNewValue" :data="data"></venn-form>
     <venn-popup
       id="edit"
       v-if="openEditBox"
@@ -80,7 +83,7 @@
       return {
         currentMindMap: this.$store.getters.getMsuite,
         data: [],
-        addBar: false,
+        addBar: true,
         savedSets: [],
         selectedSet: null,
         openEditBox: false,
@@ -110,11 +113,19 @@
           tooltip: {
             formatter() {
               if(typeof(this.point.sets) == 'string') this.point.sets = this.point.sets.split(",").map(String)
+              return `<strong>Set: ${this.point.sets.join(
+                ","
+              )}</strong>`;
+            },
+          },
+          /* tooltip: {
+            formatter() {
+              if(typeof(this.point.sets) == 'string') this.point.sets = this.point.sets.split(",").map(String)
               return `<strong>${this.point.sets.join(
                 ","
               )}</strong><br /><span>values: ${this.point.value}</span>`;
             },
-          },
+          }, */
           legend: {
             align: "left",
           },
@@ -148,16 +159,16 @@
         this.addBar = true
       },
       addNewValue(dataSet){
-        console.log(dataSet)
         let dataArray  = dataSet.sets.split(",").map(String);
         let dataValue  = parseFloat(dataSet.value)
+        let dataColor = dataSet.color
         let createData = {
           sets : dataArray,
-          value: dataValue
+          value: dataValue,
+          color: dataColor,
         }
-        console.log(createData)
         if (dataSet.name != '') createData.name = dataSet.name
-        this.addBar = false
+        //this.addBar = false
         this.addNewSet(createData, dataSet)
       },
       addNewSet(createData, dataSet) {
@@ -169,7 +180,7 @@
             description: dataSet.sets,
             mindmap_id: this.currentMindMap.id,
             position: createData.value,
-            line_color: "#B3FAFF"
+            line_color: createData.color
           }
         }
         http.post(`/nodes.json`, data).then((res) => {
@@ -242,8 +253,10 @@
       renderSets(){
         let dataReceived = []
         this.data = []
+        console.log(this.savedSets)
         this.savedSets.forEach((node) => {
           let dataArray  = node.description.split(",").map(String)
+          console.log(dataArray)
           let createData = {
             sets : dataArray,
             value: node.position,
@@ -253,8 +266,9 @@
           dataReceived.push(createData)
         })
         var uniqueData = dataReceived.filter((v, i, a) => a.indexOf(v) === i);
+        console.log(uniqueData)
         this.data = uniqueData
-        console.log(this.data)
+        
         this.forceRerender()
       },
       async updateVennUser(){
