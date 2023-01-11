@@ -6,6 +6,15 @@
     <div class="d-flex flex-row justify-content-end position-relative z-index-inherit bottom-4 right-1">
       <b-button v-b-tooltip.hover title="Add" type="submit" variant="success" @click="addValue"> <i class="fas fa-plus"></i>Add Value</b-button>
     </div>
+    <div>
+      <h3>Instructions:</h3>
+      <p>1.) Add main Venn Circles</p>
+      <p>2.) Create links using existing circles seperated by a comma</p>
+      <p>Note: Main circles must have larger value than links</p>
+    </div>
+    <div v-for="d in data">
+      <p>{{ d.name }} - {{ d.sets }} - {{ d.value }}</p>
+    </div>
     <venn-form v-if="addBar" @addNewValue="addNewValue"></venn-form>
     <venn-popup
       id="edit"
