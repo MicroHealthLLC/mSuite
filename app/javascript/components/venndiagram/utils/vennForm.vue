@@ -1,32 +1,35 @@
 <template>
   <div>
-    <b-form v-if="showSetInput" @submit.prevent="addNewSets" class="mt-1 w-50">
-      <!-- <b-form-group id="sets-input-group" label="Enter Set" label-for="sets-input"
-        description="Enter sets, then enter links with sets seperated by commas">
-        <b-form-input id="sets-input" v-model="dataSet.sets" type="text">
-        </b-form-input>
-      </b-form-group>
-      <b-form-group id="name-input-group" label="Enter Name for Set" label-for="name-input">
-        <b-form-input id="name-input" class="w-100" v-model='dataSet.name' type="text"></b-form-input>
-      </b-form-group>
-      <b-form-group id="value-input-group" label="Enter Value" label-for="value-input">
-        <b-form-input id="value-input" class="w-50" v-model='dataSet.value' type="number"></b-form-input>
-      </b-form-group> -->
-      <b-form-group id="num-sets-input-group" label="Number of sets to add" label-for="num-sets-input" description="How many sets would you like to add?">
-        <b-form-input id="num-sets-input" v-model="numOfSets" type="number" min="1" max="5">
-        </b-form-input>
-      </b-form-group>
-      <b-button v-b-tooltip.hover title="Save & Proceed" type="submit" variant="success"> <i class="fas fa-check"></i></b-button>
-      <b-button v-if="data.length > 0" @click="showSetInput = false">Go to Link Selection</b-button>
+    <b-form v-if="showSetInput" @submit.prevent="addNewSets" class="mt-5">
+      <b-row align-v="center">
+        <b-col cols="4">
+          <b-form-group id="num-sets-input-group" label="Number of sets to add" label-for="num-sets-input"
+            description="How many sets would you like to add?">
+            <b-form-input id="num-sets-input" v-model="numOfSets" type="number" min="1" max="5">
+            </b-form-input>
+          </b-form-group>
+        </b-col>
+        <b-col cols="1">
+          <b-button v-b-tooltip.hover title="Save & Proceed" type="submit" variant="success" class="mb-2" pill="true"> <i class="fas fa-check"></i></b-button>
+        </b-col>
+      </b-row>
+      <b-button v-if="data.length > 0" class="ml-3 mt-3" @click="showSetInput = false">Go to Link Selection</b-button>
     </b-form>
-    <b-form v-else @submit.prevent="addNewLinks" class="mt-1 w-50">
-      <b-form-group id="links-input-group" label="Create Set Link" label-for="links-input"
-        description="Create set links by entering set names seperated by a comma ">
-        <b-form-input id="links-input" v-model="link" type="text">
-        </b-form-input>
-      </b-form-group>
-      <b-button v-b-tooltip.hover title="Apply" type="submit" variant="success"> <i class="fas fa-check"></i></b-button>
-      <b-button @click="showSetInput = true">Go back to Set Creation</b-button>
+    <b-form v-else @submit.prevent="addNewLinks" class="mt-5">
+      <b-row align-v="center">
+        <b-col cols="4">
+          <b-form-group id="links-input-group" label="Create Set Link" label-for="links-input"
+            description="Create set links by entering set names seperated by a comma ">
+            <b-form-input id="links-input" v-model="link" type="text">
+            </b-form-input>
+          </b-form-group>
+        </b-col>
+        <b-col cols="1">
+          <b-button v-b-tooltip.hover title="Apply" type="submit" variant="success" pill="true" class="mb-2"> <i
+              class="fas fa-check"></i></b-button>
+        </b-col>
+      </b-row>
+      <b-button class="ml-3 mt-3" @click="showSetInput = true">Go back to Set Creation</b-button>
     </b-form>
     <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
       {{ msgErr }}
@@ -34,6 +37,7 @@
     </div>
 </template>
 <script>
+
   export default{
     props: {
       data: Object
@@ -47,7 +51,8 @@
           name: '',
         },
         showSetInput: true,
-        numOfSets: 0,
+        numOfSets: 1,
+        setNames: [],
         link: ''
       }
     },
@@ -97,7 +102,7 @@
               let randomColor = Math.floor(Math.random() * 16777215).toString(16)
               let set = {
                 sets: String.fromCharCode(65 + setNum + i),
-                value: 5,
+                value: 15,
                 name: String.fromCharCode(65 + setNum + i),
                 color: `#${randomColor}`
               }
@@ -112,17 +117,19 @@
       addNewLinks() {
         if (this.link != '') {
           if (this.link.match(/,/g)) {
-            let linkUpCase = this.link.toUpperCase()
+            let linkUpCase = this.link.replace(/ /g,'').toUpperCase()
             if (this.checkForSets(linkUpCase)) {
               let linkName = linkUpCase.split(",").map(String).sort().join(" ∩ ")
               let randomColor = Math.floor(Math.random()*16777215).toString(16)
+              let val = this.setVal(linkUpCase.match(/,/g).length)
               let set = {
                 sets: linkUpCase,
-                value: linkUpCase.match(/,/g).length + 2,
+                value:  val,
                 name: linkName,
                 color: `#${randomColor}`
               }
               this.$emit("addNewValue", set)
+              this.link = ''
             } else {
               this.msgErr = "Links can only include prexisting sets"
               this.$refs["dataErrorModal"].open()
@@ -141,6 +148,12 @@
         let setArr = this.data.filter(d => d.sets.length == 1).map(m => m.sets[0])
         console.log(linkArr, setArr)
         return linkArr.every(l => setArr.includes(l))
+      },
+      setVal(val) {
+        return val == 1 ? 4 :
+          val == 2 ? 3 :
+          val == 3 ? 2 :
+          val == 4 ? 1 : 1
       },
       afterSaveReset(){
         this.dataSet = {sets: '', name: '', value: 0}

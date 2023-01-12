@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="w-100">
+    <div v-if="data.length != 0" class="w-100">
       <highcharts id="venndiagram" :options="chartOptions" :key="componentKey"/>
     </div>
     <!-- <div class="d-flex flex-row justify-content-end position-relative z-index-inherit bottom-4 right-1">
@@ -99,13 +99,13 @@
           title: {
             text: "",
             style: {
-              fontSize: 14,
+              fontSize: 16,
             },
           },
           chart: {
-            height: 500,
-            borderWidth: 1,
-            borderColor: "#ccc",
+            height: 600,
+            /* borderWidth: 1,
+            borderColor: "#ccc", */
           },
           credits: {
             enabled: false,
@@ -131,6 +131,7 @@
           },
         };
       },
+      
       vennData() {
         let data = this.data
         return {
@@ -140,7 +141,7 @@
             events: {
               click: (event) => {
                 this.pointClick(event)
-              }
+              },
             }
           }
         };
@@ -270,6 +271,7 @@
         this.data = uniqueData
         
         this.forceRerender()
+        this.$emit("numOfSets", 1)
       },
       async updateVennUser(){
         await this.$store.dispatch('updateMSuite',  {
