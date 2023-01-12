@@ -15,7 +15,7 @@
         </div>
         <input-field
           v-for="node in currentNodes"
-          v-if="!node.is_disabled && !node.hide_self && node.parent"
+          v-if="isValidNode(node)"
           v-model="node.title"
           :key="`${node.id}`"
           :style="getNodeStyle(node)"
@@ -502,7 +502,7 @@
           let CI = this
           if(this.currentMindMap.nodes) {
             this.currentMindMap.nodes.forEach((nod) => {
-            if (nod.is_disabled || nod.hide_self || nod.parent == null) { return; }
+            if (!this.isValidNode(nod)) { return; }
             if (nod.line_color) {
               ctx.strokeStyle = nod.line_color
             }
@@ -789,8 +789,15 @@
         },
         1000
       ),
+      isValidNode(node) {
+        if (node.parent_nod){
+          return !node.is_disabled && !node.hide_self && node.parent && !node.parent_nod.is_disabled
+        } else {
+          return !node.is_disabled && !node.hide_self && node.parent
+        }
+      },
       hasChilNodes(node) {
-        return this.currentMindMap.nodes.filter((nod) => !nod.is_disabled && nod.parent_node == node.id).length > 0;
+        return node.children.length > 0
       },
       getNewPosition(new_parent) {
         let new_location = [0, 0]
@@ -798,7 +805,7 @@
         if (new_parent) {
           let new_p    = this.currentMindMap.nodes.filter((nod) => nod.id == new_parent)[0]
           if(new_p.children.length > 0){
-            new_location = [new_p.children[new_p.children.length - 1].position_x + 120, new_p.children[new_p.children.length - 1].position_y]
+            new_location = [new_p.children[new_p.children.length - 1].position_x + 120, new_p.children[new_p.children.length - 1].position_y - 80]
           } else new_location = [new_p.position_x, new_p.position_y - 100]
 
           for (;;) {

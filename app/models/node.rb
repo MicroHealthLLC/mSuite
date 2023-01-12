@@ -6,7 +6,6 @@ class Node < ApplicationRecord
   belongs_to :mindmap, optional: true
   belongs_to :stage, optional: true
 
-  has_many_attached :node_files, dependent: :destroy
   has_many :children, class_name: 'Node', foreign_key: 'parent_node'
   belongs_to :parent, class_name: 'Node', foreign_key: 'parent_node', optional: true
 
@@ -79,21 +78,21 @@ class Node < ApplicationRecord
   end
 
   def validate_kanban
-    return self.mindmap.mm_type == "kanban"
+    return self.mindmap&.mm_type == "kanban"
   end
 
   def to_json
-    parent = ''
+    parent_name = ''
     if self.parent_node == 0 || self.parent_node == nil
-      parent = self.mindmap.name
-      parent = EncryptionService.decrypt(parent) if self.mindmap.is_private?
+      parent_name = self.mindmap.name
+      parent_name = EncryptionService.decrypt(parent_name) if self.mindmap.is_private?
     else
-      parent = self.parent.title
-      parent = EncryptionService.decrypt(parent) if self.mindmap.is_private?
+      parent_name = self.parent&.title
+      parent_name = EncryptionService.decrypt(parent) if self.mindmap.is_private?
     end
     status = stage.try(:title)
     status = EncryptionService.decrypt(status) if status && self.mindmap.is_private?
-    self.as_json.merge(status: status, parent: parent, children: children).as_json
+    self.as_json.merge(status: status, parent: parent_name, parent_nod: parent, children: children).as_json
   end
 
   def parent_changed
@@ -110,16 +109,11 @@ class Node < ApplicationRecord
   def self.duplicate_child_nodes(nodes, parent)
     return if nodes.length == 0
 
-    nodes.each do |nod|
+    nodes.each_with_index do |nod, index|
       temp_node = nod.dup
-      temp_node.position_x += 50
-      temp_node.position_y -= 30
+      temp_node.position_x = parent.position_x + ((index + 1) * 100)
+      temp_node.position_y = parent.position_y + ((index + 1) * 80)
       temp_node.line_color = parent.line_color
-
-      # duplicate node attachments
-      nod.node_files.each do |file|
-        temp_node.node_files.attach(file.blob)
-      end
 
       temp_node.save
       duplicate_child_nodes(Node.where(parent_node: nod.id), temp_node)
@@ -127,15 +121,6 @@ class Node < ApplicationRecord
       temp_node.update_columns(
         parent_node: parent.id
       )
-    end
-  end
-
-  def duplicate_files(clon_id)
-    clon = Node.find_by(id: clon_id)
-    if clon and clon.node_files.present?
-      clon.node_files.each do |file|
-        self.node_files.attach(file.blob)
-      end
     end
   end
 
