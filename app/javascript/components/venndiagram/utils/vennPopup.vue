@@ -11,10 +11,11 @@
 
     <b-row class="">
       <b-col sm="3">
-        <label>Value:</label>
+        <label>Size:</label>
       </b-col>
       <b-col sm="9">
-        <input class="mt-1" type ="number" v-model="selectedSet.value"/>
+        <label for="range-id">{{ selectedSet.value }}</label>
+        <input id="range-id" class="mt-1" type="range" min="1" max="30" v-model="selectedSet.value"/>
       </b-col>
     </b-row>
 
@@ -23,7 +24,7 @@
         <label>Sets:</label>
       </b-col>
       <b-col sm="9">
-        <input disabled="true" class="mt-1" type ="text" v-model="selectedSet.sets"/>
+        <input class="mt-1" type ="text" v-model="selectedSet.sets"/>
       </b-col>
     </b-row>
 
