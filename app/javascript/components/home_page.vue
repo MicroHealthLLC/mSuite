@@ -67,7 +67,7 @@
           { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" },
           { key: 'poll', value: 'Poll', imgsrc: "" },
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
-          { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" }
+          // { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" } Hidden from Beta
         ]
       }
     },
