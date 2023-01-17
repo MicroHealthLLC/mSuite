@@ -1,26 +1,13 @@
-.text-sapphire {
-  color: #1C326E;
-}
-.mindmap-title {
-  resize: none !important;
-  font-size: 15px;
-  background: transparent;
-}
-.mindmap-title:hover {
-  cursor: pointer !important;
-}
-.mindmap-title:focus {
-  background: white !important;
-  border-radius: 5px;
-  cursor: auto !important;
-  padding-left: 5px;
-}
-.text-wrapper {
-  background: #fafafa;
-  border-radius: 0.35rem;
-  padding: 5px;
-  border:lightgray solid 1px;
-  min-width: 250px;
-  font-size: 1.25rem;
+@media (min-width: 1000px) and (max-width: 1280px) {
+  .navbar_buttons {
+    padding-right: 0px !important;
+  }
 
+  .navbar_button {
+    margin-right: 0.5rem !important;
+  }
+
+  .navbar_icon {
+    margin-left: 0rem !important;
+  }
 }

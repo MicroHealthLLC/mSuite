@@ -87,41 +87,20 @@
             this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
+            this.temporaryUser = data.content.userEdit
           } else if (
             data.message === "Mindmap Updated"      &&
             this.currentMindMap.id === data.mindmap.id
           ) {
-            let _this = this
-            _this.$store.commit('setMSuite', data.mindmap)
-            _this.currentMindMap = data.mindmap
-            if(_this.currentMindMap.canvas)
-            {
-              _this.sheetData = JSON.parse(data.mindmap.canvas)
-              if (
-                _this.sheetData &&
-                JSON.stringify(_this.table.options.columns) != JSON.stringify(_this.sheetData.columns)
-              ) {
-                if (_this.sheetData.data != undefined) {
-                  _this.table.destroy()
-                  _this.createSheet(data.mindmap.canvas)
-                }
-              }
-              if (
-                _this.sheetData &&
-                JSON.stringify(_this.table.getData()) != JSON.stringify(_this.sheetData.data)
-              ) {
-                if (_this.sheetData.data != undefined) {
-                  _this.table.destroy()
-                  _this.createSheet(data.mindmap.canvas)
-                }
-              }
-              if (
-                _this.sheetData && JSON.stringify(_this.table.getStyle()) != JSON.stringify(_this.sheetData.style) && _this.sheetData.style != undefined ) {
-                _this.table.destroy()
-                _this.createSheet(data.mindmap.canvas)
-              }
-              _this.changeRequest = _this.changeRequest + 1
+            this.$store.commit('setMSuite', data.mindmap)
+            this.currentMindMap = data.mindmap
+            this.sheetData = JSON.parse(data.mindmap.canvas)
+
+            if(this.temporaryUser != this.$store.getters.getUser){
+              this.table.destroy()
+              this.createSheet(data.mindmap.canvas)
             }
+            this.changeRequest = this.changeRequest + 1
             this.sheetStyles()
           }
           else {}
@@ -271,18 +250,16 @@
       },
       changeStyle(){
         if(this.changeRequest < 1){
-          setTimeout(()=>{
-            if(this.table.getStyle()) this.sheetData.style = this.table.getStyle()
-            this.sheetData.user = this.$store.getters.getUser
-            let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
-            let id = this.currentMindMap.unique_key
-            if(!this.isReset){
-              http.patch(`/msuite/${id}.json`,mindmap)
-              this.saveElement = true
-              this.sendLocals(false)
-            }
-            else this.isReset = false
-          },500)
+          if(this.table) this.sheetData.style = this.table.getStyle()
+          this.sheetData.user = this.$store.getters.getUser
+          let mindmap = { mindmap: { canvas: JSON.stringify(this.sheetData) } }
+          let id = this.currentMindMap.unique_key
+          if(!this.isReset){
+            http.patch(`/msuite/${id}.json`,mindmap)
+            this.saveElement = true
+            this.sendLocals(false)
+          }
+          else this.isReset = false
         }
       },
       selectionCreated(){
@@ -377,6 +354,9 @@
       this.exportDef(this.exportXLS)
       this.undoMap(this.undoTable)
       this.redoMap(this.redoTable)
+      $( ".jexcel_toolbar" ).mouseover(()=>{
+        this.selectionCreated()
+      })
     },
   }
 </script>

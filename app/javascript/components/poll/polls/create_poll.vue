@@ -78,12 +78,6 @@
           v-b-tooltip.hover.right title="Clear Date">
         </el-button>
       </div>
-      <div class="mb-3">
-        <span>
-          Require User Names
-        </span>
-        <input id="input" type="checkbox" class="userCheck" @change="saveData" v-model='poll.userNameRequire' />
-      </div>
       <div class="mb-1">Poll URL:
         <span id="pollURL" class="ml-2 pollURL">
           {{ baseURL }}/msuite/{{ poll.url }}
@@ -134,7 +128,7 @@ import http from "../../../common/http"
 import DatePicker from 'vue2-datepicker'
 import TemporaryUser from "../../../mixins/temporary_user.js"
 import PollResults from "./poll_view_results/poll_results"
-
+import './poll.css'
 
 export default {
   props: ["pollData", "undoCanvas", "currentMindMap", "pollEdit"],
@@ -398,7 +392,4 @@ export default {
 
 <style lang="scss">
 @import "./check_box.scss";
-</style>
-<style scoped>
-@import './poll.css'
 </style>

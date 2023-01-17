@@ -37,6 +37,7 @@
   import 'jquery-ui-bundle/jquery-ui.css'
   import '../../../../common/plotly.js'
   import '../../../../common/plotly_renderers.min.js'
+  import '../poll.css'
 
   export default {
     name: 'Poll Results',
@@ -91,23 +92,33 @@
           var replacer = function(key, value) { return value === null ? '' : value }
           var csv = json.map(function(row){
             if (typeof(row['votes']) == 'object' && row['votes'] != null ){
-              row['votes'].map(function(fieldValue,index){
-                if(fieldValue != null){
+              if(row['votes'].length == 0){
+                _this.graph_data = {
+                  answer: row['text'],
+                  voter: 'None'
+                }
+                _this.graph_array.push(_this.graph_data)
+              } else {
+                row['votes'].map(function(fieldValue,index){
+                  if(fieldValue == null){
+                    fieldValue = 'None'
+                  }
                   _this.graph_data = {
                     answer: row['text'],
                     voter: fieldValue
                   }
                   _this.graph_array.push(_this.graph_data)
-                }
-              })
-            } else {
-              if ( row['votes'] != null ){
-                _this.graph_data = {
-                    answer: row['text'],
-                    voter: row['votes']
-                  }
-                _this.graph_array.push(_this.graph_data)
+                })
               }
+            } else {
+              if ( row['votes'] == null ){
+                row['votes'] = 'None'
+              }
+              _this.graph_data = {
+                answer: row['text'],
+                voter: row['votes']
+              }
+              _this.graph_array.push(_this.graph_data)
             }
           })
           csv.unshift(fields.join(','))
@@ -127,6 +138,3 @@
     }
   }
 </script>
-<style scoped>
-  @import '../poll.css'
-</style>

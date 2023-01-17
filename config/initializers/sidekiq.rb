@@ -1,7 +1,10 @@
 require 'yaml'
 
 schedule_file = 'config/schedule.yml'
-cable_array = YAML.load(File.read("config/cable.yml"))
+
+cable_file = File.join(File.dirname(__FILE__), "../cable.yml")
+yaml_config = ERB.new(IO.read(cable_file)).result
+cable_array = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(yaml_config) : YAML.load(yaml_config)
 
 Sidekiq.configure_server do |config|
   config.redis = { url: cable_array["redis"]["url"] } if Rails.env.development? || Rails.env.test?

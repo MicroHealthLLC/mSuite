@@ -10,6 +10,7 @@
   import katex from 'katex'
   import 'katex/dist/katex.min.css'
   import TemporaryUser from "../../mixins/temporary_user.js"
+  import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
 
   export default {
     data() {
@@ -61,6 +62,7 @@
               if(this.temporaryUser !=this.$store.getters.getUser){
                   this.qeditor.blur()
                   this.qeditor.setContents(new Delta(this.content))
+                  this.strongTagStyleBold()
                   element.scrollTop = notepadHeight
               }
             }
@@ -148,6 +150,7 @@
           })
           if (source == 'user') {
             setTimeout(() => {
+              _this.strongTagStyleBold()
               change = change.compose(delta)
               if (change.length() > 0) {
                 _this.sendLocals(true)
@@ -176,9 +179,37 @@
         http.get(`/msuite/${id}/reset_mindmap.json`)
       },
       exportToDocument(option) {
-        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body>"
+        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='head' charset='utf-8'><title>Export html to Doc</title></head><body style='font-family: sans-serif;'>"
         var postHtml = "</body></html>"
-        let htmlContent = document.querySelector('#notepad').innerHTML
+        let deltaOps = this.qeditor.getContents();
+        var cfg = {
+          inlineStyles: {
+           font: {
+              'serif': 'font-family: Georgia, Times New Roman, serif',
+              'monospace': "font-family: Monaco, Comic Sans MS, monospace"
+            },
+            size: {
+              'small': 'font-size: 0.75em',
+              'large': 'font-size: 1.5em',
+              'huge': 'font-size: 2.5em'
+            },
+            indent: (value, op) => {
+              var indentSize = parseInt(value, 10) * 3;
+              var side = op.attributes['direction'] === 'rtl' ? 'right' : 'left';
+              return 'padding-' + side + ':' + indentSize + 'em';
+            },
+            direction: (value, op) => {
+              if (value === 'rtl') {
+                 return 'direction:rtl' + ( op.attributes['align'] ? '' : '; text-align: inherit' );
+              } else {
+                 return '';
+              }
+            }
+          }
+         };
+        let converter = new QuillDeltaToHtmlConverter(deltaOps.ops, cfg);
+        let htmlContent = converter.convert();
+
         var html = preHtml + htmlContent + postHtml ;
         if(option === 1){
           var blob = new Blob(['\ufeff', html], {
@@ -247,4 +278,7 @@
   .ql-editor .ql-size-small::before {
     font-size: 0.75em;
   }
+  /* .ql-editor strong{
+     font-weight:bold;
+ } */
 </style>
