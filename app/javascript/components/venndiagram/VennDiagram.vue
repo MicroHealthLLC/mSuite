@@ -98,6 +98,7 @@ export default {
           buttons: {
             contextButton: {
               enabled: true,
+              menuItems: ["viewFullscreen", "printChart"]
             }
           }
         },

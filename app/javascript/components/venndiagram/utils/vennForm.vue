@@ -14,7 +14,9 @@
             </b-col>
             <b-col cols="4">
               <b-button id="add-set-btn" v-b-tooltip.hover title="Create Set" type="submit" variant="success"
-                class="mb-2" size="lg"><i class="fa-light fa-circle"></i></b-button>
+                class="mb-2 p-1 pr-2" size="lg"><i
+                  class="fa-solid fa-plus fa-2xs"></i>
+                  <i class="fa-light fa-circle fa-lg"></i></b-button>
             </b-col>
           </b-row>
 
@@ -24,16 +26,17 @@
       <b-col v-if="data.length > 1" cols="6">
         <b-form @submit.prevent="addNewLinks" class="mt-5">
           <b-row align-v="center">
-            <b-col cols="10">
+            <b-col cols="9">
               <b-form-group id="links-input-group" label="Create Set Link" label-for="links-input"
                 description="Click the sets that you would like to link">
                 <b-form-input id="links-input" v-model="link" type="text">
                 </b-form-input>
               </b-form-group>
             </b-col>
-            <b-col cols="2">
-              <b-button v-b-tooltip.hover title="Create Link" type="submit" variant="success" size="lg" class="mb-2"><i
-                  class="fa-light fa-diagram-venn"></i></b-button>
+            <b-col cols="3">
+              <b-button v-b-tooltip.hover title="Create Link" type="submit" variant="success" size="lg" class="mb-2 p-1 pr-2"><i
+                  class="fa-solid fa-plus fa-2xs"></i><i
+                  class="fa-light fa-diagram-venn fa-lg"></i></b-button>
             </b-col>
           </b-row>
           <!-- <b-button class="ml-3 mt-3" @click="showSetInput = true">Go back to Set Creation</b-button> -->
