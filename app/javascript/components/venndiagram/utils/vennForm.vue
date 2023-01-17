@@ -26,7 +26,7 @@
           <b-row align-v="center">
             <b-col cols="10">
               <b-form-group id="links-input-group" label="Create Set Link" label-for="links-input"
-                description="Create set links by entering set names seperated by a comma ">
+                description="Click the sets that you would like to link">
                 <b-form-input id="links-input" v-model="link" type="text">
                 </b-form-input>
               </b-form-group>
@@ -131,8 +131,6 @@ export default {
           let linkUpCase = this.link.replace(/ /g, '').toUpperCase()
           if (this.checkForSets(linkUpCase)) {
             let linkName = linkUpCase.split(",").map(String).sort()
-            console.log(linkUpCase)
-            console.log(linkName)
             let randomColor = Math.floor(Math.random() * 16777215).toString(16)
             let val = this.setVal(linkUpCase.match(/,/g).length)
             let set = {

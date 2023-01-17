@@ -3807,12 +3807,19 @@ he@^1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+highcharts-custom-events@^3.0.10:
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/highcharts-custom-events/-/highcharts-custom-events-3.0.10.tgz#6f2fcd67d062221e5dd2bfdfdccb1bba1b695372"
+  integrity sha512-swD0v8qovr9tzW6wNdebJKWQS5xTUclU2XznZw7+U6zMpedzEw7nxMZCog+P3JBDvp2cLO8ySiy7EC29DayfFw==
+  dependencies:
+    highcharts ">=5.0.9"
+
 highcharts-vue@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/highcharts-vue/-/highcharts-vue-1.4.0.tgz#4bdaaddc6b9a3eea0df70d29a22ae713d28e4a0c"
   integrity sha512-fTPqJmU/wR/nUEtofbC/iJqcgULGcP3C0Hd4YYCKH2FiiteNs7UidjSM4eYj5Y4ldpOVhwPtNj/m6XwC3ajp6g==
 
-highcharts@^10.3.2:
+highcharts@>=5.0.9, highcharts@^10.3.2:
   version "10.3.2"
   resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-10.3.2.tgz#cb74091b12c1a0112532857eb751044072aa34a8"
   integrity sha512-uDSuAOTKXOA90WUE38KKJawzMPjeIX/4UH3fMxZdoypbGVjsbuHO6jJSdeGf1LaDpu5wRg/xjO4QXzJqXfIrkA==

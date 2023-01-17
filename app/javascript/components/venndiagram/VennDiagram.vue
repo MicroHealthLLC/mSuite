@@ -23,7 +23,7 @@
       @closeEditBox="closeEditBox" class="position-fixed editBox rounded p-1">
     </venn-popup>
     <sweet-modal ref="dataErrorModal" class="of_v" icon="error">
-      This Data set is already declared. Try another!
+      This set is already declared. Try another!
     </sweet-modal>
   </div>
 </template>
@@ -94,30 +94,49 @@ export default {
             fontSize: 16,
           },
         },
+        exporting: {
+          buttons: {
+            contextButton: {
+              enabled: true,
+            }
+          }
+        },
+        navigation: {
+          buttonOptions: {
+            enabled: false
+          }
+        },
+        /* plotOptions: {
+          series: {
+            dragDrop: {
+              draggableleX: true,
+              draggableleY: true,
+              liveRedraw: false,
+            },
+          },
+        }, */
         chart: {
           height: 600,
-          /* borderWidth: 1,
-          borderColor: "#ccc", */
         },
         credits: {
           enabled: false,
         },
-        tooltip: {
+        /* tooltip: {
           formatter() {
             if (typeof (this.point.sets) == 'string') this.point.sets = this.point.sets.split(",").map(String)
             return `<strong>Set: ${this.point.sets.join(
               ","
             )}</strong>`;
           },
-        },
-        /* tooltip: {
+        }, */
+        tooltip: {
           formatter() {
             if(typeof(this.point.sets) == 'string') this.point.sets = this.point.sets.split(",").map(String)
             return `<strong>${this.point.sets.join(
               ","
-            )}</strong><br /><span>values: ${this.point.value}</span>`;
+            )}</strong><br /><span>${this.point.value}</span>`;
           },
-        }, */
+        },
         legend: {
           align: "left",
         },
@@ -128,15 +147,20 @@ export default {
       let data = this.data
       return {
         type: "venn",
-        data,
+        data,          
         point: {
           events: {
             click: (event) => {
-              this.pointClick(event)
+              this.addSetToLink(event)
+              //this.pointClick(event)
             },
-            drag: (e) => {
-              console.log(e)
+            contextmenu: (e) => {
+              this.pointClick(e)
+              e.preventDefault()
             }
+            /* dragStart: (e) => {
+              console.log(e)
+            } */
           }
         }
       };
@@ -292,6 +316,20 @@ export default {
     },
     closeEditBox() {
       this.openEditBox = false
+    },
+    checkForSingleSet(sets) {
+      return sets.length == 1 ? true : false
+    },
+    addSetToLink(event) {
+      if (this.checkForSingleSet(event.point.sets)) {
+        let vennFormLink = this.$children[0].link
+        if (vennFormLink == "") {
+          vennFormLink = (event.point.sets[0])
+        } else if (vennFormLink.search(event.point.sets[0]) == -1) {
+          vennFormLink = vennFormLink + (`,${event.point.sets[0]}`)
+        }
+        this.$children[0].link = vennFormLink
+      }
     },
     async undoObj() {
       this.undoDone = true
