@@ -41,17 +41,19 @@ class NodesController < AuthenticatedController
   end
 
   def destroy
-    if @node.destroy
+    if @node
       delNodes = []
       delNodes = delete_child_nodes @node.children if @node.children
       delNodes = @node if @node.mindmap.mm_type == 'calendar'
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
-      ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node })
-      respond_to do |format|
-        format.json { render json: {success: true, node: delNodes}}
-        format.html { }
+      if @node.destroy
+        ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node })
+        respond_to do |format|
+          format.json { render json: {success: true, node: delNodes}}
+          format.html { }
+        end
       end
     else
       respond_to do |format|
@@ -95,8 +97,8 @@ class NodesController < AuthenticatedController
 
   def delete_child_nodes nodes
     nodes.each do |nod|
-      delete_child_nodes nod.children
-      $deleted_child_nodes.push(nod.destroy)
+      delete_child_nodes nod.children unless nod.children.empty?
+      $deleted_child_nodes.push(nod)
     end
     return $deleted_child_nodes
   end

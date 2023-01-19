@@ -6,7 +6,7 @@ class Node < ApplicationRecord
   belongs_to :mindmap, optional: true
   belongs_to :stage, optional: true
 
-  has_many :children, class_name: 'Node', foreign_key: 'parent_node'
+  has_many :children, class_name: 'Node', foreign_key: 'parent_node', dependent: :destroy
   belongs_to :parent, class_name: 'Node', foreign_key: 'parent_node', optional: true
 
   before_create :set_default_export_index, :create_notification
