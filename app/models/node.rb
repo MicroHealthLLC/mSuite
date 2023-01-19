@@ -12,6 +12,7 @@ class Node < ApplicationRecord
   before_create :set_default_export_index, :create_notification
   before_create :encrypt_attributes, if: :check_private?
   after_create :create_notification
+  after_update :update_childs_position, if: :check_parent_position?
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
   before_update :encrypt_attributes, if: :check_private?
@@ -172,6 +173,23 @@ class Node < ApplicationRecord
 
   def position_updated
     self.stage.nodes.where("position >= ?", position).update_all("position = position - 1") if self.stage
+  end
+
+  def check_parent_position?
+    posi_x_perv_changes = self.previous_changes[:position_x]
+    return self.mindmap.mm_type == "simple" && self.children&.length > 0 && (posi_x_perv_changes != nil && posi_x_perv_changes&.length > 1)
+  end
+
+  def update_childs_position
+    return if self.children.length == 0
+    self.children.each_with_index do |nod, index|
+      if self.position_x < 2820
+        nod.position_x = self.position_x - ((index + 1) * 70)
+      else
+        nod.position_x = self.position_x + ((index + 1) * 70)
+      end
+      nod.save
+    end
   end
 
   private
