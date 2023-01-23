@@ -6,7 +6,7 @@
       :msg="'Hello there, it seems like you are new here! These bubbles will guide you through the app.'"
       :mainBubble="true"/>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit"  @touchstart.stop="slideInit" @touchmove.prevent="slideTheCanvas" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false" @touchend="isSlideDown = false">
-      <section v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" @touchmove.prevent="doDrag" :style="C_scaleFactor">
+      <div v-if="!loading" id="map-container" class="font-serif" @mousemove.prevent="doDrag" @touchmove.prevent="doDrag" :style="C_scaleFactor">
         <div class="center" @click.stop.prevent="nullifySlider" :style="C_centeralNodePosition">
           <div class="row central_node_attachment text-secondary">
             <div class="col-12 px-0">
@@ -52,7 +52,7 @@
           :msg="'Great! This is easy, right? The red circle is your most important tool. Now, you can move your idea around by dragging it or double click to change the text again.'"
           :mainBubble="false"/>
         <canvas id="map-canvas" class="has_bg" :width="windowWidth" :height="windowHeight" @click.stop="nullifyFlags"></canvas>
-      </section>
+      </div>
     </div>
 
     <new-map-modal
