@@ -353,7 +353,7 @@
           
           }
           else{
-            this.parent_x = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width,
+            this.parent_x = (event.clientX - this.mousePos.left) / (this.mousePos.right - this.mousePos.left) * $("#map-canvas")[0].width
             this.parent_y = (event.clientY - this.mousePos.top) / (this.mousePos.bottom - this.mousePos.top) * $("#map-canvas")[0].height
           }
         }

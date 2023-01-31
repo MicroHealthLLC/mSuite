@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_01_135640) do
+ActiveRecord::Schema.define(version: 2023_01_31_062728) do
 
   create_table "active_admin_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "namespace"
@@ -117,6 +117,9 @@ ActiveRecord::Schema.define(version: 2022_11_01_135640) do
     t.integer "node_width", default: 0
     t.datetime "duedate"
     t.datetime "startdate"
+    t.string "element_type"
+    t.float "element_width"
+    t.float "element_height"
     t.index ["mindmap_id"], name: "index_nodes_on_mindmap_id"
   end
 

@@ -33,6 +33,11 @@ Vue.use(ActionCableVue, {
   connectImmediately: true
 })
 
+Vue.directive('focus', {
+  inserted(el) {
+    el.focus()
+  }
+})
 
 Vue.use(HighchartsVue)
 vennInit(Hightcharts)
