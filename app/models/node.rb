@@ -11,13 +11,14 @@ class Node < ApplicationRecord
 
   before_create :set_default_export_index, :create_notification
   before_create :encrypt_attributes, if: :check_private?
+  before_create :set_position_slide, if: :validate_powerpoint
   after_create :create_notification
   after_update :update_childs_position, if: :check_parent_position?
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
   before_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
-  before_destroy :position_updated, if: :validate_kanban
+  before_destroy :position_updated, if: -> { validate_kanban || validate_powerpoint }
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
@@ -38,6 +39,14 @@ class Node < ApplicationRecord
   def set_position
     if mindmap_id.present? && ( position.nil? ||  position == 0 )
       self.position = self.mindmap.nodes.count + 1
+    end
+  end
+
+  def set_position_slide
+    if self.position > 0 && self.position <= self.mindmap.nodes.last.position
+      self.mindmap.nodes.where("position >= ?", self.position).where.not(id: id).update_all("position = position + 1")
+    else
+      self.position = self.mindmap.nodes.last.position + 1 rescue 0
     end
   end
   
@@ -80,6 +89,10 @@ class Node < ApplicationRecord
 
   def validate_kanban
     return self.mindmap&.mm_type == "kanban"
+  end
+
+  def validate_powerpoint
+    return self.mindmap&.mm_type == "powerpoint"
   end
 
   def to_json
@@ -168,11 +181,21 @@ class Node < ApplicationRecord
     elsif self.stage_id && self.position < self.position_was
       self.stage.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
 
+    elsif self.mindmap.mm_type == 'powerpoint' && self.position > self.position_was
+      self.mindmap.nodes.where("position <= ?", position).where.not(id: id).where.not("position < ?", position_was).update_all("position = position - 1")
+
+    elsif self.mindmap.mm_type == 'powerpoint' && self.position < self.position_was
+      self.mindmap.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
+
     end
   end
 
   def position_updated
+    if self.stage
     self.stage.nodes.where("position >= ?", position).update_all("position = position - 1") if self.stage
+    elsif self.position?
+      self.mindmap.nodes.where("position >= ?", position).update_all("position = position - 1")
+    end
   end
 
   def check_parent_position?

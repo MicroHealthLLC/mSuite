@@ -234,7 +234,6 @@ import DeleteMapModal from './modals/delete_modal'
 import DeletePasswordModal from './modals/delete_password_modal'
 import TemporaryUser from "../mixins/temporary_user.js"
 import CloneModal from './modals/clone_modal'
-import { mapState } from 'vuex'
 
 export default {
   name: "NavigationBar",
