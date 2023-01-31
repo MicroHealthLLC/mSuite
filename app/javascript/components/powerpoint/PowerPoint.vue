@@ -1,16 +1,50 @@
 <template>
   <div>
-    <div id="toolbar" class="m-2 p-2">
+    <div id="toolbar" class="mx-2">
       <div class="center-margin">
         <i v-b-tooltip.hover title="Move Slide Up" @click="moveSlideUp" :disabled="cSlideIndex === 0" class="fas fa-chevron-up p-2 pointer"></i>
         <i v-b-tooltip.hover title="Move Slide Down" @click="moveSlideDown" :disabled="cSlideIndex === slides.length - 1" class="p-2 fas fa-chevron-down pointer"></i>
         <i v-b-tooltip.hover title="Add Paragraph" @click="addText('p')" class="far pointer fa-text p-2"></i>
-        <i v-b-tooltip.hover title="Heading H1" @click="addText('h1')" class="fas pointer fa-h1 p-2"></i>
-        <i v-b-tooltip.hover title="Heading H2" @click="addText('h2')" class="fas pointer fa-h2 p-2"></i>
-        <i v-b-tooltip.hover title="Heading H3" @click="addText('h3')" class="fas pointer fa-h3 p-2"></i>
-        <i v-b-tooltip.hover title="Heading H4" @click="addText('h4')" class="fas pointer fa-h4 p-2"></i>
-        <i v-b-tooltip.hover title="Heading H5" @click="addText('h5')" class="fas pointer fa-h5 p-2"></i>
-        <i v-b-tooltip.hover title="Heading H6" @click="addText('h6')" class="fas pointer fa-h6 p-2"></i>
+        <b-dropdown
+          variant="link"
+          toggle-class="text-decoration-none text-dark" no-caret >
+          <template #button-content>
+            <i v-b-tooltip.hover title="Heading" class="fas pointer fa-heading p-2 mb-1"></i>
+          </template>
+          <div class="d-flex justify-content-center feedback-emoji">
+            <div class="px-1">
+              <b-dropdown-item @click="addText('h1')">
+                <i v-b-tooltip.hover title="Heading H1"  class="pointer fas fa-h1 p-2"></i>
+              </b-dropdown-item>
+            </div>
+            <div class="px-1">
+              <b-dropdown-item @click="addText('h2')">
+                <i v-b-tooltip.hover title="Heading H2"  class="fas pointer fa-h2 p-2"></i>
+              </b-dropdown-item>
+            </div>
+            <div class="px-1">
+              <b-dropdown-item @click="addText('h3')">
+                <i v-b-tooltip.hover title="Heading H3"  class="fas pointer fa-h3 p-2"></i>
+              </b-dropdown-item>
+            </div>
+            <div class="px-1">
+              <b-dropdown-item @click="addText('h4')">
+                <i v-b-tooltip.hover title="Heading H4"  class="fas pointer fa-h4 p-2"></i>
+              </b-dropdown-item>
+            </div>
+            <div class="px-1">
+              <b-dropdown-item @click="addText('h5')">
+                <i v-b-tooltip.hover title="Heading H5"  class="fas pointer fa-h5 p-2"></i>
+              </b-dropdown-item>
+            </div>
+            <div class="px-1">
+              <b-dropdown-item @click="addText('h6')">
+                <i v-b-tooltip.hover title="Heading H6"  class="fas pointer fa-h6 p-2"></i>
+              </b-dropdown-item>
+
+            </div>
+          </div>
+        </b-dropdown>
         <i v-b-tooltip.hover title="Text with bullet" @click="addText('ul')" class="fas fa-list-ul p-2 pointer"></i>
         <i v-b-tooltip.hover title="Change Color" @click="colorChange()" class="fas fa-eye-dropper p-2 pointer"></i>
         <b-dropdown
@@ -39,8 +73,8 @@
         </b-dropdown>
       </div>
     </div>
-    <div class="mt-2 mx-2 d-flex">
-      <div id="slide-library" class="overflow-auto vh-80">
+    <div class="mt-2 mx-2 d-flex" id="slide-exp">
+      <div id="slide-library" class="overflow-auto">
         <div v-if="slidesLoaded" v-for="(slide, index) in sortedSlides" :key="slide.id" @click="selectSlide(index)" class="m-2">
           <div
             :id="`map-canvas-${index}`"
@@ -144,7 +178,6 @@
         redoNodes      : [],
         mapColors      : [],
         uniqueColors   : [],
-        undoDone       : false,
         colorSelected  : false,
         slidesLoaded   : false,
         selectedElement: null,
@@ -193,7 +226,6 @@
             setTimeout(()=>{
               this.selectSlide(0)
             }, 500)
-            // this.getMindmap()
           }
           else {
             this.getMindmap()
@@ -212,6 +244,7 @@
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
       await this.getMindmap()
+
       this.slides.length < 1 ? await this.addSlide(null) : ''
       this.slidesLoaded = true
       this.undoMap(this.undoObj)
@@ -219,6 +252,7 @@
       setTimeout(()=>{
         this.selectSlide(0)
       }, 500)
+      this.$store.dispatch('setExportId', 'slide-exp')
     },
     methods: {
       getMindmap: async function() {
@@ -252,10 +286,8 @@
           }
         }
         await http.post('/nodes.json', data).then( res => {
-          if (!this.undoDone) {
-            let receivedData = res.data.node
-            this.undoNodes.push({'req': 'addNode', 'node': receivedData})
-          }
+          let receivedData = res.data.node
+          this.undoNodes.push({'req': 'addNode', 'node': receivedData})
           this.getMindmap()
           this.cSlideIndex = slidePosition
         })
@@ -273,6 +305,7 @@
         if(response){
           this.sendLocals(true)
         } else alert('slide position didn\'t updated')
+        this.updatePowerpointUser()
       },
 
       updateSlideRequest(obj){
@@ -287,6 +320,7 @@
         this.updatePowerpointUser()
         this.colorSelected = false
         return http.patch(`/nodes/${obj.id}.json`,data)
+        this.updatePowerpointUser()
       },
 
       async deleteSlide(slide) {
@@ -295,17 +329,21 @@
           if(receivedNodes && receivedNodes.length > 0){
             this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
-          if (!this.undoDone) {
-            let myNode = {
-              id: slide.id,
-              title: slide.title,
-              line_color: slide.line_color,
-              mindmap_id: slide.mindmap_id,
-              parent_node: slide.parent_node,
-              position: slide.position,
-            }
-            this.undoNodes.push({'req': 'deleteNode', node: myNode})
+          let myNode = {
+            id: slide.id,
+            title: slide.title,
+            line_color: slide.line_color,
+            mindmap_id: slide.mindmap_id,
+            parent_node: slide.parent_node,
+            position: slide.position,
+            position_x: slide.position_x,
+            position_y: slide.position_y,
+            description: slide.description,
+            element_type: slide.element_type,
+            element_width:slide.element_width,
+            element_height:slide.element_height,
           }
+          this.undoNodes.push({'req': 'deleteNode', node: myNode})
         });
         this.sendLocals(false)
         this.getMindmap()
@@ -317,10 +355,12 @@
       moveSlideUp() {
         this.cSlideIndex > 0 ? this.moveSlide('up') : ''
         this.getMindmap()
+        this.updatePowerpointUser()
       },
       moveSlideDown() {
         this.cSlideIndex < this.sortedSlides.length - 1 ? this.moveSlide('down') : ''
         this.getMindmap()
+        this.updatePowerpointUser()
       },
       moveSlide(position){
         const slide = this.sortedSlides[this.cSlideIndex]
@@ -349,13 +389,12 @@
             }
           }
           http.post('/nodes.json', data).then(res => {
-            if (!this.undoDone) {
-              let receivedData = res.data.node
-              this.undoNodes.push({'req': 'addNode', 'node': receivedData})
-            }
+            let receivedData = res.data.node
+            this.undoNodes.push({'req': 'addNode', 'node': receivedData})
           })
           this.getMindmap()
           this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
+          this.updatePowerpointUser()
         } else alert('Please Add Atleast 1 slide')
       },
       addShape(type) {
@@ -372,13 +411,12 @@
             }
           }
           http.post('/nodes.json', data).then(res => {
-            if (!this.undoDone) {
-              let receivedData = res.data.node
-              this.undoNodes.push({'req': 'addNode', 'node': receivedData})
-            }
+            let receivedData = res.data.node
+            this.undoNodes.push({'req': 'addNode', 'node': receivedData})
           })
           this.getMindmap()
           this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
+          this.updatePowerpointUser()
         } else alert('Please Add Atleast 1 slide')
       },
       selectSlide(index) {
@@ -400,6 +438,7 @@
       saveNodeColor(){
         this.el.line_color = this.el.line_color.hex8
         this.updateSlideRequest(this.el)
+        this.updatePowerpointUser()
       },
       changeColor(color){
         let ele_id = this.selectedElement != null ? `element-${this.selectedElement.id}` : `slide-editor-${this.sortedSlides[this.cSlideIndex].id}`
@@ -439,6 +478,7 @@
         http.put(`/nodes/${element.id}.json`, element).then(()=> {
           this.getMindmap()
         })
+        this.updatePowerpointUser()
       },
       deleteElement(element) {
         http.delete(`/nodes/${element.id}.json`).then((res) => {
@@ -446,31 +486,31 @@
           if(receivedNodes && receivedNodes.length > 0){
             this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
           }
-          if (!this.undoDone) {
-            let myNode = {
-              id: element.id,
-              title: element.title,
-              line_color: element.line_color,
-              mindmap_id: element.mindmap_id,
-              parent_node: element.parent_node,
-              position: element.position,
-              position_x: element.position_x,
-              position_y: element.position_y
-            }
-            this.undoNodes.push({'req': 'deleteNode', node: myNode})
+          let myNode = {
+            id: element.id,
+            title: element.title,
+            line_color: element.line_color,
+            mindmap_id: element.mindmap_id,
+            parent_node: element.parent_node,
+            position: element.position,
+            position_x: element.position_x,
+            position_y: element.position_y,
+            description: element.description,
+            element_type: element.element_type,
+            element_width: element.element_width,
+            element_height: element.element_heights
           }
+          this.undoNodes.push({'req': 'deleteNode', node: myNode})
         });
         this.sendLocals(false)
         this.updatePowerpointUser()
       },
       async undoObj(){
-        this.undoDone = true
         let undoObj = await this.undoNode(this.undoNodes)
         if(undoObj){
           this.undoNodes.pop()
           this.redoNodes.push({req: undoObj.req, node: undoObj.node})
         }
-        this.getMindmap()
       },
       async redoObj(){
         let redoObj = await this.redoNode(this.redoNodes)
@@ -478,7 +518,6 @@
           this.redoNodes.pop()
           this.undoNodes.push({req: redoObj.req, node: redoObj.node})
         }
-        this.getMindmap()
       },
     },
   }
