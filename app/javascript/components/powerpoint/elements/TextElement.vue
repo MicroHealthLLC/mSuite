@@ -1,37 +1,50 @@
 <template>
-  <div :style="`transform: rotate(${this.rotation}deg)`">
-  <DynamicElement
-    v-if="!editable"
-    @click="editable = true"
-    :element="element.element_type"
-    :style="`color:${element.line_color};`"
-  >
-    {{element.title}}
-  </DynamicElement>
-  <textarea
-    v-focus
-    v-else-if="element.element_type == 'p' || element.element_type == 'ul'"
-    class="input-editor text-field"
-    v-model="element.title" @blur="updateElement"
-    :style="`
-      color:${element.line_color};
-      background: ${parentColor};
-      `">
-  </textarea>
-  <div v-else>
-    <input
-      v-focus
-      class="input-editor"
-      type="text"
-      name="text"
-      v-model="element.title"
-      @blur="updateElement"
+  <div @click="id = element.id"
+    class="position-relative"
+    :style="selectedElement && selectedElement.id == id ? `
+      border: 2px dotted ${element.line_color};
+      ` : ''">
+    <DynamicElement
+      v-if="!editable"
+      @click="editable = true"
+      :element="element"
       :style="`
+        color:${element.line_color};
+        width:${element.element_width}px;
+        `"
+    >
+      {{element.description}}
+    </DynamicElement>
+    <textarea
+      v-focus
+      ref="textarea"
+      v-else
+      class="input-editor text-field resizing-area"
+      v-model="element.description" @blur="updateElement"
+      :style="`
+        width:${element.element_width}px;
         color:${element.line_color};
         background: ${parentColor};
         font-size: ${fontSize};
         `">
-  </div>
+    </textarea>
+    <div
+      v-if="selectedElement && selectedElement.id == id"
+      class="position-absolute icon"
+      :style="`
+        left:50%;
+        top: -20px;
+      `"
+      @mousedown="$emit('dragStart',$event)"
+    >
+      <i class="fas fa-arrows-alt position-absolute"></i>
+    </div>
+    <div
+      v-if="selectedElement && selectedElement.id == id"
+      class="position-absolute delete-icon-pos"
+    >
+      <i @click.stop="$emit('deleteElement', element)" class="fas fa-times bg-danger rounded-circle text-white px-1"></i>
+    </div>
   </div>
 </template>
 
@@ -42,15 +55,15 @@ import Rotate from "./ppt-mixins/rotate.js"
 export default {
 
   name: 'TextElement',
-  props: ['element','parentColor'],
+  props: ['element','parentColor', 'selectedElement'],
   mixins:[Rotate],
   components: {
     DynamicElement
   },
   data () {
     return {
-      editable: this.element.title != 'Tap and Type' ? false : true,
-      oldTitle: this.element.title,
+      editable: this.element.description != 'Tap and Type' ? false : true,
+      oldTitle: this.element.description,
       rotation: this.element.node_width,
     }
   },
@@ -70,15 +83,15 @@ export default {
         default:
           return '1rem'
       }
-    },
+    }
   },
   methods: {
     updateElement(){
-      this.editable = this.element.title != 'Tap and Type' ? false : true
-      this.element.node_width = this.rotation
-
-      if (this.element.title == '') {
-        this.element.title = this.oldTitle
+      this.editable = this.element.description != 'Tap and Type' ? false : true
+      this.element.node_width    = this.rotation
+      this.element.element_width = this.$refs.textarea ? this.$refs.textarea.scrollWidth : this.$refs.inputField.scrollWidth
+      if (this.element.description == '') {
+        this.element.description = this.oldTitle
         this.$emit('deleteElement', this.element)
       } else this.$emit('updateElement', this.element)
     },
@@ -90,4 +103,7 @@ export default {
   .input-editor{
     border: dotted;
   }
+</style>
+<style lang="scss" scoped>
+  @import "../style/styles.scss"
 </style>

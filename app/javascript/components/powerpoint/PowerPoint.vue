@@ -32,20 +32,10 @@
                 <i v-b-tooltip.hover title="Heading H4"  class="fas pointer fa-h4 p-2"></i>
               </b-dropdown-item>
             </div>
-            <div class="px-1">
-              <b-dropdown-item @click="addText('h5')">
-                <i v-b-tooltip.hover title="Heading H5"  class="fas pointer fa-h5 p-2"></i>
-              </b-dropdown-item>
-            </div>
-            <div class="px-1">
-              <b-dropdown-item @click="addText('h6')">
-                <i v-b-tooltip.hover title="Heading H6"  class="fas pointer fa-h6 p-2"></i>
-              </b-dropdown-item>
-
-            </div>
           </div>
         </b-dropdown>
-        <i v-b-tooltip.hover title="Text with bullet" @click="addText('ul')" class="fas fa-list-ul p-2 pointer"></i>
+        <i v-b-tooltip.hover title="Bulleted List" @click="addText('ul')" class="fas fa-list-ul p-2 pointer"></i>
+        <i v-b-tooltip.hover title="Numbered List" @click="addText('ol')" class="fas fa-list-ol p-2 pointer"></i>
         <i v-b-tooltip.hover title="Change Color" @click="colorChange()" class="fas fa-eye-dropper p-2 pointer"></i>
         <b-dropdown
           variant="link"
@@ -115,16 +105,15 @@
           <div
             id = 'parent-component'
             v-for="(element, index) in sortedSlides[cSlideIndex].children" :key="element.id"
-            draggable="true"
+            :draggable="isDragabble"
             @click.stop="selectedElement = element"
-            @dragstart="dragStart($event, element)"
             @dragover.prevent
             @dragend="dragDrop($event, element)"
             >
             <div>
             <component
               :id="`element-${element.id}`"
-              :is="element.description"
+              :is="element.title"
               :element="element"
               :parent-color="sortedSlides[cSlideIndex].line_color"
               class="position-absolute"
@@ -132,6 +121,7 @@
               :style="`
                 top: ${element.position_y}px;
                 left: ${element.position_x}px;`"
+              @dragStart="dragStart"
               @deleteElement="deleteElement(element)"
               @updateElement="updateElement(element)">
             </component>
@@ -182,7 +172,7 @@
         slidesLoaded   : false,
         selectedElement: null,
         el             : null,
-        draggingElement: null,
+        isDragabble    : false,
         slideSample: {
           label: 'Slide',
         },
@@ -279,7 +269,7 @@
         let line_color = this.sortedSlides.length < 10 ? paleteColor[this.sortedSlides.length] : '#98a8ae'
         let data = {
           node: {
-            title: this.slideSample.label,
+            description: this.slideSample.label,
             line_color: line_color,
             mindmap_id: this.currentMindMap.id,
             position: slidePosition,
@@ -312,7 +302,7 @@
         let data = {
           node: {
             id: obj.id,
-            title: obj.title,
+            description: obj.description,
             position: obj.position,
             line_color: obj.line_color,
           }
@@ -380,8 +370,8 @@
         if(this.sortedSlides.length > 0){
           let data = {
             node: {
-              title: 'Tap and Type',
-              description: 'TextElement',
+              description: 'Tap and Type',
+              title: 'TextElement',
               mindmap_id: this.currentMindMap.id,
               parent_node: this.sortedSlides[this.cSlideIndex].id,
               element_type: tag,
@@ -401,7 +391,7 @@
         if(this.sortedSlides.length > 0){
           let data = {
             node: {
-              description: 'ShapeElement',
+              title: 'ShapeElement',
               mindmap_id: this.currentMindMap.id,
               parent_node: this.sortedSlides[this.cSlideIndex].id,
               element_type: type,
@@ -443,7 +433,7 @@
       changeColor(color){
         let ele_id = this.selectedElement != null ? `element-${this.selectedElement.id}` : `slide-editor-${this.sortedSlides[this.cSlideIndex].id}`
         if (this.selectedElement) {
-          if (this.selectedElement.element_width){
+          if (this.selectedElement.element_height){
             if (this.selectedElement.element_type == 'triangle'){
               document.getElementById(ele_id).children[0].children[0].children[0].style.borderBottomColor = color
             }
@@ -456,23 +446,36 @@
         this.changeColor(oldColor)
         this.colorSelected = false
       },
-      dragStart(event, element) {
-        this.selectedElement = element
-        this.draggingElement = event.target
+      dragStart(event) {
+        this.isDragabble = event.target.classList.contains('fas') ? true : false
       },
-      dragDrop(event, element) {
+      getPosition(event){
         const rect = event.target.getBoundingClientRect();
+        let position_x = event.clientX - (this.selectedElement.element_width / 2)
+        let position_y = event.clientY - rect.top + 170
 
-        let position_x = event.clientX - rect.left + 140
-        let position_y = event.clientY - rect.top + 160
-
-        if (position_x < rect.x || position_y < rect.y || position_x > rect.right) {
+        if (
+          position_x < rect.x ||
+          position_y < rect.y ||
+          this.selectedElement.element_width + position_x > rect.right ||
+          this.selectedElement.element_height + position_y > $('.element-wrap')[0].offsetHeight + rect.bottom )
+        {
           alert('element must be inside slide')
           return
         }
-        this.selectedElement.position_x = position_x
-        this.selectedElement.position_y = position_y
-        this.updateElement(this.selectedElement)
+        return {
+          position_x: position_x,
+          position_y: position_y
+        }
+      },
+      dragDrop(event) {
+        let positions = this.getPosition(event)
+        if(positions){
+          this.selectedElement.position_x = positions.position_x
+          this.selectedElement.position_y = positions.position_y
+          this.updateElement(this.selectedElement)
+        }
+        this.isDragabble = false
       },
       updateElement(element) {
         http.put(`/nodes/${element.id}.json`, element).then(()=> {
@@ -498,7 +501,7 @@
             description: element.description,
             element_type: element.element_type,
             element_width: element.element_width,
-            element_height: element.element_heights
+            element_height: element.element_height
           }
           this.undoNodes.push({'req': 'deleteNode', node: myNode})
         });

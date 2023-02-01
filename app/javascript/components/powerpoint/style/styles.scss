@@ -61,3 +61,12 @@
 .show {
   display: inline-block;
 }
+.delete-icon-pos {
+  left: -10px;
+  top: -8px;
+}
+.resizing-area {
+  width: 200px;
+  display: block;
+  resize: both;
+}

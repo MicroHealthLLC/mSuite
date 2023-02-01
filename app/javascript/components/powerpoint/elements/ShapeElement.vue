@@ -1,5 +1,6 @@
 <template>
   <div @click="id = element.id"
+    class="position-relative"
     :style="selectedElement && selectedElement.id == id ? `
       border: 2px dotted ${element.line_color};
       ` : ''">
@@ -11,6 +12,23 @@
     </div>
     <div v-else>
       <TriangleShape :element="element" @updateElement="updateElement"/>
+    </div>
+    <div
+      v-if="selectedElement && selectedElement.id == id"
+      class="position-absolute icon"
+      :style="`
+        left:${(element.element_width - 12) / 2}px;
+        top: -20px;
+      `"
+      @mousedown="$emit('dragStart',$event)"
+    >
+      <i class="fas fa-arrows-alt position-absolute"></i>
+    </div>
+    <div
+      v-if="selectedElement && selectedElement.id == id"
+      class="position-absolute delete-icon-pos"
+    >
+      <i @click.stop="$emit('deleteElement', element)" class="fas fa-times bg-danger rounded-circle text-white px-1"></i>
     </div>
   </div>
 </template>
@@ -39,3 +57,6 @@
     }
   }
 </script>
+<style lang="scss" scoped>
+  @import "../style/styles.scss"
+</style>
