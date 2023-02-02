@@ -69,6 +69,7 @@
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
           { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" }
         ]
+        //Test
       }
     },
     components: { CookieLaw, Recaptcha, Beta, HomeNavbar },
