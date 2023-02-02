@@ -41,6 +41,7 @@ Rails.application.routes.draw do
   resources :nodes, except: [:new, :edit, :show] do
     member do
       put :update_export_order
+      post :update_all_colors
     end
   end
 

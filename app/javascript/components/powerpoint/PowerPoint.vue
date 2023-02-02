@@ -140,6 +140,7 @@
           @updateColorNode="updateColorNode"
           @saveNodeColor="saveNodeColor"
           @closeModelPicker="closeModelPicker"
+          @updateAllColorNode="updateAllColorNode"
           @updateTreeChartNode="updateSelectedNode"
         ></color-palette>
       </div>
@@ -428,6 +429,15 @@
       saveNodeColor(){
         this.el.line_color = this.el.line_color.hex8
         this.updateSlideRequest(this.el)
+        this.updatePowerpointUser()
+      },
+      updateAllColorNode(){
+        if(this.el.line_color.hex8 == null) {
+          alert('Please select color before updating')
+          return
+        }
+        http.post(`/nodes/${this.el.id}/update_all_colors`,{line_color: this.el.line_color.hex8})
+        this.colorSelected = false
         this.updatePowerpointUser()
       },
       changeColor(color){

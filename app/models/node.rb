@@ -59,6 +59,13 @@ class Node < ApplicationRecord
     end
   end
 
+  def update_all_colors(color)
+    nodes = Mindmap.includes(:nodes).find_by_id(self.mindmap.id).nodes.where(element_type: nil)
+    nodes.each do |node|
+      node.update(line_color: color)
+    end
+  end
+
   def create_notification
     create_worker(self) if self.mindmap.mm_type == 'calendar' || self.mindmap.mm_type == 'todo'
   end

@@ -17,15 +17,22 @@
       <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
       <button
         class="btn btn-info border-none"
-        :class="showRandomPl ? 'w-25':'w-50'"
+        :class="showRandomPl && this.mm_type != 'powerpoint' ? 'w-25':'w-50'"
         @click="closeModelPicker">
         Cancel
       </button>
       <button
-        v-if="showRandomPl"
+        v-if="showRandomPl && this.mm_type != 'powerpoint'"
         class="btn btn-warning border-none w-25"
         @click="createPalette">
           <i class="fas fa-sync cursor-pointer mt-2"></i>
+      </button>
+      <button
+        v-else-if="this.mm_type == 'powerpoint'"
+        class="btn btn-warning border-none w-50"
+        @click="applyColorOnAllNodes"
+      >
+        Apply All
       </button>
     </div>
   </div>
@@ -53,7 +60,7 @@
         return this.selectedNode ? this.selectedNode : this.selectedBlock
       },
       showRandomPl() {
-        return (this.mm_type != 'calendar' && this.mm_type != 'powerpoint') && ((this.selectedNode && this.mm_type == 'kanban') || this.mm_type != 'kanban')
+        return (this.mm_type != 'calendar') && ((this.selectedNode && this.mm_type == 'kanban') || this.mm_type != 'kanban')
       }
     },
     mounted() {
@@ -102,6 +109,9 @@
       },
       updateColorNode(){
          this.mm_type == 'kanban' ? this.$emit("updateColorNode") : this.$emit("updateColorNode", this.node.line_color)
+      },
+      applyColorOnAllNodes(){
+        this.$emit("updateAllColorNode", this.node.line_color)
       },
       paletteUpdateColor(){
         if (this.mm_type == 'tree_map' || this.mm_type == 'kanban'){
@@ -172,5 +182,7 @@
 </script>
 
 <style>
+  .powerpoint{
 
+  }
 </style>
