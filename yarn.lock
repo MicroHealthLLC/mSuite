@@ -4337,10 +4337,10 @@ jspreadsheet-ce@^4.11.1:
     "@jspreadsheet/formula" "^1.1.0"
     jsuites "^4.12.0"
 
-jsuites@^4.12.0:
-  version "4.17.7"
-  resolved "https://registry.yarnpkg.com/jsuites/-/jsuites-4.17.7.tgz#f967477dd62d47ba7c618471e5be4835cb8f8ee4"
-  integrity sha512-qxR9bXsrN2a5nz1hhJjBwKafIg/dFVJY3AZbm1Idvo6rI98t8tlH9oIZVr6nNMGisVbD44HNtLr1juYHlsXpmg==
+jsuites@^4.12.0, jsuites@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/jsuites/-/jsuites-5.0.1.tgz#ba8ea419b9e0bf25b7c2922b262d02e9ecaf5d67"
+  integrity sha512-1dFIrVZBQxnC+J2jvjnyAjktmnXyDXSVVqSrI9zy0GVmnx7NhdrpDXc+SsWQZNC3Qid5McmyKYN7RzjuSrsyzQ==
 
 katex@^0.16.2:
   version "0.16.4"

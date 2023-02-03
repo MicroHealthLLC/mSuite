@@ -48,6 +48,7 @@
     "json-schema": "^0.4.0",
     "jspdf": "^2.5.0",
     "jspreadsheet-ce": "^4.11.1",
+    "jsuites": "^5.0.1",
     "katex": "^0.16.2",
     "loader-utils": "^2.0.4",
     "lodash": "^4.17.21",
@@ -123,7 +124,8 @@
     "jsdom": "^16.5.0",
     "trim-newlines": "3.0.1",
     "minimatch": "^3.0.5",
-    "loader-utils": "^2.0.4"
+    "loader-utils": "^2.0.4",
+    "jsuites": "^5.0.1"
   },
   "version": "0.1.0",
   "babel": {
