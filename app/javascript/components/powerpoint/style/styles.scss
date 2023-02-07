@@ -67,6 +67,12 @@
 }
 .resizing-area {
   width: 200px;
-  display: block;
   resize: both;
+}
+.border-dashed{
+  border: 1px dashed black;
+}
+.icons-pos{
+  top: 65%;
+  left: 48%;
 }

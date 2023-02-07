@@ -2,8 +2,6 @@
   <div>
     <div id="toolbar" class="mx-2">
       <div class="center-margin">
-        <i v-b-tooltip.hover title="Move Slide Up" @click="moveSlideUp" :disabled="cSlideIndex === 0" class="fas fa-chevron-up p-2 pointer"></i>
-        <i v-b-tooltip.hover title="Move Slide Down" @click="moveSlideDown" :disabled="cSlideIndex === slides.length - 1" class="p-2 fas fa-chevron-down pointer"></i>
         <i v-b-tooltip.hover title="Add Paragraph" @click="addText('p')" class="far pointer fa-text p-2"></i>
         <b-dropdown
           variant="link"
@@ -65,11 +63,19 @@
     </div>
     <div class="mt-2 mx-2 d-flex" id="slide-exp">
       <div id="slide-library" class="overflow-auto">
-        <div v-if="slidesLoaded" v-for="(slide, index) in sortedSlides" :key="slide.id" @click="selectSlide(index)" class="m-2">
+        <div
+          v-if="slidesLoaded"
+          v-for="(slide, index) in sortedSlides" :key="slide.id"
+          @click="selectSlide(index)" class="m-2"
+          draggable="true"
+          @dragstart="dragSlide($event, index)"
+          @dragover.prevent
+          @drop="dropSlide($event, index)"
+        >
           <div
             :id="`map-canvas-${index}`"
             class="style-canvas position-relative mt-2"
-            :class="cSlideIndex == index ? 'border-green' : 'border-none'"
+            :class="cSlideIndex == index ? 'border-green' : 'border-dashed'"
             :style="'background: '+ slide.line_color">
             <SlideElement
               v-for="(element, index) in slide.children" :key="element.id"
@@ -82,7 +88,7 @@
                 `">
             </SlideElement>
             <div v-b-tooltip.hover title="Add Slide" v-if="cSlideIndex == index" class="position-absolute add-slide-button">
-              <i @click="addSlide(slide)" class="position-relative fas fa-plus bg-success rounded-circle text-white"></i>
+              <i @click="addDefaultSecSlide(slide)" class="position-relative fas fa-plus bg-success rounded-circle text-white"></i>
             </div>
             <div v-b-tooltip.hover title="Delete Slide" v-if="cSlideIndex == index" class="position-absolute delete-slide-button">
               <i @click="deleteSlide(slide)" :disabled="slides.length === 1" class="position-relative fas fa-times bg-danger rounded-circle text-white px-1"></i>
@@ -127,6 +133,17 @@
             </component>
             </div>
           </div>
+          <div v-if="iconShow" id="imageDisplay" class="position-absolute icons-pos">
+              <div id="" class="mx-2">
+                <div class="center-margin">
+                  <i class="far pointer fa-text p-2"></i>
+                  <i class="fas pointer fa-heading p-2"></i>
+                  <i class="fas fa-list-ul p-2 pointer"></i>
+                  <i class="fas fa-list-ol p-2 pointer"></i>
+                  <i class="fas pointer fa-shapes"></i>
+                </div>
+              </div>
+          </div>
         </div>
       </div>
     </div>
@@ -164,7 +181,7 @@
     data () {
       return {
         slides         : [],
-        cSlideIndex   : 0,
+        cSlideIndex    : 0,
         undoNodes      : [],
         redoNodes      : [],
         mapColors      : [],
@@ -174,6 +191,7 @@
         selectedElement: null,
         el             : null,
         isDragabble    : false,
+        hoverIndex     : -1,
         slideSample: {
           label: 'Slide',
         },
@@ -192,7 +210,7 @@
     mixins: [TemporaryUser, Common, History],
     channels: {
       WebNotificationsChannel: {
-        received(data) {
+        async received(data) {
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
@@ -213,7 +231,9 @@
             this.undoNodes = []
             this.redoNodes = []
             this.slides    = []
-            this.addSlide(null)
+            await this.addSlide(null).then(() => {
+              this.addDefaultSlide()
+            })
             setTimeout(()=>{
               this.selectSlide(0)
             }, 500)
@@ -231,12 +251,20 @@
       sortedSlides() {
         return this.slides.sort((a, b) => a.position - b.position).filter(slide => slide.parent == 'Central Idea')
       },
+      iconShow() {
+        return this.cSlideIndex != 0 && this.sortedSlides[this.cSlideIndex].children.length < 5
+      }
     },
     mounted: async function(){
       this.subscribeCable(this.currentMindMap.id)
       await this.getMindmap()
-
-      this.slides.length < 1 ? await this.addSlide(null) : ''
+      if (this.slides.length < 1) {
+        (async () => {
+          await this.addSlide(null).then(() => {
+            this.addDefaultSlide()
+          })
+        })();
+      }
       this.slidesLoaded = true
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
@@ -262,24 +290,35 @@
           canvas: this.$store.getters.getUser
           });
       },
+      async addDefaultSlide(){
+        await this.addShape('square', 1)
+        await this.addShape('square', 2)
+        this.addText('h1', 1)
+        this.addText('h4', 2)
+      },
+      async addDefaultSecSlide(slide) {
+        await this.addSlide(slide)
+
+        await this.addShape('square', 3)
+        await this.addShape('square', 4)
+        this.addText('h1', 3)
+        this.addText('ul', 4)
+      },
       async addSlide(slide) {
         let _this = this
-        let paleteColor = ['#bcd4de','#b1d0d8','#a5ccd1','#c6dde0','#e7edee','#d4dcde','#c0cbce','#98a8ae','#abb5ba','#bec1c5']
         let slidePosition = slide != undefined ? slide.position + 1 : 0
-
-        let line_color = this.sortedSlides.length < 10 ? paleteColor[this.sortedSlides.length] : '#98a8ae'
         let data = {
           node: {
             description: this.slideSample.label,
-            line_color: line_color,
+            line_color: '#ffffff',
             mindmap_id: this.currentMindMap.id,
             position: slidePosition,
           }
         }
-        await http.post('/nodes.json', data).then( res => {
+        await http.post('/nodes.json', data).then( async (res) => {
           let receivedData = res.data.node
           this.undoNodes.push({'req': 'addNode', 'node': receivedData})
-          this.getMindmap()
+          await this.getMindmap()
           this.cSlideIndex = slidePosition
         })
         setTimeout(()=> {
@@ -343,72 +382,90 @@
         }, 300)
         this.updatePowerpointUser()
       },
-      moveSlideUp() {
-        this.cSlideIndex > 0 ? this.moveSlide('up') : ''
-        this.getMindmap()
-        this.updatePowerpointUser()
+      dragSlide(event, index) {
+        this.cSlideIndex = index;
       },
-      moveSlideDown() {
-        this.cSlideIndex < this.sortedSlides.length - 1 ? this.moveSlide('down') : ''
-        this.getMindmap()
-        this.updatePowerpointUser()
+      dropSlide(event, index) {
+        const slide = this.sortedSlides[this.cSlideIndex];
+        this.sortedSlides.splice(this.cSlideIndex, 1);
+        this.sortedSlides.splice(index, 0, slide);
+        this.cSlideIndex = index;
+        slide.position = this.sortedSlides.indexOf(slide);
+        this.updateSlideRequest(slide);
+        this.selectSlide(this.cSlideIndex);
       },
-      moveSlide(position){
-        const slide = this.sortedSlides[this.cSlideIndex]
-        this.sortedSlides.splice(this.cSlideIndex, 1)
-        if(position == 'up'){
-          this.sortedSlides.splice(this.cSlideIndex - 1, 0, slide)
-          this.cSlideIndex = this.cSlideIndex - 1
-        } else {
-          this.sortedSlides.splice(this.cSlideIndex + 1, 0, slide)
-          this.cSlideIndex = this.cSlideIndex + 1
+      async addText(tag, pos) {
+        let data = {
+          node: {
+            description: 'Tap and Type',
+            title: 'TextElement',
+            mindmap_id: this.currentMindMap.id,
+            parent_node: this.sortedSlides[this.cSlideIndex].id,
+            element_type: tag,
+            line_color: '#000000',
+            element_width: 350
+          }
         }
-        slide.position = this.sortedSlides.indexOf(slide)
-        this.updateSlideRequest(slide)
-        this.selectSlide(this.cSlideIndex)
+        if(pos == 1){
+          data.node.description   = 'Click to add title'
+          data.node.position_x = $('.element-wrap')[0].offsetWidth / 1.77
+          data.node.position_y = $('.element-wrap')[0].offsetHeight / 1.3
+        } else if (pos == 2){
+          data.node.description   = 'Click to add subtitle'
+          data.node.position_x = $('.element-wrap')[0].offsetWidth / 1.69
+          data.node.position_y    = $('.element-wrap')[0].offsetHeight - $('.element-wrap')[0].offsetHeight / 8.1
+        } else if (pos == 3){
+          data.node.description   = 'Click to add title'
+          data.node.position_y = $('.element-wrap')[0].offsetHeight / 2.67
+          data.node.position_x = $('.element-wrap')[0].offsetWidth / 5
+        } else if (pos == 4){
+          data.node.description   = 'Click to add text'
+          data.node.position_y = $('.element-wrap')[0].offsetHeight / 1.7
+        }
+        let res = await http.post('/nodes.json', data)
+        await this.getMindmap()
+        this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
+        if (res) {
+          pos == 1 || pos == 2 ? document.getElementById(`element-${res.data.node.id}`).style.justifyContent = 'center' : ''
+          let receivedData = res.data.node
+          this.undoNodes.push({'req': 'addNode', 'node': receivedData})
+        }
+        if(pos != 1 && pos != 2) this.updatePowerpointUser()
       },
-      addText(tag) {
-        if(this.sortedSlides.length > 0){
-          let data = {
-            node: {
-              description: 'Tap and Type',
-              title: 'TextElement',
-              mindmap_id: this.currentMindMap.id,
-              parent_node: this.sortedSlides[this.cSlideIndex].id,
-              element_type: tag,
-              line_color: '#000000'
-            }
+      addShape(type, pos) {
+        let data = {
+          node: {
+            title: 'ShapeElement',
+            mindmap_id: this.currentMindMap.id,
+            parent_node: this.sortedSlides[this.cSlideIndex].id,
+            element_type: type,
+            line_color: '#000000',
+            element_width: 100,
+            element_height: 100,
           }
-          http.post('/nodes.json', data).then(res => {
-            let receivedData = res.data.node
-            this.undoNodes.push({'req': 'addNode', 'node': receivedData})
-          })
-          this.getMindmap()
-          this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
-          this.updatePowerpointUser()
-        } else alert('Please Add Atleast 1 slide')
-      },
-      addShape(type) {
-        if(this.sortedSlides.length > 0){
-          let data = {
-            node: {
-              title: 'ShapeElement',
-              mindmap_id: this.currentMindMap.id,
-              parent_node: this.sortedSlides[this.cSlideIndex].id,
-              element_type: type,
-              line_color: '#000000',
-              element_width: 100,
-              element_height: 100,
-            }
-          }
-          http.post('/nodes.json', data).then(res => {
-            let receivedData = res.data.node
-            this.undoNodes.push({'req': 'addNode', 'node': receivedData})
-          })
-          this.getMindmap()
-          this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
-          this.updatePowerpointUser()
-        } else alert('Please Add Atleast 1 slide')
+        }
+        if (pos) {
+          data.node.element_width  = $('.element-wrap')[0].offsetWidth - 5
+          data.node.hide_self = true
+        }
+        if (pos == 1) {
+          data.node.element_height = ($('.element-wrap')[0].offsetHeight / 2) + 25
+        } else if (pos == 2) {
+          data.node.element_height = ($('.element-wrap')[0].offsetHeight / 2) - 31
+          data.node.position_y     = $('.element-wrap')[0].offsetHeight - $('.element-wrap')[0].offsetHeight / 8
+        } else if (pos == 3) {
+          data.node.element_height = ($('.element-wrap')[0].offsetHeight / 5)
+        } else if (pos == 4) {
+          data.node.element_height = $('.element-wrap')[0].offsetHeight / 1.3
+          data.node.position_y     = $('.element-wrap')[0].offsetHeight - $('.element-wrap')[0].offsetHeight / 2.15
+        }
+        http.post('/nodes.json', data).then(res => {
+          let receivedData = res.data.node
+          this.undoNodes.push({'req': 'addNode', 'node': receivedData})
+        })
+        this.getMindmap()
+        this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
+        if(pos != 1 && pos != 2) this.updatePowerpointUser()
       },
       selectSlide(index) {
         this.cSlideIndex = index
