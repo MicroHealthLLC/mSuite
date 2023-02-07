@@ -191,7 +191,6 @@
         selectedElement: null,
         el             : null,
         isDragabble    : false,
-        hoverIndex     : -1,
         slideSample: {
           label: 'Slide',
         },
@@ -252,7 +251,7 @@
         return this.slides.sort((a, b) => a.position - b.position).filter(slide => slide.parent == 'Central Idea')
       },
       iconShow() {
-        return this.cSlideIndex != 0 && this.sortedSlides[this.cSlideIndex].children.length < 5
+        return !this.sortedSlides[this.cSlideIndex].is_disabled && this.sortedSlides[this.cSlideIndex].children.length < 5
       }
     },
     mounted: async function(){
@@ -293,16 +292,19 @@
       async addDefaultSlide(){
         await this.addShape('square', 1)
         await this.addShape('square', 2)
-        this.addText('h1', 1)
-        this.addText('h4', 2)
+        setTimeout(()=>{
+          this.addText('h1', 1)
+          this.addText('h4', 2)
+        }, 1500)
       },
       async addDefaultSecSlide(slide) {
         await this.addSlide(slide)
-
         await this.addShape('square', 3)
         await this.addShape('square', 4)
-        this.addText('h1', 3)
-        this.addText('ul', 4)
+        setTimeout(()=>{
+          this.addText('h1', 3)
+          this.addText('ul', 4)
+        }, 1400)
       },
       async addSlide(slide) {
         let _this = this
@@ -315,6 +317,7 @@
             position: slidePosition,
           }
         }
+        data.node.is_disabled = slide == undefined ? true : false
         await http.post('/nodes.json', data).then( async (res) => {
           let receivedData = res.data.node
           this.undoNodes.push({'req': 'addNode', 'node': receivedData})

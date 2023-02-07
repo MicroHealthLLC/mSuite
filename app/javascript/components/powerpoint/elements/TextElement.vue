@@ -11,6 +11,7 @@
       :style="`
         color:${element.line_color};
         width:${element.element_width}px;
+        z-index:${element.id};
         `"
     >
       {{element.description}}
