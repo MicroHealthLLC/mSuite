@@ -10,8 +10,11 @@
     <div v-else-if="element.element_type == 'circle'">
       <CircleShape :element="element" @updateElement="updateElement"/>
     </div>
-    <div v-else>
+    <div v-else-if="element.element_type == 'triangle'">
       <TriangleShape :element="element" @updateElement="updateElement"/>
+    </div>
+    <div v-else>
+      <EmbedElement :element="element" @updateElement="updateElement"/>
     </div>
     <div
       v-if="selectedElement && selectedElement.id == id"
@@ -37,13 +40,15 @@
   import SquareShape from "./shapes/SquareShape.vue"
   import CircleShape from "./shapes/CircleShape.vue"
   import TriangleShape from "./shapes/TriangleShape.vue"
+  import EmbedElement from "./shapes/EmbedElement.vue"
 
   export default {
     props: ['element','parentColor','selectedElement'],
     components: {
       SquareShape,
       CircleShape,
-      TriangleShape
+      TriangleShape,
+      EmbedElement
     },
     data () {
       return {

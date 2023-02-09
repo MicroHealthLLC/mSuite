@@ -59,6 +59,8 @@
             </div>
           </div>
         </b-dropdown>
+        <i v-b-tooltip.hover title="Embed Image" @click="addShape('image')" class="fas fa-image p-2 pointer"></i>
+        <i v-b-tooltip.hover title="Embed Video" @click="addShape('video')" class="fas fa-video p-2 pointer"></i>
       </div>
     </div>
     <div class="mt-2 mx-2 d-flex" id="slide-exp">
@@ -127,7 +129,7 @@
               :style="`
                 top: ${element.position_y}px;
                 left: ${element.position_x}px;`"
-              @dragStart="dragStart"
+              @dragStart.passive="dragStart"
               @deleteElement="deleteElement(element)"
               @updateElement="updateElement(element)">
             </component>
@@ -174,7 +176,6 @@
   import History from "../../mixins/history.js"
   import Common from "../../mixins/common.js"
   import http from "../../common/http"
-
 
   export default {
     name: 'PowerPoint',
@@ -436,8 +437,14 @@
         if(pos != 1 && pos != 2) this.updatePowerpointUser()
       },
       addShape(type, pos) {
+        let url = null
+        if(type == 'image' || type == 'video'){
+          url = prompt('Please Enter Url')
+          if(!url) return
+        }
         let data = {
           node: {
+            description: url,
             title: 'ShapeElement',
             mindmap_id: this.currentMindMap.id,
             parent_node: this.sortedSlides[this.cSlideIndex].id,
@@ -445,7 +452,13 @@
             line_color: '#000000',
             element_width: 100,
             element_height: 100,
+            position_x: 210,
+            position_y: 160
           }
+        }
+        if(url) {
+          data.node.element_width = 350
+          data.node.element_height= 200
         }
         if (pos) {
           data.node.element_width  = $('.element-wrap')[0].offsetWidth - 5
