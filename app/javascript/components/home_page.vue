@@ -32,6 +32,7 @@
                 <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
                 <i class="mx-auto fad fa-chart-pie mm-icon mt-3" v-if="type.key == 'venndiagram'"></i>
                 <i class="mx-auto far fa-file-powerpoint mm-icon mt-3" v-if="type.key == 'powerpoint'"></i>
+                <i class="mx-auto fas fa-share-alt mm-icon mt-3" v-if="type.key == 'fileshare'"></i>
                 <span class="text-center icon-text">{{type.value}}</span>
               </div>
             </div>
@@ -69,7 +70,8 @@
           { key: 'poll', value: 'Poll', imgsrc: "" },
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
           { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" },
-          { key: 'powerpoint', value: 'Power Point', imgsrc: "" }
+          { key: 'powerpoint', value: 'Power Point', imgsrc: "" },
+          { key: 'fileshare', value: 'File Share', imgsrc: "" },
         ]
         //Test
       }
