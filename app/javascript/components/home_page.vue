@@ -70,7 +70,7 @@
           { key: 'poll', value: 'Poll', imgsrc: "" },
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
           { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" },
-          { key: 'powerpoint', value: 'Power Point', imgsrc: "" },
+          { key: 'powerpoint', value: 'Presentation', imgsrc: "" },
           { key: 'fileshare', value: 'File Share', imgsrc: "" },
         ]
         //Test
