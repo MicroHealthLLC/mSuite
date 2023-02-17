@@ -1,6 +1,6 @@
 class NodesController < AuthenticatedController
   include NodeConcern
-  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order]
+  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order, :update_all_colors]
   before_action :set_mSuite, only: [:index]
   $deleted_child_nodes = []
 
@@ -83,6 +83,15 @@ class NodesController < AuthenticatedController
     end
   end
 
+  def update_all_colors
+    @node.update_all_colors(params[:line_color])
+    ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node, mindmap: @mindmap})
+    respond_to do |format|
+      format.json { render json: {success: true, node: @node}}
+      format.html { }
+    end
+  end
+
   private
 
   def hide_show_nested_children(nodes)
@@ -155,6 +164,7 @@ class NodesController < AuthenticatedController
       :node_width,
       :startdate,
       :duedate,
+      :hide_self,
       :element_type,
       :element_width,
       :element_height,

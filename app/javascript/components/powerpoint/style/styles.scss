@@ -61,3 +61,18 @@
 .show {
   display: inline-block;
 }
+.delete-icon-pos {
+  left: -10px;
+  top: -8px;
+}
+.resizing-area {
+  width: 200px;
+  resize: both;
+}
+.border-dashed{
+  border: 1px dashed black;
+}
+.icons-pos{
+  top: 65%;
+  left: 48%;
+}
