@@ -45,7 +45,7 @@ class Node < ApplicationRecord
   def set_position_slide
     if self.position > 0 && self.position <= self.mindmap.nodes.last.position
       self.mindmap.nodes.where("position >= ?", self.position).where.not(id: id).update_all("position = position + 1")
-    else
+    elsif self.parent.nil?
       self.position = self.mindmap.nodes.last.position + 1 rescue 0
     end
   end
@@ -56,6 +56,13 @@ class Node < ApplicationRecord
       if node && node.mindmap.id != self.mindmap.id
         self.mindmap_id = node.mindmap.id
       end
+    end
+  end
+
+  def update_all_colors(color)
+    nodes = Mindmap.includes(:nodes).find_by_id(self.mindmap.id).nodes.where(element_type: nil)
+    nodes.each do |node|
+      node.update(line_color: color)
     end
   end
 
@@ -193,7 +200,7 @@ class Node < ApplicationRecord
   def position_updated
     if self.stage
     self.stage.nodes.where("position >= ?", position).update_all("position = position - 1") if self.stage
-    elsif self.position?
+    elsif self.position? && self.parent.nil?
       self.mindmap.nodes.where("position >= ?", position).update_all("position = position - 1")
     end
   end
