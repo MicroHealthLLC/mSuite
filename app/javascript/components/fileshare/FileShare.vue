@@ -40,6 +40,7 @@
 <script>
 import TemporaryUser from "../../mixins/temporary_user.js"
 import { saveAs } from 'file-saver'
+import http from "../../common/http"
 
 export default {
   data() {
@@ -131,8 +132,14 @@ export default {
         this.$el.querySelector('.file-input').classList.remove('file-input--active');
       });
     }
+    this.updateUser()
   },
   methods: {
+    updateUser(){
+      http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+        canvas: this.$store.state.userEdit
+      });
+    },
     downloadFile() {
       let receivedFile = this.convertBase64ToFile(this.fileString, this.fileName);
       saveAs(receivedFile, this.fileName);
