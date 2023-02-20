@@ -141,7 +141,6 @@ class NodesController < AuthenticatedController
       :position,
       :node_width,
       :duedate,
-      :element_type,
       :startdate,
       :element_type,
       :element_width,
