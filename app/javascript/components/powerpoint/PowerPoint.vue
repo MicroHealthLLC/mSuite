@@ -2,7 +2,7 @@
   <div>
     <div id="toolbar" class="mx-2">
       <div class="center-margin">
-        <i v-b-tooltip.hover title="Add Paragraph" @click="addText('p')" class="far pointer fa-text p-2"></i>
+        <i v-b-tooltip.hover title="Add Paragraph" @click="selectedElement ? updateType('p') : addText('p')" class="far pointer fa-text p-2"></i>
         <b-dropdown
           variant="link"
           toggle-class="text-decoration-none text-dark" no-caret >
@@ -11,29 +11,29 @@
           </template>
           <div class="d-flex justify-content-center feedback-emoji">
             <div class="px-1">
-              <b-dropdown-item @click="addText('h1')">
+              <b-dropdown-item @click="selectedElement ? updateType('h1') : addText('h1')">
                 <i v-b-tooltip.hover title="Heading H1"  class="pointer fas fa-h1 p-2"></i>
               </b-dropdown-item>
             </div>
             <div class="px-1">
-              <b-dropdown-item @click="addText('h2')">
+              <b-dropdown-item @click=" selectedElement ? updateType('h2') : addText('h2')">
                 <i v-b-tooltip.hover title="Heading H2"  class="fas pointer fa-h2 p-2"></i>
               </b-dropdown-item>
             </div>
             <div class="px-1">
-              <b-dropdown-item @click="addText('h3')">
+              <b-dropdown-item @click=" selectedElement ? updateType('h3') : addText('h3')">
                 <i v-b-tooltip.hover title="Heading H3"  class="fas pointer fa-h3 p-2"></i>
               </b-dropdown-item>
             </div>
             <div class="px-1">
-              <b-dropdown-item @click="addText('h4')">
+              <b-dropdown-item @click="selectedElement ? updateType('h4') : addText('h4')">
                 <i v-b-tooltip.hover title="Heading H4"  class="fas pointer fa-h4 p-2"></i>
               </b-dropdown-item>
             </div>
           </div>
         </b-dropdown>
-        <i v-b-tooltip.hover title="Bulleted List" @click="addText('ul')" class="fas fa-list-ul p-2 pointer"></i>
-        <i v-b-tooltip.hover title="Numbered List" @click="addText('ol')" class="fas fa-list-ol p-2 pointer"></i>
+        <i v-b-tooltip.hover title="Bulleted List" @click="selectedElement ? updateType('ul') : addText('ul')" class="fas fa-list-ul p-2 pointer"></i>
+        <i v-b-tooltip.hover title="Numbered List" @click="selectedElement ? updateType('ol') : addText('ol')" class="fas fa-list-ol p-2 pointer"></i>
         <i v-b-tooltip.hover title="Change Color" @click="colorChange()" class="fas fa-eye-dropper p-2 pointer"></i>
         <b-dropdown
           variant="link"
@@ -436,6 +436,17 @@
         }
         if(pos != 1 && pos != 2) this.updatePowerpointUser()
       },
+      updateType(tag){
+        let data = {
+          node: {
+            element_type: tag,
+          }
+        }
+        this.updatePowerpointUser()
+        this.colorSelected = false
+        return http.patch(`/nodes/${this.selectedElement.id}.json`,data)
+        this.updatePowerpointUser()
+      },
       addShape(type, pos) {
         let url = null
         if(type == 'image' || type == 'video'){
@@ -514,13 +525,17 @@
         this.updatePowerpointUser()
       },
       changeColor(color){
+        let bgColor = this.selectedElement && this.selectedElement.hide_self ? '#ffffff' : color
         let ele_id = this.selectedElement != null ? `element-${this.selectedElement.id}` : `slide-editor-${this.sortedSlides[this.cSlideIndex].id}`
         if (this.selectedElement) {
           if (this.selectedElement.element_height){
             if (this.selectedElement.element_type == 'triangle'){
               document.getElementById(ele_id).children[0].children[0].children[0].style.borderBottomColor = color
             }
-            else document.getElementById(ele_id).children[0].children[0].style.backgroundColor= color
+            else {
+              document.getElementById(ele_id).children[0].children[0].style.backgroundColor= bgColor
+              document.getElementById(ele_id).children[0].children[0].style.borderColor = color
+            }
           } else document.getElementById(ele_id).children[0].style.color = color
         } else document.getElementById(ele_id).style.backgroundColor = color
       },

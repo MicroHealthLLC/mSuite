@@ -142,6 +142,7 @@ class NodesController < AuthenticatedController
       :node_width,
       :duedate,
       :startdate,
+      :element_type,
       :element_width,
       :element_height,
       node_files: []
