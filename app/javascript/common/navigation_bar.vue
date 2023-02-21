@@ -11,7 +11,7 @@
       </span>
       <!-- <span v-if="$parent.is_verified"> -->
         <span class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-center px-0">
-          <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
+          <span v-show="!editable && mm_type != 'fileshare'" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
             data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
           <input v-show="editable" :rows="1" id="mSuiteTitle" @keydown.enter.prevent="mSuiteTitleUpdate" type="text"
             v-debounce:3000ms="blurEvent" v-model="mSuiteName"
@@ -20,12 +20,12 @@
         </span>
         <span v-if="$parent.is_verified" class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
           <span class="navbar_button d-flex flex-row-reverse">
-            <a v-if="duplicateMap" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
+            <a v-if="duplicateMap && mm_type != 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent="beforeClone">
               <i class="fas fa-clone icons d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
+            <a v-if="mm_type != 'pollvote' && mm_type != 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent="deleteMap">
               <i class="fas fa-trash-alt icons d-flex center_flex"></i>
@@ -40,18 +40,18 @@
               title="Comments" @click.prevent="openCommentModal">
               <i id="comment" class="fa fa-comment d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
+            <a v-if="mm_type != 'pollvote' && mm_type != 'fileshare'" href="javascript:;" role="button"
               class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" v-b-tooltip.hover title="Reset"
               @click.stop="resetMap">
               <i class="material-icons restore_icon icons d-flex center_flex"></i>
             </a>
           </span>
-          <span v-if="checkMSuiteTypes" class="d-flex flex-row-reverse">
+          <span v-if="checkMSuiteTypes && mm_type != 'fileshare'" class="d-flex flex-row-reverse">
             <a href="javascript:;" role="button" v-b-tooltip.hover title="Redo"
               class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="redoMindmap">
               <i class="fas fa-redo-alt"></i>
             </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Undo"
+            <a v-if="mm_type != 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="Undo"
               class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="undoMindmap">
               <i class="fas fa-undo-alt"></i>
             </a>
@@ -84,7 +84,7 @@
                 Poll Expires: {{ pollExpDate }}
               </span>
             </a>
-            <a ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
+            <a v-if="mm_type != 'fileshare'" ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent.stop="$refs['exportOption'].open()">
               <i class="material-icons export_icon icons d-flex center_flex"></i>
@@ -94,7 +94,7 @@
               @click.prevent.stop="$refs['exportOptionCsv'].open()">
               <i class="fas fa-file-excel icons d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type != 'pollvote'" role="button" href="javascript:;"
+            <a v-if="mm_type != 'pollvote' && mm_type != 'fileshare'" role="button" href="javascript:;"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent.stop="saveMSuite" v-b-tooltip.hover :title="'Expires ' + expireDateTime">
               <i class="material-icons save_btn icons d-flex center_flex"></i>
