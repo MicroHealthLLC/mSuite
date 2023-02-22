@@ -12,9 +12,14 @@
               <span class="position-absolute d-block text-center font-weight-bold">Click to browse <span :class="{ 'has-drag': supportDrag }">or drop file here</span></span>
             </p>
           </div>
-          <p class="file-name position-absolute w-100 text-center m-auto font-weight-bold">{{ fileName }}</p>
+          <div class="d-flex file-name position-absolute m-auto w-50 z-20 flex-column h-10 overflow-auto">
+            <div class="d-flex justify-content-around" v-for="(file,index) in receivedFiles">
+              <p class="">{{ file.description }}</p>
+              <i class="fas fa-download pointer mt-1" @click="downloadFile(file)"></i>
+            </div>
+          </div>
         </div>
-        <div v-if="isSending" class="sending-container position-absolute w-100 text-center m-auto z-20">
+        <div v-if="isSending" class="d-flex sending-container position-absolute w-100 text-center m-auto z-20">
             <div class="box position-relative">
                 <div class="border one position-absolute"></div>
                 <div class="border two position-absolute"></div>
@@ -25,29 +30,26 @@
                 <div class="line two"></div>
                 <div class="line three"></div>
             </div>
+            <div>
+              <i class="fas fa-times mt-3 ml-2 text-danger" @click="cancelUpload"></i>
+            </div>
           </div>
       </div>
     </div>
-    <button
-      v-if="fileLoaded"
-      class="btn btn-secondary position-absolute w-100 z-20 btn-pos"
-      @click="downloadFile">
-      Download
-    </button>
   </div>
 </template>
 
 <script>
 import TemporaryUser from "../../mixins/temporary_user.js"
-import { saveAs } from 'file-saver'
 import http from "../../common/http"
+import { saveAs } from 'file-saver'
 
 export default {
   data() {
     return {
       currentMindMap: this.$store.getters.getMsuite,
       files: [],
-      fileLoaded: false,
+      receivedFiles: [],
       supportDrag: (function () {
         let div = document.createElement("div");
         return (
@@ -60,58 +62,60 @@ export default {
       fileString: '',
       fileType: '',
       chunks: [],
-      isSending: false
+      isSending: false,
+      fileName: null
     };
   },
   mixins: [TemporaryUser],
   channels: {
     WebNotificationsChannel: {
       received(data) {
-          if (
-            data.message === "Mindmap Deleted"      &&
-            this.currentMindMap.id === data.mindmap.id
-          ) {
-            window.open('/','_self')
-          } else if (
-            data.message === "Password Updated"     &&
-            this.currentMindMap.id === data.mindmap.id
-          ) {
-            setTimeout(() => {
-              location.reload()
-            }, 500)
-          } else if (
-            data.message === "Reset mindmap"        &&
-            this.currentMindMap.id === data.mindmap.id
-          ) {
-          } else if (
-            data.message === "storage updated"             &&
-            this.currentMindMap.id == data.content.mindmap_id
-          ) {
-            this.$store.dispatch('setUserEdit'     , data.content.userEdit)
-            this.$store.dispatch('setTemporaryUser', data.content.userEdit)
-            this.$store.dispatch('setUserList'     , data.content.userEdit)
-          } else if (
-            data.message === "Mindmap Updated"      &&
-            this.currentMindMap.id === data.mindmap.id
-          ) {
-
+        if (
+          data.message === "Mindmap Deleted"      &&
+          this.currentMindMap.id === data.mindmap.id
+        ) {
+          window.open('/','_self')
+        } else if (
+          data.message === "Password Updated"     &&
+          this.currentMindMap.id === data.mindmap.id
+        ) {
+          setTimeout(() => {
+            location.reload()
+          }, 500)
+        } else if (
+          data.message === "Reset mindmap"        &&
+          this.currentMindMap.id === data.mindmap.id
+        ) {
+          this.getMindmap()
+        } else if (
+          data.message === "storage updated"             &&
+          this.currentMindMap.id == data.content.mindmap_id
+        ) {
+          this.$store.dispatch('setUserEdit'     , data.content.userEdit)
+          this.$store.dispatch('setTemporaryUser', data.content.userEdit)
+          this.$store.dispatch('setUserList'     , data.content.userEdit)
+        }
+        else if (
+          data.message === "Node is deleted"             &&
+          this.currentMindMap.id == data.node.mindmap_id
+        ) {
+          this.getMindmap()
+        }
+        else {
+          this.fileName = data.file_name
+          let fileChunk = data.file.split(',') ? data.file.split(',')[1] : data.file
+          this.chunks.push(fileChunk)
+          let percentage = (data.offset / data.totalSize) * 100
+          if(data.offset + data.chunkSize >= data.totalSize){
+            this.fileString = this.chunks.join('')
+            this.isSending = false
+            this.fileType = data.type
           }
-          else {
-            this.fileLoaded = false
-            let fileChunk = data.file.split(',')[1]
-            this.chunks.push(fileChunk)
-            let percentage = (data.offset / data.totalSize) * 100
-            if(data.offset + data.chunkSize >= data.totalSize){
-              this.fileString = this.chunks.join('')
-              this.isSending = false
-              this.fileName = data.name
-              this.fileType = data.type
-              this.fileLoaded = true
-            }
-          }
+          this.getMindmap()
         }
       }
-    },
+    }
+  },
   mounted() {
     this.subscribeCable(this.currentMindMap.id)
     this.$refs.fileInput.addEventListener(
@@ -132,24 +136,44 @@ export default {
         this.$el.querySelector('.file-input').classList.remove('file-input--active');
       });
     }
+    this.getMindmap()
     this.updateUser()
   },
   methods: {
+    async getMindmap() {
+      await this.$store.dispatch('getMSuite')
+      this.currentMindMap = await this.$store.getters.getMsuite
+      this.receivedFiles = this.currentMindMap.nodes
+    },
     updateUser(){
       http.put(`/msuite/${this.currentMindMap.unique_key}`, {
         canvas: this.$store.state.userEdit
       });
     },
-    downloadFile() {
-      let receivedFile = this.convertBase64ToFile(this.fileString, this.fileName);
-      saveAs(receivedFile, this.fileName);
+    async downloadFile(myFile) {
+      let file
+      await http.post('/files/download', {filename: myFile.title}).then(res=> {
+        file = res.data
+      })
+
+      let receivedFile = this.convertBase64ToFile(file.split(',')[1], myFile.description)
+      saveAs(receivedFile, myFile.description);
+
+      // Perform an AJAX request to let the server know that the file has been downloaded
+      await http.post('/files/file_downloaded', { filename: myFile.title })
     },
     sendFile() {
       let _this = this
       this.chunks = []
-      this.fileLoaded = false
       this.isSending = true
-      let file = this.$refs.fileInput.files[0];
+      let file
+      try{
+        file = this.$refs.fileInput.files[0];
+      }
+      catch(e) {
+        alert('Try Again Uploading File')
+        return
+      }
       const reader = new FileReader();
       const chunkSize = 3188 * 3188; // 10 MB chunk
       let offset = 0;
@@ -190,6 +214,14 @@ export default {
         };
       }
       readNextChunk();
+    },
+    async cancelUpload() {
+      let file = this.$refs.fileInput.files[0];
+      if(!file){
+        this.isSending = false
+        this.$el.querySelector('.file-input').classList.remove('file-input--active');
+      }
+      await http.post('/files/file_canceled', { filename: file.name })
     },
     convertBase64ToFile (base64String, fileName)  {
       try {

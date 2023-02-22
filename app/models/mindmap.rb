@@ -6,6 +6,10 @@ class Mindmap < ApplicationRecord
   include EncryptionConcern, DecryptionConcern
   include LockoutMsuiteConcern
   
+  scope :fileshare_created_before, ->(time_ago) {
+    where(mm_type: "fileshare").where("created_at <= ?", time_ago)
+  }
+
   belongs_to :user, optional: true
   belongs_to :category, optional: true
 
@@ -44,6 +48,7 @@ class Mindmap < ApplicationRecord
   before_create :decrypt_attributes, if: :check_poll_vote
   before_update :encrypt_attributes, if: :check_private?
   before_update :decrypt_attributes, if: :check_is_before_private
+
   
   def decrypt_attributes
     decrypt_msuite(self.parent) if check_poll_vote

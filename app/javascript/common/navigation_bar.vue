@@ -2,7 +2,7 @@
   <div class="buttons_area" id="nav">
     <div class="buttons_container px-2 pt-2 row pb-0">
       <span :class="!$parent.is_verified ? 'mb-5 mt-1 ml-5' : 'navbar_icon flex ml-5 col-lg-2 col-md-2 col-sm-2 pr-0'">
-        <a v-if="$parent.is_verified" href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="goHome">
+        <a v-if="$parent.is_verified && mm_type != 'fileshare'" href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="goHome">
           <img src="/assets/msuite.png" />
         </a>
         <a v-else href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="routeHome">
@@ -29,6 +29,11 @@
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent="deleteMap">
               <i class="fas fa-trash-alt icons d-flex center_flex"></i>
+            </a>
+            <a v-if="mm_type == 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="key"
+              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+              @click.prevent="openKeyModal">
+              <i class="fas fa-key icons d-flex center_flex"></i>
             </a>
             <a href="javascript:;" role="button" v-b-tooltip.hover title="User"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -171,7 +176,7 @@
       :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :isSaveMap="isSaveMap"
       :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays">
     </confirm-save-key-modal>
-    <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
+    <user-map-modal :mind-map='currentMindMap' ref="user-box-modal" @addKey="addKey"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" v-if="mm_type === 'Notepad'" @click="exportImage(1)"
@@ -453,6 +458,9 @@ export default {
     openUserModal() {
       this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
     },
+    openKeyModal() {
+      this.$refs['user-box-modal'].$refs['keyModal'].open()
+    },
     openCommentModal() {
       this.$refs['comment-box-modal'].$refs['commentBoxModal'].open()
     },
@@ -546,6 +554,10 @@ export default {
           this.updateMsuite(data)
         } else if (this.mm_type == 'calendar') this.updateMsuite(data)
       }
+    },
+    addKey(key){
+      this.currentMindMap.password = key
+      this.$store.dispatch('updateMSuite', this.currentMindMap)
     },
     exportImage(option) {
       this.exportLoading = true
