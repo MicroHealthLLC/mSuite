@@ -11,15 +11,17 @@ class Node < ApplicationRecord
 
   before_create :set_default_export_index, :create_notification
   before_create :encrypt_attributes, if: :check_private?
-  before_create :set_position_slide, if: :validate_powerpoint
+  before_create :set_position_slide, if: :validate_presentation
   after_create :create_notification
   after_update :update_childs_position, if: :check_parent_position?
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
   before_update :encrypt_attributes, if: :check_private?
+  after_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
-  before_destroy :position_updated, if: -> { validate_kanban || validate_powerpoint }
+  before_destroy :position_updated, if: -> { validate_kanban || validate_presentation }
   before_destroy :delete_file, if: :validate_fileshare
+  
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
@@ -32,7 +34,6 @@ class Node < ApplicationRecord
   def encrypt_attributes
     encrypt_node
   end
-  
   def check_private?
     return self.mindmap.is_private?
   end
@@ -50,7 +51,7 @@ class Node < ApplicationRecord
       self.position = self.mindmap.nodes.last.position + 1 rescue 0
     end
   end
-  
+
   def set_children
     if self.parent_node
       node = Node.find_by_id(self.parent_node)
@@ -99,8 +100,8 @@ class Node < ApplicationRecord
     return self.mindmap&.mm_type == "kanban"
   end
 
-  def validate_powerpoint
-    return self.mindmap&.mm_type == "powerpoint"
+  def validate_presentation
+    return self.mindmap&.mm_type == "presentation"
   end
 
   def validate_fileshare
@@ -108,6 +109,7 @@ class Node < ApplicationRecord
   end
 
   def to_json
+    decrypt_fields
     parent_name = ''
     if self.parent_node == 0 || self.parent_node == nil
       parent_name = self.mindmap.name
@@ -118,7 +120,13 @@ class Node < ApplicationRecord
     end
     status = stage.try(:title)
     status = EncryptionService.decrypt(status) if status && self.mindmap.is_private?
-    self.as_json.merge(status: status, parent: parent_name, parent_nod: parent, children: children).as_json
+    self.as_json.merge(status: status, parent: parent_name, parent_nod: parent, children: self.children.map(&:to_json)).as_json
+  end
+
+  def decrypt_fields
+    return unless self.mindmap.is_private?
+    self.title = EncryptionService.decrypt(self.title)
+    self.description = EncryptionService.decrypt(self.description)
   end
 
   def parent_changed
@@ -193,10 +201,10 @@ class Node < ApplicationRecord
     elsif self.stage_id && self.position < self.position_was
       self.stage.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
 
-    elsif self.mindmap.mm_type == 'powerpoint' && self.position > self.position_was
+    elsif self.mindmap.mm_type == 'presentation' && self.position > self.position_was
       self.mindmap.nodes.where("position <= ?", position).where.not(id: id).where.not("position < ?", position_was).update_all("position = position - 1")
 
-    elsif self.mindmap.mm_type == 'powerpoint' && self.position < self.position_was
+    elsif self.mindmap.mm_type == 'presentation' && self.position < self.position_was
       self.mindmap.nodes.where("position >= ?", position).where.not(id: id).where.not("position > ?", position_was).update_all("position = position + 1")
 
     end

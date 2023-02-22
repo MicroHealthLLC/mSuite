@@ -178,7 +178,7 @@
   import http from "../../common/http"
 
   export default {
-    name: 'PowerPoint',
+    name: 'presentation',
     data () {
       return {
         slides         : [],
@@ -278,14 +278,14 @@
         await this.$store.dispatch('getMSuite')
         this.currentMindMap = await this.$store.getters.getMsuite
         this.slides         = this.currentMindMap.nodes
-        this.mapColors = []
-        this.uniqueColors = []
+        this.mapColors      = []
+        this.uniqueColors   = []
         Object.values(this.sortedSlides).forEach(el => {
           this.mapColors.push(el.line_color);
         });
         this.uniqueColors = this.getUniqueColors(this.mapColors);
       },
-      async updatePowerpointUser(){
+      async updatepresentationUser(){
         await this.$store.dispatch('updateMSuite', {
           canvas: this.$store.getters.getUser
           });
@@ -328,7 +328,7 @@
         setTimeout(()=> {
           this.selectSlide(this.cSlideIndex)
         }, 500)
-        if (this.sortedSlides.length > 1) this.updatePowerpointUser()
+        if (this.sortedSlides.length > 1) this.updatepresentationUser()
       },
 
       async updateSlidePosition(id, status, position) {
@@ -339,7 +339,7 @@
         if(response){
           this.sendLocals(true)
         } else alert('slide position didn\'t updated')
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
 
       updateSlideRequest(obj){
@@ -351,10 +351,10 @@
             line_color: obj.line_color,
           }
         }
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
         this.colorSelected = false
         return http.patch(`/nodes/${obj.id}.json`,data)
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
 
       async deleteSlide(slide) {
@@ -384,7 +384,7 @@
         setTimeout(()=> {
           this.selectSlide(this.cSlideIndex - 1)
         }, 300)
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
       dragSlide(event, index) {
         this.cSlideIndex = index;
@@ -434,7 +434,7 @@
           let receivedData = res.data.node
           this.undoNodes.push({'req': 'addNode', 'node': receivedData})
         }
-        if(pos != 1 && pos != 2) this.updatePowerpointUser()
+        if(pos != 1 && pos != 2) this.updatepresentationUser()
       },
       updateType(tag){
         let data = {
@@ -492,7 +492,7 @@
         })
         this.getMindmap()
         this.cSlideIndex = this.sortedSlides.indexOf(this.sortedSlides[this.cSlideIndex])
-        if(pos != 1 && pos != 2) this.updatePowerpointUser()
+        if(pos != 1 && pos != 2) this.updatepresentationUser()
       },
       selectSlide(index) {
         this.cSlideIndex = index
@@ -513,7 +513,7 @@
       saveNodeColor(){
         this.el.line_color = this.el.line_color.hex8
         this.updateSlideRequest(this.el)
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
       updateAllColorNode(){
         if(this.el.line_color.hex8 == null) {
@@ -522,7 +522,7 @@
         }
         http.post(`/nodes/${this.el.id}/update_all_colors`,{line_color: this.el.line_color.hex8})
         this.colorSelected = false
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
       changeColor(color){
         let bgColor = this.selectedElement && this.selectedElement.hide_self ? '#ffffff' : color
@@ -579,7 +579,7 @@
         http.put(`/nodes/${element.id}.json`, element).then(()=> {
           this.getMindmap()
         })
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
       deleteElement(element) {
         http.delete(`/nodes/${element.id}.json`).then((res) => {
@@ -604,7 +604,7 @@
           this.undoNodes.push({'req': 'deleteNode', node: myNode})
         });
         this.sendLocals(false)
-        this.updatePowerpointUser()
+        this.updatepresentationUser()
       },
       async undoObj(){
         let undoObj = await this.undoNode(this.undoNodes)

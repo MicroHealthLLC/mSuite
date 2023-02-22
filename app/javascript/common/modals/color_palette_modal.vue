@@ -17,18 +17,18 @@
       <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
       <button
         class="btn btn-info border-none"
-        :class="showRandomPl && this.mm_type != 'powerpoint' ? 'w-25':'w-50'"
+        :class="showRandomPl && this.mm_type != 'presentation' ? 'w-25':'w-50'"
         @click="closeModelPicker">
         Cancel
       </button>
       <button
-        v-if="showRandomPl && this.mm_type != 'powerpoint'"
+        v-if="showRandomPl && this.mm_type != 'presentation'"
         class="btn btn-warning border-none w-25"
         @click="createPalette">
           <i class="fas fa-sync cursor-pointer mt-2"></i>
       </button>
       <button
-        v-else-if="this.mm_type == 'powerpoint'"
+        v-else-if="this.mm_type == 'presentation'"
         class="btn btn-warning border-none w-50"
         @click="applyColorOnAllNodes"
       >
@@ -64,7 +64,7 @@
       }
     },
     mounted() {
-      if(this.mm_type != 'calendar' && this.mm_type != 'powerpoint') this.createPalette()
+      if(this.mm_type != 'calendar' && this.mm_type != 'presentation') this.createPalette()
     },
     methods: {
       saveNodeColor(){
@@ -88,7 +88,7 @@
               element.style.backgroundColor = stage.stage_color
             });
           }
-        } else if (this.mm_type == 'calendar' || this.mm_type == 'powerpoint'){
+        } else if (this.mm_type == 'calendar' || this.mm_type == 'presentation'){
           this.$emit("closeModelPicker")
           return
         }
@@ -182,7 +182,7 @@
 </script>
 
 <style>
-  .powerpoint{
+  .presentation{
 
   }
 </style>

@@ -37,7 +37,6 @@ class MindmapsController < AuthenticatedController
 
   def show
     if @mindmap
-      @mindmap = @mindmap.decrypt_attributes
       respond_to do |format|
         format.json { render json: render_mindmap(@mindmap,nil)}
         format.html { render action: 'index' }
@@ -107,7 +106,7 @@ class MindmapsController < AuthenticatedController
 
   def destroy
     if check_for_password && @mindmap.destroy
-      broadcast_actioncable(@mindmap,'Mindmap Deleted')
+      ActionCable.server.broadcast("web_notifications_channel#{@mindmap.id}", {message: 'Mindmap Deleted', mindmap: @mindmap})
       respond_to do |format|
         format.json { render json: { success: true } }
         format.html {}
@@ -132,7 +131,7 @@ class MindmapsController < AuthenticatedController
     fetched_mindmap = fetched_mindmap.decrypt_attributes if fetched_mindmap
     if check_msuite(fetched_mindmap)
       fetched_mindmap.destroy
-      broadcast_actioncable(fetched_mindmap,'Mindmap Deleted')
+      ActionCable.server.broadcast("web_notifications_channel#{fetched_mindmap.id}", {message: 'Mindmap Deleted', mindmap: fetched_mindmap})
     end
   end
 
@@ -244,7 +243,7 @@ class MindmapsController < AuthenticatedController
     end
 
   def render_mindmap(msuite,success)
-    json = {mindmap: msuite.to_json,deleteAfter: ENV['DELETE_AFTER'].to_i,defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i,expDays: ENV['EXP_DAYS'].to_i }
+    json = {mindmap: msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i,defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i,expDays: ENV['EXP_DAYS'].to_i }
     json['is_verified'] = @is_verified unless @is_verified.nil? 
     json['success'] = true unless success.nil? 
     json

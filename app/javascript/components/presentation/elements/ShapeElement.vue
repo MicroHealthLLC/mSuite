@@ -1,6 +1,6 @@
 <template>
   <div @click="id = element.id"
-    class="position-relative"
+    class="position-relative ml-1 mt-1"
     :style="selectedElement && selectedElement.id == id ? `
       border: 2px dotted ${element.line_color};
       ` : ''">
