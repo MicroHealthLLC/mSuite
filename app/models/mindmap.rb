@@ -34,8 +34,8 @@ class Mindmap < ApplicationRecord
   enum status: { active: 0, archived: 1 }
   enum is_save: { is_public: 0, is_private: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
-  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11, venndiagram: 12, powerpoint: 13, fileshare: 14}
-  
+  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11, venndiagram: 12, presentation: 13, fileshare: 14}
+
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
@@ -44,12 +44,12 @@ class Mindmap < ApplicationRecord
   before_create :decrypt_attributes, if: :check_poll_vote
   before_update :encrypt_attributes, if: :check_private?
   before_update :decrypt_attributes, if: :check_is_before_private
-  
+
   def decrypt_attributes
     decrypt_msuite(self.parent) if check_poll_vote
     decrypt_msuite(self)
   end
-  
+
   def encrypt_attributes
     encrypt_msuite
   end
@@ -71,12 +71,22 @@ class Mindmap < ApplicationRecord
   def check_mm_type
     return self.mm_type == 'whiteboard' || self.mm_type == 'poll' || self.mm_type == 'Notepad' || self.mm_type == 'spreadsheet'
   end 
+
+  def decrypt_fields
+    self.name = EncryptionService.decrypt(name)
+    self.title = EncryptionService.decrypt(title)
+    self.description = EncryptionService.decrypt(description)
+    self.canvas = EncryptionService.decrypt(canvas)
+    # add more fields as necessary
+  end
+
   
   def to_json
+    decrypt_fields if self.is_private?
     self.as_json.merge(
       nodes: self.nodes.map(&:to_json),
       parent: self.parent,
-      stages: self.stages,
+      stages: self.stages.map(&:to_json),
       editable: true
     ).as_json
   end
