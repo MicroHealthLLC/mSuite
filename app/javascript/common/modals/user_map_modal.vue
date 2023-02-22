@@ -1,4 +1,5 @@
 <template>
+  <div>
   <sweet-modal ref="UserBoxModal">
     <div class="">
         <div class="form__group__parent field">
@@ -15,6 +16,23 @@
         </div>
       </div>
   </sweet-modal>
+  <sweet-modal ref="keyModal">
+    <div class="">
+        <div class="form__group__parent field">
+          <input
+            type="input"
+            ref="user"
+            v-model="key"
+            class="form__field"
+            :placeholder="user"
+            @blur="addKey"
+            @keyup.enter="addKey"
+            required />
+          <label for="name" class="form__label">Key</label>
+        </div>
+      </div>
+  </sweet-modal>
+  </div>
 </template>
 <script>
   import { uuid } from 'vue-uuid';
@@ -23,7 +41,8 @@
       return {
         user: '',
         user_id: uuid.v1(),
-        storage: this.$store.state
+        storage: this.$store.state,
+        key: ''
       }
     },
     mounted(){
@@ -55,6 +74,10 @@
       },
       genRandomId() {
         return uuid.v1()
+      },
+      addKey() {
+        this.$emit("addKey", this.key)
+        this.$refs['keyModal'].close()
       }
     }
   }

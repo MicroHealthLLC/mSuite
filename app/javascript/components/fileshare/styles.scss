@@ -92,12 +92,11 @@
           }
         }
       }
-
       .file-name {
         left: 0;
-        bottom: 20px;
+        bottom: 0;
         right: 0;
-        font-size: 15pt;
+        font-size: 11pt;
       }
     }
   }
@@ -107,8 +106,8 @@
   z-index: 20;
 }
 
-.btn-pos{
-  top:650px;
+.h-10{
+  height: 10vh;
 }
 
 .sending-container {

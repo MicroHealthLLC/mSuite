@@ -20,6 +20,8 @@ class Node < ApplicationRecord
   after_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: -> { validate_kanban || validate_presentation }
+  before_destroy :delete_file, if: :validate_fileshare
+  
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
@@ -100,6 +102,10 @@ class Node < ApplicationRecord
 
   def validate_presentation
     return self.mindmap&.mm_type == "presentation"
+  end
+
+  def validate_fileshare
+    return self.mindmap&.mm_type == "fileshare"
   end
 
   def to_json
@@ -210,6 +216,10 @@ class Node < ApplicationRecord
     elsif self.position? && self.parent.nil?
       self.mindmap.nodes.where("position >= ?", position).update_all("position = position - 1")
     end
+  end
+
+  def delete_file
+    File.delete(Rails.root.join('public', 'uploads', self.title))
   end
 
   def check_parent_position?

@@ -6,6 +6,10 @@ class Mindmap < ApplicationRecord
   include EncryptionConcern, DecryptionConcern
   include LockoutMsuiteConcern
   
+  scope :fileshare_created_before, ->(time_ago) {
+    where(mm_type: "fileshare").where("created_at <= ?", time_ago)
+  }
+
   belongs_to :user, optional: true
   belongs_to :category, optional: true
 

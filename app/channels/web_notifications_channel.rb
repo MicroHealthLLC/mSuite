@@ -1,4 +1,5 @@
 class WebNotificationsChannel < ApplicationCable::Channel
+
   def subscribed
     stream_from "web_notifications_channel#{params[:room]}"
   end
@@ -7,7 +8,9 @@ class WebNotificationsChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
     GC.start
   end
+
   def receive(data)
+    FileUploadService.new(data, params[:room]).perform
     ActionCable.server.broadcast("web_notifications_channel#{params[:room]}", data)
   end
 

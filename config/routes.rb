@@ -48,6 +48,14 @@ Rails.application.routes.draw do
   resources :comments do
   end
 
+  resources :files do
+    collection do
+      post :download
+      post :file_downloaded
+      post :file_canceled
+    end
+  end
+
   namespace :api, defaults: { format: :json } do
     get '/settings', to: 'settings#index'
     post '/settings', to: 'settings#update'
