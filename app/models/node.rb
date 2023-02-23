@@ -21,10 +21,14 @@ class Node < ApplicationRecord
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: -> { validate_kanban || validate_presentation }
   before_destroy :delete_file, if: :validate_fileshare
-  
+  after_update :update_parent_node
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
+
+  def update_parent_node
+    self.parent.update(hide_children: true) if self.parent && self.mindmap.mm_type == 'presentation'
+  end
 
   def decryption
     return decrypt_mindmap_attr if self.mindmap.is_private?

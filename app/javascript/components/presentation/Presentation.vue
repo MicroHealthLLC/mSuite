@@ -252,7 +252,7 @@
         return this.slides.sort((a, b) => a.position - b.position).filter(slide => slide.parent == 'Central Idea')
       },
       iconShow() {
-        return !this.sortedSlides[this.cSlideIndex].is_disabled && this.sortedSlides[this.cSlideIndex].children.length < 5
+        return !this.sortedSlides[this.cSlideIndex].is_disabled && !this.sortedSlides[this.cSlideIndex].hide_children
       }
     },
     mounted: async function(){
