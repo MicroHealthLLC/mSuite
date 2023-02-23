@@ -69,6 +69,7 @@ class CommentsController < AuthenticatedController
       :feedback,
       :status,
       :parent_comment,
+      :user_name,
       :mindmap_id
     )
   end
