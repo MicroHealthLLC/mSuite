@@ -439,7 +439,7 @@ export default {
         return data
       },
     isMsuiteEmpty() {
-      if (this.isMsuiteSaved) {
+      if (this.isMsuiteSaved && this.mm_type != "fileshare") {
         navigator.sendBeacon('is_msuite_empty', this.setHeaders())
       }
     },
