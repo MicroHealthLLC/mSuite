@@ -13,15 +13,17 @@
       <img :src="element.description" :width="width" :height="height" />
     </div>
     <div v-else>
-      <iframe
-        :id="`frame-${element.id}`"
-        :style="`
-          width:${width - 12}px;
-          height:${height - 12}px;
-        `"
-        :src="`${element.description}?autoplay=1`"
-        style="position:absolute; display:block; top:0; left: 0"
-      ></iframe>
+      <div class="w-100">
+        <iframe
+          :id="`frame-${element.id}`"
+          :style="`
+            width:${width}px;
+            height:${height}px;
+          `"
+          :src="`${element.description}?autoplay=1`"
+          style="position:absolute; display:block; top:0; left: 0"
+        ></iframe>
+      </div>
     </div>
   </div>
 </template>

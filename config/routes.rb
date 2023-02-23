@@ -51,7 +51,7 @@ Rails.application.routes.draw do
   resources :files do
     collection do
       post :download
-      post :file_downloaded
+      # post :file_downloaded
       post :file_canceled
     end
   end

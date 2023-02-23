@@ -28,7 +28,7 @@
           <i class="fas fa-sync cursor-pointer mt-2"></i>
       </button>
       <button
-        v-else-if="this.mm_type == 'presentation'"
+        v-else-if="presentationSlide"
         class="btn btn-warning border-none w-50"
         @click="applyColorOnAllNodes"
       >
@@ -61,6 +61,9 @@
       },
       showRandomPl() {
         return (this.mm_type != 'calendar') && ((this.selectedNode && this.mm_type == 'kanban') || this.mm_type != 'kanban')
+      },
+      presentationSlide(){
+        return this.mm_type == 'presentation' && !this.node.parent_nod
       }
     },
     mounted() {

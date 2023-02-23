@@ -166,7 +166,7 @@ export default {
       saveAs(receivedFile, myFile.description);
 
       // Perform an AJAX request to let the server know that the file has been downloaded
-      await http.post('/files/file_downloaded', { filename: myFile.title })
+      // await http.post('/files/file_downloaded', { filename: myFile.title })
     },
     sendFile() {
       let _this = this

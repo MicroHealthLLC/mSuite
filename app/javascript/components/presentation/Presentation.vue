@@ -108,7 +108,7 @@
         :id="`slide-editor-${sortedSlides[cSlideIndex].id}`"
         :style="'background: '+ sortedSlides[cSlideIndex].line_color"
         class="element-wrap my-2 mx-3 w-83 h-73"
-        @click="selectedElement = null">
+        @click="selectedElement.element_type !='video' ? selectedElement = null : ''">
         <div v-if="isSlideSelected()">
           <div
             id = 'parent-component'
@@ -125,6 +125,7 @@
               :element="element"
               :parent-color="sortedSlides[cSlideIndex].line_color"
               class="position-absolute"
+              :videoElement="element.element_type == 'video'"
               :selectedElement="selectedElement"
               :style="`
                 top: ${element.position_y}px;
@@ -252,7 +253,7 @@
         return this.slides.sort((a, b) => a.position - b.position).filter(slide => slide.parent == 'Central Idea')
       },
       iconShow() {
-        return !this.sortedSlides[this.cSlideIndex].is_disabled && this.sortedSlides[this.cSlideIndex].children.length < 5
+        return !this.sortedSlides[this.cSlideIndex].is_disabled && !this.sortedSlides[this.cSlideIndex].hide_children
       }
     },
     mounted: async function(){
@@ -525,7 +526,7 @@
         this.updatepresentationUser()
       },
       changeColor(color){
-        let bgColor = this.selectedElement && this.selectedElement.hide_self ? '#ffffff' : color
+        let bgColor = this.selectedElement && this.selectedElement.hide_self ? this.selectedElement.parent_nod.line_color : color
         let ele_id = this.selectedElement != null ? `element-${this.selectedElement.id}` : `slide-editor-${this.sortedSlides[this.cSlideIndex].id}`
         if (this.selectedElement) {
           if (this.selectedElement.element_height){
@@ -544,8 +545,9 @@
         this.changeColor(oldColor)
         this.colorSelected = false
       },
-      dragStart(event) {
+      dragStart(event, element) {
         this.isDragabble = event.target.classList.contains('fas') ? true : false
+        this.selectedElement = element
       },
       getPosition(event){
         const rect = event.target.getBoundingClientRect();
