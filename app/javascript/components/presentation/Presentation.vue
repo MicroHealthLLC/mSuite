@@ -525,7 +525,7 @@
         this.updatepresentationUser()
       },
       changeColor(color){
-        let bgColor = this.selectedElement && this.selectedElement.hide_self ? '#ffffff' : color
+        let bgColor = this.selectedElement && this.selectedElement.hide_self ? this.selectedElement.parent_nod.line_color : color
         let ele_id = this.selectedElement != null ? `element-${this.selectedElement.id}` : `slide-editor-${this.sortedSlides[this.cSlideIndex].id}`
         if (this.selectedElement) {
           if (this.selectedElement.element_height){
