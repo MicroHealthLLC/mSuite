@@ -108,7 +108,7 @@
         :id="`slide-editor-${sortedSlides[cSlideIndex].id}`"
         :style="'background: '+ sortedSlides[cSlideIndex].line_color"
         class="element-wrap my-2 mx-3 w-83 h-73"
-        @click="selectedElement = null">
+        @click="selectedElement.element_type !='video' ? selectedElement = null : ''">
         <div v-if="isSlideSelected()">
           <div
             id = 'parent-component'
@@ -125,6 +125,7 @@
               :element="element"
               :parent-color="sortedSlides[cSlideIndex].line_color"
               class="position-absolute"
+              :videoElement="element.element_type == 'video'"
               :selectedElement="selectedElement"
               :style="`
                 top: ${element.position_y}px;
@@ -544,8 +545,9 @@
         this.changeColor(oldColor)
         this.colorSelected = false
       },
-      dragStart(event) {
+      dragStart(event, element) {
         this.isDragabble = event.target.classList.contains('fas') ? true : false
+        this.selectedElement = element
       },
       getPosition(event){
         const rect = event.target.getBoundingClientRect();
