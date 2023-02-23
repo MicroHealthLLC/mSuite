@@ -10,6 +10,7 @@ class WebNotificationsChannel < ApplicationCable::Channel
   end
 
   def receive(data)
+    ActionCable.server.broadcast( "web_notifications_channel#{params[:room]}", { message: "File Share Begin", mindmap_id: params[:room]} )
     FileUploadService.new(data, params[:room]).perform
     ActionCable.server.broadcast("web_notifications_channel#{params[:room]}", data)
   end

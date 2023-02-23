@@ -101,6 +101,12 @@ export default {
         ) {
           this.getMindmap()
         }
+        else if (
+          data.message === "File Share Begin"         &&
+          this.currentMindMap.id == data.mindmap_id
+        ) {
+          this.isSending = true
+        }
         else {
           this.fileName = data.file_name
           let fileChunk = data.file.split(',') ? data.file.split(',')[1] : data.file
@@ -145,9 +151,10 @@ export default {
       this.currentMindMap = await this.$store.getters.getMsuite
       this.receivedFiles = this.currentMindMap.nodes
     },
-    async updateUser(){
-      this.currentMindMap.canvas = this.$store.state.user
-      await this.$store.dispatch('updateMSuite', this.currentMindMap)
+    updateUser(){
+      http.put(`/msuite/${this.currentMindMap.unique_key}`, {
+        canvas: this.$store.state.user
+      });
     },
     async downloadFile(myFile) {
       let file
