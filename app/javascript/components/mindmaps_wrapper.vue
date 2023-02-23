@@ -58,7 +58,7 @@
   import VotingPoll from "./poll/polls/voting_poll"
   import Calendar from "./calendar/calendar"
   import VennDiagram from "./venndiagram/VennDiagram"
-  import presentation from "./presentation/presentation"
+  import presentation from "./presentation/Presentation"
   import FileShare from "./fileshare/FileShare"
   import { newEventSource } from 'vue-parent-emit'
 
