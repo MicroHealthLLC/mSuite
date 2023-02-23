@@ -145,10 +145,9 @@ export default {
       this.currentMindMap = await this.$store.getters.getMsuite
       this.receivedFiles = this.currentMindMap.nodes
     },
-    updateUser(){
-      http.put(`/msuite/${this.currentMindMap.unique_key}`, {
-        canvas: this.$store.state.userEdit
-      });
+    async updateUser(){
+      this.currentMindMap.canvas = this.$store.state.user
+      await this.$store.dispatch('updateMSuite', this.currentMindMap)
     },
     async downloadFile(myFile) {
       let file
