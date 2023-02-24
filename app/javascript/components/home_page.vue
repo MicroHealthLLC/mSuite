@@ -60,18 +60,18 @@
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "" },
           { key: 'kanban', value: 'Kanban', imgsrc: ""  },
-          { key: 'whiteboard', value: 'WhiteBoard', imgsrc: ""  },
-          { key: 'tree_map', value: 'TreeMap', imgsrc: "" },
-          { key: 'tree_chart', value: 'TreeChart', imgsrc: "" },
-          { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
-          { key: 'todo', value: 'ToDo', imgsrc: "" },
+          { key: 'whiteboard', value: 'Whiteboard', imgsrc: ""  },
+          { key: 'tree_map', value: 'Tree map', imgsrc: "" },
+          { key: 'tree_chart', value: 'Tree chart', imgsrc: "" },
+          { key: 'flowmap', value: 'Flowmap', imgsrc: "" },
+          { key: 'todo', value: 'Todo', imgsrc: "" },
           { key: 'Notepad', value: 'Notepad', imgsrc: "" },
           { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" },
           { key: 'poll', value: 'Poll', imgsrc: "" },
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
-          { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" },
+          { key: 'venndiagram', value: 'Venndiagram', imgsrc: "" },
           { key: 'presentation', value: 'Presentation', imgsrc: "" },
-          { key: 'fileshare', value: 'File Share', imgsrc: "" },
+          { key: 'fileshare', value: 'Fileshare', imgsrc: "" },
         ]
         //Test
       }
