@@ -5,11 +5,11 @@
         <div class="parentGroup overflow-auto">
           <div class="">
             <div class="container max-w-lg mx-auto">
-              <h1 class=" font-bold text-center text-blue-600">ToDo</h1>
+              <h1 class=" font-bold text-center text-blue-600">Todo</h1>
             </div>
           </div>
           <div class="container relative max-w-lg pt-6 mx-auto">
-            <p class="text-slate-600 text-center">Your Todos</p>
+            <p class="text-slate-600 text-center">Your Todo</p>
             <toggle-button v-if="!isMobile" class="toggleButton mb-3" :value="true" color="#82C7EB" :sync="true"
               :labels="{ checked: 'Actionable', unchecked: 'All Tasks' }" v-model="completedTasks" width="115"
               height="28" />

@@ -2,7 +2,7 @@
   <div class="map-container">
     <Captions
       style="width: 45%; left: 20%;"
-      :heading="'Welcome to mindmap'"
+      :heading="'Welcome to Mindmap'"
       :msg="'Hello there, it seems like you are new here! These bubbles will guide you through the app.'"
       :mainBubble="true"/>
     <div ref="slideSection" id="slideSection" @mousedown.stop="slideInit"  @touchstart.stop="slideInit" @touchmove.prevent="slideTheCanvas" @mousemove.prevent="slideTheCanvas" @mouseleave="isSlideDown = false" @mouseup="isSlideDown = false" @touchend="isSlideDown = false">
