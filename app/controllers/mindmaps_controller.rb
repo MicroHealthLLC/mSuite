@@ -130,8 +130,9 @@ class MindmapsController < AuthenticatedController
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
     fetched_mindmap = fetched_mindmap.decrypt_attributes if fetched_mindmap
     if check_msuite(fetched_mindmap)
-      fetched_mindmap.destroy
-      ActionCable.server.broadcast("web_notifications_channel#{fetched_mindmap.id}", {message: 'Mindmap Deleted', mindmap: fetched_mindmap})
+      if fetched_mindmap.destroy
+        ActionCable.server.broadcast("web_notifications_channel#{fetched_mindmap.id}", {message: 'Mindmap Deleted', mindmap: fetched_mindmap})
+      end
     end
   end
 

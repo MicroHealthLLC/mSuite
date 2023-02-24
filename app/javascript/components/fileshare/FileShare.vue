@@ -6,13 +6,13 @@
         <input class="file-input position-absolute w-100 h-100 bg-dark pointer" ref="fileInput" type="file" @change="sendFile"/>
         <div class="file-content position-relative d-block w-100 h-100 rounded">
           <div class="file-infos position-absolute d-flex flex-column w-50 h-50 m-auto justify-content-center">
-            <p class="file-icon position-relative w-100 h-100 m-0 rounded p-2">
-              <i class="fas fa-file-upload fa-7x my-4 w-100 d-block text-center font-weight-bold"></i>
+            <p class="file-icon position-relative w-100 h-100 m-0 rounded p-2 mb-5">
+              <i class="fas fa-file-upload fa-7x mb-5 my-4 w-100 d-block text-center font-weight-bold"></i>
               <span class="icon-shadow position-relative d-block mx-auto rounded-circle"></span>
               <span class="position-absolute d-block text-center font-weight-bold">Click to browse <span :class="{ 'has-drag': supportDrag }">or drop file here</span></span>
             </p>
           </div>
-          <div class="d-flex file-name position-absolute m-auto w-50 z-20 flex-column h-10 overflow-auto">
+          <div class="d-flex file-name position-absolute m-auto w-50 z-20 flex-column h-16 overflow-auto mb-5">
             <div class="d-flex justify-content-around" v-for="(file,index) in receivedFiles">
               <p class="">{{ file.description }}</p>
               <i class="fas fa-download pointer mt-1" @click="downloadFile(file)"></i>
@@ -31,7 +31,7 @@
                 <div class="line three"></div>
             </div>
             <div>
-              <i class="fas fa-times mt-3 ml-2 text-danger" @click="cancelUpload"></i>
+              <i v-if="cancel" class="fas fa-times mt-3 ml-2 text-danger" @click="cancelUpload"></i>
             </div>
           </div>
       </div>
@@ -63,7 +63,8 @@ export default {
       fileType: '',
       chunks: [],
       isSending: false,
-      fileName: null
+      fileName: null,
+      cancel: false,
     };
   },
   mixins: [TemporaryUser],
@@ -172,12 +173,19 @@ export default {
       let _this = this
       this.chunks = []
       this.isSending = true
+      setTimeout(()=>{
+        this.cancel = true
+      }, 500)
       let file
       try{
         file = this.$refs.fileInput.files[0];
       }
       catch(e) {
         alert('Try Again Uploading File')
+        return
+      }
+      if(file == undefined) {
+        this.isSending = false
         return
       }
       const reader = new FileReader();
@@ -227,7 +235,12 @@ export default {
         this.isSending = false
         this.$el.querySelector('.file-input').classList.remove('file-input--active');
       }
-      await http.post('/files/file_canceled', { filename: file.name })
+      await http.post('/files/file_canceled', { filename: file.name }).then(res=>{
+        this.isSending = false
+      })
+      .catch( err =>{
+        this.isSending = false
+      })
     },
     convertBase64ToFile (base64String, fileName)  {
       try {
