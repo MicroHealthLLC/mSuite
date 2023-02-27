@@ -281,7 +281,7 @@
         this.slides         = this.currentMindMap.nodes
         this.mapColors      = []
         this.uniqueColors   = []
-        Object.values(this.sortedSlides).forEach(el => {
+        Object.values(this.slides).forEach(el => {
           this.mapColors.push(el.line_color);
         });
         this.uniqueColors = this.getUniqueColors(this.mapColors);

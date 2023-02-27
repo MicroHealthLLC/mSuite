@@ -585,7 +585,14 @@ export default {
           let inner_elm = document.getElementById('poll-title')
           if (inner_elm) inner_elm.classList.remove("d-none");
         }
-        elm.style.transform = "scale(1)"
+        if (this.mm_type == 'presentation') {
+          elm.children[1].children[0].children.forEach(child => {
+            child = child.children[0].children[0]
+            let newStyle = child.style.top.split('px')[0] - 140
+            child.style.top = newStyle + 'px'
+          })
+        }
+        if (this.mm_type != 'presentation') elm.style.transform = "scale(1)"
         let map_key = _this.currentMindMap.unique_key || "image"
         domtoimage.toPng(elm, { height: elm.scrollHeight, width: elm.scrollWidth })
           .then((url) => {
@@ -613,6 +620,13 @@ export default {
             }
             if ((_this.mm_type === 'poll' || _this.mm_type == 'pollvote') && document.getElementById('poll-title')) {
                 document.getElementById('poll-title').classList.add('d-none')
+            }
+            if (_this.mm_type === 'presentation') {
+              elm.children[1].children[0].children.forEach(child => {
+                child = child.children[0].children[0]
+                let newStyle = parseInt(child.style.top.split('px')[0]) + 140
+                child.style.top = newStyle + 'px'
+              })
             }
             _this.$refs['exportOption'].close()
           })
