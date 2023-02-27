@@ -32,7 +32,7 @@
             </a>
             <a v-if="mm_type == 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="key"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
-              @click.prevent="openKeyModal">
+              @click.prevent="openPrivacy">
               <i class="fas fa-key icons d-flex center_flex"></i>
             </a>
             <a href="javascript:;" role="button" v-b-tooltip.hover title="User"
