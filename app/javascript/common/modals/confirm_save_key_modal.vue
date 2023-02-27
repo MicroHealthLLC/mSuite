@@ -43,7 +43,7 @@
           href="javascript:;"
           class="btn_2 col-3 bg-info text-white mr_1"
           @click.stop="openPrivacy"
-          :title="'Private Map only accessable to those who had Unique key: '+ unique_key + 'and Password().'"
+          :title="'Private Map only accessable to those who had Unique key: '+ unique_key + ' and Password().'"
         >
           Save Private
         </a>
