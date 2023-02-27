@@ -223,7 +223,11 @@ class Node < ApplicationRecord
   end
 
   def delete_file
-    File.delete(Rails.root.join('public', 'uploads', self.title))
+    begin
+      File.delete(Rails.root.join('public', 'uploads', self.title))
+    rescue Errno::ENOENT
+      p "File not found"
+    end
   end
 
   def check_parent_position?

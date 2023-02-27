@@ -15,7 +15,7 @@ export default {
         room: mindmap_id,
       });
     },
-    cableSend(editing){
+    cableSend(){
       let state = this.$store.state
       let data = {
         user_id           : state.user_id,
@@ -33,15 +33,14 @@ export default {
 
         data: {
           message: 'storage updated',
-          isEditing: editing,
           content: data
         }
       });
     },
     sendLocals(isEditing){
       this.$store.dispatch('setUserEdit', this.storage.user)
-      this.$store.dispatch('mindmapId', this.mindmap_id)
-      this.cableSend(isEditing)
+      this.$store.dispatch('setMindMapId', this.mindmap_id)
+      this.cableSend()
 
       setTimeout(()=>{
         this.saveElement = false

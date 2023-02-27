@@ -97,28 +97,28 @@ export default {
           this.$store.dispatch('setUserList'     , data.content.userEdit)
         }
         else if (
-          data.message === "Node is deleted"             &&
+          data.message === "Node is deleted"          &&
           this.currentMindMap.id == data.node.mindmap_id
         ) {
           this.getMindmap()
         }
         else if (
-          data.message === "File Share Begin"         &&
+          data.message === "File Share Begin"    &&
           this.currentMindMap.id == data.mindmap_id
         ) {
           this.isSending = true
         }
         else {
           this.fileName = data.file_name
-          let fileChunk = data.file.split(',') ? data.file.split(',')[1] : data.file
-          this.chunks.push(fileChunk)
-          let percentage = (data.offset / data.totalSize) * 100
-          if(data.offset + data.chunkSize >= data.totalSize){
-            this.fileString = this.chunks.join('')
-            this.isSending = false
-            this.fileType = data.type
-          }
+          this.isSending = false
           this.getMindmap()
+          // let fileChunk = data.file.split(',') ? data.file.split(',')[1] : data.file
+          // this.chunks.push(fileChunk)
+          // let percentage = (data.offset / data.totalSize) * 100
+          // if(data.offset + data.chunkSize >= data.totalSize){
+            // this.fileString = this.chunks.join('')
+            // this.fileType = data.type
+          // }
         }
       }
     }
@@ -151,6 +151,12 @@ export default {
       await this.$store.dispatch('getMSuite')
       this.currentMindMap = await this.$store.getters.getMsuite
       this.receivedFiles = this.currentMindMap.nodes
+      if (this.receivedFiles.length == 0){
+        this.$store.dispatch('setUserEdit', null)
+        this.$store.dispatch('setTemporaryUser', null)
+      } else {
+        this.sendLocals()
+      }
     },
     updateUser(){
       http.put(`/msuite/${this.currentMindMap.unique_key}`, {
