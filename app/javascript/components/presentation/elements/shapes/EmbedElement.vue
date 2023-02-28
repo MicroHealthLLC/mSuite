@@ -10,7 +10,7 @@
     @mouseup.stop="stopResizing"
   >
     <div v-if = "element.element_type == 'image'">
-      <img :src="element.description" :width="width" :height="height" />
+      <img :src="element.description" :width="width"/>
     </div>
     <div v-else>
       <div class="w-100">

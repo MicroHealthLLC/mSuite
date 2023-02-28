@@ -36,7 +36,7 @@
         left:50%;
         top: -20px;
       `"
-      @mousedown="$emit('dragStart',$event)"
+      @mousedown="$emit('dragStart',$event, element)"
     >
       <i class="fas fa-arrows-alt position-absolute"></i>
     </div>
