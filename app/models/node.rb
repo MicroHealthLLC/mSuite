@@ -118,9 +118,7 @@ class Node < ApplicationRecord
       temp_node.save
       duplicate_child_nodes(Node.where(parent_node: nod.id), temp_node)
 
-      temp_node.update_columns(
-        parent_node: parent.id
-      )
+      temp_node.update_columns(parent_node: parent.id)
     end
   end
 
