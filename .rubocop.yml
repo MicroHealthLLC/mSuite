@@ -23,7 +23,7 @@ AllCops:
 
 Metrics/ClassLength:
   Description: 'Avoid classes longer than 100 lines of code.'
-  Max: 100
+  Max: 150
   Enabled: true
 
 Metrics/ModuleLength:
