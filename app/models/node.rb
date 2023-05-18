@@ -1,3 +1,4 @@
+=begin
 class Node < ApplicationRecord
   include ActiveModel::Dirty
   include NodeConcern, EncryptionConcern, DecryptionConcern
@@ -265,8 +266,8 @@ class Node < ApplicationRecord
     end
   end
 end
+=end
 
-=begin
 class Node < ApplicationRecord
   include ActiveModel::Dirty
   include NodeConcern, EncryptionConcern, DecryptionConcern
@@ -463,4 +464,3 @@ class Node < ApplicationRecord
     end
   end
 end
-=end
