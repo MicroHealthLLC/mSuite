@@ -87,8 +87,14 @@ class Mindmap < ApplicationRecord
   
   def to_json
     decrypt_fields if self.is_private?
+    _nodes = []
+    if self.mm_type == 'todo'
+      _nodes = Node.where(mindmap_id: self.id).order("duedate ASC")
+    else
+      _nodes = self.nodes
+    end
     self.as_json.merge(
-      nodes: self.nodes.map(&:to_json),
+      nodes: _nodes.map(&:to_json),
       parent: self.parent,
       stages: self.stages.map(&:to_json),
       editable: true
