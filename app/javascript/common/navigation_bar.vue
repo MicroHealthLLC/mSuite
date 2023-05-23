@@ -548,11 +548,41 @@ export default {
     },
     async changeView(){
       if (!this.disableToggle){
-        let data = { mm_type: 'todo'}
-        if(this.mm_type == 'todo'){
-            data.mm_type = 'calendar'
+        let data = {}
+        if (this.mm_type == 'todo'){
+          data.mm_type = 'calendar'
           this.updateMsuite(data)
-        } else if (this.mm_type == 'calendar') this.updateMsuite(data)
+        } else if (this.mm_type == 'calendar') {
+          data.mm_type = 'todo'
+          data.nodes = this.createSprints()
+          console.log(data)
+          this.updateMsuite(data)
+        } 
+      }
+    },
+    createSprints() {
+      if (this.currentMindMap && this.currentMindMap.nodes) {
+        let sprints = []
+        let events = []
+
+        // Seperate Sprints from Events
+        this.currentMindMap.nodes.forEach(node => {
+          if (new Date(node.duedate) - new Date(node.startdate) > 86400000) {
+            sprints.push(node)
+          } else events.push(node)
+        })
+        
+        //Push Events into Sprints as children
+        sprints.forEach(s => {
+          events.forEach(e => {
+            if (new Date(e.duedate) > new Date(s.startdate) && new Date(e.duedate) < new Date(s.duedate)) {
+              s.children.push(e)
+            }
+          })
+          // Sort children By duedate
+          s.children.sort((a,b) => new Date(a.duedate) - new Date(b.duedate))
+        })
+        return sprints
       }
     },
     addKey(key){
