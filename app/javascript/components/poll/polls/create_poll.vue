@@ -194,6 +194,11 @@ export default {
         console.log(this)
         //console.log(this)
       }
+    },
+    poll: {
+      handler(value) {
+        if (value != null) console.log(value)
+      }
     }
   },
   methods: {
@@ -297,11 +302,14 @@ export default {
           this.showError = false
         }, 2500)
         return
+      } else {
+        console.log("!checkAllFields")
       }
       this.savePoll()
     },
-    savePoll(request) {
+    savePoll() {
       let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
+      console.log(mindmap)
       this.$emit("pollEditData", false)
       this.$emit("updateVote", mindmap)
     },
@@ -349,7 +357,7 @@ export default {
       }
       this.$emit('updateUndoCanvas',mindmap)
     },
-    checkAllFields() {
+    /* checkAllFields() {
       let _this = this
       let result_value
       _this.poll.Questions.forEach((question, q_index) => {
@@ -367,6 +375,41 @@ export default {
         }
       });
       return result_value
+    }, */
+    checkAllFields() {
+      let _this = this;
+      let result_value = false;
+
+      _this.poll.Questions.forEach((question, q_index) => {
+        let indexToRemove = [];
+
+        // Find indices of empty answer fields
+        question.answerField.forEach((a, i) => {
+          if (a.text == '') {
+            indexToRemove.push(i);
+          }
+        });
+
+        // Remove empty answer fields in reverse order
+        if (indexToRemove.length > 0) {
+          for (let i = indexToRemove.length - 1; i >= 0; i--) {
+            const index = indexToRemove[i];
+            _this.poll.Questions[q_index].answerField.splice(index, 1);
+          }
+        }
+
+        // Check conditions for result data
+        _this.result_data.push(
+          _this.poll.Questions[q_index].answerField.length < 2 ||
+          _this.poll.Questions[q_index].question === '' ||
+          _this.poll.Questions[q_index].question === undefined 
+        );
+      });
+
+      // Check if any of the result data values is true
+      result_value = _this.result_data.some(value => value);
+
+      return result_value;
     },
     saveData(){
       let _this = this
@@ -377,6 +420,7 @@ export default {
       this.sendLocals(false)
     },
     createMindmapCanvas(tUser) {
+      
       let mycanvas = {
         pollData: this.poll,
         user: tUser
