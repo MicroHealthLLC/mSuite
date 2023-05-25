@@ -303,9 +303,10 @@ export default {
         }, 2500)
         return
       } else {
+        this.savePoll()
         console.log("!checkAllFields")
       }
-      this.savePoll()
+      //this.savePoll()
     },
     savePoll() {
       let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
@@ -394,7 +395,9 @@ export default {
         if (indexToRemove.length > 0) {
           for (let i = indexToRemove.length - 1; i >= 0; i--) {
             const index = indexToRemove[i];
-            _this.poll.Questions[q_index].answerField.splice(index, 1);
+            if (_this.poll.Questions[q_index].answerField.length > 2) {
+              _this.poll.Questions[q_index].answerField.splice(index, 1);
+            }
           }
         }
 
@@ -402,7 +405,9 @@ export default {
         _this.result_data.push(
           _this.poll.Questions[q_index].answerField.length < 2 ||
           _this.poll.Questions[q_index].question === '' ||
-          _this.poll.Questions[q_index].question === undefined 
+          _this.poll.Questions[q_index].question === undefined ||
+          _this.poll.Questions[q_index].answerField[0].text == '' || 
+          _this.poll.Questions[q_index].answerField[1].text == ''
         );
       });
 
