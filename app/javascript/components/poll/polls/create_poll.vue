@@ -191,15 +191,14 @@ export default {
       handler(value) {
         if (value != null) this.poll = value
         if (this.poll.url == '') this.pollUrl()
-        console.log(this)
         //console.log(this)
       }
     },
-    poll: {
+    /* poll: {
       handler(value) {
-        if (value != null) console.log(value)
+        if (value != null) //console.log(value)
       }
-    }
+    } */
   },
   methods: {
     publishMap() {
@@ -214,7 +213,7 @@ export default {
       this.createPollingMap()
     },
     createPollingMap() {
-      console.log(this)
+      //console.log(this)
       let _this = this
       http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote', parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then(async (res) => {
         if (res.data.mindmap.id !== null) {
