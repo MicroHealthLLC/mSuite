@@ -69,7 +69,6 @@ class Mindmap < ApplicationRecord
     
     sprints.each do |sprint|
       sprint_range = sprint.date_range
-      byebug
       events.each do |event|
         if sprint_range.cover?(event.startdate) && sprint_range.cover?(event.duedate)
           event.update(parent_node: sprint.id)

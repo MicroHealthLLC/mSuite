@@ -6,6 +6,15 @@
       </div>
     </div>
     
+    <div class="row">
+      <div class="col-12 pr-0 pl-2 d-flex justify-content-center" v-if="actionType == 'create'">
+        <input type="radio" v-model="isSprint" :value="true" />
+        <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Sprint&nbsp;&nbsp;</label>
+        <input type="radio" v-model="isSprint" :value="false" />
+        <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Event</label>
+      </div>
+    </div>
+
     <div v-if="isSprint == true">
       <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Sprint</h3>
       <h3 v-else class="f_smooth_auto">Add Sprint</h3>
@@ -23,6 +32,7 @@
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Description" v-model="description"/>
       </div>
+
       <div class="row">
         <div class="col-10 d-flex content-justified-start px-0" v-if="allDay">
           <label class="form-label mt-1">Start</label>
@@ -44,13 +54,9 @@
       </div>
 
       <div class="row">
-        <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="actionType == 'create'">
-          <input type="checkbox" class="mr-2" v-model="isSprint">
-          <label class="form-label mt-2" for="checkbox">Sprint</label>
-        </div>
-        <div class="col-10 d-flex content-justified-start px-0" v-if="isSprint == false">
-          <label class="form-label mt-2" for="checkbox">Select Sprint</label>
-          <select class="mx-1 form-select" v-model="parent_node">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false">
+          <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
+          <select cclass="w-50 form-control" v-model="parent_node">
             <option v-for="sprint in allSprints" :value="sprint.id">
               {{ sprint.title }}
             </option>
