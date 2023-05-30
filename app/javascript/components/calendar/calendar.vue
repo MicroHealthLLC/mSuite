@@ -68,6 +68,7 @@
     <add-calendar-event-modal 
       :eventDates="eventDates"
       :showEvent="showEvent" 
+      :allSprints="allSprints"
       @createEvent="beforeEventCreate" 
       @updateEvent="beforeEventUpdate" 
       @openRecurringModal="openRecurringEventsModal" 
@@ -135,6 +136,7 @@
         colorSelected       : false,
         uniqueColors        : [],
         selectedEvent       : null,
+        allSprints          : []
       }
     },
     props: {
@@ -348,7 +350,7 @@
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       editEventModal(){
-        console.log("editEventModal", this.showEvent)
+        console.log("editEventModal", this.showEvent, this.allSprints)
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       async updateCalendarUser(){
@@ -450,6 +452,13 @@
         this.currentMindMap = this.$store.getters.getMsuite
         this.$store.dispatch('setMindMapId', this.currentMindMap.id)
         this.fetchedEvents = this.currentMindMap.nodes
+        this.allSprints = []
+        this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
+          if(currentValue.is_sprint){
+            this.allSprints.push(currentValue)
+          }          
+        })
+        console.log("fetchEvents",  this.allSprints)
         this.renderEvents()
       },
       renderEvents(){
@@ -461,12 +470,6 @@
         this.uniqueColors = []
         this.calendar.store.getState().calendar.events.internalMap.clear()
         let _this = this
-        let allSprints = []
-        this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
-          if(currentValue.is_sprint){
-            allSprints.push(currentValue)
-          }          
-        })
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           currentValue.duedate   = new Date(currentValue.duedate)
           currentValue.startdate = new Date(currentValue.startdate)
@@ -488,7 +491,7 @@
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
-              raw: {isSprint: currentValue.is_sprint, allSprints: allSprints, parent_node: currentValue.parent_node }
+              raw: {isSprint: currentValue.is_sprint, parent_node: currentValue.parent_node }
             }
           ])
         })

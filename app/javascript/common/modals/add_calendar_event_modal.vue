@@ -100,7 +100,7 @@
   import Common from "../../mixins/common.js"
   export default {
     Name: "AddCalendarEventModal",
-    props:['eventDates','showEvent'],
+    props:['eventDates','showEvent', 'allSprints'],
     mixins: [Common],
     data () {
       return{
@@ -109,7 +109,7 @@
         startDate:         null,
         endDate:           null,
         allDay:            false,
-        allSprints: [],
+        // allSprints: [],
         parent_node: '',
         actionType:        '',
         allDayNotHidden:   true,
@@ -124,6 +124,7 @@
     components: { DatePicker },
     watch:{
       eventDates(newValue, oldValue){
+        console.log("eventDates", newValue, oldValue)
         this.setDefaultValues()
         this.updateSelectedDate()
       },
@@ -181,7 +182,6 @@
         this.allDay = this.showEvent.isAllday
         console.log("showSelectedEvent", this.showEvent)
         this.isSprint = this.showEvent.raw.isSprint
-        this.allSprints = this.showEvent.raw.allSprints
         this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
       },
@@ -226,7 +226,7 @@
         this.actionType = ''
         this.allDayNotHidden = true
         this.isSprint = false
-        this.allSprints = this.showEvent.raw.allSprints
+        // this.allSprints = this.showEvent.raw.allSprints
         this.parent_node = ''
       },
       openRecurringEventModal(){
