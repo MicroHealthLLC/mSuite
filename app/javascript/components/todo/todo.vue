@@ -307,11 +307,15 @@ export default {
     getChildNode(parent_nodes) {
       let childNodes = []
       let date = ''
+      let startDate = ''
       this.todos.forEach((node) => {
         if (node.duedate != null) {
           date = new Date(node.duedate).toLocaleDateString("en-US")
         } else {
           date = node.duedate
+        }
+        if (node.startdate != null) {
+          startDate = new Date(node.startdate).toLocaleDateString("en-US")
         }
         parent_nodes.forEach((p, index) => {
           if (p.id == node.parent_node) {
@@ -320,6 +324,7 @@ export default {
               id: node.id,
               is_disabled: node.is_disabled,
               parent: p.id,
+              startdate: startDate,
               duedate: date,
               children: []
             }

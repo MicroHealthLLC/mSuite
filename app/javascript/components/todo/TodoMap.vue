@@ -75,7 +75,7 @@
           <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
             <div class="flex" v-if="selectedTodo.id != child.id">
               <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
-              <div class="col-9 d-flex flex-row">
+              <div class="col-6 d-flex flex-row">
                 <div class="flex-auto">
                   <input type="checkbox" class="mr-4" :checked="child.is_disabled"
                     @click="updateTodo(child, child.name, !child.is_disabled)" />
@@ -83,6 +83,11 @@
                 <label @click="showInputFieldToggle(child)" class="mb-0 text-wrap" :for="'child-' + child.id"
                   :class="{ 'line-through': child.is_disabled }">{{ child.name }}</label>
               </div>
+              <span v-if="selectedTodo.id != child.id" @click="showInputFieldToggle(child)" class="col-3 dueDate pl-1"
+                :class="{ 'line-through': child.is_disabled }">
+                {{ child.startdate && child.startdate != child.duedate ? `Start: ${formatDate(child.startdate)}` : '' }}
+              </span>
+              <span v-else class="col-3"></span>
               <span @click="showInputFieldToggle(child)" class="col-2 dueDate pl-1"
                 :class="{ 'line-through': child.is_disabled }">
                 {{ child.duedate ? `Due: ${formatDate(child.duedate)}` : '' }}
@@ -98,11 +103,20 @@
                 <div class="container relative z-20 max-w-xl mt-20 h-min">
                   <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
                     <b-row>
-                      <b-col sm="5" cols="5">
+                      <b-col sm="4" cols="4">
                         <b-form-input v-model="selectedTodo.name" ref="title" type="text" placeholder="Your Todo">
                         </b-form-input>
                       </b-col>
-                      <b-col cols="5" sm="5" class="w-50 d-flex flex-row">
+                      <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
+                        <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
+                          @mouseleave="showCalendar('task-date-2')" class="dateInput">
+                          <date-picker id="task-date-2" v-model='selectedTodo.startdate'
+                            :placeholder="formatDate(selectedTodo.startdate)" :format="format"
+                            @close="closeDatePicker('task-date-2')" ref="date"></date-picker>
+                          <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
+                        </div>
+                      </b-col>
+                      <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                         <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
                           @mouseleave="showCalendar('task-date-2')" class="dateInput">
                           <date-picker id="task-date-2" v-model='selectedTodo.duedate'
