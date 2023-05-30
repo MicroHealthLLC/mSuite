@@ -5,8 +5,17 @@
         <i class="material-icons text-white">add</i>
       </div>
     </div>
-    <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
-    <h3 v-else class="f_smooth_auto">Add Event</h3>
+    
+    <div v-if="isSprint == true">
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Sprint</h3>
+      <h3 v-else class="f_smooth_auto">Add Sprint</h3>
+    </div>
+    
+    <div v-else>
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
+      <h3 v-else class="f_smooth_auto">Add Event</h3>
+    </div>
+
     <div class="w-100">
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Title" v-model="title" :validateValues="validateValues"/>
@@ -31,7 +40,24 @@
           <input type="checkbox" class="mr-2" v-model="allDay">
           <label class="form-label mt-2" for="checkbox">All Day</label>
         </div>
+
       </div>
+
+      <div class="row">
+        <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="actionType == 'create'">
+          <input type="checkbox" class="mr-2" v-model="isSprint">
+          <label class="form-label mt-2" for="checkbox">Sprint</label>
+        </div>
+        <div class="col-10 d-flex content-justified-start px-0" v-if="isSprint == false">
+          <label class="form-label mt-2" for="checkbox">Select Sprint</label>
+          <select class="mx-1 form-select" v-model="parent_node">
+            <option v-for="sprint in allSprints" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+          </select>
+        </div>
+      </div>
+
       <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
       </div>
@@ -83,9 +109,12 @@
         startDate:         null,
         endDate:           null,
         allDay:            false,
+        allSprints: [],
+        parent_node: '',
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
+        isSprint: false,
         errorMessage:      '',
         invalidMessage:    false,
         datePickerMinutes: [0,15,30,45]
@@ -100,6 +129,7 @@
       },
       showEvent: {
         handler(newValue, oldValue) {
+          console.log("showEvent", newValue, oldValue)
           this.setDefaultValues()
           this.showSelectedEvent('update')
         },
@@ -149,6 +179,10 @@
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
+        console.log("showSelectedEvent", this.showEvent)
+        this.isSprint = this.showEvent.raw.isSprint
+        this.allSprints = this.showEvent.raw.allSprints
+        this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
       },
       generateDataObj(){
@@ -159,9 +193,12 @@
             start: _this.startDate,
             end: _this.endDate,
             isAllday: _this.allDay,
+            isSprint: _this.isSprint,
+            parent_node: _this.parent_node,
             backgroundColor:'#18A2B8',
             id: null
           }
+          console.log("generateDataObj",data )
         if(this.actionType == 'update'){
           data.id = this.showEvent.id
           data.backgroundColor = this.showEvent.backgroundColor
@@ -188,6 +225,9 @@
         this.allDay = false
         this.actionType = ''
         this.allDayNotHidden = true
+        this.isSprint = false
+        this.allSprints = this.showEvent.raw.allSprints
+        this.parent_node = ''
       },
       openRecurringEventModal(){
         if (this.title && !this.isValueInvalid){
