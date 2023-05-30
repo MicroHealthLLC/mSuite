@@ -20,6 +20,7 @@ class MindmapsController < AuthenticatedController
   def create
     @mindmap = Mindmap.new(mindmap_params)
     if @mindmap.save
+      @mindmap.rearrange_node_for_calendar
       render json: render_mindmap(@mindmap,nil) 
     else
       render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: :found

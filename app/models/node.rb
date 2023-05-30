@@ -304,10 +304,6 @@ class Node < ApplicationRecord
     return self.mindmap.is_private?
   end
 
-  def is_sprint?
-    (self.duedate - self.startdate) > 24.hours
-  end
-
   def date_range
     (self.startdate..self.duedate)
   end

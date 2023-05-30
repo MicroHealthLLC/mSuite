@@ -50,23 +50,21 @@ class Mindmap < ApplicationRecord
   before_update :decrypt_attributes, if: :check_is_before_private
   # after_save :rearrange_node_for_calendar
 
-  # for now this is handled at front end.
   def rearrange_node_for_calendar
-    return
-    # return if self.mm_type != 'calendar'
+    return if self.mm_type != 'calendar'
     
     sprints = []
     events = []
 
     self.nodes.each do |node|
       next if !node.duedate || !node.startdate
-      if node.is_sprint?
+      if node.is_sprint
         sprints << node
       else
         events << node
       end
     end
-    
+
     sprints.each do |sprint|
       sprint_range = sprint.date_range
       events.each do |event|
