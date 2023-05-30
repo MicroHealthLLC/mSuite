@@ -20,6 +20,7 @@ class MindmapsController < AuthenticatedController
   def create
     @mindmap = Mindmap.new(mindmap_params)
     if @mindmap.save
+      @mindmap.rearrange_node_for_calendar
       render json: render_mindmap(@mindmap,nil) 
     else
       render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: :found
@@ -27,7 +28,8 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if @mindmap.update(mindmap_params)
+    if @mindmap.update!(mindmap_params)
+      @mindmap.rearrange_node_for_calendar
       @mindmap = @mindmap.decrypt_attributes
       @mindmap.password_check
       broadcast_actioncable(@mindmap,password_present?)
@@ -228,7 +230,7 @@ class MindmapsController < AuthenticatedController
         :parent_id,
         :will_delete_at,
         :failed_password_attempts,
-        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate]
+        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate, :is_sprint]
       )
     end
 

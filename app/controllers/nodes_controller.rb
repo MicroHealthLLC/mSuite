@@ -145,6 +145,7 @@ class NodesController < AuthenticatedController
       :element_type,
       :element_width,
       :element_height,
+      :is_sprint,
       node_files: []
     )
   end
@@ -169,6 +170,7 @@ class NodesController < AuthenticatedController
       :element_type,
       :element_width,
       :element_height,
+      :is_sprint,
       node_files: []
     )
   end

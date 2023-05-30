@@ -548,16 +548,11 @@ export default {
     },
     async changeView(){
       if (!this.disableToggle){
-        let data = {}
+        let data = { mm_type: 'todo'}
         if (this.mm_type == 'todo'){
           data.mm_type = 'calendar'
           this.updateMsuite(data)
-        } else if (this.mm_type == 'calendar') {
-          data.mm_type = 'todo'
-          data.nodes = this.createSprints()
-          console.log(data)
-          this.updateMsuite(data)
-        } 
+        } else if (this.mm_type == 'calendar') this.updateMsuite(data)
       }
     },
     createSprints() {

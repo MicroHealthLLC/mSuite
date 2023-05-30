@@ -239,6 +239,7 @@
         this.calendar.on('clickEvent', (eventObj) => {
           this.eventNode = this.currentMindMap.nodes.find(o => o.id === eventObj.event.id)
           this.showEvent = eventObj.event
+          console.log('clickEvent', this.eventNode, this.showEvent)
           this.showEditEvent = true
         })
         this.calendar.on('beforeUpdateEvent', (eventObj) => {
@@ -347,6 +348,7 @@
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       editEventModal(){
+        console.log("editEventModal", this.showEvent)
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       async updateCalendarUser(){
@@ -364,8 +366,11 @@
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
-          mindmap_id: this.currentMindMap.id
+          mindmap_id: this.currentMindMap.id,
+          is_sprint: eventObj.isSprint,
+          parent_node: eventObj.parent_node,
           }
+          console.log("saveEvents", eventObj)
         let _this = this
         await http.post('/nodes.json', data).then((result) => {
           _this.undoNodes.push({req: 'addNode', 'node': result.data.node})
@@ -384,6 +389,8 @@
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
+          is_sprint: eventObj.isSprint,
+          parent_node: eventObj.parent_node
           }
           if(this.undoNodes.length > 0) {
             this.undoNodes.forEach((element, index) => {
@@ -393,6 +400,8 @@
               this.undoNodes[index]['node'].startdate = data.startdate
               this.undoNodes[index]['node'].duedate = data.duedate
               this.undoNodes[index]['node'].hide_children = data.isAllday
+              this.undoNodes[index]['node'].is_sprint = data.isSprint
+              this.undoNodes[index]['node'].parent_node = data.parent_node
             }
           });
         }
@@ -452,6 +461,12 @@
         this.uniqueColors = []
         this.calendar.store.getState().calendar.events.internalMap.clear()
         let _this = this
+        let allSprints = []
+        this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
+          if(currentValue.is_sprint){
+            allSprints.push(currentValue)
+          }          
+        })
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
           currentValue.duedate   = new Date(currentValue.duedate)
           currentValue.startdate = new Date(currentValue.startdate)
@@ -461,6 +476,7 @@
           let textColor = '#F8F8F8'
           if (colorType != 'dark') textColor = '#020101'
           this.mapColors.push(currentValue.line_color)
+          console.log("renderEvents", currentValue)
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -472,6 +488,7 @@
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
+              raw: {isSprint: currentValue.is_sprint, allSprints: allSprints, parent_node: currentValue.parent_node }
             }
           ])
         })

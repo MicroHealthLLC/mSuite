@@ -304,6 +304,14 @@ class Node < ApplicationRecord
     return self.mindmap.is_private?
   end
 
+  def is_sprint?
+    (self.duedate - self.startdate) > 24.hours
+  end
+
+  def date_range
+    (self.startdate..self.duedate)
+  end
+
   def set_position
     if mindmap_id.present? && ( position.nil? ||  position == 0 )
       self.position = self.mindmap.nodes.count + 1
