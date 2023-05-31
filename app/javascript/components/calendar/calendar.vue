@@ -372,6 +372,7 @@
           mindmap_id: this.currentMindMap.id,
           is_sprint: eventObj.isSprint,
           parent_node: eventObj.parent_node,
+          standalone: eventObj.standalone
           }
           console.log("saveEvents", eventObj)
         let _this = this
@@ -393,7 +394,8 @@
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
           is_sprint: eventObj.isSprint,
-          parent_node: eventObj.parent_node
+          parent_node: eventObj.parent_node,
+          standalone: eventObj.standalone
           }
           if(this.undoNodes.length > 0) {
             this.undoNodes.forEach((element, index) => {
@@ -405,6 +407,7 @@
               this.undoNodes[index]['node'].hide_children = data.isAllday
               this.undoNodes[index]['node'].is_sprint = data.isSprint
               this.undoNodes[index]['node'].parent_node = data.parent_node
+              this.undoNodes[index]['node'].standalone = data.standalone
             }
           });
         }
@@ -492,7 +495,7 @@
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
-              raw: {isSprint: currentValue.is_sprint, parent_node: currentValue.parent_node }
+              raw: {isSprint: currentValue.is_sprint, parent_node: currentValue.parent_node, standalone: currentValue.standalone }
             }
           ])
         })

@@ -57,7 +57,7 @@ class Mindmap < ApplicationRecord
     events = []
 
     self.nodes.each do |node|
-      next if !node.duedate || !node.startdate
+      next if !node.duedate || !node.startdate || node.standalone
       if node.is_sprint
         sprints << node
       else
@@ -68,6 +68,7 @@ class Mindmap < ApplicationRecord
     sprints.each do |sprint|
       sprint_range = sprint.date_range
       events.each do |event|
+        next if event.parent_node || event.standalone
         if sprint_range.cover?(event.startdate) && sprint_range.cover?(event.duedate)
           event.update(parent_node: sprint.id)
         end
