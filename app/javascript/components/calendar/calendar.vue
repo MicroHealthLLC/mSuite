@@ -359,6 +359,7 @@
           });
       },
       async saveEvents(eventObj){
+        console.log(eventObj)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         let data = {
@@ -367,7 +368,7 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
-          line_color: eventObj.backgroundColor,
+          line_color: eventObj.isSprint ? eventObj.backgroundColor : '#363636',
           mindmap_id: this.currentMindMap.id,
           is_sprint: eventObj.isSprint,
           parent_node: eventObj.parent_node,
@@ -458,7 +459,7 @@
             this.allSprints.push(currentValue)
           }          
         })
-        console.log("fetchEvents",  this.allSprints)
+        //console.log("fetchEvents",  this.allSprints)
         this.renderEvents()
       },
       renderEvents(){
@@ -479,7 +480,7 @@
           let textColor = '#F8F8F8'
           if (colorType != 'dark') textColor = '#020101'
           this.mapColors.push(currentValue.line_color)
-          console.log("renderEvents", currentValue)
+          //console.log("renderEvents", currentValue)
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -583,6 +584,45 @@
           }
         }
       },
+      updateEventColors(mindmap) {
+        //const singleNodes = mindmap.nodes.filter(n => !n.is_sprint && !n.parent_node);
+        const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
+
+        // Iterate over all nodes in the mind map
+        mindmap.nodes.forEach(n => {
+          // Iterate over parent nodes
+          parentNodes.forEach(p => {
+            // Check if the current node has the same parent node ID as the parent node and a different line color
+            if (p.id === n.parent_node && n.line_color !== p.line_color) {
+              // Update the line color of the current node to match the parent node's line color
+              n.line_color = p.line_color;
+            }
+
+            // Check if the current node is the same as the parent node
+            if (n.id === p.id) {
+              // Iterate over the children of the parent node
+              n.children.forEach(c => {
+                // Check if the line color of the child node is different from the parent node's line color
+                if (c.line_color !== p.line_color) {
+                  // Update the line color of the child node to match the parent node's line color
+                  c.line_color = p.line_color;
+                }
+              });
+            }
+          });
+
+          /* NEEDS BETTER SOLUTION */
+          // Iterate over single nodes
+          /* singleNodes.forEach(s => {
+            if (n.id === s.id) {
+              // Set the line color of the current node to '#363636'
+              n.line_color = '#363636';
+            }
+          }); */
+        });
+
+        return mindmap;
+      },
       bindEventToClick(){
         let _this = this
         setTimeout(()=>{
@@ -621,7 +661,7 @@
     watch: {
       mSuite: {
         handler(value) {
-          this.currentMindMap = value
+          this.currentMindMap = this.updateEventColors(value)
           this.fetchedEvents = value.nodes
         }, deep: true
       },

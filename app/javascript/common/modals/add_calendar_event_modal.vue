@@ -53,7 +53,7 @@
 
       </div>
 
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
           <select cclass="w-50 form-control" v-model="parent_node">
@@ -62,7 +62,7 @@
             </option>
           </select>
         </div>
-      </div>
+      </div> -->
 
       <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
@@ -191,25 +191,29 @@
         this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
       },
-      generateDataObj(){
-        let _this = this
+      generateDataObj() {
+        let _this = this;
         let data = {
-            title: _this.title,
-            body: _this.description,
-            start: _this.startDate,
-            end: _this.endDate,
-            isAllday: _this.allDay,
-            isSprint: _this.isSprint,
-            parent_node: _this.parent_node,
-            backgroundColor:'#18A2B8',
-            id: null
-          }
-          console.log("generateDataObj",data )
-        if(this.actionType == 'update'){
-          data.id = this.showEvent.id
-          data.backgroundColor = this.showEvent.backgroundColor
-        } 
-        return data
+          title: _this.title,
+          body: _this.description,
+          start: _this.startDate,
+          end: _this.endDate,
+          isAllday: _this.allDay,
+          isSprint: _this.isSprint,
+          parent_node: _this.parent_node,
+          backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
+          id: null
+        };
+        if (this.actionType == 'update') {
+          console.log(this.showEvent)
+          data.id = this.showEvent.id;
+          data.backgroundColor = this.showEvent.backgroundColor;
+        }
+        return data;
+      },
+      getRandomColor() {
+        // Generate a random hexadecimal color code
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
       },
       createEvent(){
         if (this.title && !this.isValueInvalid ){
