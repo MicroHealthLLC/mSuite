@@ -623,6 +623,41 @@
 
         return mindmap;
       },
+      updateEventHeights(mindmap) {
+        // Filter the events to get the long events
+        let longEvents = mindmap.nodes.filter(n => {
+          if (!n.is_sprint) { // Exclude sprints
+            const startDate = new Date(n.startdate);
+            const dueDate = new Date(n.duedate);
+
+            // Check if the event is either on the next day or longer duration
+            const isNextDayOrLonger = (
+              startDate.getFullYear() < dueDate.getFullYear() ||
+              startDate.getMonth() < dueDate.getMonth() ||
+              startDate.getDate() < dueDate.getDate()
+            );
+            return isNextDayOrLonger;
+          } else {
+            return false;
+          }
+        });
+
+        // Wait for a short duration and update the heights of long events
+        setTimeout(() => {
+          longEvents.forEach(e => {
+            // Find the event elements to be updated based on their test id
+            let elements = document.querySelectorAll(`[data-testid="${e.id}-${e.title}"]`);
+            elements.forEach(event => {
+              // Update the height, line height, and font size of the event element's children
+              let child = event.children[0]
+              child.style.height = "10px";
+              child.style.lineHeight = "10px";
+              child.querySelector('.toastui-calendar-weekday-event-title').style.fontSize = '9px';
+              child.querySelector('.toastui-calendar-weekday-event-title').style.fontWeight = '400';
+            });
+          });
+        }, 50);
+      },
       bindEventToClick(){
         let _this = this
         setTimeout(()=>{
@@ -662,6 +697,7 @@
       mSuite: {
         handler(value) {
           this.currentMindMap = this.updateEventColors(value)
+          this.updateEventHeights(this.currentMindMap)
           this.fetchedEvents = value.nodes
         }, deep: true
       },
