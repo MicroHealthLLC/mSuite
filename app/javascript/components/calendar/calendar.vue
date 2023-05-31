@@ -54,7 +54,7 @@
             class="material-icons col-2 pl-2"
             >
             delete</span>
-          <span
+          <span v-if="showEvent.raw.isSprint || (!showEvent.raw.parent_node && !showEvent.raw.isSprint)"
             class="fas fa-eye-dropper color-picker mt-1 icon-opacity"
             @click="colorSelected = true"
             >
