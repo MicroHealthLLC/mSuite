@@ -277,6 +277,7 @@ export default {
     renderTodos() {
       let parent_nodes = []
       let date = ''
+      let startDate = ''
       this.todos.forEach((node) => {
         if (node.parent_node == null) {
           parent_nodes.push(node)
@@ -288,12 +289,16 @@ export default {
         } else {
           date = node.duedate
         }
+        if (node.startdate != null) {
+          startDate = new Date(node.startdate).toLocaleDateString("en-US")
+        }
         return {
           name: node.title,
           id: node.id,
           is_disabled: node.is_disabled,
           counter: 0,
           duedate: date,
+          startdate: startDate,
           children: []
         }
       })
@@ -302,11 +307,15 @@ export default {
     getChildNode(parent_nodes) {
       let childNodes = []
       let date = ''
+      let startDate = ''
       this.todos.forEach((node) => {
         if (node.duedate != null) {
           date = new Date(node.duedate).toLocaleDateString("en-US")
         } else {
           date = node.duedate
+        }
+        if (node.startdate != null) {
+          startDate = new Date(node.startdate).toLocaleDateString("en-US")
         }
         parent_nodes.forEach((p, index) => {
           if (p.id == node.parent_node) {
@@ -315,6 +324,7 @@ export default {
               id: node.id,
               is_disabled: node.is_disabled,
               parent: p.id,
+              startdate: startDate,
               duedate: date,
               children: []
             }
@@ -411,18 +421,23 @@ export default {
       if (this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
         this.selectedTodo.duedate = moment(this.selectedTodo.duedate)._d
       }
+      if (this.selectedTodo.startdate && typeof this.selectedTodo.startdate !== 'string') {
+        this.selectedTodo.startdate = moment(this.selectedTodo.startdate)._d
+      }
       todo.title = title
       todo.is_disabled = completed
       todo.duedate = this.selectedTodo.duedate ? this.selectedTodo.duedate : todo.duedate
       todo.duedate = moment(todo.duedate)._d
-      todo.startdate = todo.duedate
+      todo.startdate = this.selectedTodo.startdate ? this.selectedTodo.startdate : todo.startdate
+      todo.startdate = moment(todo.startdate)._d
+      //todo.startdate = todo.duedate
       todo.hide_children = true
 
       if (this.undoNodes.length > 0) {
         this.undoNodes.forEach((element, index) => {
           if (element['node'].id === todo.id) {
             this.undoNodes[index]['node'].title = todo.title
-            this.undoNodes[index]['node'].startdate = todo.duedate
+            this.undoNodes[index]['node'].startdate = todo.startdate
             this.undoNodes[index]['node'].duedate = todo.duedate
             this.undoNodes[index]['node'].is_disabled = completed
           }
@@ -448,10 +463,11 @@ export default {
           }
           if (!this.undoDone) {
             let duedate = moment(todo.duedate)._d
+            let startdate = moment(todo.startdate)._d
             let myNode = {
               id: todo.id,
               title: todo.name,
-              startdate: duedate,
+              startdate: startdate,
               duedate: duedate,
               mindmap_id: this.currentMindMap.id,
               parent_node: todo.parent,

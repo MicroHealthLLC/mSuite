@@ -5,8 +5,26 @@
         <i class="material-icons text-white">add</i>
       </div>
     </div>
-    <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
-    <h3 v-else class="f_smooth_auto">Add Event</h3>
+    
+    <div class="row">
+      <div class="col-12 pr-0 pl-2 d-flex justify-content-center" v-if="actionType == 'create'">
+        <input type="radio" v-model="isSprint" :value="true" />
+        <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Sprint&nbsp;&nbsp;</label>
+        <input type="radio" v-model="isSprint" :value="false" />
+        <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Event</label>
+      </div>
+    </div>
+
+    <div v-if="isSprint == true">
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Sprint</h3>
+      <h3 v-else class="f_smooth_auto">Add Sprint</h3>
+    </div>
+    
+    <div v-else>
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
+      <h3 v-else class="f_smooth_auto">Add Event</h3>
+    </div>
+
     <div class="w-100">
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Title" v-model="title" :validateValues="validateValues"/>
@@ -14,6 +32,7 @@
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Description" v-model="description"/>
       </div>
+
       <div class="row">
         <div class="col-10 d-flex content-justified-start px-0" v-if="allDay">
           <label class="form-label mt-1">Start</label>
@@ -31,7 +50,20 @@
           <input type="checkbox" class="mr-2" v-model="allDay">
           <label class="form-label mt-2" for="checkbox">All Day</label>
         </div>
+
       </div>
+
+      <!-- <div class="row">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false">
+          <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
+          <select cclass="w-50 form-control" v-model="parent_node">
+            <option v-for="sprint in allSprints" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+          </select>
+        </div>
+      </div> -->
+
       <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
       </div>
@@ -74,7 +106,7 @@
   import Common from "../../mixins/common.js"
   export default {
     Name: "AddCalendarEventModal",
-    props:['eventDates','showEvent'],
+    props:['eventDates','showEvent', 'allSprints'],
     mixins: [Common],
     data () {
       return{
@@ -83,9 +115,12 @@
         startDate:         null,
         endDate:           null,
         allDay:            false,
+        // allSprints: [],
+        parent_node: '',
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
+        isSprint: false,
         errorMessage:      '',
         invalidMessage:    false,
         datePickerMinutes: [0,15,30,45]
@@ -95,11 +130,13 @@
     components: { DatePicker },
     watch:{
       eventDates(newValue, oldValue){
+        console.log("eventDates", newValue, oldValue)
         this.setDefaultValues()
         this.updateSelectedDate()
       },
       showEvent: {
         handler(newValue, oldValue) {
+          console.log("showEvent", newValue, oldValue)
           this.setDefaultValues()
           this.showSelectedEvent('update')
         },
@@ -149,24 +186,34 @@
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
+        console.log("showSelectedEvent", this.showEvent)
+        this.isSprint = this.showEvent.raw.isSprint
+        this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
       },
-      generateDataObj(){
-        let _this = this
+      generateDataObj() {
+        let _this = this;
         let data = {
-            title: _this.title,
-            body: _this.description,
-            start: _this.startDate,
-            end: _this.endDate,
-            isAllday: _this.allDay,
-            backgroundColor:'#18A2B8',
-            id: null
-          }
-        if(this.actionType == 'update'){
-          data.id = this.showEvent.id
-          data.backgroundColor = this.showEvent.backgroundColor
-        } 
-        return data
+          title: _this.title,
+          body: _this.description,
+          start: _this.startDate,
+          end: _this.endDate,
+          isAllday: _this.allDay,
+          isSprint: _this.isSprint,
+          parent_node: _this.parent_node,
+          backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
+          id: null
+        };
+        if (this.actionType == 'update') {
+          console.log(this.showEvent)
+          data.id = this.showEvent.id;
+          data.backgroundColor = this.showEvent.backgroundColor;
+        }
+        return data;
+      },
+      getRandomColor() {
+        // Generate a random hexadecimal color code
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
       },
       createEvent(){
         if (this.title && !this.isValueInvalid ){
@@ -188,6 +235,9 @@
         this.allDay = false
         this.actionType = ''
         this.allDayNotHidden = true
+        this.isSprint = false
+        // this.allSprints = this.showEvent.raw.allSprints
+        this.parent_node = ''
       },
       openRecurringEventModal(){
         if (this.title && !this.isValueInvalid){
