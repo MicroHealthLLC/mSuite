@@ -284,12 +284,24 @@ class Node < ApplicationRecord
   after_create :create_notification
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
+  after_update :standalone_changed, if: Proc.new { |p| p.saved_change_to_attribute? :standalone }
+  after_update :rearrange_node_for_calendar
   before_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
+
+  def rearrange_node_for_calendar
+    self.mindmap.rearrange_node_for_calendar
+  end
+
+  def standalone_changed
+    if self.mindmap.mm_type == 'calendar'
+      update(parent_node: nil) if self.standalone
+    end
+  end
 
   def decryption
     return decrypt_mindmap_attr if self.mindmap.is_private?
@@ -379,7 +391,7 @@ class Node < ApplicationRecord
       update_disability(Node.where(parent_node: self.id), self.is_disabled)
     end
   end
-
+  
   def self.duplicate_child_nodes(nodes, parent)
     return if nodes.length == 0
 

@@ -230,7 +230,7 @@ class MindmapsController < AuthenticatedController
         :parent_id,
         :will_delete_at,
         :failed_password_attempts,
-        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate, :is_sprint]
+        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate, :is_sprint, :standalone]
       )
     end
 

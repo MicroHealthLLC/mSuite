@@ -50,11 +50,14 @@
           <input type="checkbox" class="mr-2" v-model="allDay">
           <label class="form-label mt-2" for="checkbox">All Day</label>
         </div>
-
+        <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="isSprint == false" >
+          <input type="checkbox" class="mr-2" v-model="standalone">
+          <label class="form-label mt-2" for="checkbox">Standalone</label>
+        </div>
       </div>
 
-      <!-- <div class="row">
-        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false">
+      <div class="row">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
           <select cclass="w-50 form-control" v-model="parent_node">
             <option v-for="sprint in allSprints" :value="sprint.id">
@@ -62,7 +65,7 @@
             </option>
           </select>
         </div>
-      </div> -->
+      </div>
 
       <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
@@ -121,6 +124,7 @@
         allDayNotHidden:   true,
         isValueInvalid:    false,
         isSprint: false,
+        standalone: false,
         errorMessage:      '',
         invalidMessage:    false,
         datePickerMinutes: [0,15,30,45]
@@ -187,6 +191,7 @@
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
         console.log("showSelectedEvent", this.showEvent)
+        this.standalone = this.showEvent.raw.standalone
         this.isSprint = this.showEvent.raw.isSprint
         this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
@@ -200,6 +205,7 @@
           end: _this.endDate,
           isAllday: _this.allDay,
           isSprint: _this.isSprint,
+          standalone: _this.standalone,
           parent_node: _this.parent_node,
           backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
@@ -236,7 +242,7 @@
         this.actionType = ''
         this.allDayNotHidden = true
         this.isSprint = false
-        // this.allSprints = this.showEvent.raw.allSprints
+        this.standalone = false
         this.parent_node = ''
       },
       openRecurringEventModal(){

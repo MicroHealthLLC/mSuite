@@ -372,6 +372,7 @@
           mindmap_id: this.currentMindMap.id,
           is_sprint: eventObj.isSprint,
           parent_node: eventObj.parent_node,
+          standalone: eventObj.standalone
           }
           console.log("saveEvents", eventObj)
         let _this = this
@@ -384,6 +385,7 @@
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
+        this.checkEventStatus(eventObj, this.currentMindMap.nodes)
         this.showEditEvent = false
         let data = {
           title: eventObj.title,
@@ -392,8 +394,9 @@
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
-          is_sprint: eventObj.isSprint,
-          parent_node: eventObj.parent_node
+          is_sprint: eventObj.raw.isSprint,
+          parent_node: eventObj.raw.parent_node,
+          standalone: eventObj.raw.standalone
           }
           if(this.undoNodes.length > 0) {
             this.undoNodes.forEach((element, index) => {
@@ -405,6 +408,7 @@
               this.undoNodes[index]['node'].hide_children = data.isAllday
               this.undoNodes[index]['node'].is_sprint = data.isSprint
               this.undoNodes[index]['node'].parent_node = data.parent_node
+              this.undoNodes[index]['node'].standalone = data.standalone
             }
           });
         }
@@ -492,7 +496,7 @@
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
-              raw: {isSprint: currentValue.is_sprint, parent_node: currentValue.parent_node }
+              raw: {isSprint: currentValue.is_sprint, parent_node: currentValue.parent_node, standalone: currentValue.standalone }
             }
           ])
         })
@@ -583,6 +587,31 @@
             return 'dark';
           }
         }
+      },
+      checkEventStatus(eventObj, nodeList) {
+        const eventStart = new Date(eventObj.start);
+        const eventEnd = new Date(eventObj.end);
+
+        // Iterate through the nodeList to check for date range overlap
+        for (let i = 0; i < nodeList.length; i++) {
+          const node = nodeList[i];
+          const nodeStart = new Date(node.startdate);
+          const nodeEnd = new Date(node.duedate);
+
+          // Check if the event falls within the date range of the node
+          if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+            // Update event properties if it falls within the node's date range
+            eventObj.raw.standalone = false;
+            eventObj.raw.parent_node = node.id;
+            return eventObj;
+          }
+        }
+
+        // If no date range overlap is found, update event properties accordingly
+        eventObj.raw.standalone = true;
+        eventObj.raw.parent_node = null;
+        eventObj.backgroundColor = '#363636'
+        return eventObj;
       },
       updateEventColors(mindmap) {
         //const singleNodes = mindmap.nodes.filter(n => !n.is_sprint && !n.parent_node);
