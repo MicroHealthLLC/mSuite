@@ -381,11 +381,12 @@
           _this.currentNodeId = result.data.node.id
         })
       },
-      updateEvent(eventObj){
+      updateEvent(eventObj) {
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         this.checkEventStatus(eventObj, this.currentMindMap.nodes)
+        //this.currentMindmap = this.updateEventColors(this.currentMindMap)
         this.showEditEvent = false
         let data = {
           title: eventObj.title,
@@ -397,23 +398,24 @@
           is_sprint: eventObj.isSprint,
           parent_node: eventObj.parent_node,
           standalone: eventObj.standalone
-          }
-          if (eventObj.raw) {
-            data.is_sprint = eventObj.raw.isSprint
-            data.parent_node = eventObj.raw.parent_node
-            data.standalone = eventObj.raw.standalone 
-          }
-          if(this.undoNodes.length > 0) {
-            this.undoNodes.forEach((element, index) => {
-            if(element['node'].id === eventObj.id) {
-              this.undoNodes[index]['node'].title = data.title
-              this.undoNodes[index]['node'].description = data.description
-              this.undoNodes[index]['node'].startdate = data.startdate
-              this.undoNodes[index]['node'].duedate = data.duedate
-              this.undoNodes[index]['node'].hide_children = data.isAllday
-              this.undoNodes[index]['node'].is_sprint = data.is_sprint
-              this.undoNodes[index]['node'].parent_node = data.parent_node
-              this.undoNodes[index]['node'].standalone = data.standalone
+        }
+        if (eventObj.raw) {
+          data.is_sprint = eventObj.raw.isSprint
+          data.parent_node = eventObj.raw.parent_node
+          data.standalone = eventObj.raw.standalone 
+        }
+        data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
+        if (this.undoNodes.length > 0) {
+          this.undoNodes.forEach((element, index) => {
+          if (element['node'].id === eventObj.id) {
+            this.undoNodes[index]['node'].title = data.title
+            this.undoNodes[index]['node'].description = data.description
+            this.undoNodes[index]['node'].startdate = data.startdate
+            this.undoNodes[index]['node'].duedate = data.duedate
+            this.undoNodes[index]['node'].hide_children = data.isAllday
+            this.undoNodes[index]['node'].is_sprint = data.is_sprint
+            this.undoNodes[index]['node'].parent_node = data.parent_node
+            this.undoNodes[index]['node'].standalone = data.standalone
             }
           });
         }
@@ -427,7 +429,6 @@
         this.sendLocals(false)
         this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
-
       },
       deleteEvents(){
         this.undoDone = false
@@ -644,6 +645,10 @@
             return eventObj;
           }
         }
+      },
+      getParentColor(parent) {
+        let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)
+        return selectedParent ? selectedParent.line_color : '#363636'
       },
       updateEventColors(mindmap) {
         //const singleNodes = mindmap.nodes.filter(n => !n.is_sprint && !n.parent_node);
