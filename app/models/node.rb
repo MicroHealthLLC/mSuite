@@ -454,10 +454,8 @@ class Node < ApplicationRecord
     nodes.each do |nod|
       next if nod.id == parent.id
       unless(mindmap.mm_type == 'tree_map' || mindmap.mm_type == 'flowmap' || mindmap.mm_type == 'tree_chart')
-        # nod.update_columns(parent_node: parent.id) if mindmap.mm_type == 'todo'
-        # nod.update_columns(line_color: parent.line_color)
-        nod.update(parent_node: parent.id) if mindmap.mm_type == 'todo'
-        nod.update(line_color: parent.line_color)
+        nod.update_columns(parent_node: parent.id) if mindmap.mm_type == 'todo'
+        nod.update_columns(line_color: parent.line_color)
       end
       update_parent_attr(Node.where(parent_node: nod.id), nod)
     end
