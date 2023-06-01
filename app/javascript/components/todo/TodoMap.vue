@@ -53,9 +53,11 @@
         </div>
       </div>
     </b-list-group-item>
-    <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :disabled="dragLocked" :list="sortedChildTodos"
-        @change="(e) => handleEnd(e, sortedChildTodos)" group="people" @start="drag = true" @end="drag = false"
+    <!-- <div v-if="node.children && node.children.length"> -->
+      <!-- Black background color added to see draggable field for debugging -->
+      <div style="background-color: black;">
+      <draggable class="list-group" :disabled="dragLocked" :list="sortedChildTodos" :move="checkMove" 
+        @change="(e) => handleEnd(e, sortedChildTodos, node)" group="people" @start="drag = true" @end="drag = false"
         v-bind="dragOptions">
         <transition-group type="transition" :name="!drag ? 'list' : null">
           <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
@@ -153,7 +155,7 @@ export default {
       this.prevElement.parent_node = this.dropElement.id
       this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
     }, */
-    async handleEnd(e, list) {
+    async handleEnd(e, list, node) {
       let newIdList = list.map(i => i.id)
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
@@ -163,18 +165,50 @@ export default {
         let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
         sortedTodoArr.forEach((n, idx) => {
           if (n.id == e.added.element.id) {
+            console.log('e.added.element.id: ')
+            console.log(e.added.element.id)
             let oldId = n.id
-            n.parent_node = otherNode.parent_node
-            nodes.forEach(c => {
+            if(otherNode && otherNode.parent_node){
+              n.parent_node = otherNode.parent_node
+              console.log("Yes")
+            } else {
+              oldId = node.id
+              console.log("No")
+            }
+            
+            nodes.forEach(c => {             
               if (c.parent_node == oldId) {
                 c.parent_node = n.parent_node
+            
+                sortedTodoArr.push(c)
+              }
+              if (!c.parent_node && oldId) {
+                c.parent_node = oldId            
                 sortedTodoArr.push(c)
               }
             })
           }
+          //Original code commented out to troubleshoot node to node drag method.  
+          // Goal is to get parent to be child of a childless node.  
+          // if (n.id == e.added.element.id) {
+          //   let oldId = n.id
+          //   n.parent_node = otherNode.parent_node
+          //   nodes.forEach(c => {
+          //     if (c.parent_node == oldId) {
+          //       c.parent_node = n.parent_node
+          //       sortedTodoArr.push(c)
+          //     } 
+          //   })
+          // }
         })
         this.reorderTodo(sortedTodoArr)
       }
+    },
+    //Added checkMove method to log draggable event
+    checkMove(e) {
+       console.log(e)
+      // console.log(e.draggedContext.element.name)
+      // console.log(e.relatedContext.element.name) 
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
