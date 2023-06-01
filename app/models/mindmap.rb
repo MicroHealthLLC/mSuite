@@ -24,7 +24,7 @@ class Mindmap < ApplicationRecord
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
 
-  accepts_nested_attributes_for :nodes, update_only: true
+  accepts_nested_attributes_for :nodes, update_only: true, reject_if: :parent_child_same
 
   before_validation :generate_random_key, on: :create
   before_validation :set_will_delete_at_date, on: :create
@@ -48,6 +48,10 @@ class Mindmap < ApplicationRecord
   before_create :decrypt_attributes, if: :check_poll_vote
   before_update :encrypt_attributes, if: :check_private?
   before_update :decrypt_attributes, if: :check_is_before_private
+
+  def parent_child_same(attributes)
+    !attributes[:parent_node].blank? && !attributes[:id].blank? && attributes[:id] == attributes[:parent_node]
+  end
 
   def decrypt_attributes
     decrypt_msuite(self.parent) if check_poll_vote
