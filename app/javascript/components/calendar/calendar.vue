@@ -63,6 +63,8 @@
         <div class="row mb-1 font-weight-medium h5">{{showEvent.title}}</div>
         <div class="row mb-4">{{formatshowEventDate()}}</div>
         <div class="row my-2">{{showEvent.body}}</div>
+        <div class="row my-2">{{showEvent.raw.standalone ? 'Standalone' : showEvent.raw.parent_node ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parent_node).title : ''}}</div>
+
       </div>
     </b-popover>
     <add-calendar-event-modal 
@@ -404,7 +406,8 @@
           data.parent_node = eventObj.raw.parent_node
           data.standalone = eventObj.raw.standalone 
         }
-        data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
+        console.log(data)
+        //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
         if (this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
           if (element['node'].id === eventObj.id) {
@@ -609,16 +612,17 @@
               // Check if the event falls within the date range of the node
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
                 // Update event properties if it falls within the node's date range
-                eventObj.raw.standalone = false;
-                eventObj.raw.parent_node = node.id;
+                //eventObj.raw.standalone = false;
+                eventObj.raw.parent_node = !eventObj.raw.standalone ? node.id : '';
                 return eventObj;
               }
             }
 
             // If no date range overlap is found, update event properties accordingly
-            eventObj.raw.standalone = true;
+            //eventObj.raw.standalone = true;
             eventObj.raw.parent_node = null;
-            eventObj.backgroundColor = '#363636'
+            //eventObj.backgroundColor = '#363636'
+            //console.log("eventObj", eventObj)
             return eventObj;
           }
         } else {
@@ -632,24 +636,24 @@
               // Check if the event falls within the date range of the node
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
                 // Update event properties if it falls within the node's date range
-                eventObj.standalone = false;
-                eventObj.parent_node = node.id;
+                //eventObj.standalone = false;
+                eventObj.parent_node = !eventObj.standalone ? node.id : '';
                 return eventObj;
               }
             }
 
             // If no date range overlap is found, update event properties accordingly
-            eventObj.standalone = true;
+            //eventObj.standalone = true;
             eventObj.parent_node = null;
-            eventObj.backgroundColor = '#363636'
+            //eventObj.backgroundColor = '#363636'
             return eventObj;
           }
         }
       },
-      getParentColor(parent) {
+      /* getParentColor(parent) {
         let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)
         return selectedParent ? selectedParent.line_color : '#363636'
-      },
+      }, */
       updateEventColors(mindmap) {
         //const singleNodes = mindmap.nodes.filter(n => !n.is_sprint && !n.parent_node);
         const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
