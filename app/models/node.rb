@@ -292,6 +292,11 @@ class Node < ApplicationRecord
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
+  validate :check_parent_node, on: :update
+
+  def check_parent_node
+    return false if self.id == parent_node
+  end
 
   def rearrange_node_for_calendar
     self.mindmap.rearrange_node_for_calendar
@@ -463,6 +468,7 @@ class Node < ApplicationRecord
   def update_parent_attr(nodes, parent)
     return if nodes.length == 0
     nodes.each do |nod|
+      next if nod.id == parent.id
       unless(mindmap.mm_type == 'tree_map' || mindmap.mm_type == 'flowmap' || mindmap.mm_type == 'tree_chart')
         nod.update_columns(parent_node: parent.id) if mindmap.mm_type == 'todo'
         nod.update_columns(line_color: parent.line_color)

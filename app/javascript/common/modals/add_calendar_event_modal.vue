@@ -57,10 +57,10 @@
       </div>
 
       <div class="row">
-        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
-          <select cclass="w-50 form-control" v-model="parent_node">
-            <option v-for="sprint in allSprints" :value="sprint.id">
+          <select class="w-50 form-control" v-model="parent_node">
+            <option v-for="sprint in multipleSprints" :value="sprint.id">
               {{ sprint.title }}
             </option>
           </select>
@@ -113,6 +113,7 @@
     mixins: [Common],
     data () {
       return{
+        multipleSprints: false,
         title:             '',
         description:       '',
         startDate:         null,
@@ -183,6 +184,7 @@
           this.endDate.setMinutes(minutes)
         }
         this.disableEventCreation()
+        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate)
       },
       showSelectedEvent(actType){
         this.title = this.showEvent.title
@@ -195,6 +197,7 @@
         this.isSprint = this.showEvent.raw.isSprint
         this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
+        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate)
       },
       generateDataObj() {
         let _this = this;
@@ -210,6 +213,7 @@
           backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
+        console.log(data)
         if (this.actionType == 'update') {
           console.log(this.showEvent)
           data.id = this.showEvent.id;
@@ -218,8 +222,52 @@
         return data;
       },
       getRandomColor() {
+        let colorCode;
+        do {
+          // Generate a random hexadecimal color code
+          colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        } while (this.isColorTooLightOrDark(colorCode));
+        return colorCode;
+      },
+      isColorTooLightOrDark(colorCode) {
+        // Convert the color code to RGB values
+        const rgb = this.hexToRgb(colorCode);
+
+        // Calculate the perceived brightness using the formula: (R * 299 + G * 587 + B * 114) / 1000
+        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+
+        // Check if the brightness is too light or dark
+        return brightness < 100 || brightness > 200;
+      },
+      hexToRgb(hex) {
+        // Remove the '#' character from the hex code
+        hex = hex.replace('#', '');
+
+        // Convert the hex code to RGB values
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        return { r, g, b };
+      },
+      /* getRandomColor() {
         // Generate a random hexadecimal color code
         return '#' + Math.floor(Math.random() * 16777215).toString(16);
+      }, */
+      checkForMultipleSprints(nodeList, eventStart, eventEnd) {
+        let sprintList = []
+
+        for (let i = 0; i < nodeList.length; i++) {
+          const node = nodeList[i];
+          const nodeStart = new Date(node.startdate);
+          const nodeEnd = new Date(node.duedate);
+
+          // Check if the event falls within the date range of the node
+          if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+            sprintList.push(node)
+          }
+        }
+        this.multipleSprints = sprintList
       },
       createEvent(){
         if (this.title && !this.isValueInvalid ){

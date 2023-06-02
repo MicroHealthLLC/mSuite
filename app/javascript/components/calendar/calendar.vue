@@ -63,6 +63,8 @@
         <div class="row mb-1 font-weight-medium h5">{{showEvent.title}}</div>
         <div class="row mb-4">{{formatshowEventDate()}}</div>
         <div class="row my-2">{{showEvent.body}}</div>
+        <div class="row my-2">{{showEvent.raw.standalone ? 'Standalone' : showEvent.raw.parent_node ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parent_node).title : ''}}</div>
+
       </div>
     </b-popover>
     <add-calendar-event-modal 
@@ -381,11 +383,12 @@
           _this.currentNodeId = result.data.node.id
         })
       },
-      updateEvent(eventObj){
+      updateEvent(eventObj) {
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         this.checkEventStatus(eventObj, this.currentMindMap.nodes)
+        //this.currentMindmap = this.updateEventColors(this.currentMindMap)
         this.showEditEvent = false
         let data = {
           title: eventObj.title,
@@ -394,21 +397,28 @@
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
-          is_sprint: eventObj.raw.isSprint,
-          parent_node: eventObj.raw.parent_node,
-          standalone: eventObj.raw.standalone
-          }
-          if(this.undoNodes.length > 0) {
-            this.undoNodes.forEach((element, index) => {
-            if(element['node'].id === eventObj.id) {
-              this.undoNodes[index]['node'].title = data.title
-              this.undoNodes[index]['node'].description = data.description
-              this.undoNodes[index]['node'].startdate = data.startdate
-              this.undoNodes[index]['node'].duedate = data.duedate
-              this.undoNodes[index]['node'].hide_children = data.isAllday
-              this.undoNodes[index]['node'].is_sprint = data.isSprint
-              this.undoNodes[index]['node'].parent_node = data.parent_node
-              this.undoNodes[index]['node'].standalone = data.standalone
+          is_sprint: eventObj.isSprint,
+          parent_node: eventObj.parent_node,
+          standalone: eventObj.standalone
+        }
+        if (eventObj.raw) {
+          data.is_sprint = eventObj.raw.isSprint
+          data.parent_node = eventObj.raw.parent_node
+          data.standalone = eventObj.raw.standalone 
+        }
+        console.log(data)
+        //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
+        if (this.undoNodes.length > 0) {
+          this.undoNodes.forEach((element, index) => {
+          if (element['node'].id === eventObj.id) {
+            this.undoNodes[index]['node'].title = data.title
+            this.undoNodes[index]['node'].description = data.description
+            this.undoNodes[index]['node'].startdate = data.startdate
+            this.undoNodes[index]['node'].duedate = data.duedate
+            this.undoNodes[index]['node'].hide_children = data.isAllday
+            this.undoNodes[index]['node'].is_sprint = data.is_sprint
+            this.undoNodes[index]['node'].parent_node = data.parent_node
+            this.undoNodes[index]['node'].standalone = data.standalone
             }
           });
         }
@@ -422,7 +432,6 @@
         this.sendLocals(false)
         this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
-
       },
       deleteEvents(){
         this.undoDone = false
@@ -592,27 +601,59 @@
         const eventStart = new Date(eventObj.start);
         const eventEnd = new Date(eventObj.end);
 
-        // Iterate through the nodeList to check for date range overlap
-        for (let i = 0; i < nodeList.length; i++) {
-          const node = nodeList[i];
-          const nodeStart = new Date(node.startdate);
-          const nodeEnd = new Date(node.duedate);
+        if (eventObj.raw) {
+          if (!eventObj.raw.isSprint) {
+            // Iterate through the nodeList to check for date range overlap
+            for (let i = 0; i < nodeList.length; i++) {
+              const node = nodeList[i];
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
 
-          // Check if the event falls within the date range of the node
-          if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-            // Update event properties if it falls within the node's date range
-            eventObj.raw.standalone = false;
-            eventObj.raw.parent_node = node.id;
+              // Check if the event falls within the date range of the node
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+                // Update event properties if it falls within the node's date range
+                //eventObj.raw.standalone = false;
+                eventObj.raw.parent_node = !eventObj.raw.standalone ? node.id : '';
+                return eventObj;
+              }
+            }
+
+            // If no date range overlap is found, update event properties accordingly
+            //eventObj.raw.standalone = true;
+            eventObj.raw.parent_node = null;
+            //eventObj.backgroundColor = '#363636'
+            //console.log("eventObj", eventObj)
+            return eventObj;
+          }
+        } else {
+          if (!eventObj.isSprint) {
+            // Iterate through the nodeList to check for date range overlap
+            for (let i = 0; i < nodeList.length; i++) {
+              const node = nodeList[i];
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              // Check if the event falls within the date range of the node
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+                // Update event properties if it falls within the node's date range
+                //eventObj.standalone = false;
+                eventObj.parent_node = !eventObj.standalone ? node.id : '';
+                return eventObj;
+              }
+            }
+
+            // If no date range overlap is found, update event properties accordingly
+            //eventObj.standalone = true;
+            eventObj.parent_node = null;
+            //eventObj.backgroundColor = '#363636'
             return eventObj;
           }
         }
-
-        // If no date range overlap is found, update event properties accordingly
-        eventObj.raw.standalone = true;
-        eventObj.raw.parent_node = null;
-        eventObj.backgroundColor = '#363636'
-        return eventObj;
       },
+      /* getParentColor(parent) {
+        let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)
+        return selectedParent ? selectedParent.line_color : '#363636'
+      }, */
       updateEventColors(mindmap) {
         //const singleNodes = mindmap.nodes.filter(n => !n.is_sprint && !n.parent_node);
         const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
