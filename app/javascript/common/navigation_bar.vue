@@ -89,10 +89,15 @@
                 Poll Expires: {{ pollExpDate }}
               </span>
             </a>
-            <a v-if="mm_type != 'fileshare'" ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
+            <a v-if="mm_type != 'fileshare' && mm_type != 'Notepad'" ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent.stop="$refs['exportOption'].open()">
               <i class="material-icons export_icon icons d-flex center_flex"></i>
+            </a>
+            <a v-if="mm_type == 'Notepad'" ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
+              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+              @click.prevent.stop="$refs['exportOption'].open()">
+              <i class="fas fa-file-word icons d-flex center_flex"></i>
             </a>
             <a v-if="mm_type === 'spreadsheet' || mm_type === 'poll'" ref="exportBtn" role="button" href="javascript:;"
               class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" v-b-tooltip.hover title="Export"
