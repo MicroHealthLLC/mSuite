@@ -113,14 +113,14 @@
     mixins: [Common],
     data () {
       return{
-        multipleSprints: false,
+        multipleSprints: [],
         title:             '',
         description:       '',
         startDate:         null,
         endDate:           null,
         allDay:            false,
         // allSprints: [],
-        parent_node: '',
+        parent_node: null,
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
@@ -163,6 +163,19 @@
       },
       allDay(){
         this.toggleAllDay
+      },
+      multipleSprints() {
+        console.log(this.multipleSprints)
+      },
+      parent_node() {
+        console.log(this.parent_node)
+      },
+      isSprint(value) {
+        if (value) {
+          this.allDay = true
+        } else {
+          this.allDay = false
+        }
       }
     },
     methods: {
@@ -184,7 +197,7 @@
           this.endDate.setMinutes(minutes)
         }
         this.disableEventCreation()
-        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate)
+        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
       },
       showSelectedEvent(actType){
         this.title = this.showEvent.title
@@ -197,10 +210,12 @@
         this.isSprint = this.showEvent.raw.isSprint
         this.parent_node = this.showEvent.raw.parent_node
         this.actionType = actType
-        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate)
+        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
       },
       generateDataObj() {
         let _this = this;
+        console.log("_this:", _this)
+        console.log("this:", this)
         let data = {
           title: _this.title,
           body: _this.description,
@@ -213,12 +228,18 @@
           backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
-        console.log(data)
+        
         if (this.actionType == 'update') {
-          console.log(this.showEvent)
+          //console.log(this.showEvent)
           data.id = this.showEvent.id;
-          data.backgroundColor = this.showEvent.backgroundColor;
+          //data.backgroundColor = this.showEvent.backgroundColor;
+          data.parent_node = _this.parent_node
         }
+        if (data.isAllday && this.isSprint) {
+          data.start.setHours(0, 0, 0, 0)
+          data.end.setHours(23, 59, 59, 999)
+        }
+        console.log("data obj:", data)
         return data;
       },
       getRandomColor() {
@@ -254,13 +275,23 @@
         // Generate a random hexadecimal color code
         return '#' + Math.floor(Math.random() * 16777215).toString(16);
       }, */
-      checkForMultipleSprints(nodeList, eventStart, eventEnd) {
+      checkForMultipleSprints(nodeList, eventStart, eventEnd, allDay) {
         let sprintList = []
+        //console.log('eSt:', eventStart)
+        //console.log('eEnd:', eventEnd)
 
         for (let i = 0; i < nodeList.length; i++) {
           const node = nodeList[i];
           const nodeStart = new Date(node.startdate);
           const nodeEnd = new Date(node.duedate);
+          //console.log(node.startdate, node.duedate)
+          if (allDay) {
+            nodeStart.setHours(0,0,0,0)
+            nodeEnd.setHours(23,59,59,999)
+          }
+          
+          //console.log('nSt:', nodeStart)
+          //console.log('nEnd:', nodeEnd)
 
           // Check if the event falls within the date range of the node
           if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
@@ -313,7 +344,95 @@
       }
     },
     computed: {
-      toggleAllDay(){
+      /* toggleAllDay() {
+        this.isValueInvalid = false;
+        let difference = this.getDateDifference(this.startDate, this.endDate);
+      
+        if (difference >= 0) {
+          this.invalidMessage = false;
+          this.allDayNotHidden = false;
+          this.errorMessage = '';
+        } else {
+          this.isValueInvalid = true;
+          let startDateMonth = new Date(this.startDate).getMonth();
+          let startDateDate = new Date(this.startDate).getDate();
+          let startDateYear = new Date(this.startDate).getFullYear();
+          let endDateMonth = new Date(this.endDate).getMonth();
+          let endDateDate = new Date(this.endDate).getDate();
+          let endDateYear = new Date(this.endDate).getFullYear();
+
+          if (endDateYear < startDateYear) {
+            this.endDate.setFullYear(startDateYear);
+          } else if (endDateMonth < startDateMonth) {
+            this.endDate.setMonth(startDateMonth);
+          } else if (endDateDate < startDateDate) {
+            this.endDate.setDate(startDateDate);
+          }
+        }
+        if (this.endDate <= this.startDate && !this.allDay) {
+          this.isValueInvalid = true;
+          let startDateHours = new Date(this.startDate).getHours();
+          let startDateMinutes = new Date(this.startDate).getMinutes();
+
+          this.endDate.setHours(startDateHours + 1);
+          this.endDate.setMinutes(startDateMinutes);
+        } else {
+          this.errorMessage = '';
+          this.invalidMessage = false;
+          this.isValueInvalid = false;
+        }
+        this.allDayNotHidden = true;
+      }, */
+      toggleAllDay() {
+        // Reset flags and variables
+        this.isValueInvalid = false;
+        let difference = this.getDateDifference(this.startDate, this.endDate);
+        
+        if (difference >= 0) {
+          // Valid date range
+          this.invalidMessage = false;
+          this.allDayNotHidden = false;
+          this.errorMessage = '';
+        } else {
+          // Invalid date range
+          this.isValueInvalid = true;
+          let startDateMonth = new Date(this.startDate).getMonth();
+          let startDateDate = new Date(this.startDate).getDate();
+          let startDateYear = new Date(this.startDate).getFullYear();
+          let endDateMonth = new Date(this.endDate).getMonth();
+          let endDateDate = new Date(this.endDate).getDate();
+          let endDateYear = new Date(this.endDate).getFullYear();
+
+          // Adjust end date to match start date if necessary
+          if (endDateYear < startDateYear) {
+            this.endDate.setFullYear(startDateYear);
+          } else if (endDateMonth < startDateMonth) {
+            this.endDate.setMonth(startDateMonth);
+          } else if (endDateDate < startDateDate) {
+            this.endDate.setDate(startDateDate);
+          }
+        }
+
+        if (this.endDate <= this.startDate && !this.allDay) {
+          // Invalid end time for same-day event
+          this.isValueInvalid = true;
+          let startDateHours = new Date(this.startDate).getHours();
+          let startDateMinutes = new Date(this.startDate).getMinutes();
+
+          // Set end time to start time + 1 hour
+          this.endDate.setHours(startDateHours + 1);
+          this.endDate.setMinutes(startDateMinutes);
+        } else {
+          // Valid end time or multiple-day event
+          this.errorMessage = '';
+          this.invalidMessage = false;
+          this.isValueInvalid = false;
+        }
+
+        // Show allDayNotHidden field
+        this.allDayNotHidden = true;
+      },
+      toggleAllDays(){
         this.isValueInvalid = false
         let difference = this.getDateDifference(this.startDate,this.endDate)
         if (difference > 0){
