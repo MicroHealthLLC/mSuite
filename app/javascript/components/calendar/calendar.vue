@@ -659,7 +659,7 @@
         const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
 
         // Iterate over all nodes in the mind map
-        mindmap.nodes.forEach(n => {
+        mindmap.nodes.filter(node => !parentNodes.includes(node)).forEach(n => {
           // Iterate over parent nodes
           parentNodes.forEach(p => {
             // Check if the current node has the same parent node ID as the parent node and a different line color
@@ -741,6 +741,10 @@
             _this.selectedEvent = this
           })
         },50)
+      },
+      hidePopover() {
+        this.showEditEvent = false;
+        //this.colorSelected = false // Set the variable to hide the popover
       }
     },
     mounted: async function() {
@@ -766,8 +770,8 @@
     watch: {
       mSuite: {
         handler(value) {
-          this.currentMindMap = this.updateEventColors(value)
-          this.updateEventHeights(this.currentMindMap)
+          this.currentMindMap = value.nodes && value.nodes.length > 0 ? this.updateEventColors(value) : value
+          if (value.nodes && value.nodes.length > 0) this.updateEventHeights(this.currentMindMap)
           this.fetchedEvents = value.nodes
         }, deep: true
       },
