@@ -613,7 +613,7 @@
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
                 // Update event properties if it falls within the node's date range
                 //eventObj.raw.standalone = false;
-                eventObj.raw.parent_node = !eventObj.raw.standalone ? node.id : '';
+                eventObj.raw.parent_node = !eventObj.raw.standalone && node.is_sprint ? node.id : null;
                 return eventObj;
               }
             }
@@ -637,7 +637,7 @@
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
                 // Update event properties if it falls within the node's date range
                 //eventObj.standalone = false;
-                eventObj.parent_node = !eventObj.standalone ? node.id : '';
+                eventObj.parent_node = !eventObj.standalone && node.is_sprint ? node.id : null;
                 return eventObj;
               }
             }
