@@ -18,9 +18,11 @@
       @cutSelectedNode="cutSelectedNode"
       @before-reset="beforeReset"
       @before-save="beforeSave"
+      @resetPopover="resetPopover"
     ></navigation-bar>
     <component
       :is="viewIs"
+      ref="comp"
       :undo-map="undoMap"
       :redo-map="redoMap"
       :zm-in-scale="zmInScale"
@@ -230,6 +232,10 @@
       },
       cutSelectedNode () {
         this.cutSelNode.emit()
+      },
+      resetPopover() {
+        if (this.$refs.comp.currentMindMap.mm_type == 'calendar')
+        this.$refs.comp.hidePopover(); // Set the variable to hide the popover
       },
       checkNotifs(obj){
         if (!("Notification" in window)) {

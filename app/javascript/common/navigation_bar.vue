@@ -520,6 +520,7 @@ export default {
     resetMap() {
       this.$emit("before-reset")
       this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
+      this.$emit('resetPopover');
     },
     redoMindmap() {
       this.$emit("redoMindmap")
