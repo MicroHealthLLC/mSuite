@@ -659,7 +659,7 @@
         const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
 
         // Iterate over all nodes in the mind map
-        mindmap.nodes.forEach(n => {
+        mindmap.nodes.filter(node => !parentNodes.includes(node)).forEach(n => {
           // Iterate over parent nodes
           parentNodes.forEach(p => {
             // Check if the current node has the same parent node ID as the parent node and a different line color
