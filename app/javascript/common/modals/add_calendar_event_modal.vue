@@ -119,7 +119,6 @@
         startDate:         null,
         endDate:           null,
         allDay:            false,
-        // allSprints: [],
         parentNode: null,
         actionType:        '',
         allDayNotHidden:   true,
@@ -167,10 +166,6 @@
       multipleSprints() {
         console.log('multipleSprints()',this.multipleSprints)
       },
-      // parent_node() {
-      //   console.log("parent_node()",this.parent_node)
-      //   this.parent_node
-      // },
       isSprint(value) {
         if (value) {
           this.allDay = true
@@ -224,17 +219,13 @@
           isSprint: _this.isSprint,
           standalone: _this.standalone,
           parentNode: _this.parentNode,
-          // parent_node: _this.parent_node,
-          // parent_node1: _this.parent_node,
           backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
         
         if (this.actionType == 'update') {
-          //console.log(this.showEvent)
           data.id = this.showEvent.id;
           //data.backgroundColor = this.showEvent.backgroundColor;
-          // data.parent_node = _this.parent_node
         }
         if (data.isAllday && this.isSprint) {
           data.start.setHours(0, 0, 0, 0)
@@ -278,21 +269,16 @@
       }, */
       checkForMultipleSprints(nodeList, eventStart, eventEnd, allDay) {
         let sprintList = []
-        //console.log('eSt:', eventStart)
-        //console.log('eEnd:', eventEnd)
 
         for (let i = 0; i < nodeList.length; i++) {
           const node = nodeList[i];
           const nodeStart = new Date(node.startdate);
           const nodeEnd = new Date(node.duedate);
-          //console.log(node.startdate, node.duedate)
+
           if (allDay) {
             nodeStart.setHours(0,0,0,0)
             nodeEnd.setHours(23,59,59,999)
           }
-          
-          //console.log('nSt:', nodeStart)
-          //console.log('nEnd:', nodeEnd)
 
           // Check if the event falls within the date range of the node
           if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
@@ -309,9 +295,7 @@
       },
       updateEvent(){
         if (this.title && !this.isValueInvalid){
-          console.log('updateEvent3', this.generateDataObj())
           this.$emit('updateEvent', this.generateDataObj())
-          console.log('updateEvent4', this.generateDataObj())
           this.closeMapModal()
         }
       },
@@ -347,45 +331,6 @@
       }
     },
     computed: {
-      /* toggleAllDay() {
-        this.isValueInvalid = false;
-        let difference = this.getDateDifference(this.startDate, this.endDate);
-      
-        if (difference >= 0) {
-          this.invalidMessage = false;
-          this.allDayNotHidden = false;
-          this.errorMessage = '';
-        } else {
-          this.isValueInvalid = true;
-          let startDateMonth = new Date(this.startDate).getMonth();
-          let startDateDate = new Date(this.startDate).getDate();
-          let startDateYear = new Date(this.startDate).getFullYear();
-          let endDateMonth = new Date(this.endDate).getMonth();
-          let endDateDate = new Date(this.endDate).getDate();
-          let endDateYear = new Date(this.endDate).getFullYear();
-
-          if (endDateYear < startDateYear) {
-            this.endDate.setFullYear(startDateYear);
-          } else if (endDateMonth < startDateMonth) {
-            this.endDate.setMonth(startDateMonth);
-          } else if (endDateDate < startDateDate) {
-            this.endDate.setDate(startDateDate);
-          }
-        }
-        if (this.endDate <= this.startDate && !this.allDay) {
-          this.isValueInvalid = true;
-          let startDateHours = new Date(this.startDate).getHours();
-          let startDateMinutes = new Date(this.startDate).getMinutes();
-
-          this.endDate.setHours(startDateHours + 1);
-          this.endDate.setMinutes(startDateMinutes);
-        } else {
-          this.errorMessage = '';
-          this.invalidMessage = false;
-          this.isValueInvalid = false;
-        }
-        this.allDayNotHidden = true;
-      }, */
       toggleAllDay() {
         // Reset flags and variables
         this.isValueInvalid = false;
@@ -444,9 +389,6 @@
           this.errorMessage = ''
         }
         else if(difference < 0){
-          /* this.isValueInvalid = true
-          this.errorMessage = 'End Date is Less Than Start Date'
-          this.invalidMessage = true */
           this.isValueInvalid = true
           let startDateMonth = new Date(this.startDate).getMonth()
           let startDateDate = new Date(this.startDate).getDate()
@@ -465,9 +407,6 @@
         }
         else{
           if ((this.endDate - this.startDate) <= 0 && this.allDay == false ){
-            /* this.isValueInvalid = true
-            this.errorMessage = 'Event End Time Should Be Greater Than Event Start Time'
-            this.invalidMessage = true */
             this.isValueInvalid = true
             let startDateHours = new Date(this.startDate).getHours()
             let startDateMinutes =  new Date(this.startDate).getMinutes()
