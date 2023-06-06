@@ -59,7 +59,7 @@
       <div class="row">
         <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
-          <select class="w-50 form-control" v-model="parent_node">
+          <select class="w-50 form-control" v-model="parentNode">
             <option v-for="sprint in multipleSprints" :value="sprint.id">
               {{ sprint.title }}
             </option>
@@ -119,8 +119,7 @@
         startDate:         null,
         endDate:           null,
         allDay:            false,
-        // allSprints: [],
-        parent_node: null,
+        parentNode: null,
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
@@ -165,10 +164,7 @@
         this.toggleAllDay
       },
       multipleSprints() {
-        console.log(this.multipleSprints)
-      },
-      parent_node() {
-        console.log(this.parent_node)
+        console.log('multipleSprints()',this.multipleSprints)
       },
       isSprint(value) {
         if (value) {
@@ -208,14 +204,12 @@
         console.log("showSelectedEvent", this.showEvent)
         this.standalone = this.showEvent.raw.standalone
         this.isSprint = this.showEvent.raw.isSprint
-        this.parent_node = this.showEvent.raw.parent_node
+        this.parentNode = this.showEvent.raw.parentNode
         this.actionType = actType
         this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
       },
       generateDataObj() {
         let _this = this;
-        console.log("_this:", _this)
-        console.log("this:", this)
         let data = {
           title: _this.title,
           body: _this.description,
@@ -224,16 +218,14 @@
           isAllday: _this.allDay,
           isSprint: _this.isSprint,
           standalone: _this.standalone,
-          parent_node: _this.parent_node,
+          parentNode: _this.parentNode,
           backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
         
         if (this.actionType == 'update') {
-          //console.log(this.showEvent)
           data.id = this.showEvent.id;
           //data.backgroundColor = this.showEvent.backgroundColor;
-          data.parent_node = _this.parent_node
         }
         if (data.isAllday && this.isSprint) {
           data.start.setHours(0, 0, 0, 0)
@@ -277,21 +269,16 @@
       }, */
       checkForMultipleSprints(nodeList, eventStart, eventEnd, allDay) {
         let sprintList = []
-        //console.log('eSt:', eventStart)
-        //console.log('eEnd:', eventEnd)
 
         for (let i = 0; i < nodeList.length; i++) {
           const node = nodeList[i];
           const nodeStart = new Date(node.startdate);
           const nodeEnd = new Date(node.duedate);
-          //console.log(node.startdate, node.duedate)
+
           if (allDay) {
             nodeStart.setHours(0,0,0,0)
             nodeEnd.setHours(23,59,59,999)
           }
-          
-          //console.log('nSt:', nodeStart)
-          //console.log('nEnd:', nodeEnd)
 
           // Check if the event falls within the date range of the node
           if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
@@ -322,7 +309,7 @@
         this.allDayNotHidden = true
         this.isSprint = false
         this.standalone = false
-        this.parent_node = ''
+        this.parentNode = ''
       },
       openRecurringEventModal(){
         if (this.title && !this.isValueInvalid){
@@ -344,45 +331,6 @@
       }
     },
     computed: {
-      /* toggleAllDay() {
-        this.isValueInvalid = false;
-        let difference = this.getDateDifference(this.startDate, this.endDate);
-      
-        if (difference >= 0) {
-          this.invalidMessage = false;
-          this.allDayNotHidden = false;
-          this.errorMessage = '';
-        } else {
-          this.isValueInvalid = true;
-          let startDateMonth = new Date(this.startDate).getMonth();
-          let startDateDate = new Date(this.startDate).getDate();
-          let startDateYear = new Date(this.startDate).getFullYear();
-          let endDateMonth = new Date(this.endDate).getMonth();
-          let endDateDate = new Date(this.endDate).getDate();
-          let endDateYear = new Date(this.endDate).getFullYear();
-
-          if (endDateYear < startDateYear) {
-            this.endDate.setFullYear(startDateYear);
-          } else if (endDateMonth < startDateMonth) {
-            this.endDate.setMonth(startDateMonth);
-          } else if (endDateDate < startDateDate) {
-            this.endDate.setDate(startDateDate);
-          }
-        }
-        if (this.endDate <= this.startDate && !this.allDay) {
-          this.isValueInvalid = true;
-          let startDateHours = new Date(this.startDate).getHours();
-          let startDateMinutes = new Date(this.startDate).getMinutes();
-
-          this.endDate.setHours(startDateHours + 1);
-          this.endDate.setMinutes(startDateMinutes);
-        } else {
-          this.errorMessage = '';
-          this.invalidMessage = false;
-          this.isValueInvalid = false;
-        }
-        this.allDayNotHidden = true;
-      }, */
       toggleAllDay() {
         // Reset flags and variables
         this.isValueInvalid = false;
@@ -441,9 +389,6 @@
           this.errorMessage = ''
         }
         else if(difference < 0){
-          /* this.isValueInvalid = true
-          this.errorMessage = 'End Date is Less Than Start Date'
-          this.invalidMessage = true */
           this.isValueInvalid = true
           let startDateMonth = new Date(this.startDate).getMonth()
           let startDateDate = new Date(this.startDate).getDate()
@@ -462,9 +407,6 @@
         }
         else{
           if ((this.endDate - this.startDate) <= 0 && this.allDay == false ){
-            /* this.isValueInvalid = true
-            this.errorMessage = 'Event End Time Should Be Greater Than Event Start Time'
-            this.invalidMessage = true */
             this.isValueInvalid = true
             let startDateHours = new Date(this.startDate).getHours()
             let startDateMinutes =  new Date(this.startDate).getMinutes()
