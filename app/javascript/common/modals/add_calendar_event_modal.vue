@@ -236,7 +236,11 @@
           //data.backgroundColor = this.showEvent.backgroundColor;
           // data.parent_node = _this.parent_node
         }
-        // console.log("data obj:", data)
+        if (data.isAllday && this.isSprint) {
+          data.start.setHours(0, 0, 0, 0)
+          data.end.setHours(23, 59, 59, 999)
+        }
+        console.log("data obj:", data)
         return data;
       },
       getRandomColor() {
@@ -321,7 +325,7 @@
         this.allDayNotHidden = true
         this.isSprint = false
         this.standalone = false
-        this.parent_node = ''
+        this.parentNode = ''
       },
       openRecurringEventModal(){
         if (this.title && !this.isValueInvalid){
