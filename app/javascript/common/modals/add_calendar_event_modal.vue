@@ -59,7 +59,7 @@
       <div class="row">
         <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
-          <select class="w-50 form-control" v-model="parent_node">
+          <select class="w-50 form-control" v-model="parentNode">
             <option v-for="sprint in multipleSprints" :value="sprint.id">
               {{ sprint.title }}
             </option>
@@ -120,7 +120,7 @@
         endDate:           null,
         allDay:            false,
         // allSprints: [],
-        parent_node: null,
+        parentNode: null,
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
@@ -165,11 +165,12 @@
         this.toggleAllDay
       },
       multipleSprints() {
-        console.log(this.multipleSprints)
+        console.log('multipleSprints()',this.multipleSprints)
       },
-      parent_node() {
-        console.log(this.parent_node)
-      },
+      // parent_node() {
+      //   console.log("parent_node()",this.parent_node)
+      //   this.parent_node
+      // },
       isSprint(value) {
         if (value) {
           this.allDay = true
@@ -208,14 +209,12 @@
         console.log("showSelectedEvent", this.showEvent)
         this.standalone = this.showEvent.raw.standalone
         this.isSprint = this.showEvent.raw.isSprint
-        this.parent_node = this.showEvent.raw.parent_node
+        this.parentNode = this.showEvent.raw.parentNode
         this.actionType = actType
         this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
       },
       generateDataObj() {
         let _this = this;
-        console.log("_this:", _this)
-        console.log("this:", this)
         let data = {
           title: _this.title,
           body: _this.description,
@@ -224,7 +223,9 @@
           isAllday: _this.allDay,
           isSprint: _this.isSprint,
           standalone: _this.standalone,
-          parent_node: _this.parent_node,
+          parentNode: _this.parentNode,
+          // parent_node: _this.parent_node,
+          // parent_node1: _this.parent_node,
           backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
@@ -233,9 +234,9 @@
           //console.log(this.showEvent)
           data.id = this.showEvent.id;
           //data.backgroundColor = this.showEvent.backgroundColor;
-          data.parent_node = _this.parent_node
+          // data.parent_node = _this.parent_node
         }
-        console.log("data obj:", data)
+        // console.log("data obj:", data)
         return data;
       },
       getRandomColor() {
@@ -304,7 +305,9 @@
       },
       updateEvent(){
         if (this.title && !this.isValueInvalid){
+          console.log('updateEvent3', this.generateDataObj())
           this.$emit('updateEvent', this.generateDataObj())
+          console.log('updateEvent4', this.generateDataObj())
           this.closeMapModal()
         }
       },

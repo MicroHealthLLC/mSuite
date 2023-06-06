@@ -341,6 +341,7 @@
         this.recurringEvents = null
       },
       async beforeEventCreate(data){
+        console.log('beforeEventCreate', data)
         this.sendLocals(true)
         await this.saveEvents(data)
         if(this.recurringEvents) await this.generateRecurringEvents(data)
@@ -348,6 +349,7 @@
         this.updateCalendarUser()
       },
       beforeEventUpdate(data){
+        console.log('beforeEventUpdate', data)
         this.updateEvent(data)
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
@@ -398,15 +400,16 @@
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
           is_sprint: eventObj.isSprint,
-          parent_node: eventObj.parent_node,
+          parent_node: eventObj.parentNode,
           standalone: eventObj.standalone
         }
+        console.log('updateEvent1',eventObj, data)
         if (eventObj.raw) {
           data.is_sprint = eventObj.raw.isSprint
           data.parent_node = eventObj.raw.parent_node
           data.standalone = eventObj.raw.standalone 
         }
-        console.log(data)
+        console.log('updateEvent2',eventObj, data)
         //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
         if (this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
@@ -505,7 +508,7 @@
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
-              raw: {isSprint: currentValue.is_sprint, parent_node: currentValue.parent_node, standalone: currentValue.standalone }
+              raw: {isSprint: currentValue.is_sprint, parentNode: currentValue.parent_node, standalone: currentValue.standalone }
             }
           ])
         })
