@@ -54,7 +54,7 @@
             class="material-icons col-2 pl-2"
             >
             delete</span>
-          <span v-if="showEvent.raw.isSprint || (!showEvent.raw.parent_node && !showEvent.raw.isSprint)"
+          <span v-if="showEvent.raw.isSprint || (!showEvent.raw.parentNode && !showEvent.raw.isSprint)"
             class="fas fa-eye-dropper color-picker mt-1 icon-opacity"
             @click="colorSelected = true"
             >
@@ -63,7 +63,7 @@
         <div class="row mb-1 font-weight-medium h5">{{showEvent.title}}</div>
         <div class="row mb-4">{{formatshowEventDate()}}</div>
         <div class="row my-2">{{showEvent.body}}</div>
-        <div class="row my-2">{{showEvent.raw.standalone ? 'Standalone' : showEvent.raw.parent_node ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parent_node).title : ''}}</div>
+        <div class="row my-2">{{showEvent.raw.standalone ? 'Standalone' : showEvent.raw.parentNode ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode).title : ''}}</div>
 
       </div>
     </b-popover>
@@ -375,7 +375,7 @@
           line_color: eventObj.isSprint ? eventObj.backgroundColor : '#363636',
           mindmap_id: this.currentMindMap.id,
           is_sprint: eventObj.isSprint,
-          parent_node: eventObj.parent_node,
+          parent_node: eventObj.parentNode,
           standalone: eventObj.standalone
           }
           console.log("saveEvents", eventObj)
@@ -406,7 +406,7 @@
         console.log('updateEvent1',eventObj, data)
         if (eventObj.raw) {
           data.is_sprint = eventObj.raw.isSprint
-          data.parent_node = eventObj.raw.parent_node
+          data.parent_node = eventObj.raw.parentNode
           data.standalone = eventObj.raw.standalone 
         }
         console.log('updateEvent2',eventObj, data)
@@ -453,7 +453,10 @@
               duedate: this.showEvent.end.d.d,
               hide_children: this.showEvent.isAllday,
               line_color: this.showEvent.backgroundColor,
-              mindmap_id: this.currentMindMap.id
+              mindmap_id: this.currentMindMap.id,
+              is_sprint: this.showEvent.raw.isSprint,
+              parent_node: this.showEvent.raw.parentNode,
+              standalone: this.showEvent.raw.standalone
             }
             this.undoNodes.push({'req': 'deleteNode', node: data})
           }
@@ -616,14 +619,16 @@
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
                 // Update event properties if it falls within the node's date range
                 //eventObj.raw.standalone = false;
-                eventObj.raw.parent_node = !eventObj.raw.standalone && node.is_sprint ? node.id : null;
+                if (!eventObj.raw.standalone && node.is_sprint && eventObj.raw.parentNode == null) {
+                  eventObj.raw.parentNode = node.id
+                }
                 return eventObj;
               }
             }
 
             // If no date range overlap is found, update event properties accordingly
             //eventObj.raw.standalone = true;
-            eventObj.raw.parent_node = null;
+            eventObj.raw.parentNode = null;
             //eventObj.backgroundColor = '#363636'
             //console.log("eventObj", eventObj)
             return eventObj;
@@ -639,15 +644,19 @@
               // Check if the event falls within the date range of the node
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
                 // Update event properties if it falls within the node's date range
-                //eventObj.standalone = false;
-                eventObj.parent_node = !eventObj.standalone && node.is_sprint ? node.id : null;
+
+                if (!eventObj.standalone && node.is_sprint && (this.$refs['add-calendar-event-modal']).parentNode != node.id) {
+                  //eventObj.parentNode = node.id
+                  eventObj.parentNode = this.$refs['add-calendar-event-modal'].parentNode
+                } 
+                //eventObj.parentNode = !eventObj.standalone && node.is_sprint ? node.id : null;
                 return eventObj;
               }
             }
 
             // If no date range overlap is found, update event properties accordingly
             //eventObj.standalone = true;
-            eventObj.parent_node = null;
+            eventObj.parentNode = null;
             //eventObj.backgroundColor = '#363636'
             return eventObj;
           }
