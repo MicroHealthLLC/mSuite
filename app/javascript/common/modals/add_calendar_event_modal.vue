@@ -219,13 +219,13 @@
           isSprint: _this.isSprint,
           standalone: _this.standalone,
           parentNode: _this.parentNode,
-          backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
+          //backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
         
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
-          //data.backgroundColor = this.showEvent.backgroundColor;
+          data.backgroundColor = this.showEvent.backgroundColor;
         }
         if (data.isAllday && this.isSprint) {
           data.start.setHours(0, 0, 0, 0)
@@ -239,7 +239,7 @@
         do {
           // Generate a random hexadecimal color code
           colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        } while (this.isColorTooLightOrDark(colorCode));
+        } while (this.isColorTooLightOrDark(colorCode) && colorCode.length != 7);
         return colorCode;
       },
       isColorTooLightOrDark(colorCode) {
@@ -289,13 +289,16 @@
       },
       createEvent(){
         if (this.title && !this.isValueInvalid ){
-          this.$emit('createEvent', this.generateDataObj())
+          let data = this.generateDataObj()
+          data.backgroundColor = data.isSprint ? this.getRandomColor() : '#363636'
+          this.$emit('createEvent', data)
           this.closeMapModal()
         }
       },
       updateEvent(){
         if (this.title && !this.isValueInvalid){
-          this.$emit('updateEvent', this.generateDataObj())
+          let data = this.generateDataObj()
+          this.$emit('updateEvent', data)
           this.closeMapModal()
         }
       },
