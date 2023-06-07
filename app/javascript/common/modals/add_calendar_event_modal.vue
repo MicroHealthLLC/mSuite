@@ -239,7 +239,7 @@
         do {
           // Generate a random hexadecimal color code
           colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        } while (this.isColorTooLightOrDark(colorCode));
+        } while (this.isColorTooLightOrDark(colorCode) && colorCode.length != 7);
         return colorCode;
       },
       isColorTooLightOrDark(colorCode) {
