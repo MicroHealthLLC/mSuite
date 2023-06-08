@@ -408,6 +408,7 @@
           data.is_sprint = eventObj.raw.isSprint
           data.parent_node = eventObj.raw.parentNode
           data.standalone = eventObj.raw.standalone 
+          data.line_color = !data.parent_node && !data.is_sprint && !data.standalone ? '#363636' : data.line_color
         }
         console.log('updateEvent2',eventObj, data)
         //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
