@@ -363,7 +363,6 @@
           });
       },
       async saveEvents(eventObj){
-        console.log(eventObj)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
         let data = {
@@ -408,9 +407,9 @@
           data.is_sprint = eventObj.raw.isSprint
           data.parent_node = eventObj.raw.parentNode
           data.standalone = eventObj.raw.standalone
-          if (!data.parent_node && !data.is_sprint && !data.standalone) {
+          /* if (!data.parent_node && !data.is_sprint && !data.standalone) {
             data.line_color = '#363636'
-          }
+          } */
         }
         console.log('updateEvent2',eventObj, data)
         //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
@@ -578,7 +577,8 @@
           start:this.showEvent.start.d.d,
           end:this.showEvent.end.d.d,
           isAllday:this.showEvent.isAllday,
-          backgroundColor:this.eventNode.line_color.hex
+          backgroundColor:this.eventNode.line_color.hex,
+          standalone: this.showEvent.raw.standalone
         }
         this.updateEvent(data)
         this.colorSelected = false
@@ -609,7 +609,8 @@
       checkEventStatus(eventObj, nodeList) {
         const eventStart = new Date(eventObj.start);
         const eventEnd = new Date(eventObj.end);
-        
+
+        const eventObjColor = eventObj.backgroundColor  
 
         if (eventObj.raw) {
           if (!eventObj.raw.isSprint) {
@@ -646,17 +647,28 @@
                     }
                   } 
                 }
+
                 return eventObj;
               }
             })
 
-            if (multiNodes.length === 0) eventObj.raw.parentNode = null;
+            /* if (!eventObj.raw.standalone && !eventObj.raw.parentNode) {
+              let lineColorExists = nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor)
+              console.log(lineColorExists)
+            } */
+            if (multiNodes.length === 0) {
+              eventObj.raw.parentNode = null;
+              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
+                eventObj.backgroundColor = '#363636'
+              } 
+              
+            } 
             return eventObj;
           }
         } else {
           if (!eventObj.isSprint) {
             // Iterate through the nodeList to check for date range overlap
-            for (let i = 0; i < nodeList.length; i++) {
+            /* for (let i = 0; i < nodeList.length; i++) {
               const node = nodeList[i];
               const nodeStart = new Date(node.startdate);
               const nodeEnd = new Date(node.duedate);
@@ -678,6 +690,58 @@
             //eventObj.standalone = true;
             eventObj.parentNode = null;
             //eventObj.backgroundColor = '#363636'
+            return eventObj; */
+            let multiNodes = []
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+                multiNodes.push(node)
+              }
+            })
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.standalone) {
+                
+                if (eventObj.parentNode == null) {
+                  eventObj.parentNode = node.id
+                } else {
+                  if (multiNodes.length == 1) {
+                    if (eventObj.parentNode != node.id) {
+                      eventObj.parentNode = node.id
+                    }
+                  } else {
+                    if (eventObj.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.parentNode)) {
+                      eventObj.parentNode = node.id
+                    } else {
+                      eventObj.parentNode = eventObj.parentNode
+                    }
+                  } 
+                }
+                return eventObj;
+              }
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.standalone) {
+                if (eventObj.backgroundColor == node.line_color) {
+                  eventObj.backgroundColor = '#363636'
+                }
+              }
+            })
+            /* console.log(multiNodes)
+            if (multiNodes.length === 0 || eventObj.standalone) eventObj.parentNode = null;
+            console.log(eventObj) */
+            if (multiNodes.length === 0) {
+              eventObj.parentNode = null;
+              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.standalone) {
+                eventObj.backgroundColor = '#363636'
+              } 
+              
+            }
+
             return eventObj;
           }
         }
