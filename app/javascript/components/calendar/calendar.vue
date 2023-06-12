@@ -403,11 +403,14 @@
           parent_node: eventObj.parentNode,
           standalone: eventObj.standalone
         }
-        console.log('updateEvent1',eventObj, data)
+        console.log('updateEvent1', eventObj, data)
         if (eventObj.raw) {
           data.is_sprint = eventObj.raw.isSprint
           data.parent_node = eventObj.raw.parentNode
-          data.standalone = eventObj.raw.standalone 
+          data.standalone = eventObj.raw.standalone
+          if (!data.parent_node && !data.is_sprint && !data.standalone) {
+            data.line_color = '#363636'
+          }
         }
         console.log('updateEvent2',eventObj, data)
         //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
@@ -606,31 +609,48 @@
       checkEventStatus(eventObj, nodeList) {
         const eventStart = new Date(eventObj.start);
         const eventEnd = new Date(eventObj.end);
+        
 
         if (eventObj.raw) {
           if (!eventObj.raw.isSprint) {
-            // Iterate through the nodeList to check for date range overlap
-            for (let i = 0; i < nodeList.length; i++) {
-              const node = nodeList[i];
+            
+            let multiNodes = []
+            nodeList.forEach(n => {
+              const node = n;
               const nodeStart = new Date(node.startdate);
               const nodeEnd = new Date(node.duedate);
 
-              // Check if the event falls within the date range of the node
               if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-                // Update event properties if it falls within the node's date range
-                //eventObj.raw.standalone = false;
-                if (!eventObj.raw.standalone && node.is_sprint && eventObj.raw.parentNode == null) {
+                multiNodes.push(node)
+              }
+            })
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.raw.standalone) {
+                
+                if (eventObj.raw.parentNode == null) {
                   eventObj.raw.parentNode = node.id
+                } else {
+                  if (multiNodes.length == 1) {
+                    if (eventObj.raw.parentNode != node.id) {
+                      eventObj.raw.parentNode = node.id
+                    }
+                  } else {
+                    if (eventObj.raw.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
+                      eventObj.raw.parentNode = node.id
+                    } else {
+                      eventObj.raw.parentNode = eventObj.raw.parentNode
+                    }
+                  } 
                 }
                 return eventObj;
               }
-            }
+            })
 
-            // If no date range overlap is found, update event properties accordingly
-            //eventObj.raw.standalone = true;
-            eventObj.raw.parentNode = null;
-            //eventObj.backgroundColor = '#363636'
-            //console.log("eventObj", eventObj)
+            if (multiNodes.length === 0) eventObj.raw.parentNode = null;
             return eventObj;
           }
         } else {
