@@ -375,11 +375,11 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
-          line_color: eventObj.isSprint ? eventObj.backgroundColor : '#363636',
+          line_color: eventObj.raw.isSprint ? eventObj.backgroundColor : '#363636',
           mindmap_id: this.currentMindMap.id,
-          is_sprint: eventObj.isSprint,
-          parent_node: eventObj.parentNode,
-          standalone: eventObj.standalone
+          is_sprint: eventObj.raw.isSprint,
+          parent_node: eventObj.raw.parentNode,
+          standalone: eventObj.raw.standalone
           }
           console.log("saveEvents", eventObj)
         let _this = this
@@ -402,20 +402,17 @@
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
-          is_sprint: eventObj.isSprint,
-          parent_node: eventObj.parentNode,
-          standalone: eventObj.standalone
+          is_sprint: eventObj.raw.isSprint,
+          parent_node: eventObj.raw.parentNode,
+          standalone: eventObj.raw.standalone
         }
         console.log('updateEvent1', eventObj, data)
-        if (eventObj.raw) {
+        /* if (eventObj.raw) {
           data.is_sprint = eventObj.raw.isSprint
           data.parent_node = eventObj.raw.parentNode
           data.standalone = eventObj.raw.standalone
-          /* if (!data.parent_node && !data.is_sprint && !data.standalone) {
-            data.line_color = '#363636'
-          } */
-        }
-        console.log('updateEvent2',eventObj, data)
+        } */
+        //console.log('updateEvent2',eventObj, data)
         //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
         if (this.undoNodes.length > 0) {
           this.undoNodes.forEach((element, index) => {
@@ -585,7 +582,11 @@
           end:this.showEvent.end.d.d,
           isAllday:this.showEvent.isAllday,
           backgroundColor:this.eventNode.line_color.hex,
-          standalone: this.showEvent.raw.standalone
+          raw: {
+            standalone: this.showEvent.raw.standalone,
+            isSprint: this.showEvent.raw.isSprint,
+            parentNode: this.showEvent.raw.parentNode
+          }
         }
         this.updateEvent(data)
         this.colorSelected = false
@@ -665,7 +666,7 @@
             } 
             return eventObj;
           }
-        } else {
+        } /* else {
           if (!eventObj.isSprint) {
             let multiNodes = []
             nodeList.forEach(n => {
@@ -714,7 +715,7 @@
             }
             return eventObj;
           }
-        }
+        } */
       },
       /* getParentColor(parent) {
         let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)

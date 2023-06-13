@@ -216,9 +216,11 @@
           start: _this.startDate,
           end: _this.endDate,
           isAllday: _this.allDay,
-          isSprint: _this.isSprint,
-          standalone: _this.standalone,
-          parentNode: _this.parentNode,
+          raw: {
+            isSprint: _this.isSprint,
+            standalone: _this.standalone,
+            parentNode: _this.parentNode,
+          },
           //backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
@@ -290,7 +292,7 @@
       createEvent(){
         if (this.title && !this.isValueInvalid ){
           let data = this.generateDataObj()
-          data.backgroundColor = data.isSprint ? this.getRandomColor() : '#363636'
+          data.backgroundColor = data.raw.isSprint ? this.getRandomColor() : '#363636'
           this.$emit('createEvent', data)
           this.closeMapModal()
         }
