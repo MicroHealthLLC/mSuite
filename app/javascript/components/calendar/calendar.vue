@@ -439,7 +439,8 @@
           this.undoNodes.push({'req': 'addNode', node: dataObj})
         }
         const toastElement = document.querySelector('.toastui-calendar-see-more-container');
-        toastElement.style.display = 'none';
+        if (toastElement) toastElement.style.display = 'none';
+
         this.sendLocals(false)
         this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
