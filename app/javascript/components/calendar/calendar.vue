@@ -265,7 +265,6 @@
             eventObj.changes.end.d.d.setHours(23)
             eventObj.changes.end.d.d.setMinutes(59)
           }
-          console.log(eventObj)
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
         })
@@ -439,6 +438,8 @@
           }
           this.undoNodes.push({'req': 'addNode', node: dataObj})
         }
+        const toastElement = document.querySelector('.toastui-calendar-see-more-container');
+        toastElement.style.display = 'none';
         this.sendLocals(false)
         this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
