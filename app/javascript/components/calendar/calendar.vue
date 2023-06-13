@@ -614,93 +614,106 @@
       checkEventStatus(eventObj, nodeList) {
         const eventStart = new Date(eventObj.start);
         const eventEnd = new Date(eventObj.end);
-        const eventObjColor = eventObj.backgroundColor;
 
-        if (eventObj.raw && !eventObj.raw.isSprint) {
-          const multiNodes = nodeList.filter(node => {
-            const nodeStart = new Date(node.startdate);
-            const nodeEnd = new Date(node.duedate);
-            return eventStart >= nodeStart && eventEnd <= nodeEnd;
-          });
+        const eventObjColor = eventObj.backgroundColor  
 
-          const parentNode = multiNodes.find(node => {
-            const nodeStart = new Date(node.startdate);
-            const nodeEnd = new Date(node.duedate);
-            return eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.raw.standalone;
-          });
+        if (eventObj.raw) {
+          if (!eventObj.raw.isSprint) {
+            
+            let multiNodes = []
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
 
-          if (parentNode) {
-            if (eventObj.raw.parentNode == null) {
-              eventObj.raw.parentNode = parentNode.id;
-            } else {
-              if (multiNodes.length == 1) {
-                if (eventObj.raw.parentNode != parentNode.id) {
-                  eventObj.raw.parentNode = parentNode.id;
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+                multiNodes.push(node)
+              }
+            })
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.raw.standalone) {
+                if (eventObj.raw.parentNode == null) {
+                  eventObj.raw.parentNode = node.id
+                } else {
+                  if (multiNodes.length == 1) {
+                    if (eventObj.raw.parentNode != node.id) {
+                      eventObj.raw.parentNode = node.id
+                    }
+                  } else {
+                    if (eventObj.raw.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
+                      eventObj.raw.parentNode = node.id
+                    } else {
+                      eventObj.raw.parentNode = eventObj.raw.parentNode
+                    }
+                  } 
                 }
-              } else {
-                if (eventObj.raw.parentNode != parentNode.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
-                  eventObj.raw.parentNode = parentNode.id;
+                return eventObj;
+              }
+            })
+
+            if (multiNodes.length === 0) {
+              eventObj.raw.parentNode = null;
+              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
+                eventObj.backgroundColor = '#363636'
+              } 
+            } 
+            return eventObj;
+          }
+        } else {
+          if (!eventObj.isSprint) {
+            let multiNodes = []
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+                multiNodes.push(node)
+              }
+            })
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.standalone) {
+                if (eventObj.parentNode == null) {
+                  eventObj.parentNode = node.id
+                } else {
+                  if (multiNodes.length == 1) {
+                    if (eventObj.parentNode != node.id) {
+                      eventObj.parentNode = node.id
+                    }
+                  } else {
+                    if (eventObj.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.parentNode)) {
+                      eventObj.parentNode = node.id
+                    } else {
+                      eventObj.parentNode = eventObj.parentNode
+                    }
+                  } 
+                }
+                return eventObj;
+              }
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.standalone) {
+                if (eventObj.backgroundColor == node.line_color) {
+                  eventObj.backgroundColor = '#363636'
                 }
               }
+            })
+            if (multiNodes.length === 0) {
+              eventObj.parentNode = null;
+              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.standalone) {
+                eventObj.backgroundColor = '#363636'
+              }              
             }
             return eventObj;
           }
-
-          if (multiNodes.length === 0) {
-            eventObj.raw.parentNode = null;
-            if (nodeList.filter(n => n.id !== eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
-              eventObj.backgroundColor = '#363636';
-            }
-          }
-        } else if (!eventObj.isSprint) {
-          const multiNodes = nodeList.filter(node => {
-            const nodeStart = new Date(node.startdate);
-            const nodeEnd = new Date(node.duedate);
-            return eventStart >= nodeStart && eventEnd <= nodeEnd;
-          });
-
-          const parentNode = multiNodes.find(node => {
-            const nodeStart = new Date(node.startdate);
-            const nodeEnd = new Date(node.duedate);
-            return eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.standalone;
-          });
-
-          if (parentNode) {
-            if (eventObj.parentNode == null) {
-              eventObj.parentNode = parentNode.id;
-            } else {
-              if (multiNodes.length == 1) {
-                if (eventObj.parentNode != parentNode.id) {
-                  eventObj.parentNode = parentNode.id;
-                }
-              } else {
-                if (eventObj.parentNode != parentNode.id && !multiNodes.map(n => n.id).includes(eventObj.parentNode)) {
-                  eventObj.parentNode = parentNode.id;
-                }
-              }
-            }
-            return eventObj;
-          }
-
-          if (multiNodes.length === 0) {
-            eventObj.parentNode = null;
-            if (nodeList.filter(n => n.id !== eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.standalone) {
-              eventObj.backgroundColor = '#363636';
-            }
-          }
-
-          multiNodes.forEach(node => {
-            const nodeStart = new Date(node.startdate);
-            const nodeEnd = new Date(node.duedate);
-            if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.standalone && eventObj.backgroundColor === node.line_color) {
-              eventObj.backgroundColor = '#363636';
-            }
-          });
         }
-
-        return eventObj;
-      }
-,
+      },
       /* getParentColor(parent) {
         let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)
         return selectedParent ? selectedParent.line_color : '#363636'
