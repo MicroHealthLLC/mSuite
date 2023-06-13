@@ -614,182 +614,114 @@
       checkEventStatus(eventObj, nodeList) {
         const eventStart = new Date(eventObj.start);
         const eventEnd = new Date(eventObj.end);
+        const eventObjColor = eventObj.backgroundColor;
 
-        const eventObjColor = eventObj.backgroundColor  
+        if (eventObj.raw && !eventObj.raw.isSprint) {
+          const multiNodes = nodeList.filter(node => {
+            const nodeStart = new Date(node.startdate);
+            const nodeEnd = new Date(node.duedate);
+            return eventStart >= nodeStart && eventEnd <= nodeEnd;
+          });
 
-        if (eventObj.raw) {
-          if (!eventObj.raw.isSprint) {
-            
-            let multiNodes = []
-            nodeList.forEach(n => {
-              const node = n;
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
+          const parentNode = multiNodes.find(node => {
+            const nodeStart = new Date(node.startdate);
+            const nodeEnd = new Date(node.duedate);
+            return eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.raw.standalone;
+          });
 
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-                multiNodes.push(node)
-              }
-            })
-            nodeList.forEach(n => {
-              const node = n;
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
-
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.raw.standalone) {
-                
-                if (eventObj.raw.parentNode == null) {
-                  eventObj.raw.parentNode = node.id
-                } else {
-                  if (multiNodes.length == 1) {
-                    if (eventObj.raw.parentNode != node.id) {
-                      eventObj.raw.parentNode = node.id
-                    }
-                  } else {
-                    if (eventObj.raw.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
-                      eventObj.raw.parentNode = node.id
-                    } else {
-                      eventObj.raw.parentNode = eventObj.raw.parentNode
-                    }
-                  } 
+          if (parentNode) {
+            if (eventObj.raw.parentNode == null) {
+              eventObj.raw.parentNode = parentNode.id;
+            } else {
+              if (multiNodes.length == 1) {
+                if (eventObj.raw.parentNode != parentNode.id) {
+                  eventObj.raw.parentNode = parentNode.id;
                 }
-
-                return eventObj;
-              }
-            })
-
-            /* if (!eventObj.raw.standalone && !eventObj.raw.parentNode) {
-              let lineColorExists = nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor)
-              console.log(lineColorExists)
-            } */
-            if (multiNodes.length === 0) {
-              eventObj.raw.parentNode = null;
-              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
-                eventObj.backgroundColor = '#363636'
-              } 
-              
-            } 
-            return eventObj;
-          }
-        } else {
-          if (!eventObj.isSprint) {
-            // Iterate through the nodeList to check for date range overlap
-            /* for (let i = 0; i < nodeList.length; i++) {
-              const node = nodeList[i];
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
-
-              // Check if the event falls within the date range of the node
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-                // Update event properties if it falls within the node's date range
-
-                if (!eventObj.standalone && node.is_sprint && (this.$refs['add-calendar-event-modal']).parentNode != node.id) {
-                  //eventObj.parentNode = node.id
-                  eventObj.parentNode = this.$refs['add-calendar-event-modal'].parentNode
-                } 
-                //eventObj.parentNode = !eventObj.standalone && node.is_sprint ? node.id : null;
-                return eventObj;
+              } else {
+                if (eventObj.raw.parentNode != parentNode.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
+                  eventObj.raw.parentNode = parentNode.id;
+                }
               }
             }
+            return eventObj;
+          }
 
-            // If no date range overlap is found, update event properties accordingly
-            //eventObj.standalone = true;
+          if (multiNodes.length === 0) {
+            eventObj.raw.parentNode = null;
+            if (nodeList.filter(n => n.id !== eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
+              eventObj.backgroundColor = '#363636';
+            }
+          }
+        } else if (!eventObj.isSprint) {
+          const multiNodes = nodeList.filter(node => {
+            const nodeStart = new Date(node.startdate);
+            const nodeEnd = new Date(node.duedate);
+            return eventStart >= nodeStart && eventEnd <= nodeEnd;
+          });
+
+          const parentNode = multiNodes.find(node => {
+            const nodeStart = new Date(node.startdate);
+            const nodeEnd = new Date(node.duedate);
+            return eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.standalone;
+          });
+
+          if (parentNode) {
+            if (eventObj.parentNode == null) {
+              eventObj.parentNode = parentNode.id;
+            } else {
+              if (multiNodes.length == 1) {
+                if (eventObj.parentNode != parentNode.id) {
+                  eventObj.parentNode = parentNode.id;
+                }
+              } else {
+                if (eventObj.parentNode != parentNode.id && !multiNodes.map(n => n.id).includes(eventObj.parentNode)) {
+                  eventObj.parentNode = parentNode.id;
+                }
+              }
+            }
+            return eventObj;
+          }
+
+          if (multiNodes.length === 0) {
             eventObj.parentNode = null;
-            //eventObj.backgroundColor = '#363636'
-            return eventObj; */
-            let multiNodes = []
-            nodeList.forEach(n => {
-              const node = n;
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
-
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-                multiNodes.push(node)
-              }
-            })
-            nodeList.forEach(n => {
-              const node = n;
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
-
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.standalone) {
-                
-                if (eventObj.parentNode == null) {
-                  eventObj.parentNode = node.id
-                } else {
-                  if (multiNodes.length == 1) {
-                    if (eventObj.parentNode != node.id) {
-                      eventObj.parentNode = node.id
-                    }
-                  } else {
-                    if (eventObj.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.parentNode)) {
-                      eventObj.parentNode = node.id
-                    } else {
-                      eventObj.parentNode = eventObj.parentNode
-                    }
-                  } 
-                }
-                return eventObj;
-              }
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.standalone) {
-                if (eventObj.backgroundColor == node.line_color) {
-                  eventObj.backgroundColor = '#363636'
-                }
-              }
-            })
-            /* console.log(multiNodes)
-            if (multiNodes.length === 0 || eventObj.standalone) eventObj.parentNode = null;
-            console.log(eventObj) */
-            if (multiNodes.length === 0) {
-              eventObj.parentNode = null;
-              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.standalone) {
-                eventObj.backgroundColor = '#363636'
-              } 
-              
+            if (nodeList.filter(n => n.id !== eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.standalone) {
+              eventObj.backgroundColor = '#363636';
             }
-
-            return eventObj;
           }
+
+          multiNodes.forEach(node => {
+            const nodeStart = new Date(node.startdate);
+            const nodeEnd = new Date(node.duedate);
+            if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.standalone && eventObj.backgroundColor === node.line_color) {
+              eventObj.backgroundColor = '#363636';
+            }
+          });
         }
-      },
+
+        return eventObj;
+      }
+,
       /* getParentColor(parent) {
         let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)
         return selectedParent ? selectedParent.line_color : '#363636'
       }, */
       updateEventColors(mindmap) {
-        //const singleNodes = mindmap.nodes.filter(n => !n.is_sprint && !n.parent_node);
         const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
 
-        // Iterate over all nodes in the mind map
         mindmap.nodes.filter(node => !parentNodes.includes(node)).forEach(n => {
-          // Iterate over parent nodes
           parentNodes.forEach(p => {
-            // Check if the current node has the same parent node ID as the parent node and a different line color
             if (p.id === n.parent_node && n.line_color !== p.line_color) {
-              // Update the line color of the current node to match the parent node's line color
               n.line_color = p.line_color;
             }
 
-            // Check if the current node is the same as the parent node
             if (n.id === p.id) {
-              // Iterate over the children of the parent node
               n.children.forEach(c => {
-                // Check if the line color of the child node is different from the parent node's line color
                 if (c.line_color !== p.line_color) {
-                  // Update the line color of the child node to match the parent node's line color
                   c.line_color = p.line_color;
                 }
               });
             }
           });
-
-          /* NEEDS BETTER SOLUTION */
-          // Iterate over single nodes
-          /* singleNodes.forEach(s => {
-            if (n.id === s.id) {
-              // Set the line color of the current node to '#363636'
-              n.line_color = '#363636';
-            }
-          }); */
         });
 
         return mindmap;
