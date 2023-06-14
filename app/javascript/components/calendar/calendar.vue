@@ -570,12 +570,10 @@
       },
       closeModelPicker(){
         this.colorSelected = false
-        if (this.selectedEvent.style.backgroundColor !== this.showEvent.backgroundColor) {
+        if (this.selectedEvent.style.backgroundColor) {
           this.selectedEvent.style.backgroundColor = this.showEvent.backgroundColor
         }
-        if (this.selectedEvent.style.color !== this.showEvent.color) {
-          this.selectedEvent.style.color = this.showEvent.color
-        }
+        this.selectedEvent.style.color = this.showEvent.color
       },
       saveNodeColor(){
         let data = {
