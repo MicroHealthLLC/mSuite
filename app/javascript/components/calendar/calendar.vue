@@ -656,6 +656,11 @@
                 }
                 return eventObj;
               }
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.raw.standalone) {
+                if (eventObj.backgroundColor == node.line_color) {
+                  eventObj.backgroundColor = '#363636'
+                }
+              }
             })
 
             if (multiNodes.length === 0) {
