@@ -513,6 +513,7 @@
               start: currentValue.startdate,
               end: currentValue.duedate,
               body: currentValue.description,
+              category: currentValue.is_sprint ? 'allday' : 'time',
               isAllday: currentValue.hide_children,
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,

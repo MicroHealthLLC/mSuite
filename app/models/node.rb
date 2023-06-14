@@ -289,10 +289,18 @@ class Node < ApplicationRecord
   before_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
+  after_destroy :update_child_nodes
+
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
   validate :check_parent_node, on: :update
+
+  def update_child_nodes
+    children.each do |c|
+      c.update(parent_node: nil)
+    end
+  end
 
   def check_parent_node
     return false if self.id == parent_node
