@@ -240,7 +240,7 @@
         let colorCode;
         do {
           // Generate a random hexadecimal color code
-          colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16);
+          colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
         } while (this.isColorTooLightOrDark(colorCode) && colorCode.length != 7);
         return colorCode;
       },
