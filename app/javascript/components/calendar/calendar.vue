@@ -570,8 +570,8 @@
       },
       closeModelPicker(){
         this.colorSelected = false
-        this.selectedEvent.style.backgroundColor = this.showEvent.backgroundColor
-        this.selectedEvent.style.color = this.showEvent.color
+        //this.selectedEvent.style.backgroundColor = this.showEvent.backgroundColor
+        //this.selectedEvent.style.color = this.showEvent.color
       },
       saveNodeColor(){
         let data = {
