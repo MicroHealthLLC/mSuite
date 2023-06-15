@@ -22,6 +22,17 @@ class Stage < ApplicationRecord
     encrypt_stage
   end
 
+  def to_json
+    decrypt_fields
+    self.as_json
+  end
+
+  def decrypt_fields
+    return unless self.mindmap.is_private?
+    self.title = EncryptionService.decrypt(self.title)
+    self.stage_color = EncryptionService.decrypt(self.stage_color)
+  end
+
   def check_private?
     return self.mindmap.is_private?
   end

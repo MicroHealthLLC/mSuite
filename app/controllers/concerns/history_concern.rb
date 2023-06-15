@@ -209,7 +209,13 @@ module HistoryConcern
       position_y: arrayNode[:position_y],
       duedate: arrayNode[:duedate],
       is_disabled: arrayNode[:is_disabled],
-      stage_id: arrayNode[:stage_id]
+      is_sprint: arrayNode[:is_sprint],
+      hide_children: arrayNode[:hide_children],
+      standalone: arrayNode[:standalone],
+      stage_id: arrayNode[:stage_id],
+      element_height: arrayNode[:element_height],
+      element_type: arrayNode[:element_type],
+      element_width: arrayNode[:element_width]
     )
     return node
   end

@@ -16,6 +16,9 @@ import VueCookies from 'vue-cookies';
 import moment from 'moment';
 import Hightcharts from "highcharts";
 import vennInit from "highcharts/modules/venn";
+import exportingInit from 'highcharts/modules/exporting'
+import draggablePointsInit from 'highcharts/modules/draggable-points'
+import customEventsInit from 'highcharts-custom-events'
 import HighchartsVue from "highcharts-vue";
 
 const base_url = window.location.origin.replace("https", "wss").replace("http", "ws")
@@ -30,8 +33,17 @@ Vue.use(ActionCableVue, {
   connectImmediately: true
 })
 
-vennInit(Hightcharts)
+Vue.directive('focus', {
+  inserted(el) {
+    el.focus()
+  }
+})
+
 Vue.use(HighchartsVue)
+vennInit(Hightcharts)
+exportingInit(Hightcharts)
+draggablePointsInit(Hightcharts)
+customEventsInit(Hightcharts)
 Vue.use(Vuex);
 Vue.use(ElementUI);
 Vue.use(VueTextareaAutosize)

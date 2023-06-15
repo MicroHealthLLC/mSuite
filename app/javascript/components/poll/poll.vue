@@ -205,6 +205,14 @@
       },
       undoObj(){
         this.undoDone = true
+        //console.log(this.pollData)
+        if (this.pollData.isPublished) {
+          this.undoCanvas.forEach((m, i) => {
+            let newCanvas = JSON.parse(m.mindmap.canvas)
+            newCanvas.pollData.isPublished = true
+            this.undoCanvas[i].mindmap.canvas = JSON.stringify(newCanvas)
+          })
+        }
         http
           .post(`/msuite/${this.$store.getters.getMsuite.unique_key}/undo_mindmap.json`, { undoCanvas: this.undoCanvas })
           .then((res) => {
@@ -215,6 +223,7 @@
           .catch((err) => {
             console.log(err)
           })
+          //console.log(this.undoCanvas)
       },
       redoObj(){
         http

@@ -76,7 +76,6 @@
 <script>
   import http from "../../../common/http"
   import TemporaryUser from "../../../mixins/temporary_user.js"
-  import './poll.css'
   
   export default {
     name: "Poll",
@@ -225,3 +224,6 @@
     }
   };
 </script>
+<style lang="scss" scoped>
+  @import './poll.scss';
+</style>

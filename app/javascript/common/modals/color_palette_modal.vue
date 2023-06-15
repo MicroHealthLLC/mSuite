@@ -2,7 +2,7 @@
   <div class="card-body p-0 border rounded">
     <sketch-picker v-if="selectedNode && mm_type == 'kanban'" class="rounded-0 size-color-picker" v-model="selectedNode.stage_color" :preset-colors="uniqueColors" @input="updateColorNode()"/>
     <sketch-picker v-else v-model="node.line_color" :preset-colors="uniqueColors" @input="updateColorNode()" class=" h-25 overflow-auto size-color-picker rounded-0"/>
-    <div v-if="(selectedNode && mm_type == 'kanban') || mm_type != 'kanban'" class="pallete d-flex flex-row w-50">
+    <div v-if="showRandomPl" class="pallete d-flex flex-row w-50">
       <div class="row w-100 bg-white">
         <div v-for="colorPalette in customPallete" class="col-2">
           <div
@@ -17,15 +17,22 @@
       <button class="btn btn-success w-50 border-none" @click="saveNodeColor">Update</button>
       <button
         class="btn btn-info border-none"
-        :class="mm_type != 'calendar' || ((selectedNode && mm_type == 'kanban') || mm_type != 'kanban') ? 'w-50':'w-25'"
+        :class="showRandomPl && this.mm_type != 'presentation' ? 'w-25':'w-50'"
         @click="closeModelPicker">
         Cancel
       </button>
       <button
-        v-if="mm_type != 'calendar' && ((selectedNode && mm_type == 'kanban') || mm_type != 'kanban')"
+        v-if="showRandomPl && this.mm_type != 'presentation'"
         class="btn btn-warning border-none w-25"
         @click="createPalette">
           <i class="fas fa-sync cursor-pointer mt-2"></i>
+      </button>
+      <button
+        v-else-if="presentationSlide"
+        class="btn btn-warning border-none w-50"
+        @click="applyColorOnAllNodes"
+      >
+        Apply All
       </button>
     </div>
   </div>
@@ -51,10 +58,16 @@
     computed: {
       node(){
         return this.selectedNode ? this.selectedNode : this.selectedBlock
+      },
+      showRandomPl() {
+        return (this.mm_type != 'calendar') && ((this.selectedNode && this.mm_type == 'kanban') || this.mm_type != 'kanban')
+      },
+      presentationSlide(){
+        return this.mm_type == 'presentation' && !this.node.parent_nod
       }
     },
     mounted() {
-      if(this.mm_type != 'calendar') this.createPalette()
+      if(this.mm_type != 'calendar' && this.mm_type != 'presentation') this.createPalette()
     },
     methods: {
       saveNodeColor(){
@@ -78,7 +91,7 @@
               element.style.backgroundColor = stage.stage_color
             });
           }
-        } else if (this.mm_type == 'calendar'){
+        } else if (this.mm_type == 'calendar' || this.mm_type == 'presentation'){
           this.$emit("closeModelPicker")
           return
         }
@@ -98,7 +111,10 @@
         this.$emit("closeModelPicker")
       },
       updateColorNode(){
-        this.$emit("updateColorNode")
+         this.mm_type == 'kanban' ? this.$emit("updateColorNode") : this.$emit("updateColorNode", this.node.line_color)
+      },
+      applyColorOnAllNodes(){
+        this.$emit("updateAllColorNode", this.node.line_color)
       },
       paletteUpdateColor(){
         if (this.mm_type == 'tree_map' || this.mm_type == 'kanban'){
@@ -169,5 +185,7 @@
 </script>
 
 <style>
+  .presentation{
 
+  }
 </style>

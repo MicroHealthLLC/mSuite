@@ -41,10 +41,19 @@ Rails.application.routes.draw do
   resources :nodes, except: [:new, :edit, :show] do
     member do
       put :update_export_order
+      post :update_all_colors
     end
   end
 
   resources :comments do
+  end
+
+  resources :files do
+    collection do
+      post :download
+      # post :file_downloaded
+      post :file_canceled
+    end
   end
 
   namespace :api, defaults: { format: :json } do

@@ -2,7 +2,7 @@
   <div>
     <b-list-group-item :id="'todo' + node.id" tabindex="0" @click="myTodo(node)" class="mb-0">
       <div class="flex" v-if="selectedTodo.id != node.id">
-        <div class="col-8 d-flex flex-row">
+        <div class="col-6 d-flex flex-row">
           <div class="flex-auto">
             <input type="checkbox" class="mr-4" :checked="node.is_disabled" @input="checkCheckedAns($event)"
               @click="updateTodo(node, node.name, !node.is_disabled)" />
@@ -12,7 +12,12 @@
         </div>
         <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)" class="dueDate col-3"
           :class="{ 'line-through': node.is_disabled }">
-          {{ formatDate(node.duedate) }}
+          {{ node.startdate && node.startdate != node.duedate ? `Start: ${formatDate(node.startdate)}` : '' }}
+        </span>
+        <span v-else class="col-3"></span>
+        <span v-if="selectedTodo.id != node.id && node" @click="showInputFieldToggle(node)" class="dueDate col-2"
+          :class="{ 'line-through': node.is_disabled }">
+          {{ node.duedate ? `Due: ${formatDate(node.duedate)}` : '' }}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
           <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-3 fa fa-plus addTodo'
@@ -26,11 +31,20 @@
           <div class="container relative z-20 max-w-xl mt-20 h-min">
             <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
               <b-row>
-                <b-col cols="5" sm="5">
+                <b-col cols="4" sm="4">
                   <b-form-input v-model="selectedTodo.name" ref="title" type="text" placeholder="Your Todo">
                   </b-form-input>
                 </b-col>
-                <b-col cols="5" sm="5" class="w-50 d-flex flex-row">
+                <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
+                  <div v-if="selectedTodo.startdate != selectedTodo.duedate" @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
+                    @mouseleave="showCalendar('task-date')" class="dateInput">
+                    <date-picker id="task-date" v-model='selectedTodo.startdate'
+                      :placeholder="formatDate(selectedTodo.startdate)" :format="format" ref="datePicker"
+                      @close="closeDatePicker('task-date')"></date-picker>
+                    <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
+                  </div>
+                </b-col>
+                <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                   <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
                     @mouseleave="showCalendar('task-date')" class="dateInput">
                     <date-picker id="task-date" v-model='selectedTodo.duedate'
@@ -53,15 +67,17 @@
         </div>
       </div>
     </b-list-group-item>
-    <div v-if="node.children && node.children.length">
-      <draggable class="list-group" :disabled="dragLocked" :list="sortedChildTodos"
-        @change="(e) => handleEnd(e, sortedChildTodos)" group="people" @start="drag = true" @end="drag = false"
+    <!-- <div v-if="node.children && node.children.length"> -->
+      <!-- Black background color added to see draggable field for debugging -->
+      <div style="background-color: black;">
+      <draggable class="list-group" :disabled="dragLocked" :list="sortedChildTodos" :move="checkMove" 
+        @change="(e) => handleEnd(e, sortedChildTodos, node)" group="people" @start="drag = true" @end="drag = false"
         v-bind="dragOptions">
         <transition-group type="transition" :name="!drag ? 'list' : null">
           <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
             <div class="flex" v-if="selectedTodo.id != child.id">
               <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
-              <div class="col-8 d-flex flex-row">
+              <div class="col-6 d-flex flex-row">
                 <div class="flex-auto">
                   <input type="checkbox" class="mr-4" :checked="child.is_disabled"
                     @click="updateTodo(child, child.name, !child.is_disabled)" />
@@ -69,9 +85,14 @@
                 <label @click="showInputFieldToggle(child)" class="mb-0 text-wrap" :for="'child-' + child.id"
                   :class="{ 'line-through': child.is_disabled }">{{ child.name }}</label>
               </div>
-              <span @click="showInputFieldToggle(child)" class="col-3 dueDate pl-1"
+              <span v-if="selectedTodo.id != child.id" @click="showInputFieldToggle(child)" class="col-3 dueDate pl-1"
                 :class="{ 'line-through': child.is_disabled }">
-                {{ formatDate(child.duedate) }}
+                {{ child.startdate && child.startdate != child.duedate ? `Start: ${formatDate(child.startdate)}` : '' }}
+              </span>
+              <span v-else class="col-3"></span>
+              <span @click="showInputFieldToggle(child)" class="col-2 dueDate pl-1"
+                :class="{ 'line-through': child.is_disabled }">
+                {{ child.duedate ? `Due: ${formatDate(child.duedate)}` : '' }}
               </span>
               <div class="col-1 ml-xl-5 ml-lg-5 ml-md-4 ml-sm-4 ml-4 pl-xl-1 pl-lg-0 pl-md-1 pl-sm-1 pl-1">
                 <i class="d-none ml-2 fa fa-times"></i>
@@ -84,11 +105,20 @@
                 <div class="container relative z-20 max-w-xl mt-20 h-min">
                   <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
                     <b-row>
-                      <b-col sm="5" cols="5">
+                      <b-col sm="4" cols="4">
                         <b-form-input v-model="selectedTodo.name" ref="title" type="text" placeholder="Your Todo">
                         </b-form-input>
                       </b-col>
-                      <b-col cols="5" sm="5" class="w-50 d-flex flex-row">
+                      <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
+                        <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
+                          @mouseleave="showCalendar('task-date-2')" class="dateInput">
+                          <date-picker id="task-date-2" v-model='selectedTodo.startdate'
+                            :placeholder="formatDate(selectedTodo.startdate)" :format="format"
+                            @close="closeDatePicker('task-date-2')" ref="date"></date-picker>
+                          <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
+                        </div>
+                      </b-col>
+                      <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                         <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
                           @mouseleave="showCalendar('task-date-2')" class="dateInput">
                           <date-picker id="task-date-2" v-model='selectedTodo.duedate'
@@ -153,7 +183,7 @@ export default {
       this.prevElement.parent_node = this.dropElement.id
       this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
     }, */
-    async handleEnd(e, list) {
+    async handleEnd(e, list, node) {
       let newIdList = list.map(i => i.id)
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
@@ -163,18 +193,50 @@ export default {
         let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
         sortedTodoArr.forEach((n, idx) => {
           if (n.id == e.added.element.id) {
+            console.log('e.added.element.id: ')
+            console.log(e.added.element.id)
             let oldId = n.id
-            n.parent_node = otherNode.parent_node
-            nodes.forEach(c => {
+            if(otherNode && otherNode.parent_node){
+              n.parent_node = otherNode.parent_node
+              console.log("Yes")
+            } else {
+              oldId = node.id
+              console.log("No")
+            }
+            
+            nodes.forEach(c => {             
               if (c.parent_node == oldId) {
                 c.parent_node = n.parent_node
+            
+                sortedTodoArr.push(c)
+              }
+              if (!c.parent_node && oldId) {
+                c.parent_node = oldId            
                 sortedTodoArr.push(c)
               }
             })
           }
+          //Original code commented out to troubleshoot node to node drag method.  
+          // Goal is to get parent to be child of a childless node.  
+          // if (n.id == e.added.element.id) {
+          //   let oldId = n.id
+          //   n.parent_node = otherNode.parent_node
+          //   nodes.forEach(c => {
+          //     if (c.parent_node == oldId) {
+          //       c.parent_node = n.parent_node
+          //       sortedTodoArr.push(c)
+          //     } 
+          //   })
+          // }
         })
         this.reorderTodo(sortedTodoArr)
       }
+    },
+    //Added checkMove method to log draggable event
+    checkMove(e) {
+       console.log(e)
+      // console.log(e.draggedContext.element.name)
+      // console.log(e.relatedContext.element.name) 
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
@@ -232,7 +294,12 @@ export default {
       calendarClear.style.display = 'none';
     },
     updateTodo(todo, title, completed) {
-      if (this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      if (todo.duedate != undefined && todo.duedate !== '' && todo.duedate.getTime != undefined) {
+        todo.duedate = new Date(todo.duedate.getTime() - (todo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0] 
+      }
+      if (todo.startdate != undefined && todo.startdate !== '' && todo.startdate.getTime != undefined) {
+        todo.startdate = new Date(todo.startdate.getTime() - (todo.startdate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      }
       this.$emit("updateTodo", todo, title, completed)
     },
     myTodo(todo) {
@@ -263,6 +330,8 @@ export default {
     },
     showInputField(todo) {
       if (this.selectedTodo && this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+
+      if (this.selectedTodo && this.selectedTodo.startdate != undefined && this.selectedTodo.startdate !== '' && this.selectedTodo.startdate.getTime != undefined) this.selectedTodo.startdate = new Date(this.selectedTodo.startdate.getTime() - (this.selectedTodo.startdate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
 
       this.$emit("showInputField", todo)
     },
@@ -296,6 +365,9 @@ export default {
         ghostClass: "ghost"
       };
     }
+  },
+  mounted() {
+    console.log(this.node)
   },
   watch: {
     editInProgress: {

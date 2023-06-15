@@ -24,7 +24,10 @@ module.exports = merge({
   plugins: [
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
-      'process.env': JSON.stringify(process.env)
+      RAILS_ENV: JSON.stringify(process.env.RAILS_ENV),
+      WEBPACK_ENV: JSON.stringify(process.env.WEBPACK_ENV),
+      BROWSER_SUPPORTS_HTML5: true,
+      NODE_ENV: JSON.stringify(process.env.RAILS_ENV)
    }),
    new MiniCssExtractPlugin({
     filename: "[name].[chunkhash:5].css",

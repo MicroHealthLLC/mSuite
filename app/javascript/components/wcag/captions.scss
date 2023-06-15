@@ -1,0 +1,34 @@
+.notification.info {
+  border-color : #E2E2E2;
+  box-shadow   : 1px 1px 7px 1px #bdbdbd;
+}
+.notification {
+  border          : 7px solid;
+  border-radius   : 7px;
+  position        : absolute;
+  z-index         : 10000;
+  display         : block;
+  padding         : 10px;
+  background-color: white;
+}
+.notification .title {
+  font-weight   : bold;
+  font-size     : 18px;
+  color         : #4F4F4F;
+  padding-bottom: 6px;
+  margin-top    : -3px;
+  padding-right : 10px;
+}
+.notification .content {
+  font-size  : 14px;
+  color      : #454545;
+  line-height: 1.4;
+}
+.cancelButton {
+  position     : fixed;
+  border-radius: 45%;
+  left         : 62%;
+  :hover{
+    opacity: 0.5;
+  }
+}

@@ -20,6 +20,7 @@ class MindmapsController < AuthenticatedController
   def create
     @mindmap = Mindmap.new(mindmap_params)
     if @mindmap.save
+      @mindmap.rearrange_node_for_calendar
       render json: render_mindmap(@mindmap,nil) 
     else
       render json: { mindmap: @mindmap.to_json, messages: @mindmap.errors.full_messages, errors: @mindmap.errors.to_json }, status: :found
@@ -27,7 +28,8 @@ class MindmapsController < AuthenticatedController
   end
 
   def update
-    if @mindmap.update(mindmap_params)
+    if @mindmap.update!(mindmap_params)
+      @mindmap.rearrange_node_for_calendar
       @mindmap = @mindmap.decrypt_attributes
       @mindmap.password_check
       broadcast_actioncable(@mindmap,password_present?)
@@ -37,7 +39,6 @@ class MindmapsController < AuthenticatedController
 
   def show
     if @mindmap
-      @mindmap = @mindmap.decrypt_attributes
       respond_to do |format|
         format.json { render json: render_mindmap(@mindmap,nil)}
         format.html { render action: 'index' }
@@ -107,7 +108,7 @@ class MindmapsController < AuthenticatedController
 
   def destroy
     if check_for_password && @mindmap.destroy
-      broadcast_actioncable(@mindmap,'Mindmap Deleted')
+      ActionCable.server.broadcast("web_notifications_channel#{@mindmap.id}", {message: 'Mindmap Deleted', mindmap: @mindmap})
       respond_to do |format|
         format.json { render json: { success: true } }
         format.html {}
@@ -131,8 +132,9 @@ class MindmapsController < AuthenticatedController
     fetched_mindmap = Mindmap.find_by(unique_key: params[:unique_key])
     fetched_mindmap = fetched_mindmap.decrypt_attributes if fetched_mindmap
     if check_msuite(fetched_mindmap)
-      fetched_mindmap.destroy
-      broadcast_actioncable(fetched_mindmap,'Mindmap Deleted')
+      if fetched_mindmap.destroy
+        ActionCable.server.broadcast("web_notifications_channel#{fetched_mindmap.id}", {message: 'Mindmap Deleted', mindmap: fetched_mindmap})
+      end
     end
   end
 
@@ -228,7 +230,7 @@ class MindmapsController < AuthenticatedController
         :parent_id,
         :will_delete_at,
         :failed_password_attempts,
-        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate]
+        nodes_attributes: [:id, :title, :position_x, :position_y, :parent_node, :mindmap_id, :is_disabled, :hide_children , :hide_self, :line_color, :description, :export_index, :stage_id, :position, :node_width, :duedate, :startdate, :is_sprint, :standalone]
       )
     end
 
@@ -244,7 +246,7 @@ class MindmapsController < AuthenticatedController
     end
 
   def render_mindmap(msuite,success)
-    json = {mindmap: msuite.to_json,deleteAfter: ENV['DELETE_AFTER'].to_i,defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i,expDays: ENV['EXP_DAYS'].to_i }
+    json = {mindmap: msuite.to_json, deleteAfter: ENV['DELETE_AFTER'].to_i,defaultDeleteDays: ENV['MAX_EXP_DAYS'].to_i,expDays: ENV['EXP_DAYS'].to_i }
     json['is_verified'] = @is_verified unless @is_verified.nil? 
     json['success'] = true unless success.nil? 
     json

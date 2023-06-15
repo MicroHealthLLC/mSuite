@@ -1,0 +1,78 @@
+#toolbar{
+  background: #eee;
+}
+.style-canvas{
+  width: 11vw;
+  height: 13vh;
+}
+#slide-library{
+  width: 13vw;
+  border-right: 2px solid black;
+  height: 75vh;
+}
+.svg-inline--fa, .fa-plus {
+  width: 1.1em !important;
+}
+.svg-inline--fa, .fa-times {
+  width: 1.1em !important;
+}
+.fa-add:before, .fa-plus:before {
+    position: relative;
+    top: 6%;
+    left: 9%;
+}
+.slide-position {
+  top: 69%;
+  width: 20%;
+  background: grey;
+  color: white;
+  clip-path: polygon(0% 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0% 80%);
+}
+.pos-text {
+  font-size: 14px;
+  left: 20%;
+}
+.add-slide-button {
+  top: 83%;
+  left: 40%;
+}
+.delete-slide-button{
+  top: -9px;
+  right: -9px;
+}
+.border-green{
+  border: 2px solid green;
+  transition: 0.3s ease all;
+  transform: scale(1.06);
+}
+.w-83{
+  width:83vw;
+}
+.h-73{
+  height:73vh;
+}
+.disable-pointer-events {
+   pointer-events: none;
+}
+.b-dropdown {
+  margin-left: 0;
+  margin-top: 0;
+}
+.show {
+  display: inline-block;
+}
+.delete-icon-pos {
+  left: -10px;
+  top: -8px;
+}
+.resizing-area {
+  width: 200px;
+  resize: both;
+}
+.border-dashed{
+  border: 1px dashed black;
+}
+.icons-pos{
+  top: 65%;
+  left: 48%;
+}

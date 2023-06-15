@@ -31,6 +31,8 @@
                 <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
                 <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
                 <i class="mx-auto fad fa-chart-pie mm-icon mt-3" v-if="type.key == 'venndiagram'"></i>
+                <!-- <i class="mx-auto far fa-file-powerpoint mm-icon mt-3" v-if="type.key == 'presentation'"></i> -->
+                <!-- <i class="mx-auto fas fa-share-alt mm-icon mt-3" v-if="type.key == 'fileshare'"></i> -->
                 <span class="text-center icon-text">{{type.value}}</span>
               </div>
             </div>
@@ -58,17 +60,20 @@
         mindmapTypes: [
           { key: 'simple', value: 'Mindmap', imgsrc: "" },
           { key: 'kanban', value: 'Kanban', imgsrc: ""  },
-          { key: 'whiteboard', value: 'WhiteBoard', imgsrc: ""  },
-          { key: 'tree_map', value: 'TreeMap', imgsrc: "" },
-          { key: 'tree_chart', value: 'TreeChart', imgsrc: "" },
-          { key: 'flowmap', value: 'FlowMap', imgsrc: "" },
-          { key: 'todo', value: 'ToDo', imgsrc: "" },
+          { key: 'whiteboard', value: 'Whiteboard', imgsrc: ""  },
+          { key: 'tree_map', value: 'Tree map', imgsrc: "" },
+          { key: 'tree_chart', value: 'Tree chart', imgsrc: "" },
+          { key: 'flowmap', value: 'Flowmap', imgsrc: "" },
+          { key: 'todo', value: 'Todo', imgsrc: "" },
           { key: 'Notepad', value: 'Notepad', imgsrc: "" },
           { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" },
           { key: 'poll', value: 'Poll', imgsrc: "" },
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
-          // { key: 'venndiagram', value: 'VennDiagram', imgsrc: "" } Hidden from Beta
+          { key: 'venndiagram', value: 'Venndiagram', imgsrc: "" },
+          /* { key: 'presentation', value: 'Presentation', imgsrc: "" },
+          { key: 'fileshare', value: 'Fileshare', imgsrc: "" }, */
         ]
+        //Test
       }
     },
     components: { CookieLaw, Recaptcha, Beta, HomeNavbar },
