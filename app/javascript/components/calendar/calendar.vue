@@ -63,8 +63,7 @@
         <div class="row mb-1 font-weight-medium h5">{{showEvent.title}}</div>
         <div class="row mb-4">{{formatshowEventDate()}}</div>
         <div class="row my-2">{{showEvent.body}}</div>
-        <div class="row my-2">{{showEvent.raw.standalone ? 'Standalone' : showEvent.raw.parentNode && currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode) ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode).title : ''}}</div>
-
+        <div class="row my-2">{{showEvent.raw.standalone ? 'Non-Sprint Event' : showEvent.raw.parentNode && currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode) ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode).title : ''}}</div>
       </div>
     </b-popover>
     <add-calendar-event-modal 

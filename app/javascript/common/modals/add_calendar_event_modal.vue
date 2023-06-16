@@ -59,7 +59,7 @@
               <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="startDate"></DatePicker>
             </div>
             <div>
-              <DatePicker class="mx-1" format="HH:mm" type="time" v-model="startDate"></DatePicker>
+              <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
             </div>
           </div>
 
@@ -69,7 +69,7 @@
               <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="endDate"></DatePicker>
             </div>
             <div>
-              <DatePicker class="mx-1" format="HH:mm" type="time" v-model="endDate"></DatePicker>
+              <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
             </div>
           </div>
         </span>
@@ -160,7 +160,7 @@
         console.log("eventDates", newValue, oldValue)
         this.setDefaultValues()
         this.updateSelectedDate()
-        if (new Date(newValue.end) - new Date(newValue.start) > 86400000) {
+        if (new Date(newValue.end) - new Date(newValue.start) > 86400000 && this.actionType == 'create') {
           this.isSprint = true
           this.allDay = true
         }
@@ -402,6 +402,9 @@
           // Set end time to start time + 1 hour
           this.endDate.setHours(startDateHours + 1);
           this.endDate.setMinutes(startDateMinutes);
+          if (this.endDate > this.startDate) {
+            this.isValueInvalid = false
+          }
         } else {
           // Valid end time or multiple-day event
           this.errorMessage = '';
