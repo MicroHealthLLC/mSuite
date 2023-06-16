@@ -59,23 +59,23 @@
               <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="startDate"></DatePicker>
             </div>
             <div>
-              <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
             </div>
           </div>
 
           <div class="col-10 d-flex content-justified-start px-0 mt-4">
             <strong class="mt-1">End: </strong>
-            <div>
+            <div class="end-date-picker">
               <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="endDate"></DatePicker>
             </div>
             <div>
-              <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
             </div>
           </div>
         </span>
         <div class="col-4 d-flex content-justified-start mt-2" v-if="allDayNotHidden" >
             <input type="checkbox" v-model="allDay" v-if="!isSprint">
-            <label class="form-label ml-2 mt-1" for="checkbox" style="white-space: nowrap;" v-if="!isSprint">All Day</label>
+            <label class="form-label ml-2 mt-2" for="checkbox" style="white-space: nowrap;" v-if="!isSprint">All Day</label>
           </div>
         </div>
 
@@ -83,7 +83,7 @@
         <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
           <select class="w-50 form-control" v-model="parentNode">
-            <option v-for="sprint in multipleSprints" :value="sprint.id">
+            <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
               {{ sprint.title }}
             </option>
           </select>
@@ -255,6 +255,11 @@
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
           data.backgroundColor = this.showEvent.backgroundColor;
+          if (data.raw.isSprint) {
+            data.raw.parentNode = null
+            data.raw.standalone = false
+            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor)) || data.backgroundColor === "#363636") data.backgroundColor = this.getRandomColor()
+          }
         }
         if (data.isAllday) {
           data.start.setHours(0, 0, 0, 0)
@@ -478,5 +483,8 @@
 }
 input:focus {
   outline: none;
+  }
+.end-date-picker {
+  margin-left: 6px;
   }
 </style>

@@ -296,6 +296,7 @@
       moveCalendar(value){
         this.showEditEvent = false
         this.calendar.move(value)
+        if (this.currentMindMap.nodes && this.currentMindMap.nodes.length > 0) this.updateEventHeights(this.currentMindMap)
         this.getCalendarTitle()
         this.bindEventToClick()
       },
@@ -664,6 +665,8 @@
                 }
               }
             })
+            
+            if (eventObj.id === eventObj.raw.parentNode) eventObj.raw.parentNode = null
 
             if (multiNodes.length === 0) {
               eventObj.raw.parentNode = null;
@@ -726,8 +729,11 @@
               let child = event.children[0]
               child.style.height = "10px";
               child.style.lineHeight = "10px";
+              child.style.marginTop = '6px'
               child.querySelector('.toastui-calendar-weekday-event-title').style.fontSize = '9px';
               child.querySelector('.toastui-calendar-weekday-event-title').style.fontWeight = '400';
+              child.querySelector('.toastui-calendar-weekday-resize-handle').style.transform = 'scale(0.8)'
+              child.querySelector('.toastui-calendar-weekday-resize-handle').style.marginTop = '4px'
             });
           });
         }, 50);
