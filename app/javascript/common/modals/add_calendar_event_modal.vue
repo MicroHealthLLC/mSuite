@@ -59,23 +59,23 @@
               <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="startDate"></DatePicker>
             </div>
             <div>
-              <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
             </div>
           </div>
 
           <div class="col-10 d-flex content-justified-start px-0 mt-4">
             <strong class="mt-1">End: </strong>
-            <div>
+            <div class="end-date-picker">
               <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="endDate"></DatePicker>
             </div>
             <div>
-              <DatePicker class="mx-1" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
             </div>
           </div>
         </span>
         <div class="col-4 d-flex content-justified-start mt-2" v-if="allDayNotHidden" >
             <input type="checkbox" v-model="allDay" v-if="!isSprint">
-            <label class="form-label ml-2 mt-1" for="checkbox" style="white-space: nowrap;" v-if="!isSprint">All Day</label>
+            <label class="form-label ml-2 mt-2" for="checkbox" style="white-space: nowrap;" v-if="!isSprint">All Day</label>
           </div>
         </div>
 
@@ -478,5 +478,8 @@
 }
 input:focus {
   outline: none;
+  }
+.end-date-picker {
+  margin-left: 6px;
   }
 </style>
