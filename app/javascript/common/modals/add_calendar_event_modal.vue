@@ -256,7 +256,7 @@
           data.id = this.showEvent.id;
           data.backgroundColor = this.showEvent.backgroundColor;
         }
-        if (data.isAllday && this.isSprint) {
+        if (data.isAllday) {
           data.start.setHours(0, 0, 0, 0)
           data.end.setHours(23, 59, 59, 999)
         }

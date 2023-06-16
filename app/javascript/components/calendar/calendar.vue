@@ -512,7 +512,7 @@
               start: currentValue.startdate,
               end: currentValue.duedate,
               body: currentValue.description,
-              category: currentValue.is_sprint ? 'allday' : 'time',
+              category: currentValue.is_sprint || currentValue.hide_children ? 'allday' : 'time',
               isAllday: currentValue.hide_children,
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
@@ -673,61 +673,8 @@
             } 
             return eventObj;
           }
-        } /* else {
-          if (!eventObj.isSprint) {
-            let multiNodes = []
-            nodeList.forEach(n => {
-              const node = n;
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
-
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-                multiNodes.push(node)
-              }
-            })
-            nodeList.forEach(n => {
-              const node = n;
-              const nodeStart = new Date(node.startdate);
-              const nodeEnd = new Date(node.duedate);
-
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.standalone) {
-                if (eventObj.parentNode == null) {
-                  eventObj.parentNode = node.id
-                } else {
-                  if (multiNodes.length == 1) {
-                    if (eventObj.parentNode != node.id) {
-                      eventObj.parentNode = node.id
-                    }
-                  } else {
-                    if (eventObj.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.parentNode)) {
-                      eventObj.parentNode = node.id
-                    } else {
-                      eventObj.parentNode = eventObj.parentNode
-                    }
-                  } 
-                }
-                return eventObj;
-              }
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.standalone) {
-                if (eventObj.backgroundColor == node.line_color) {
-                  eventObj.backgroundColor = '#363636'
-                }
-              }
-            })
-            if (multiNodes.length === 0) {
-              eventObj.parentNode = null;
-              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.standalone) {
-                eventObj.backgroundColor = '#363636'
-              }              
-            }
-            return eventObj;
-          }
-        } */
+        } 
       },
-      /* getParentColor(parent) {
-        let selectedParent = this.currentMindMap.nodes.find(n => parent === n.id)
-        return selectedParent ? selectedParent.line_color : '#363636'
-      }, */
       updateEventColors(mindmap) {
         const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
 
@@ -757,11 +704,12 @@
             const dueDate = new Date(n.duedate);
 
             // Check if the event is either on the next day or longer duration
-            const isNextDayOrLonger = (
+            let isNextDayOrLonger = (
               startDate.getFullYear() < dueDate.getFullYear() ||
               startDate.getMonth() < dueDate.getMonth() ||
               startDate.getDate() < dueDate.getDate()
             );
+            if (n.hide_children) isNextDayOrLonger = true
             return isNextDayOrLonger;
           } else {
             return false;
