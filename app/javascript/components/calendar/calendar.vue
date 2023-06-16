@@ -665,6 +665,8 @@
                 }
               }
             })
+            
+            if (eventObj.id === eventObj.raw.parentNode) eventObj.raw.parentNode = null
 
             if (multiNodes.length === 0) {
               eventObj.raw.parentNode = null;
