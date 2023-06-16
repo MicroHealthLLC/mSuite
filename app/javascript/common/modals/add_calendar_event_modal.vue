@@ -257,7 +257,8 @@
           data.backgroundColor = this.showEvent.backgroundColor;
           if (data.raw.isSprint) {
             data.raw.parentNode = null
-            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor))) data.backgroundColor = this.getRandomColor()
+            data.raw.standalone = false
+            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor)) || data.backgroundColor === "#363636") data.backgroundColor = this.getRandomColor()
           }
         }
         if (data.isAllday) {
