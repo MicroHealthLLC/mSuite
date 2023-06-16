@@ -255,6 +255,10 @@
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
           data.backgroundColor = this.showEvent.backgroundColor;
+          if (data.raw.isSprint) {
+            data.raw.parentNode = null
+            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor))) data.backgroundColor = this.getRandomColor()
+          }
         }
         if (data.isAllday) {
           data.start.setHours(0, 0, 0, 0)
