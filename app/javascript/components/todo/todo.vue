@@ -37,13 +37,17 @@
                             <div class="container relative z-20 max-w-xl mt-20 h-min">
                               <b-form @submit.prevent="addChildTodo()">
                                 <b-row>
-                                  <b-col cols="5" sm="5">
+                                  <b-col cols="4" sm="4">
                                     <b-form-input :class="fieldDisabled ? 'shake' : ''" v-model="todoChildData.title"
                                       ref="title" type="text" :placeholder="'Add subtask for ' + todo.name">
                                     </b-form-input>
                                   </b-col>
-                                  <b-col cols="5" sm="5">
-                                    <date-picker id="input" class="w-75" v-model='todoChildData.date'
+                                  <b-col cols="3" sm="3">
+                                    <date-picker id="input" class="w-75" v-model='todoChildData.startDate'
+                                      placeholder="Start Date" :format="format" ref="datePicker"></date-picker>
+                                  </b-col>
+                                  <b-col cols="3" sm="3">
+                                    <date-picker id="input" class="w-75" v-model='todoChildData.dueDate'
                                       placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
                                   </b-col>
                                   <b-col cols="2" sm="2" class="d-flex flex-row">
@@ -69,13 +73,17 @@
                   <div class="container relative max-w-xl mt-20 h-min">
                     <b-form @submit.prevent="addTodo()">
                       <b-row>
-                        <b-col cols="5" class="todo-field">
+                        <b-col cols="4" class="todo-field">
                           <b-form-input :class="fieldDisabled ? 'shake' : ''" v-model="todoData.title" ref="title"
                             type="text" :placeholder="placeHolderText">
                           </b-form-input>
                         </b-col>
-                        <b-col cols="5">
-                          <date-picker id="input" class="w-75" v-model='todoData.date' placeholder="Due Date"
+                        <b-col cols="3">
+                          <date-picker id="input" class="w-75" v-model='todoData.startDate' placeholder="Start Date"
+                            :format="format" ref="datePicker"></date-picker>
+                        </b-col>
+                        <b-col cols="3">
+                          <date-picker id="input" class="w-75" v-model='todoData.dueDate' placeholder="Due Date"
                             :format="format" ref="datePicker"></date-picker>
                         </b-col>
                         <b-col sm="2" cols="2" class="d-flex flex-row justify-content-end">
@@ -351,17 +359,19 @@ export default {
         }, 1500)
         return
       }
-      if (this.todoData.date) this.todoData.date = moment(this.todoData.date)._d
+      if (this.todoData.startDate) this.todoData.startDate = moment(this.todoData.startDate)._d
+      if (this.todoData.dueDate) this.todoData.dueDate = moment(this.todoData.dueDate)._d
       let data = {
         node: {
           title: this.todoData.title,
           description: '',
           mindmap_id: this.currentMindMap.id,
-          startdate: this.todoData.date,
-          duedate: this.todoData.date,
+          startdate: this.todoData.startDate,
+          duedate: this.todoData.dueDate,
           is_disabled: false,
           hide_children: true,
-          line_color: '#18A2B8'
+          line_color: this.getRandomColor(),
+          is_sprint: true,
         }
       }
       this.updateTodoUser()
@@ -384,7 +394,8 @@ export default {
         }, 1500)
         return
       }
-      if (this.todoChildData.date) this.todoChildData.date = moment(this.todoChildData.date)._d
+      if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d
+      if (this.todoChildData.dueDate) this.todoChildData.dueDate = moment(this.todoChildData.dueDate)._d
 
       let data = {
         node: {
@@ -392,8 +403,8 @@ export default {
           description: '',
           mindmap_id: this.currentMindMap.id,
           parent_node: this.todo_parent,
-          startdate: this.todoChildData.date,
-          duedate: this.todoChildData.date,
+          startdate: this.todoChildData.startDate,
+          duedate: this.todoChildData.dueDate,
           line_color: '#58A2B8',
           is_disabled: false,
           hide_children: true
