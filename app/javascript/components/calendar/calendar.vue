@@ -632,7 +632,7 @@
               const nodeStart = new Date(node.startdate);
               const nodeEnd = new Date(node.duedate);
 
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd.setSeconds(nodeEnd.getSeconds() + 1)) {
                 multiNodes.push(node)
               }
             })
@@ -641,7 +641,7 @@
               const nodeStart = new Date(node.startdate);
               const nodeEnd = new Date(node.duedate);
 
-              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && !eventObj.raw.standalone) {
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd.setSeconds(nodeEnd.getSeconds() + 1) && node.is_sprint && !eventObj.raw.standalone) {
                 if (eventObj.raw.parentNode == null) {
                   eventObj.raw.parentNode = node.id
                 } else {
