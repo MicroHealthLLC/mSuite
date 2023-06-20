@@ -273,7 +273,7 @@
         console.log("data obj:", data)
         return data;
       },
-      getRandomColor() {
+      /* getRandomColor() {
         let colorCode;
         do {
           // Generate a random hexadecimal color code
@@ -301,7 +301,7 @@
         const b = parseInt(hex.substring(4, 6), 16);
 
         return { r, g, b };
-      },
+      }, */
       /* getRandomColor() {
         // Generate a random hexadecimal color code
         return '#' + Math.floor(Math.random() * 16777215).toString(16);

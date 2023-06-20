@@ -36,7 +36,7 @@
                   </b-form-input>
                 </b-col>
                 <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                  <div v-if="selectedTodo.startdate != selectedTodo.duedate" @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
+                  <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
                     @mouseleave="showCalendar('task-date')" class="dateInput">
                     <date-picker id="task-date" v-model='selectedTodo.startdate'
                       :placeholder="formatDate(selectedTodo.startdate)" :format="format" ref="datePicker"
