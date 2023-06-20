@@ -263,6 +263,7 @@
           if (data.isAllday) {
             eventObj.changes.end.d.d.setHours(23)
             eventObj.changes.end.d.d.setMinutes(59)
+            eventObj.changes.end.d.d.setSeconds(59)
           }
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
@@ -666,7 +667,9 @@
               }
             })
             
-            if (eventObj.id === eventObj.raw.parentNode) eventObj.raw.parentNode = null
+            if (eventObj.id === eventObj.raw.parentNode) {
+              eventObj.raw.parentNode = null
+            } 
 
             if (multiNodes.length === 0) {
               eventObj.raw.parentNode = null;
