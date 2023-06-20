@@ -82,8 +82,13 @@
       <div class="row">
         <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
-          <select class="w-50 form-control" v-model="parentNode">
+          <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
             <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+          </select>
+          <select v-else class="w-50 form-control" v-model="parentNode">
+            <option v-for="sprint in multipleSprints" :value="sprint.id">
               {{ sprint.title }}
             </option>
           </select>
@@ -228,7 +233,7 @@
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
-        console.log("showSelectedEvent", this.showEvent)
+        //console.log("showSelectedEvent", this.showEvent)
         this.standalone = this.showEvent.raw.standalone
         this.isSprint = this.showEvent.raw.isSprint
         this.parentNode = this.showEvent.raw.parentNode
