@@ -472,6 +472,8 @@
           });
         this.sendLocals(false)
         this.updateCalendarUser()
+        const toastElement = document.querySelector('.toastui-calendar-see-more-container');
+        if (toastElement) toastElement.style.display = 'none';
 
       },
       async fetchEvents(){
