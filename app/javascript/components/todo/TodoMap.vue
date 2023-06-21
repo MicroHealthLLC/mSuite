@@ -183,39 +183,60 @@ export default {
       this.prevElement.parent_node = this.dropElement.id
       this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
     }, */
-    async handleEnd(e, list, node) {
+    async handleEnd(e, list, pNode) {
       let newIdList = list.map(i => i.id)
       let nodes = this.$store.getters.getMsuite.nodes
       let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
+      console.log("e", e)
+      console.log("list", list)
       if (e.moved) {
-        this.reorderTodo(sortedTodoArr)
+
+        let data = []
+        list.forEach((n, idx) => {
+          data.push({id: n.id, position: idx})
+        })
+        console.log("data", data)
+        // this.reorderTodo(sortedTodoArr)
+        // let movedElementNodeId = e.moved.element.id
+        // let movedNode = list.find(n => n.id == movedElementNodeId)
+        await http.put(`/nodes/update_all_positions`, {nodes: data }).then((res) => {
+          this.$parent.$parent.$parent.fetchToDos()
+        }).catch((error) => {
+          console.log(error)
+        })
       } else if (e.added) {
-        let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
-        sortedTodoArr.forEach((n, idx) => {
-          if (n.id == e.added.element.id) {
-            console.log('e.added.element.id: ')
-            console.log(e.added.element.id)
-            let oldId = n.id
-            if(otherNode && otherNode.parent_node){
-              n.parent_node = otherNode.parent_node
-              console.log("Yes")
-            } else {
-              oldId = node.id
-              console.log("No")
-            }
+        let addElementNodeId = e.added.element.id
+        console.log("addElementNodeId", addElementNodeId)
+        console.log("sortedTodoArr", sortedTodoArr)
+        let otherNode = sortedTodoArr.find(n => n.id != addElementNodeId)
+        console.log("otherNode", otherNode)
+        let addedNode = list.find(n => n.id == addElementNodeId)
+        addedNode.parent_node = pNode.id
+        // sortedTodoArr.forEach((n, idx) => {
+        //   if (n.id == e.added.element.id) {
+        //     console.log('e.added.element.id: ')
+        //     console.log(e.added.element.id)
+        //     let oldId = n.id
+        //     if(otherNode && otherNode.parent_node){
+        //       n.parent_node = otherNode.parent_node
+        //       console.log("Yes")
+        //     } else {
+        //       oldId = node.id
+        //       console.log("No")
+        //     }
             
-            nodes.forEach(c => {             
-              if (c.parent_node == oldId) {
-                c.parent_node = n.parent_node
+        //     nodes.forEach(c => {             
+        //       if (c.parent_node == oldId) {
+        //         c.parent_node = n.parent_node
             
-                sortedTodoArr.push(c)
-              }
-              if (!c.parent_node && oldId) {
-                c.parent_node = oldId            
-                sortedTodoArr.push(c)
-              }
-            })
-          }
+        //         sortedTodoArr.push(c)
+        //       }
+        //       if (!c.parent_node && oldId) {
+        //         c.parent_node = oldId            
+        //         sortedTodoArr.push(c)
+        //       }
+        //     })
+        //   }
           //Original code commented out to troubleshoot node to node drag method.  
           // Goal is to get parent to be child of a childless node.  
           // if (n.id == e.added.element.id) {
@@ -228,8 +249,14 @@ export default {
           //     } 
           //   })
           // }
+        // })
+        console.log("sortedTodoArr", sortedTodoArr)
+        await http.put(`/nodes/${addedNode.id}.json`, {node: {parent_node: addedNode.parent_node, position: ( e.added.newIndex )} }).then((res) => {
+          this.$parent.$parent.$parent.fetchToDos()
+        }).catch((error) => {
+          console.log(error)
         })
-        this.reorderTodo(sortedTodoArr)
+        // this.reorderTodo(sortedTodoArr)
       }
     },
     //Added checkMove method to log draggable event
