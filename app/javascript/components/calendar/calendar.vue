@@ -730,13 +730,20 @@
             elements.forEach(event => {
               // Update the height, line height, and font size of the event element's children
               let child = event.children[0]
-              child.style.height = "10px";
-              child.style.lineHeight = "10px";
-              child.style.marginTop = '6px'
-              child.querySelector('.toastui-calendar-weekday-event-title').style.fontSize = '9px';
-              child.querySelector('.toastui-calendar-weekday-event-title').style.fontWeight = '400';
-              child.querySelector('.toastui-calendar-weekday-resize-handle').style.transform = 'scale(0.8)'
-              child.querySelector('.toastui-calendar-weekday-resize-handle').style.marginTop = '4px'
+              if (child && child.style) {
+                child.style.height = "10px";
+                child.style.lineHeight = "10px";
+                child.style.marginTop = '6px'
+              }
+              if (child.querySelector('.toastui-calendar-weekday-event-title')) {
+                child.querySelector('.toastui-calendar-weekday-event-title').style.fontSize = '9px';
+                child.querySelector('.toastui-calendar-weekday-event-title').style.fontWeight = '400';
+              }
+              if (child.querySelector('.toastui-calendar-weekday-resize-handle')) {
+                child.querySelector('.toastui-calendar-weekday-resize-handle').style.transform = 'scale(0.8)'
+                child.querySelector('.toastui-calendar-weekday-resize-handle').style.marginTop = '4px'
+              }
+              
             });
           });
         }, 50);
