@@ -395,10 +395,10 @@ class Node < ApplicationRecord
   end
 
   def parent_changed
-    unless self.mindmap.mm_type == 'todo'
+    # unless self.mindmap.mm_type == 'todo'
       parent = (self.parent_node != 0 && self.parent_node != nil) ? Node.find_by_id(self.parent_node) : self
       update_parent_attr(Node.where(parent_node: self.id), parent)
-    end
+    # end
   end
 
   def disablity_changed
