@@ -43,11 +43,11 @@
                                     </b-form-input>
                                   </b-col>
                                   <b-col cols="3" sm="3">
-                                    <date-picker id="input" class="w-75" v-model='todoChildData.startDate'
+                                    <date-picker id="input" class="w-100" v-model='todoChildData.startDate'
                                       placeholder="Start Date" :format="format" ref="datePicker"></date-picker>
                                   </b-col>
                                   <b-col cols="3" sm="3">
-                                    <date-picker id="input" class="w-75" v-model='todoChildData.dueDate'
+                                    <date-picker id="input" class="w-100" v-model='todoChildData.dueDate'
                                       placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
                                   </b-col>
                                   <b-col cols="2" sm="2" class="d-flex flex-row">
@@ -79,11 +79,11 @@
                           </b-form-input>
                         </b-col>
                         <b-col cols="3">
-                          <date-picker id="input" class="w-75" v-model='todoData.startDate' placeholder="Start Date"
+                          <date-picker id="input" class="w-100" v-model='todoData.startDate' placeholder="Start Date"
                             :format="format" ref="datePicker"></date-picker>
                         </b-col>
                         <b-col cols="3">
-                          <date-picker id="input" class="w-75" v-model='todoData.dueDate' placeholder="Due Date"
+                          <date-picker id="input" class="w-100" v-model='todoData.dueDate' placeholder="Due Date"
                             :format="format" ref="datePicker"></date-picker>
                         </b-col>
                         <b-col sm="2" cols="2" class="d-flex flex-row justify-content-end">
@@ -206,6 +206,28 @@ export default {
         let nodes = this.$store.getters.getMsuite.nodes
         let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
         if (e.moved) {
+          let data = []
+          list.forEach((n, idx) => {
+            data.push({ id: n.id, position: idx })
+          })
+          console.log("data", data)
+          await http.put(`/nodes/update_all_positions`, { nodes: data }).then((res) => {
+            this.fetchToDos()
+          }).catch((error) => {
+            console.log(error)
+          })
+        } else if (e.added) {
+          let addElementNodeId = e.added.element.id
+          let otherNode = sortedTodoArr.find(n => n.id != addElementNodeId)
+          let addedNode = list.find(n => n.id == addElementNodeId)
+          addedNode.parent_node = otherNode.parent_node
+          await http.put(`/nodes/${addedNode.id}.json`, { node: { parent_node: addedNode.parent_node, position: (e.added.newIndex) } }).then((res) => {
+            this.fetchToDos()
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+        /* if (e.moved) {
           this.reorderTodo(sortedTodoArr)
         } else if (e.added) {
           let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
@@ -214,7 +236,7 @@ export default {
               n.parent_node = otherNode.parent_node
           })
           this.reorderTodo(sortedTodoArr)
-        }
+        } */
       }
     },
     checkMove(e) {
