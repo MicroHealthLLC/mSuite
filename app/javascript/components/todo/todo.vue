@@ -22,7 +22,7 @@
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <draggable class="list-group" :disabled="dragLocked" group="people" :list="sortedTodos"
-                  :move="checkMove" @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false"
+                  :move="checkMove" @change="(e) => handleEndParent(e, sortedTodos)" @start="drag = true" @end="drag = false"
                   v-bind="dragOptions">
                   <transition-group type="transition" :name="!drag ? 'list' : null">
                     <div v-for="(todo) in sortedTodos" :key="todo.id">
@@ -200,7 +200,7 @@ export default {
     }
   },
   methods: {
-    async handleEnd(e, list) {
+    async handleEndParent(e, list) {
       if (!e.removed) {
         let newIdList = list.map(i => i.id)
         let nodes = this.$store.getters.getMsuite.nodes
@@ -221,7 +221,7 @@ export default {
           let otherNode = sortedTodoArr.find(n => n.id != addElementNodeId)
           let addedNode = list.find(n => n.id == addElementNodeId)
           addedNode.parent_node = otherNode.parent_node
-          await http.put(`/nodes/${addedNode.id}.json`, { node: { parent_node: addedNode.parent_node, position: (e.added.newIndex) } }).then((res) => {
+          await http.put(`/nodes/${addedNode.id}.json`, { node: { parent_node: addedNode.parent_node, position: (e.added.newIndex), is_sprint: true } }).then((res) => {
             this.fetchToDos()
           }).catch((error) => {
             console.log(error)
