@@ -327,7 +327,8 @@ ActiveAdmin.setup do |config|
 end
 
 Rails.application.config.after_initialize do
-  javascripts = %W[//cdn.jsdelivr.net/npm/vue/dist/vue.js]
-  javascripts += ActiveAdmin.application.javascripts.to_a
-  ActiveAdmin.application.javascripts.replace javascripts
+  # javascripts = %W[//cdn.jsdelivr.net/npm/vue/dist/vue.js]
+  # javascripts += ActiveAdmin.application.javascripts.to_a
+  # ActiveAdmin.application.javascripts.replace javascripts
+  ActiveAdmin.application.javascripts["//cdn.jsdelivr.net/npm/vue/dist/vue.js"] = {}
 end
