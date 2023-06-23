@@ -42,10 +42,11 @@
                                       ref="title" type="text" :placeholder="'Add subtask for ' + todo.name">
                                     </b-form-input>
                                   </b-col>
-                                  <b-col cols="3" sm="3">
+                                  <!-- <b-col cols="3" sm="3">
                                     <date-picker id="input" class="w-100" v-model='todoChildData.startDate'
                                       placeholder="Start Date" :format="format" ref="datePicker"></date-picker>
-                                  </b-col>
+                                  </b-col> -->
+                                  <b-col cols="3" sm="3"></b-col>
                                   <b-col cols="3" sm="3">
                                     <date-picker id="input" class="w-100" v-model='todoChildData.dueDate'
                                       placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
@@ -416,7 +417,7 @@ export default {
         }, 1500)
         return
       }
-      if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d
+      /* if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d */
       if (this.todoChildData.dueDate) this.todoChildData.dueDate = moment(this.todoChildData.dueDate)._d
 
       let data = {
@@ -425,7 +426,7 @@ export default {
           description: '',
           mindmap_id: this.currentMindMap.id,
           parent_node: this.todo_parent,
-          startdate: this.todoChildData.startDate,
+          startdate: this.todoChildData.dueDate,
           duedate: this.todoChildData.dueDate,
           line_color: '#58A2B8',
           is_disabled: false,

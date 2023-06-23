@@ -109,7 +109,7 @@
                         <b-form-input v-model="selectedTodo.name" ref="title" type="text" placeholder="Your Todo">
                         </b-form-input>
                       </b-col>
-                      <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
+                      <!-- <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                         <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
                           @mouseleave="showCalendar('task-date-2')" class="dateInput">
                           <date-picker id="task-date-2" v-model='selectedTodo.startdate'
@@ -117,7 +117,8 @@
                             @close="closeDatePicker('task-date-2')" ref="date"></date-picker>
                           <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
                         </div>
-                      </b-col>
+                      </b-col> -->
+                      <b-col cols="2" sm="2"></b-col>
                       <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                         <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
                           @mouseleave="showCalendar('task-date-2')" class="dateInput">
