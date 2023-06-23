@@ -22,7 +22,7 @@
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <draggable class="list-group" :disabled="dragLocked" group="people" :list="sortedTodos"
-                  :move="checkMove" @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false"
+                  :move="checkMove" @change="(e) => handleEndParent(e, sortedTodos)" @start="drag = true" @end="drag = false"
                   v-bind="dragOptions">
                   <transition-group type="transition" :name="!drag ? 'list' : null">
                     <div v-for="(todo) in sortedTodos" :key="todo.id">
@@ -42,12 +42,13 @@
                                       ref="title" type="text" :placeholder="'Add subtask for ' + todo.name">
                                     </b-form-input>
                                   </b-col>
-                                  <b-col cols="3" sm="3">
-                                    <date-picker id="input" class="w-75" v-model='todoChildData.startDate'
+                                  <!-- <b-col cols="3" sm="3">
+                                    <date-picker id="input" class="w-100" v-model='todoChildData.startDate'
                                       placeholder="Start Date" :format="format" ref="datePicker"></date-picker>
-                                  </b-col>
+                                  </b-col> -->
+                                  <b-col cols="3" sm="3"></b-col>
                                   <b-col cols="3" sm="3">
-                                    <date-picker id="input" class="w-75" v-model='todoChildData.dueDate'
+                                    <date-picker id="input" class="w-100" v-model='todoChildData.dueDate'
                                       placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
                                   </b-col>
                                   <b-col cols="2" sm="2" class="d-flex flex-row">
@@ -79,11 +80,11 @@
                           </b-form-input>
                         </b-col>
                         <b-col cols="3">
-                          <date-picker id="input" class="w-75" v-model='todoData.startDate' placeholder="Start Date"
+                          <date-picker id="input" class="w-100" v-model='todoData.startDate' placeholder="Start Date"
                             :format="format" ref="datePicker"></date-picker>
                         </b-col>
                         <b-col cols="3">
-                          <date-picker id="input" class="w-75" v-model='todoData.dueDate' placeholder="Due Date"
+                          <date-picker id="input" class="w-100" v-model='todoData.dueDate' placeholder="Due Date"
                             :format="format" ref="datePicker"></date-picker>
                         </b-col>
                         <b-col sm="2" cols="2" class="d-flex flex-row justify-content-end">
@@ -200,12 +201,34 @@ export default {
     }
   },
   methods: {
-    async handleEnd(e, list) {
+    async handleEndParent(e, list) {
       if (!e.removed) {
         let newIdList = list.map(i => i.id)
         let nodes = this.$store.getters.getMsuite.nodes
         let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
         if (e.moved) {
+          let data = []
+          list.forEach((n, idx) => {
+            data.push({ id: n.id, position: idx })
+          })
+          console.log("data", data)
+          await http.put(`/nodes/update_all_positions`, { nodes: data }).then((res) => {
+            this.fetchToDos()
+          }).catch((error) => {
+            console.log(error)
+          })
+        } else if (e.added) {
+          let addElementNodeId = e.added.element.id
+          let otherNode = sortedTodoArr.find(n => n.id != addElementNodeId)
+          let addedNode = list.find(n => n.id == addElementNodeId)
+          addedNode.parent_node = otherNode.parent_node
+          await http.put(`/nodes/${addedNode.id}.json`, { node: { parent_node: addedNode.parent_node, position: (e.added.newIndex), is_sprint: true } }).then((res) => {
+            this.fetchToDos()
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+        /* if (e.moved) {
           this.reorderTodo(sortedTodoArr)
         } else if (e.added) {
           let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
@@ -214,7 +237,7 @@ export default {
               n.parent_node = otherNode.parent_node
           })
           this.reorderTodo(sortedTodoArr)
-        }
+        } */
       }
     },
     checkMove(e) {
@@ -394,7 +417,7 @@ export default {
         }, 1500)
         return
       }
-      if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d
+      /* if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d */
       if (this.todoChildData.dueDate) this.todoChildData.dueDate = moment(this.todoChildData.dueDate)._d
 
       let data = {
@@ -403,7 +426,7 @@ export default {
           description: '',
           mindmap_id: this.currentMindMap.id,
           parent_node: this.todo_parent,
-          startdate: this.todoChildData.startDate,
+          startdate: this.todoChildData.dueDate,
           duedate: this.todoChildData.dueDate,
           line_color: '#58A2B8',
           is_disabled: false,
