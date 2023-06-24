@@ -107,7 +107,10 @@
       </div>
     </div>
     <sweet-modal ref="errTitle" class="of_v" icon="error">
-      Node Title Can't be empty!
+      Node title can't be empty!
+    </sweet-modal>
+    <sweet-modal ref="errDates" class="of_v" icon="error">
+      {{ todoData.startDate == null ? 'Start date required when using end date' : 'End date required when using start date' }}
     </sweet-modal>
   </div>
 </template>
@@ -380,6 +383,14 @@ export default {
         setTimeout(() => {
           this.fieldDisabled = false
         }, 1500)
+        return
+      }
+      if ((this.todoData.startDate == null && this.todoData.dueDate) || this.todoData.startDate && this.todoData.dueDate == null) {
+        this.$refs['errDates'].open()
+        /* this.fieldDisabled = true
+        setTimeout(() => {
+          this.fieldDisabled = false
+        }, 1500) */
         return
       }
       if (this.todoData.startDate) this.todoData.startDate = moment(this.todoData.startDate)._d
