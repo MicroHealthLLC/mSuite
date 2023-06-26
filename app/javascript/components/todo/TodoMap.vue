@@ -36,20 +36,20 @@
                   </b-form-input>
                 </b-col>
                 <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                  <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
-                    @mouseleave="showCalendar('task-date')" class="dateInput">
-                    <date-picker id="task-date" v-model='selectedTodo.startdate'
+                  <div @mouseenter="hideCalendar('task-date-sd')" @mouseover="hideClear('task-date-sd')"
+                    @mouseleave="showCalendar('task-date-sd')" class="dateInput">
+                    <date-picker id="task-date-sd" v-model='selectedTodo.startdate'
                       :placeholder="formatDate(selectedTodo.startdate)" :format="format" ref="datePicker"
-                      @close="closeDatePicker('task-date')"></date-picker>
+                      @close="closeDatePicker('task-date-sd')"></date-picker>
                     <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
                   </div>
                 </b-col>
                 <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                  <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
-                    @mouseleave="showCalendar('task-date')" class="dateInput">
-                    <date-picker id="task-date" v-model='selectedTodo.duedate'
+                  <div @mouseenter="hideCalendar('task-date-dd')" @mouseover="hideClear('task-date-dd')"
+                    @mouseleave="showCalendar('task-date-dd')" class="dateInput">
+                    <date-picker id="task-date-dd" v-model='selectedTodo.duedate'
                       :placeholder="formatDate(selectedTodo.duedate)" :format="format" ref="datePicker"
-                      @close="closeDatePicker('task-date')"></date-picker>
+                      @close="closeDatePicker('task-date-dd')"></date-picker>
                     <i @click="selectedTodo.duedate = ''" class="fa fa-remove iconClear"></i>
                   </div>
                 </b-col>
