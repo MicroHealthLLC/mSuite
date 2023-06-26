@@ -110,7 +110,10 @@
       Node title can't be empty!
     </sweet-modal>
     <sweet-modal ref="errDates" class="of_v" icon="error">
-      {{ todoData.startDate == null ? 'Start date required when using end date' : 'End date required when using start date' }}
+      {{ todoData.startDate == null ? 'Start date required when using due date' : todoData.dueDate == null ? 'Due date required when using start date' : 'Not a valid date range' }}
+    </sweet-modal>
+    <sweet-modal ref="errDatesUpdate" class="of_v" icon="error">
+      {{ selectedTodo.startdate == '' ? 'Start date required when using due date' : selectedTodo.duedate == '' ? 'Due date required when using start date' : 'Not a valid date range' }}
     </sweet-modal>
   </div>
 </template>
@@ -385,7 +388,7 @@ export default {
         }, 1500)
         return
       }
-      if ((this.todoData.startDate == null && this.todoData.dueDate) || this.todoData.startDate && this.todoData.dueDate == null) {
+      if ((this.todoData.startDate == null && this.todoData.dueDate) || this.todoData.startDate && this.todoData.dueDate == null || (moment(this.todoData.dueDate)._d) < moment(this.todoData.startDate)._d) {
         this.$refs['errDates'].open()
         /* this.fieldDisabled = true
         setTimeout(() => {
@@ -461,6 +464,11 @@ export default {
         setTimeout(() => {
           this.fieldDisabled = false
         }, 1500)
+        return
+      }
+      if (((todo.startdate == null || todo.startdate == '') && todo.duedate) || todo.startdate && (todo.duedate == null || todo.duedate == '') || (moment(todo.duedate)._d) < moment(todo.startdate)._d) {
+        console.log(this.selectedTodo)
+        this.$refs['errDatesUpdate'].open()
         return
       }
       if (this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
