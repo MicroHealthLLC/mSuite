@@ -211,6 +211,7 @@ export default {
         console.log("sortedTodoArr", sortedTodoArr)
         let addedNode = list.find(n => n.id == addElementNodeId)
         addedNode.parent_node = pNode.id
+        addedNode.startdate = addedNode.duedate
 
         this.showInputFieldToggle(addedNode)
         console.log("sortedTodoArr", sortedTodoArr)
