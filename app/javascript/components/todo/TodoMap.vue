@@ -286,13 +286,15 @@ export default {
     },
     updateTodo(todo, title, completed) {
       if (todo.duedate != undefined && todo.duedate !== '' && todo.duedate.getTime != undefined) {
-        todo.duedate = new Date(todo.duedate.getTime() - (todo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0] 
-        todo.startdate = todo.duedate
+        todo.duedate = new Date(todo.duedate.getTime() - (todo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+        if (this.sortedChildTodos.map(c => c.id).includes(todo.id)) {
+          todo.startdate = todo.duedate
+        } 
       }
       
-      /* if (todo.startdate != undefined && todo.startdate !== '' && todo.startdate.getTime != undefined) {
+      if (todo.startdate != undefined && todo.startdate !== '' && todo.startdate.getTime != undefined && !this.sortedChildTodos.map(c => c.id).includes(todo.id)) {
         todo.startdate = new Date(todo.startdate.getTime() - (todo.startdate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
-      } */
+      }
       this.$emit("updateTodo", todo, title, completed)
     },
     myTodo(todo) {
