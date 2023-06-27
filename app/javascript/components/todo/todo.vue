@@ -520,6 +520,7 @@ export default {
         this.undoNodes.push({ 'req': 'addNode', node: todo })
       }
       this.updateTodoUser()
+      console.log(todo)
       http.put(`/nodes/${todo.id}`, todo)
       this.selectedTodo = { id: '' }
       this.editInProgress = false

@@ -12,7 +12,7 @@
         </div>
         <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)" class="dueDate col-3"
           :class="{ 'line-through': node.is_disabled }">
-          {{ node.startdate && node.startdate != node.duedate ? `Start: ${formatDate(node.startdate)}` : '' }}
+          {{ node.startdate && node.startdate != '' && node.startdate != node.duedate ? `Start: ${formatDate(node.startdate)}` : '' }}
         </span>
         <span v-else class="col-3"></span>
         <span v-if="selectedTodo.id != node.id && node" @click="showInputFieldToggle(node)" class="dueDate col-2"
@@ -96,7 +96,7 @@
               </div>
               <span v-if="selectedTodo.id != child.id" @click="showInputFieldToggle(child)" class="col-3 dueDate pl-1"
                 :class="{ 'line-through': child.is_disabled }">
-                {{ child.startdate && child.startdate != child.duedate ? `Start: ${formatDate(child.startdate)}` : '' }}
+                {{ child.startdate && child.startdate != '' && child.startdate != child.duedate ? `Start: ${formatDate(child.startdate)}` : '' }}
               </span>
               <span v-else class="col-3"></span>
               <span @click="showInputFieldToggle(child)" class="col-2 dueDate pl-1"
@@ -221,6 +221,10 @@ export default {
         // let movedNode = list.find(n => n.id == movedElementNodeId)
         await http.put(`/nodes/update_all_positions`, {nodes: data }).then((res) => {
           this.$parent.$parent.$parent.fetchToDos()
+          console.log(this.sortedChildTodos)
+          setTimeout(() => {
+            console.log(this.sortedChildTodos)
+          }, 3000);
         }).catch((error) => {
           console.log(error)
         })
@@ -306,12 +310,12 @@ export default {
     updateTodo(todo, title, completed) {
       if (todo.duedate != undefined && todo.duedate !== '' && todo.duedate.getTime != undefined) {
         todo.duedate = new Date(todo.duedate.getTime() - (todo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
-        if (this.sortedChildTodos.map(c => c.id).includes(todo.id)) {
+        /* if (this.sortedChildTodos.map(c => c.id).includes(todo.id)) {
           todo.startdate = todo.duedate
-        } 
+        } */ 
       }
       
-      if (todo.startdate != undefined && todo.startdate !== '' && todo.startdate.getTime != undefined && !this.sortedChildTodos.map(c => c.id).includes(todo.id)) {
+      if (todo.startdate != undefined && todo.startdate !== '' && todo.startdate.getTime != undefined/*  && !this.sortedChildTodos.map(c => c.id).includes(todo.id) */) {
         todo.startdate = new Date(todo.startdate.getTime() - (todo.startdate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
       }
       this.$emit("updateTodo", todo, title, completed)
@@ -332,6 +336,9 @@ export default {
       this.$emit("toggleDeleteTodo", todo)
     },
     showInputFieldToggle(todo) {
+      console.log(todo)
+      console.log(this.selectedChildTodoRange)
+      console.log(this.selectedTodoRange)
       if (this.editStatus) {
         this.fieldDisabled = true
         setTimeout(() => {
