@@ -334,7 +334,7 @@ export default {
     },
     renderTodos() {
       let parent_nodes = []
-      let date = ''
+      let duedate = ''
       let startDate = ''
       this.todos.forEach((node) => {
         if (node.parent_node == null) {
@@ -342,54 +342,54 @@ export default {
         }
       })
       parent_nodes = parent_nodes.map((node, index) => {
-        if (node.duedate != null) {
-          date = new Date(node.duedate).toLocaleDateString("en-US")
-        } else {
-          date = node.duedate
-        }
-        if (node.startdate != null) {
-          startDate = new Date(node.startdate).toLocaleDateString("en-US")
-        }
-        return {
+        let obj = {
           name: node.title,
           id: node.id,
           is_disabled: node.is_disabled,
           counter: 0,
-          duedate: date,
-          startdate: startDate,
+          duedate: node.duedate,
+          startdate: node.startdate,
           children: []
         }
+        if (obj["duedate"]) {
+          obj["duedate"] = new Date(node.duedate).toLocaleDateString("en-US")
+        }
+        if (obj["startdate"]) {
+          obj["startdate"] = new Date(node.startdate).toLocaleDateString("en-US")
+        }
+        return obj; 
       })
       this.getChildNode(parent_nodes)
     },
     getChildNode(parent_nodes) {
       let childNodes = []
-      let date = ''
-      let startDate = ''
       this.todos.forEach((node) => {
-        if (node.duedate != null) {
-          date = new Date(node.duedate).toLocaleDateString("en-US")
-        } else {
-          date = node.duedate
-        }
-        if (node.startdate != null) {
-          startDate = new Date(node.startdate).toLocaleDateString("en-US")
-        }
+
         parent_nodes.forEach((p, index) => {
           if (p.id == node.parent_node) {
+
             let obj = {
               name: node.title,
               id: node.id,
               is_disabled: node.is_disabled,
               parent: p.id,
-              startdate: startDate,
-              duedate: date,
+              duedate: node.duedate,
+              startdate: node.startdate,
               children: []
+            }
+
+            if (obj["duedate"]) {
+              obj["duedate"] = new Date(node.duedate).toLocaleDateString("en-US")
+            }
+            if (obj["startdate"]) {
+              obj["startdate"] = new Date(node.startdate).toLocaleDateString("en-US")
             }
             parent_nodes[index].children.push(obj)
           }
         })
       })
+      console.log("getChildNode", parent_nodes)
+
       if (childNodes.length > 0) {
         this.getChildNode(_.uniq(childNodes))
       }
