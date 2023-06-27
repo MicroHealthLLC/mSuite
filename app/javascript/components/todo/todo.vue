@@ -452,7 +452,7 @@ export default {
         }, 1500)
         return
       }
-      /* if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d */
+      if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d
       if (this.todoChildData.dueDate) this.todoChildData.dueDate = moment(this.todoChildData.dueDate)._d
 
       let data = {
@@ -461,7 +461,7 @@ export default {
           description: '',
           mindmap_id: this.currentMindMap.id,
           parent_node: this.todo_parent,
-          startdate: this.todoChildData.dueDate,
+          startdate: this.todoChildData.startDate,
           duedate: this.todoChildData.dueDate,
           line_color: '#58A2B8',
           is_disabled: false,
