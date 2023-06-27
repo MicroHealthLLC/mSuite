@@ -304,6 +304,8 @@ export default {
       this.todo = {}
       this.todoData = { title: null, date: null }
       this.todoChildData = { title: null, date: null }
+      this.parentRange = []
+      this.childRange = []
     },
     cancelChildObj() {
       this.showChildModalTodo = false
