@@ -31,20 +31,29 @@
           <div class="container relative z-20 max-w-xl mt-20 h-min">
             <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
               <b-row>
-                <b-col cols="4" sm="4">
+                <b-col cols="6" sm="6">
                   <b-form-input v-model="selectedTodo.name" ref="title" type="text" placeholder="Your Todo">
                   </b-form-input>
                 </b-col>
-                <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                  <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
+                <b-col cols="4" sm="4" class="w-50 d-flex flex-row">
+                  <!-- <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
                     @mouseleave="showCalendar('task-date')" class="dateInput">
                     <date-picker id="task-date" v-model='selectedTodo.startdate'
                       :placeholder="formatDate(selectedTodo.startdate)" :format="format" ref="datePicker"
                       @close="closeDatePicker('task-date')"></date-picker>
                     <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
-                  </div>
+                  </div> -->
+                  <el-date-picker
+                    v-model="selectedTodoRange"
+                    type="daterange"
+                    start-placeholder="Start"
+                    end-placeholder="Due"
+                    unlink-panels
+                    format="MM/dd/yyyy"
+                    alight="right">
+                  </el-date-picker>
                 </b-col>
-                <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
+                <!-- <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                   <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
                     @mouseleave="showCalendar('task-date')" class="dateInput">
                     <date-picker id="task-date" v-model='selectedTodo.duedate'
@@ -52,7 +61,7 @@
                       @close="closeDatePicker('task-date')"></date-picker>
                     <i @click="selectedTodo.duedate = ''" class="fa fa-remove iconClear"></i>
                   </div>
-                </b-col>
+                </b-col> -->
                 <b-col sm="2" cols="2" class="d-flex flex-row">
                   <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
                       class="fas fa-save"></i></b-button>
@@ -105,7 +114,7 @@
                 <div class="container relative z-20 max-w-xl mt-20 h-min">
                   <b-form @submit.prevent="updateTodo(selectedTodo, selectedTodo.name, selectedTodo.is_disabled)">
                     <b-row>
-                      <b-col sm="4" cols="4">
+                      <b-col sm="6" cols="6">
                         <b-form-input v-model="selectedTodo.name" ref="title" type="text" placeholder="Your Todo">
                         </b-form-input>
                       </b-col>
@@ -118,15 +127,23 @@
                           <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
                         </div>
                       </b-col> -->
-                      <b-col cols="2" sm="2"></b-col>
-                      <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                        <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
+                      <b-col cols="4" sm="4" class="w-50 d-flex flex-row">
+                        <el-date-picker
+                          v-model="selectedChildTodoRange"
+                          type="daterange"
+                          start-placeholder="Start"
+                          end-placeholder="Due"
+                          unlink-panels
+                          format="MM/dd/yyyy"
+                          alight="right">
+                        </el-date-picker>
+                        <!-- <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
                           @mouseleave="showCalendar('task-date-2')" class="dateInput">
                           <date-picker id="task-date-2" v-model='selectedTodo.duedate'
                             :placeholder="formatDate(selectedTodo.duedate)" :format="format"
                             @close="closeDatePicker('task-date-2')" ref="date"></date-picker>
                           <i @click="selectedTodo.duedate = ''" class="fa fa-remove iconClear"></i>
-                        </div>
+                        </div> -->
                       </b-col>
                       <b-col sm="2" cols="2" class="d-flex flex-row">
                         <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
@@ -170,7 +187,9 @@ export default {
       editStatus: false,
       prevElement: null,
       dropElement: null,
-      drag: false
+      drag: false,
+      selectedTodoRange: [],
+      selectedChildTodoRange: []
     }
   },
   methods: {
@@ -369,6 +388,18 @@ export default {
       handler(value) {
         this.editStatus = value
       }, deep: true
+    },
+    selectedTodoRange() {
+      if (this.selectedTodoRange) {
+        this.selectedTodo.startdate = this.selectedTodoRange[0]
+        this.selectedTodo.duedate = this.selectedTodoRange[1]
+      }
+    },
+    selectedChildTodoRange() {
+      if (this.selectedChildTodoRange) {
+        this.selectedTodo.startdate = this.selectedChildTodoRange[0]
+        this.selectedTodo.duedate = this.selectedChildTodoRange[1]
+      }
     }
   }
 };
