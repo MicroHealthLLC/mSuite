@@ -5,15 +5,6 @@
         <i class="material-icons text-white">add</i>
       </div>
     </div>
-    
-    <div class="row">
-      <div class="col-12 pr-0 pl-2 d-flex justify-content-center" v-if="actionType == 'create'">
-        <input type="radio" v-model="isSprint" :value="true" />
-        <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Sprint&nbsp;&nbsp;</label>
-        <input type="radio" v-model="isSprint" :value="false" />
-        <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Event</label>
-      </div>
-    </div>
 
     <div v-if="isSprint == true">
       <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Sprint</h3>
@@ -25,6 +16,21 @@
       <h3 v-else class="f_smooth_auto">Add Event</h3>
     </div>
 
+    <div class="row">
+      <div class="col-12 pr-0 pl-2 d-flex justify-content-center align-items-center">
+        <div>
+          <input type="radio" v-model="isSprint" :value="true" />
+          <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Sprint&nbsp;&nbsp;</label>
+          <input type="radio" v-model="isSprint" :value="false" />
+          <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Event&nbsp;&nbsp;</label>
+        </div>
+        <div v-if="!isSprint" class="ml-4">
+          <input type="checkbox" class="mr-2" v-model="standalone" style="transform: scale(0.8);" />
+          <label class="form-label mt-2" for="checkbox" style="font-size: 0.8rem;">Don't include in sprints</label>
+        </div>
+      </div>
+    </div>
+
     <div class="w-100">
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Title" v-model="title" :validateValues="validateValues"/>
@@ -33,33 +39,55 @@
         <input class="inputBox col-12" type="text" placeholder="Enter Description" v-model="description"/>
       </div>
 
-      <div class="row">
+      <div class="row mt-4">
         <div class="col-10 d-flex content-justified-start px-0" v-if="allDay">
-          <label class="form-label mt-1">Start</label>
-          <DatePicker class="mx-1" type="date" format="MM/DD/YYYY" v-model="startDate"></DatePicker>
-          <label class="form-label mt-1">End</label>
-          <DatePicker class="mx-1" type="date" format="MM/DD/YYYY" v-model="endDate"></DatePicker>
+          <label class="form-label mt-1">Start:</label>
+          <DatePicker class="mx-2" type="date" format="MM/DD/YYYY" v-model="startDate"></DatePicker>
+          <label class="form-label ml-4 mt-1">End:</label>
+          <DatePicker class="mx-2" type="date" format="MM/DD/YYYY" v-model="endDate"></DatePicker>
         </div>
-        <div class="col-10 d-flex content-justified-start px-0" v-else>
+        <!-- <div class="col-10 d-flex content-justified-start px-0" v-else>
           <label class="form-label mt-1">Start</label>
           <DatePicker class="mx-1" format="MM/DD/YYYY HH:mm" type="datetime" :minute-options="datePickerMinutes" v-model="startDate"></DatePicker>
           <label class="form-label mt-1">End</label>
           <DatePicker class="mx-1" format="MM/DD/YYYY HH:mm" :minute-options="datePickerMinutes" type="datetime" v-model="endDate"></DatePicker>
+        </div> -->
+        <span v-else>
+          <div class="col-10 d-flex content-justified-start px-0">
+            <strong class="mt-1">Start: </strong>
+            <div>
+              <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="startDate"></DatePicker>
+            </div>
+            <div>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
+            </div>
+          </div>
+
+          <div class="col-10 d-flex content-justified-start px-0 mt-4">
+            <strong class="mt-1">End: </strong>
+            <div class="end-date-picker">
+              <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="endDate"></DatePicker>
+            </div>
+            <div>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
+            </div>
+          </div>
+        </span>
+        <div class="col-4 d-flex content-justified-start mt-2" v-if="allDayNotHidden" >
+            <input type="checkbox" v-model="allDay" v-if="!isSprint">
+            <label class="form-label ml-2 mt-2" for="checkbox" style="white-space: nowrap;" v-if="!isSprint">All Day</label>
+          </div>
         </div>
-        <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="allDayNotHidden" >
-          <input type="checkbox" class="mr-2" v-model="allDay">
-          <label class="form-label mt-2" for="checkbox">All Day</label>
-        </div>
-        <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="isSprint == false" >
-          <input type="checkbox" class="mr-2" v-model="standalone">
-          <label class="form-label mt-2" for="checkbox">Standalone</label>
-        </div>
-      </div>
 
       <div class="row">
         <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
           <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
-          <select class="w-50 form-control" v-model="parentNode">
+          <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
+            <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+          </select>
+          <select v-else class="w-50 form-control" v-model="parentNode">
             <option v-for="sprint in multipleSprints" :value="sprint.id">
               {{ sprint.title }}
             </option>
@@ -137,6 +165,10 @@
         console.log("eventDates", newValue, oldValue)
         this.setDefaultValues()
         this.updateSelectedDate()
+        if (new Date(newValue.end) - new Date(newValue.start) > 86400000 && this.actionType == 'create') {
+          this.isSprint = true
+          this.allDay = true
+        }
       },
       showEvent: {
         handler(newValue, oldValue) {
@@ -201,7 +233,7 @@
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
-        console.log("showSelectedEvent", this.showEvent)
+        //console.log("showSelectedEvent", this.showEvent)
         this.standalone = this.showEvent.raw.standalone
         this.isSprint = this.showEvent.raw.isSprint
         this.parentNode = this.showEvent.raw.parentNode
@@ -228,15 +260,20 @@
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
           data.backgroundColor = this.showEvent.backgroundColor;
+          if (data.raw.isSprint) {
+            data.raw.parentNode = null
+            data.raw.standalone = false
+            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor)) || data.backgroundColor === "#363636") data.backgroundColor = this.getRandomColor()
+          }
         }
-        if (data.isAllday && this.isSprint) {
+        if (data.isAllday) {
           data.start.setHours(0, 0, 0, 0)
           data.end.setHours(23, 59, 59, 999)
         }
         console.log("data obj:", data)
         return data;
       },
-      getRandomColor() {
+      /* getRandomColor() {
         let colorCode;
         do {
           // Generate a random hexadecimal color code
@@ -264,7 +301,7 @@
         const b = parseInt(hex.substring(4, 6), 16);
 
         return { r, g, b };
-      },
+      }, */
       /* getRandomColor() {
         // Generate a random hexadecimal color code
         return '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -375,6 +412,9 @@
           // Set end time to start time + 1 hour
           this.endDate.setHours(startDateHours + 1);
           this.endDate.setMinutes(startDateMinutes);
+          if (this.endDate > this.startDate) {
+            this.isValueInvalid = false
+          }
         } else {
           // Valid end time or multiple-day event
           this.errorMessage = '';
@@ -448,5 +488,8 @@
 }
 input:focus {
   outline: none;
+  }
+.end-date-picker {
+  margin-left: 6px;
   }
 </style>

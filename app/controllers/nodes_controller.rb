@@ -92,6 +92,16 @@ class NodesController < AuthenticatedController
     end
   end
 
+  def update_all_positions    
+    params[:nodes].each do |n|
+      Node.find(n[:id]).update(position: n[:position])
+    end
+    respond_to do |format|
+      format.json { render json: {success: true}}
+      format.html { }
+    end
+  end
+
   private
 
   def hide_show_nested_children(nodes)

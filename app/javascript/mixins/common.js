@@ -111,5 +111,34 @@ export default {
         date = new Date(date)
         return new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
       },
+      getRandomColor() {
+        let colorCode;
+        do {
+          // Generate a random hexadecimal color code
+          colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        } while (this.isColorTooLightOrDark(colorCode) && colorCode.length != 7);
+        return colorCode;
+      },
+      isColorTooLightOrDark(colorCode) {
+        // Convert the color code to RGB values
+        const rgb = this.hexToRgb(colorCode);
+
+        // Calculate the perceived brightness using the formula: (R * 299 + G * 587 + B * 114) / 1000
+        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+
+        // Check if the brightness is too light or dark
+        return brightness < 100 || brightness > 200;
+      },
+      hexToRgb(hex) {
+        // Remove the '#' character from the hex code
+        hex = hex.replace('#', '');
+
+        // Convert the hex code to RGB values
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        return { r, g, b };
+      },
   }
 }

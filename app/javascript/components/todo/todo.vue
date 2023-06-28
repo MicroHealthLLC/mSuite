@@ -22,7 +22,7 @@
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
                 <draggable class="list-group" :disabled="dragLocked" group="people" :list="sortedTodos"
-                  :move="checkMove" @change="(e) => handleEnd(e, sortedTodos)" @start="drag = true" @end="drag = false"
+                  :move="checkMove" @change="(e) => handleEndParent(e, sortedTodos)" @start="drag = true" @end="drag = false"
                   v-bind="dragOptions">
                   <transition-group type="transition" :name="!drag ? 'list' : null">
                     <div v-for="(todo) in sortedTodos" :key="todo.id">
@@ -37,16 +37,32 @@
                             <div class="container relative z-20 max-w-xl mt-20 h-min">
                               <b-form @submit.prevent="addChildTodo()">
                                 <b-row>
-                                  <b-col cols="5" sm="5">
+                                  <b-col cols="6" sm="6">
                                     <b-form-input :class="fieldDisabled ? 'shake' : ''" v-model="todoChildData.title"
                                       ref="title" type="text" :placeholder="'Add subtask for ' + todo.name">
                                     </b-form-input>
                                   </b-col>
-                                  <b-col cols="5" sm="5">
-                                    <date-picker id="input" class="w-75" v-model='todoChildData.date'
+                                  <!-- <b-col cols="3" sm="3">
+                                    <date-picker id="input" class="w-100" v-model='todoChildData.startDate'
+                                      placeholder="Start Date" :format="format" ref="datePicker"></date-picker>
+                                  </b-col> -->
+                                  <!-- <b-col cols="3" sm="3">
+                                    <date-picker id="input" class="w-100" v-model='todoChildData.dueDate'
                                       placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
+                                  </b-col> -->
+                                  <b-col cols="4">
+                                    <!-- <el-date-picker
+                                      v-model="childRange"
+                                      type="daterange"
+                                      start-placeholder="Start"
+                                      end-placeholder="Due"
+                                      unlink-panels
+                                      format="MM/dd/yyyy"
+                                      alight="right">
+                                    </el-date-picker> -->
+                                    <date-picker id="input" class="w-100" v-model="childRange" :format="format" range range-separator=" - "></date-picker>
                                   </b-col>
-                                  <b-col cols="2" sm="2" class="d-flex flex-row">
+                                  <b-col cols="2" sm="2" class="d-flex flex-row justify-content-end">
                                     <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
                                         class="fas fa-save"></i> </b-button>
                                     <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary"
@@ -69,15 +85,29 @@
                   <div class="container relative max-w-xl mt-20 h-min">
                     <b-form @submit.prevent="addTodo()">
                       <b-row>
-                        <b-col cols="5" class="todo-field">
+                        <b-col cols="6" class="todo-field">
                           <b-form-input :class="fieldDisabled ? 'shake' : ''" v-model="todoData.title" ref="title"
                             type="text" :placeholder="placeHolderText">
                           </b-form-input>
                         </b-col>
-                        <b-col cols="5">
-                          <date-picker id="input" class="w-75" v-model='todoData.date' placeholder="Due Date"
-                            :format="format" ref="datePicker"></date-picker>
+                        <b-col cols="4">
+                          <!-- <date-picker id="input" class="w-100" v-model='todoData.startDate' placeholder="Start Date"
+                            :format="format" ref="datePicker"></date-picker> -->
+                          <!-- <el-date-picker
+                            v-model="parentRange"
+                            type="daterange"
+                            start-placeholder="Start"
+                            end-placeholder="Due"
+                            unlink-panels
+                            format="MM/dd/yyyy"
+                            alight="right">
+                          </el-date-picker> -->
+                          <date-picker id="input" class="w-100" v-model="parentRange" :format="format" range range-separator=" - "></date-picker>
                         </b-col>
+                        <!-- <b-col cols="3">
+                          <date-picker id="input" class="w-100" v-model='todoData.dueDate' placeholder="Due Date"
+                            :format="format" ref="datePicker"></date-picker>
+                        </b-col> -->
                         <b-col sm="2" cols="2" class="d-flex flex-row justify-content-end">
                           <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
                               class="fas fa-save"></i> </b-button>
@@ -98,7 +128,13 @@
       </div>
     </div>
     <sweet-modal ref="errTitle" class="of_v" icon="error">
-      Node Title Can't be empty!
+      Node title can't be empty!
+    </sweet-modal>
+    <sweet-modal ref="errDates" class="of_v" icon="error">
+      {{ todoData.startDate == null ? 'Start date required when using due date' : todoData.dueDate == null ? 'Due date required when using start date' : 'Not a valid date range' }}
+    </sweet-modal>
+    <sweet-modal ref="errDatesUpdate" class="of_v" icon="error">
+      {{ selectedTodo.startdate == '' ? 'Start date required when using due date' : selectedTodo.duedate == '' ? 'Due date required when using start date' : 'Not a valid date range' }}
     </sweet-modal>
   </div>
 </template>
@@ -143,7 +179,7 @@ export default {
       completedTasks: null,
       selectedTodoDelete: null,
       disabledBefore: new Date(),
-      placeHolderText: 'Your Todo',
+      placeHolderText: 'Add Todo',
       fieldDisabled: false,
       format: 'MM/DD/YYYY',
       editInProgress: false,
@@ -152,6 +188,8 @@ export default {
       undoDone: false,
       drag: false,
       dragLocked: isMobile ? true : false,
+      parentRange: [],
+      childRange: [],
     }
   },
   components: {
@@ -192,12 +230,34 @@ export default {
     }
   },
   methods: {
-    async handleEnd(e, list) {
+    async handleEndParent(e, list) {
       if (!e.removed) {
         let newIdList = list.map(i => i.id)
         let nodes = this.$store.getters.getMsuite.nodes
         let sortedTodoArr = this.relativeSortArray(nodes, newIdList)
         if (e.moved) {
+          let data = []
+          list.forEach((n, idx) => {
+            data.push({ id: n.id, position: idx })
+          })
+          console.log("data", data)
+          await http.put(`/nodes/update_all_positions`, { nodes: data }).then((res) => {
+            this.fetchToDos()
+          }).catch((error) => {
+            console.log(error)
+          })
+        } else if (e.added) {
+          let addElementNodeId = e.added.element.id
+          let otherNode = sortedTodoArr.find(n => n.id != addElementNodeId)
+          let addedNode = list.find(n => n.id == addElementNodeId)
+          addedNode.parent_node = otherNode.parent_node
+          await http.put(`/nodes/${addedNode.id}.json`, { node: { parent_node: addedNode.parent_node, position: (e.added.newIndex), is_sprint: true } }).then((res) => {
+            this.fetchToDos()
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+        /* if (e.moved) {
           this.reorderTodo(sortedTodoArr)
         } else if (e.added) {
           let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
@@ -206,7 +266,7 @@ export default {
               n.parent_node = otherNode.parent_node
           })
           this.reorderTodo(sortedTodoArr)
-        }
+        } */
       }
     },
     checkMove(e) {
@@ -246,6 +306,8 @@ export default {
       this.todo = {}
       this.todoData = { title: null, date: null }
       this.todoChildData = { title: null, date: null }
+      this.parentRange = []
+      this.childRange = []
     },
     cancelChildObj() {
       this.showChildModalTodo = false
@@ -276,7 +338,7 @@ export default {
     },
     renderTodos() {
       let parent_nodes = []
-      let date = ''
+      let duedate = ''
       let startDate = ''
       this.todos.forEach((node) => {
         if (node.parent_node == null) {
@@ -284,54 +346,54 @@ export default {
         }
       })
       parent_nodes = parent_nodes.map((node, index) => {
-        if (node.duedate != null) {
-          date = new Date(node.duedate).toLocaleDateString("en-US")
-        } else {
-          date = node.duedate
-        }
-        if (node.startdate != null) {
-          startDate = new Date(node.startdate).toLocaleDateString("en-US")
-        }
-        return {
+        let obj = {
           name: node.title,
           id: node.id,
           is_disabled: node.is_disabled,
           counter: 0,
-          duedate: date,
-          startdate: startDate,
+          duedate: node.duedate,
+          startdate: node.startdate,
           children: []
         }
+        if (obj["duedate"]) {
+          obj["duedate"] = new Date(node.duedate).toLocaleDateString("en-US")
+        }
+        if (obj["startdate"]) {
+          obj["startdate"] = new Date(node.startdate).toLocaleDateString("en-US")
+        }
+        return obj; 
       })
       this.getChildNode(parent_nodes)
     },
     getChildNode(parent_nodes) {
       let childNodes = []
-      let date = ''
-      let startDate = ''
       this.todos.forEach((node) => {
-        if (node.duedate != null) {
-          date = new Date(node.duedate).toLocaleDateString("en-US")
-        } else {
-          date = node.duedate
-        }
-        if (node.startdate != null) {
-          startDate = new Date(node.startdate).toLocaleDateString("en-US")
-        }
+
         parent_nodes.forEach((p, index) => {
           if (p.id == node.parent_node) {
+
             let obj = {
               name: node.title,
               id: node.id,
               is_disabled: node.is_disabled,
               parent: p.id,
-              startdate: startDate,
-              duedate: date,
+              duedate: node.duedate,
+              startdate: node.startdate,
               children: []
+            }
+
+            if (obj["duedate"]) {
+              obj["duedate"] = new Date(node.duedate).toLocaleDateString("en-US")
+            }
+            if (obj["startdate"]) {
+              obj["startdate"] = new Date(node.startdate).toLocaleDateString("en-US")
             }
             parent_nodes[index].children.push(obj)
           }
         })
       })
+      console.log("getChildNode", parent_nodes)
+
       if (childNodes.length > 0) {
         this.getChildNode(_.uniq(childNodes))
       }
@@ -351,17 +413,27 @@ export default {
         }, 1500)
         return
       }
-      if (this.todoData.date) this.todoData.date = moment(this.todoData.date)._d
+      if ((this.todoData.startDate == null && this.todoData.dueDate) || this.todoData.startDate && this.todoData.dueDate == null || (moment(this.todoData.dueDate)._d) < moment(this.todoData.startDate)._d) {
+        this.$refs['errDates'].open()
+        /* this.fieldDisabled = true
+        setTimeout(() => {
+          this.fieldDisabled = false
+        }, 1500) */
+        return
+      }
+      if (this.todoData.startDate) this.todoData.startDate = moment(this.todoData.startDate)._d
+      if (this.todoData.dueDate) this.todoData.dueDate = moment(this.todoData.dueDate)._d
       let data = {
         node: {
           title: this.todoData.title,
           description: '',
           mindmap_id: this.currentMindMap.id,
-          startdate: this.todoData.date,
-          duedate: this.todoData.date,
+          startdate: this.todoData.startDate,
+          duedate: this.todoData.dueDate,
           is_disabled: false,
           hide_children: true,
-          line_color: '#18A2B8'
+          line_color: this.getRandomColor(),
+          is_sprint: true,
         }
       }
       this.updateTodoUser()
@@ -384,7 +456,8 @@ export default {
         }, 1500)
         return
       }
-      if (this.todoChildData.date) this.todoChildData.date = moment(this.todoChildData.date)._d
+      if (this.todoChildData.startDate) this.todoChildData.startDate = moment(this.todoChildData.startDate)._d
+      if (this.todoChildData.dueDate) this.todoChildData.dueDate = moment(this.todoChildData.dueDate)._d
 
       let data = {
         node: {
@@ -392,8 +465,8 @@ export default {
           description: '',
           mindmap_id: this.currentMindMap.id,
           parent_node: this.todo_parent,
-          startdate: this.todoChildData.date,
-          duedate: this.todoChildData.date,
+          startdate: this.todoChildData.startDate,
+          duedate: this.todoChildData.dueDate,
           line_color: '#58A2B8',
           is_disabled: false,
           hide_children: true
@@ -416,6 +489,11 @@ export default {
         setTimeout(() => {
           this.fieldDisabled = false
         }, 1500)
+        return
+      }
+      if (((todo.startdate == null || todo.startdate == '') && todo.duedate) || todo.startdate && (todo.duedate == null || todo.duedate == '') || (moment(todo.duedate)._d) < moment(todo.startdate)._d) {
+        console.log(this.selectedTodo)
+        this.$refs['errDatesUpdate'].open()
         return
       }
       if (this.selectedTodo.duedate && typeof this.selectedTodo.duedate !== 'string') {
@@ -446,6 +524,7 @@ export default {
         this.undoNodes.push({ 'req': 'addNode', node: todo })
       }
       this.updateTodoUser()
+      console.log(todo)
       http.put(`/nodes/${todo.id}`, todo)
       this.selectedTodo = { id: '' }
       this.editInProgress = false
@@ -571,6 +650,18 @@ export default {
         //this.fetchToDos()
       }, deep: true
     },
+    parentRange() {
+      if (this.parentRange) {
+        this.todoData.startDate = this.parentRange[0]
+        this.todoData.dueDate = this.parentRange[1]
+      }
+    },
+    childRange() {
+      if (this.childRange) {
+        this.todoChildData.startDate = this.childRange[0]
+        this.todoChildData.dueDate = this.childRange[1]
+      }
+    }
   }
 }
 </script>
