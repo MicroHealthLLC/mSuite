@@ -51,7 +51,7 @@
                                       placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
                                   </b-col> -->
                                   <b-col cols="4">
-                                    <el-date-picker
+                                    <!-- <el-date-picker
                                       v-model="childRange"
                                       type="daterange"
                                       start-placeholder="Start"
@@ -59,7 +59,8 @@
                                       unlink-panels
                                       format="MM/dd/yyyy"
                                       alight="right">
-                                    </el-date-picker>
+                                    </el-date-picker> -->
+                                    <date-picker id="input" class="w-100" v-model="childRange" :format="format" range range-separator=" - "></date-picker>
                                   </b-col>
                                   <b-col cols="2" sm="2" class="d-flex flex-row justify-content-end">
                                     <b-button v-b-tooltip.hover title="Save" type="submit" variant="success"> <i
@@ -92,7 +93,7 @@
                         <b-col cols="4">
                           <!-- <date-picker id="input" class="w-100" v-model='todoData.startDate' placeholder="Start Date"
                             :format="format" ref="datePicker"></date-picker> -->
-                          <el-date-picker
+                          <!-- <el-date-picker
                             v-model="parentRange"
                             type="daterange"
                             start-placeholder="Start"
@@ -100,7 +101,8 @@
                             unlink-panels
                             format="MM/dd/yyyy"
                             alight="right">
-                          </el-date-picker>
+                          </el-date-picker> -->
+                          <date-picker id="input" class="w-100" v-model="parentRange" :format="format" range range-separator=" - "></date-picker>
                         </b-col>
                         <!-- <b-col cols="3">
                           <date-picker id="input" class="w-100" v-model='todoData.dueDate' placeholder="Due Date"

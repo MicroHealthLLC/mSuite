@@ -12,12 +12,12 @@
         </div>
         <span v-if="selectedTodo.id != node.id" @click="showInputFieldToggle(node)" class="dueDate col-3"
           :class="{ 'line-through': node.is_disabled }">
-          {{ node.startdate && node.startdate != '' && node.startdate != node.duedate ? `Start: ${formatDate(node.startdate)}` : '' }}
+          {{ node.startdate && node.startdate != '' && node.startdate != node.duedate ? `Start: ${node.startdate}` : '' }}
         </span>
         <span v-else class="col-3"></span>
         <span v-if="selectedTodo.id != node.id && node" @click="showInputFieldToggle(node)" class="dueDate col-2"
           :class="{ 'line-through': node.is_disabled }">
-          {{ node.duedate ? `Due: ${formatDate(node.duedate)}` : '' }}
+          {{ node.duedate ? `Due: ${node.duedate}` : '' }}
         </span>
         <div class="col-1 d-flex flex-row align-items-end">
           <i v-b-tooltip.hover title="Add Subtask" class='ml-lg-3 fa fa-plus addTodo'
@@ -36,6 +36,7 @@
                   </b-form-input>
                 </b-col>
                 <b-col cols="4" sm="4" class="w-50 d-flex flex-row">
+                  <date-picker id="input" class="w-100" v-model="selectedTodoRange" :format="format" range range-separator=" - "></date-picker>
                   <!-- <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
                     @mouseleave="showCalendar('task-date')" class="dateInput">
                     <date-picker id="task-date" v-model='selectedTodo.startdate'
@@ -43,7 +44,7 @@
                       @close="closeDatePicker('task-date')"></date-picker>
                     <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
                   </div> -->
-                  <el-date-picker
+                  <!-- <el-date-picker
                     v-model="selectedTodoRange"
                     type="daterange"
                     start-placeholder="Start"
@@ -51,7 +52,7 @@
                     unlink-panels
                     format="MM/dd/yyyy"
                     alight="right">
-                  </el-date-picker>
+                  </el-date-picker> -->
                 </b-col>
                 <!-- <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
                   <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
@@ -96,12 +97,12 @@
               </div>
               <span v-if="selectedTodo.id != child.id" @click="showInputFieldToggle(child)" class="col-3 dueDate pl-1"
                 :class="{ 'line-through': child.is_disabled }">
-                {{ child.startdate && child.startdate != '' && child.startdate != child.duedate ? `Start: ${formatDate(child.startdate)}` : '' }}
+                {{ child.startdate && child.startdate != '' && child.startdate != child.duedate ? `Start: ${child.startdate}` : '' }}
               </span>
               <span v-else class="col-3"></span>
               <span @click="showInputFieldToggle(child)" class="col-2 dueDate pl-1"
                 :class="{ 'line-through': child.is_disabled }">
-                {{ child.duedate ? `Due: ${formatDate(child.duedate)}` : '' }}
+                {{ child.duedate ? `Due: ${child.duedate}` : '' }}
               </span>
               <div class="col-1 ml-xl-5 ml-lg-5 ml-md-4 ml-sm-4 ml-4 pl-xl-1 pl-lg-0 pl-md-1 pl-sm-1 pl-1">
                 <i class="d-none ml-2 fa fa-times"></i>
@@ -128,7 +129,8 @@
                         </div>
                       </b-col> -->
                       <b-col cols="4" sm="4" class="w-50 d-flex flex-row">
-                        <el-date-picker
+                        <date-picker id="input" class="w-100" v-model="selectedChildTodoRange" :format="format" range range-separator=" - "></date-picker>
+                        <!-- <el-date-picker
                           v-model="selectedChildTodoRange"
                           type="daterange"
                           start-placeholder="Start"
@@ -136,7 +138,7 @@
                           unlink-panels
                           format="MM/dd/yyyy"
                           alight="right">
-                        </el-date-picker>
+                        </el-date-picker> -->
                         <!-- <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
                           @mouseleave="showCalendar('task-date-2')" class="dateInput">
                           <date-picker id="task-date-2" v-model='selectedTodo.duedate'
@@ -221,22 +223,17 @@ export default {
         // let movedNode = list.find(n => n.id == movedElementNodeId)
         await http.put(`/nodes/update_all_positions`, {nodes: data }).then((res) => {
           this.$parent.$parent.$parent.fetchToDos()
-          console.log(this.sortedChildTodos)
-          setTimeout(() => {
-            console.log(this.sortedChildTodos)
-          }, 3000);
         }).catch((error) => {
           console.log(error)
         })
       } else if (e.added) {
         let addElementNodeId = e.added.element.id
-        console.log("addElementNodeId", addElementNodeId)
-        console.log("sortedTodoArr", sortedTodoArr)
+        //console.log("addElementNodeId", addElementNodeId)
+        //console.log("sortedTodoArr", sortedTodoArr)
         let addedNode = list.find(n => n.id == addElementNodeId)
         addedNode.parent_node = pNode.id
-
-        this.showInputFieldToggle(addedNode)
-        console.log("sortedTodoArr", sortedTodoArr)
+        if (addedNode.startdate && addedNode.duedate) this.showInputFieldToggle(addedNode)
+        //console.log("sortedTodoArr", sortedTodoArr)
         await http.put(`/nodes/${addedNode.id}.json`, {node: {parent_node: addedNode.parent_node, position: ( e.added.newIndex ), is_sprint: false} }).then((res) => {
           console.log(res)
           this.$parent.$parent.$parent.fetchToDos()
@@ -337,8 +334,7 @@ export default {
     },
     showInputFieldToggle(todo) {
       console.log(todo)
-      console.log(this.selectedChildTodoRange)
-      console.log(this.selectedTodoRange)
+
       if (this.editStatus) {
         this.fieldDisabled = true
         setTimeout(() => {
@@ -349,10 +345,36 @@ export default {
         this.showInputField(todo)
       }
     },
-    showInputField(todo) {
-      if (this.selectedTodo && this.selectedTodo.duedate != undefined && this.selectedTodo.duedate !== '' && this.selectedTodo.duedate.getTime != undefined) this.selectedTodo.duedate = new Date(this.selectedTodo.duedate.getTime() - (this.selectedTodo.duedate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+    showInputField(todo) {    
+      let nod = this.currentMindMap.nodes.find(n => n.id == todo.id)
+      const sta = new Date(nod.startdate)
+      const due = new Date(nod.duedate)
 
-      if (this.selectedTodo && this.selectedTodo.startdate != undefined && this.selectedTodo.startdate !== '' && this.selectedTodo.startdate.getTime != undefined) this.selectedTodo.startdate = new Date(this.selectedTodo.startdate.getTime() - (this.selectedTodo.startdate.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      if (due > new Date(2020)) {
+        this.selectedTodo.duedate = new Date(due.getTime()/*  - (due.getTimezoneOffset() * 60000) */)/* .toISOString().split("T")[0] */
+      }
+      if (sta > new Date(2020)) {
+        this.selectedTodo.startdate = new Date(sta.getTime()/*  - (sta.getTimezoneOffset() * 60000) */)/* .toISOString().split("T")[0] */
+      }
+
+      /* if (this.selectedTodo && due != undefined && due !== '' && due.getTime != undefined) {
+        console.log(due)s
+        this.selectedTodo.duedate = new Date(due.getTime() - (due.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      } else if (this.selectedTodo && due != undefined && due !== '') {
+        console.log(due)
+        this.selectedTodo.duedate = new Date(due.getTime() - (due.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      }
+
+      if (this.selectedTodo && sta != undefined && sta !== '' && sta.getTime != undefined) {
+        console.log(sta)
+        this.selectedTodo.startdate = new Date(sta.getTime() - (sta.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      } else if (this.selectedTodo && sta != undefined && sta !== '') {
+        console.log(sta)
+        this.selectedTodo.startdate = new Date(sta.getTime() - (sta.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
+      } */
+
+      this.selectedTodoRange = [this.selectedTodo.startdate, this.selectedTodo.duedate]
+      this.selectedChildTodoRange = [this.selectedTodo.startdate, this.selectedTodo.duedate]
 
       this.$emit("showInputField", todo)
     },
@@ -362,9 +384,7 @@ export default {
     clearTodoEditObj() {
       this.$emit("clearTodoEditObj")
     },
-    formatDate(date) {
-      return date ? moment(date).format("MM/DD/YYYY") : ""
-    },
+
     checkCheckedAns(event) {
       if (event.target.checked) event.target.setAttribute("checked", "checked")
       else event.target.removeAttribute("checked")
@@ -396,7 +416,11 @@ export default {
         this.editStatus = value
       }, deep: true
     },
+    selectedTodo() {
+      //console.log(this.selectedTodo)
+    },
     selectedTodoRange() {
+      //console.log(this.selectedTodoRange)
       if (this.selectedTodoRange) {
         this.selectedTodo.startdate = this.selectedTodoRange[0]
         this.selectedTodo.duedate = this.selectedTodoRange[1]
