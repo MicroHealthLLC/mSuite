@@ -54,7 +54,7 @@
             class="material-icons col-2 pl-2"
             >
             delete</span>
-          <span
+          <span v-if="showEvent.raw.isSprint || (!showEvent.raw.parentNode && !showEvent.raw.isSprint)"
             class="fas fa-eye-dropper color-picker mt-1 icon-opacity"
             @click="colorSelected = true"
             >
@@ -63,11 +63,13 @@
         <div class="row mb-1 font-weight-medium h5">{{showEvent.title}}</div>
         <div class="row mb-4">{{formatshowEventDate()}}</div>
         <div class="row my-2">{{showEvent.body}}</div>
+        <div class="row my-2">{{showEvent.raw.standalone ? 'Non-Sprint Event' : showEvent.raw.parentNode && currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode) ? 'Sprint: ' + currentMindMap.nodes.find(n => n.id === showEvent.raw.parentNode).title : ''}}</div>
       </div>
     </b-popover>
     <add-calendar-event-modal 
       :eventDates="eventDates"
       :showEvent="showEvent" 
+      :allSprints="allSprints"
       @createEvent="beforeEventCreate" 
       @updateEvent="beforeEventUpdate" 
       @openRecurringModal="openRecurringEventsModal" 
@@ -135,6 +137,7 @@
         colorSelected       : false,
         uniqueColors        : [],
         selectedEvent       : null,
+        allSprints          : []
       }
     },
     props: {
@@ -239,6 +242,7 @@
         this.calendar.on('clickEvent', (eventObj) => {
           this.eventNode = this.currentMindMap.nodes.find(o => o.id === eventObj.event.id)
           this.showEvent = eventObj.event
+          console.log('clickEvent', this.eventNode, this.showEvent)
           this.showEditEvent = true
         })
         this.calendar.on('beforeUpdateEvent', (eventObj) => {
@@ -255,6 +259,11 @@
               data.start.setMinutes(0)
               data.isAllday = true
             }
+          }
+          if (data.isAllday) {
+            eventObj.changes.end.d.d.setHours(23)
+            eventObj.changes.end.d.d.setMinutes(59)
+            eventObj.changes.end.d.d.setSeconds(59)
           }
           data.end = eventObj.changes.end.d.d
           this.updateEvent(data)
@@ -288,6 +297,7 @@
       moveCalendar(value){
         this.showEditEvent = false
         this.calendar.move(value)
+        if (this.currentMindMap.nodes && this.currentMindMap.nodes.length > 0) this.updateEventHeights(this.currentMindMap)
         this.getCalendarTitle()
         this.bindEventToClick()
       },
@@ -336,6 +346,7 @@
         this.recurringEvents = null
       },
       async beforeEventCreate(data){
+        console.log('beforeEventCreate', data)
         this.sendLocals(true)
         await this.saveEvents(data)
         if(this.recurringEvents) await this.generateRecurringEvents(data)
@@ -343,10 +354,12 @@
         this.updateCalendarUser()
       },
       beforeEventUpdate(data){
+        console.log('beforeEventUpdate', data)
         this.updateEvent(data)
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       editEventModal(){
+        console.log("editEventModal", this.showEvent, this.allSprints)
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       async updateCalendarUser(){
@@ -363,19 +376,25 @@
           startdate: eventObj.start,
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
-          line_color: eventObj.backgroundColor,
-          mindmap_id: this.currentMindMap.id
+          line_color: eventObj.raw.isSprint ? eventObj.backgroundColor : '#363636',
+          mindmap_id: this.currentMindMap.id,
+          is_sprint: eventObj.raw.isSprint,
+          parent_node: eventObj.raw.parentNode,
+          standalone: eventObj.raw.standalone
           }
+          console.log("saveEvents", eventObj)
         let _this = this
         await http.post('/nodes.json', data).then((result) => {
           _this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           _this.currentNodeId = result.data.node.id
         })
       },
-      updateEvent(eventObj){
+      updateEvent(eventObj) {
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
+        this.checkEventStatus(eventObj, this.currentMindMap.nodes)
+        //this.currentMindmap = this.updateEventColors(this.currentMindMap)
         this.showEditEvent = false
         let data = {
           title: eventObj.title,
@@ -384,15 +403,29 @@
           duedate: eventObj.end,
           hide_children: eventObj.isAllday,
           line_color: eventObj.backgroundColor,
-          }
-          if(this.undoNodes.length > 0) {
-            this.undoNodes.forEach((element, index) => {
-            if(element['node'].id === eventObj.id) {
-              this.undoNodes[index]['node'].title = data.title
-              this.undoNodes[index]['node'].description = data.description
-              this.undoNodes[index]['node'].startdate = data.startdate
-              this.undoNodes[index]['node'].duedate = data.duedate
-              this.undoNodes[index]['node'].hide_children = data.isAllday
+          is_sprint: eventObj.raw.isSprint,
+          parent_node: eventObj.raw.parentNode,
+          standalone: eventObj.raw.standalone
+        }
+        console.log('updateEvent1', eventObj, data)
+        /* if (eventObj.raw) {
+          data.is_sprint = eventObj.raw.isSprint
+          data.parent_node = eventObj.raw.parentNode
+          data.standalone = eventObj.raw.standalone
+        } */
+        //console.log('updateEvent2',eventObj, data)
+        //data.line_color = data.is_sprint ? data.line_color : this.getParentColor(data.parent_node)
+        if (this.undoNodes.length > 0) {
+          this.undoNodes.forEach((element, index) => {
+          if (element['node'].id === eventObj.id) {
+            this.undoNodes[index]['node'].title = data.title
+            this.undoNodes[index]['node'].description = data.description
+            this.undoNodes[index]['node'].startdate = data.startdate
+            this.undoNodes[index]['node'].duedate = data.duedate
+            this.undoNodes[index]['node'].hide_children = data.isAllday
+            this.undoNodes[index]['node'].is_sprint = data.is_sprint
+            this.undoNodes[index]['node'].parent_node = data.parent_node
+            this.undoNodes[index]['node'].standalone = data.standalone
             }
           });
         }
@@ -403,10 +436,12 @@
           }
           this.undoNodes.push({'req': 'addNode', node: dataObj})
         }
+        const toastElement = document.querySelector('.toastui-calendar-see-more-container');
+        if (toastElement) toastElement.style.display = 'none';
+
         this.sendLocals(false)
         this.updateCalendarUser()
         http.put(`/nodes/${eventObj.id}`, data)
-
       },
       deleteEvents(){
         this.undoDone = false
@@ -425,7 +460,10 @@
               duedate: this.showEvent.end.d.d,
               hide_children: this.showEvent.isAllday,
               line_color: this.showEvent.backgroundColor,
-              mindmap_id: this.currentMindMap.id
+              mindmap_id: this.currentMindMap.id,
+              is_sprint: this.showEvent.raw.isSprint,
+              parent_node: this.showEvent.raw.parentNode,
+              standalone: this.showEvent.raw.standalone
             }
             this.undoNodes.push({'req': 'deleteNode', node: data})
           }
@@ -434,6 +472,8 @@
           });
         this.sendLocals(false)
         this.updateCalendarUser()
+        const toastElement = document.querySelector('.toastui-calendar-see-more-container');
+        if (toastElement) toastElement.style.display = 'none';
 
       },
       async fetchEvents(){
@@ -441,6 +481,13 @@
         this.currentMindMap = this.$store.getters.getMsuite
         this.$store.dispatch('setMindMapId', this.currentMindMap.id)
         this.fetchedEvents = this.currentMindMap.nodes
+        this.allSprints = []
+        this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
+          if(currentValue.is_sprint){
+            this.allSprints.push(currentValue)
+          }          
+        })
+        //console.log("fetchEvents",  this.allSprints)
         this.renderEvents()
       },
       renderEvents(){
@@ -461,6 +508,7 @@
           let textColor = '#F8F8F8'
           if (colorType != 'dark') textColor = '#020101'
           this.mapColors.push(currentValue.line_color)
+          //console.log("renderEvents", currentValue)
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -468,10 +516,12 @@
               start: currentValue.startdate,
               end: currentValue.duedate,
               body: currentValue.description,
+              category: currentValue.is_sprint || currentValue.hide_children ? 'allday' : 'time',
               isAllday: currentValue.hide_children,
               backgroundColor: currentValue.line_color,
               dragBackgroundColor:currentValue.line_color,
               color:textColor,
+              raw: {isSprint: currentValue.is_sprint, parentNode: currentValue.parent_node, standalone: currentValue.standalone }
             }
           ])
         })
@@ -524,7 +574,9 @@
       },
       closeModelPicker(){
         this.colorSelected = false
-        this.selectedEvent.style.backgroundColor = this.showEvent.backgroundColor
+        if (this.selectedEvent.style.backgroundColor) {
+          this.selectedEvent.style.backgroundColor = this.showEvent.backgroundColor
+        }
         this.selectedEvent.style.color = this.showEvent.color
       },
       saveNodeColor(){
@@ -535,7 +587,12 @@
           start:this.showEvent.start.d.d,
           end:this.showEvent.end.d.d,
           isAllday:this.showEvent.isAllday,
-          backgroundColor:this.eventNode.line_color.hex
+          backgroundColor:this.eventNode.line_color.hex,
+          raw: {
+            standalone: this.showEvent.raw.standalone,
+            isSprint: this.showEvent.raw.isSprint,
+            parentNode: this.showEvent.raw.parentNode
+          }
         }
         this.updateEvent(data)
         this.colorSelected = false
@@ -563,6 +620,136 @@
           }
         }
       },
+      checkEventStatus(eventObj, nodeList) {
+        const eventStart = new Date(eventObj.start);
+        const eventEnd = new Date(eventObj.end);
+
+        const eventObjColor = eventObj.backgroundColor  
+
+        if (eventObj.raw) {
+          if (!eventObj.raw.isSprint) {
+            
+            let multiNodes = []
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd.setSeconds(nodeEnd.getSeconds() + 1)) {
+                multiNodes.push(node)
+              }
+            })
+            nodeList.forEach(n => {
+              const node = n;
+              const nodeStart = new Date(node.startdate);
+              const nodeEnd = new Date(node.duedate);
+
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd.setSeconds(nodeEnd.getSeconds() + 1) && node.is_sprint && !eventObj.raw.standalone) {
+                if (eventObj.raw.parentNode == null) {
+                  eventObj.raw.parentNode = node.id
+                } else {
+                  if (multiNodes.length == 1) {
+                    if (eventObj.raw.parentNode != node.id) {
+                      eventObj.raw.parentNode = node.id
+                    }
+                  } else {
+                    if (eventObj.raw.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
+                      eventObj.raw.parentNode = node.id
+                    } else {
+                      eventObj.raw.parentNode = eventObj.raw.parentNode
+                    }
+                  } 
+                }
+                return eventObj;
+              }
+              if (eventStart >= nodeStart && eventEnd <= nodeEnd && node.is_sprint && eventObj.raw.standalone) {
+                if (eventObj.backgroundColor == node.line_color) {
+                  eventObj.backgroundColor = '#363636'
+                }
+              }
+            })
+            
+            if (eventObj.id === eventObj.raw.parentNode) {
+              eventObj.raw.parentNode = null
+            } 
+
+            if (multiNodes.length === 0) {
+              eventObj.raw.parentNode = null;
+              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
+                eventObj.backgroundColor = '#363636'
+              } 
+            } 
+            return eventObj;
+          }
+        } 
+      },
+      updateEventColors(mindmap) {
+        const parentNodes = mindmap.nodes.filter(n => n.is_sprint);
+
+        mindmap.nodes.filter(node => !parentNodes.includes(node)).forEach(n => {
+          parentNodes.forEach(p => {
+            if (p.id === n.parent_node && n.line_color !== p.line_color) {
+              n.line_color = p.line_color;
+            }
+
+            if (n.id === p.id) {
+              n.children.forEach(c => {
+                if (c.line_color !== p.line_color) {
+                  c.line_color = p.line_color;
+                }
+              });
+            }
+          });
+        });
+
+        return mindmap;
+      },
+      updateEventHeights(mindmap) {
+        // Filter the events to get the long events
+        let longEvents = mindmap.nodes.filter(n => {
+          if (!n.is_sprint) { // Exclude sprints
+            const startDate = new Date(n.startdate);
+            const dueDate = new Date(n.duedate);
+
+            // Check if the event is either on the next day or longer duration
+            let isNextDayOrLonger = (
+              startDate.getFullYear() < dueDate.getFullYear() ||
+              startDate.getMonth() < dueDate.getMonth() ||
+              startDate.getDate() < dueDate.getDate()
+            );
+            if (n.hide_children) isNextDayOrLonger = true
+            return isNextDayOrLonger;
+          } else {
+            return false;
+          }
+        });
+
+        // Wait for a short duration and update the heights of long events
+        setTimeout(() => {
+          longEvents.forEach(e => {
+            // Find the event elements to be updated based on their test id
+            let elements = document.querySelectorAll(`[data-testid="${e.id}-${e.title}"]`);
+            elements.forEach(event => {
+              // Update the height, line height, and font size of the event element's children
+              let child = event.children[0]
+              if (child && child.style) {
+                child.style.height = "13px";
+                child.style.lineHeight = "13px";
+                child.style.marginTop = '6px'
+              }
+              if (child.querySelector('.toastui-calendar-weekday-event-title')) {
+                child.querySelector('.toastui-calendar-weekday-event-title').style.fontSize = '10px';
+                child.querySelector('.toastui-calendar-weekday-event-title').style.fontWeight = '400';
+              }
+              if (child.querySelector('.toastui-calendar-weekday-resize-handle')) {
+                child.querySelector('.toastui-calendar-weekday-resize-handle').style.transform = 'scale(0.9)'
+                child.querySelector('.toastui-calendar-weekday-resize-handle').style.marginTop = '5px'
+              }
+              
+            });
+          });
+        }, 50);
+      },
       bindEventToClick(){
         let _this = this
         setTimeout(()=>{
@@ -576,6 +763,10 @@
             _this.selectedEvent = this
           })
         },50)
+      },
+      hidePopover() {
+        this.showEditEvent = false;
+        //this.colorSelected = false // Set the variable to hide the popover
       }
     },
     mounted: async function() {
@@ -601,7 +792,8 @@
     watch: {
       mSuite: {
         handler(value) {
-          this.currentMindMap = value
+          this.currentMindMap = value.nodes && value.nodes.length > 0 ? this.updateEventColors(value) : value
+          if (value.nodes && value.nodes.length > 0) this.updateEventHeights(this.currentMindMap)
           this.fetchedEvents = value.nodes
         }, deep: true
       },

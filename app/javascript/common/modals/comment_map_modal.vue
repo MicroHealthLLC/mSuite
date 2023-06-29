@@ -2,10 +2,11 @@
   <div class="">
     <sweet-modal ref="commentBoxModal" class="of_v bg-color" title="Comments">
       <div class="comments-container comment_model">
-        <ul id="comments-list" class="comments-list" v-for="comment in myComments" v-if="myComments">
+        <ul id="comments-list" class="comments-list pl-3" v-for="comment in myComments" v-if="myComments">
           <li>
-            <div class="comment-main-level"> 
-              <div class="comment-box"> 
+            <span class="font-weight-bold">{{comment.user_name}}</span>
+            <div class="comment-main-level pl-4">
+              <div class="comment-box mt-0">
                 <div class="row comment-content">
                   <div class="col-10">
                     <input
@@ -21,7 +22,7 @@
                     </span>
                   </div>
                   <div class="col-1">
-                    <b-dropdown 
+                    <b-dropdown
                       variant="link"
                       toggle-class="pt-0 text-decoration-none text-muted comment-smiley" no-caret >
                       <template #button-content>
@@ -40,14 +41,14 @@
                           </b-dropdown-item>
                         </div>
                         <div class="px-1">
-                          <b-dropdown-item 
-                            @click="updateComment(comment, 'thumbsUp', false)" :class="comment.feedback === 'thumbsUp'&& !comment.status ? 'feedback-active':''"> 
-                            👍 
+                          <b-dropdown-item
+                            @click="updateComment(comment, 'thumbsUp', false)" :class="comment.feedback === 'thumbsUp'&& !comment.status ? 'feedback-active':''">
+                            👍
                           </b-dropdown-item>
                         </div>
                         <div class="px-1">
-                          <b-dropdown-item 
-                            @click="updateComment(comment, 'thumbsDown', false)" :class="comment.feedback === 'thumbsDown' ? 'feedback-active':''"> 
+                          <b-dropdown-item
+                            @click="updateComment(comment, 'thumbsDown', false)" :class="comment.feedback === 'thumbsDown' ? 'feedback-active':''">
                             👎
                           </b-dropdown-item>
                         </div>
@@ -81,10 +82,11 @@
                   </div>
                 </div>
               </div>
-            </div> 
+            </div>
             <ul class="comments-list reply-list" v-if="comment.children">
-              <li v-for="child in comment.children"> 
-                <div class="comment-box"> 
+              <li v-for="child in comment.children">
+                <span class="font-weight-bold ml-24"> {{child.user_name}} </span>
+                <div class="comment-box mt-0">
                   <div class="row comment-content">
                     <div class="col-10">
                       <input
@@ -120,7 +122,7 @@
                     </div>
                   </div>
                 </div>
-              </li> 
+              </li>
               <div v-if="replyField && selectedComment.id === comment.id">
                 <div class="row mb-2">
                   <div class="form__group field">
@@ -142,11 +144,11 @@
       </div>
       <div class="">
         <div class="form__group__parent field">
-          <input 
-            type="input" 
-            v-model="nodeNotes" 
-            class="form__field" 
-            placeholder="Type Your Comment Here..." 
+          <input
+            type="input"
+            v-model="nodeNotes"
+            class="form__field"
+            placeholder="Type Your Comment Here..."
             @keydown.enter="postComment"
             required />
           <label for="name" class="form__label">Comment Me!</label>
@@ -208,7 +210,7 @@
           this.commentObject = $("#comment")
           if (this.comments.length != 0) {
             this.commentObject.addClass("activeComment")
-          } else { 
+          } else {
             this.commentObject.removeClass("activeComment")
           }
           this.renderComments()
@@ -217,7 +219,7 @@
         })
       },
       postComment () {
-        let data = { message: this.nodeNotes, mindmap_id: this.MindMap.id}
+        let data = { message: this.nodeNotes, mindmap_id: this.MindMap.id, user_name: this.$store.state.user }
         http.post(`/comments.json`, data).then((res) => {
           this.nodeNotes = ''
           this.renderComments()
@@ -231,7 +233,7 @@
       },
       postReplyComment (comment) {
         let parent_comment = comment.id
-        let data = { message: this.replyNotes, mindmap_id: this.MindMap.id, parent_comment: comment.id }
+        let data = { message: this.replyNotes, mindmap_id: this.MindMap.id, parent_comment: comment.id, user_name: this.$store.state.user }
         http.post(`/comments.json`, data).then((res) => {
           this.replyNotes = ''
           this.replyField = false
@@ -285,6 +287,7 @@
             message: comment.message,
             status: comment.status,
             feedback: comment.feedback,
+            user_name: comment.user_name,
             children: []
           }
         })
@@ -295,10 +298,11 @@
         this.comments.forEach((comment) => {
           parent_comments.forEach((p, index)=> {
             if(p.id == comment.parent_comment){
-              let obj = { message: comment.message, 
-                          id: comment.id, 
-                          parent_comment: p.id, 
-                          children: []}
+              let obj = { message: comment.message,
+                          id: comment.id,
+                          parent_comment: p.id,
+                          user_name: comment.user_name,
+                          children: [] }
               parent_comments[index].children.push(obj)
             }
           })
@@ -312,6 +316,9 @@
   }
 </script>
 <style lang="scss">
+  .ml-24{
+    margin-left: -24px !important;
+  }
   .b-dropdown {
     margin-left: -60px;
     margin-top: -2px;
@@ -435,9 +442,9 @@
       transition: 0.2s;
       font-size: 1rem;
       color: $primary;
-      font-weight:700;    
+      font-weight:700;
     }
-    padding-bottom: 6px;  
+    padding-bottom: 6px;
     font-weight: 700;
     border-width: 3px;
     border-image: linear-gradient(to right, $primary,$secondary);
@@ -512,7 +519,7 @@
 	height: 2px;
 	background: #c7cacb;
 	position: absolute;
-	top: 40%;
+  top: 40%;
 	left: -22.1%;
 }
 .comments-list li {
@@ -535,7 +542,7 @@
  * Caja del Comentario
  ---------------------------*/
 .comments-list .comment-box {
-  margin-top: 2%;
+  margin-top: 5%;
   margin-right: 5%;
   width: 100%;
 	float: right;

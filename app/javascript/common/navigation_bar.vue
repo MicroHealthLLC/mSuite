@@ -2,7 +2,7 @@
   <div class="buttons_area" id="nav">
     <div class="buttons_container px-2 pt-2 row pb-0">
       <span :class="!$parent.is_verified ? 'mb-5 mt-1 ml-5' : 'navbar_icon flex ml-5 col-lg-2 col-md-2 col-sm-2 pr-0'">
-        <a v-if="$parent.is_verified" href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="goHome">
+        <a v-if="$parent.is_verified && mm_type != 'fileshare'" href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="goHome">
           <img src="/assets/msuite.png" />
         </a>
         <a v-else href="javascript:;" role="button" class="navbar-brand p-0" @click.stop="routeHome">
@@ -11,7 +11,7 @@
       </span>
       <!-- <span v-if="$parent.is_verified"> -->
         <span class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-center px-0">
-          <span v-show="!editable" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
+          <span v-show="!editable && mm_type != 'fileshare'" @click="makeEditable" class="my-1 py-1 pointer text-sapphire text-wrapper"
             data-toggle="tooltip" :title="mSuiteTitle">{{ mSuiteTitle | truncate(30) }}</span>
           <input v-show="editable" :rows="1" id="mSuiteTitle" @keydown.enter.prevent="mSuiteTitleUpdate" type="text"
             v-debounce:3000ms="blurEvent" v-model="mSuiteName"
@@ -20,15 +20,20 @@
         </span>
         <span v-if="$parent.is_verified" class="navbar_buttons col-lg-6 col-md-12 col-sm-12 d-flex flex-row-reverse">
           <span class="navbar_button d-flex flex-row-reverse">
-            <a v-if="duplicateMap" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
+            <a v-if="duplicateMap && mm_type != 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="Duplicate"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent="beforeClone">
               <i class="fas fa-clone icons d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
+            <a v-if="mm_type != 'pollvote' && mm_type != 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="Delete"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent="deleteMap">
               <i class="fas fa-trash-alt icons d-flex center_flex"></i>
+            </a>
+            <a v-if="mm_type == 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="key"
+              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+              @click.prevent="openKeyModal">
+              <i class="fas fa-key icons d-flex center_flex"></i>
             </a>
             <a href="javascript:;" role="button" v-b-tooltip.hover title="User"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
@@ -40,18 +45,18 @@
               title="Comments" @click.prevent="openCommentModal">
               <i id="comment" class="fa fa-comment d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
+            <a v-if="mm_type != 'pollvote' && mm_type != 'fileshare'" href="javascript:;" role="button"
               class="navbar_button d-flex text-info edit_delete_btn mr-3 center_flex" v-b-tooltip.hover title="Reset"
               @click.stop="resetMap">
               <i class="material-icons restore_icon icons d-flex center_flex"></i>
             </a>
           </span>
-          <span v-if="checkMSuiteTypes" class="d-flex flex-row-reverse">
+          <span v-if="checkMSuiteTypes && mm_type != 'fileshare'" class="d-flex flex-row-reverse">
             <a href="javascript:;" role="button" v-b-tooltip.hover title="Redo"
               class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="redoMindmap">
               <i class="fas fa-redo-alt"></i>
             </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Undo"
+            <a v-if="mm_type != 'fileshare'" href="javascript:;" role="button" v-b-tooltip.hover title="Undo"
               class="d-flex text-info pointer edit_delete_btn mr-3 center_flex" @click.stop="undoMindmap">
               <i class="fas fa-undo-alt"></i>
             </a>
@@ -84,17 +89,22 @@
                 Poll Expires: {{ pollExpDate }}
               </span>
             </a>
-            <a ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
+            <a v-if="mm_type != 'fileshare' && mm_type != 'Notepad'" ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent.stop="$refs['exportOption'].open()">
               <i class="material-icons export_icon icons d-flex center_flex"></i>
+            </a>
+            <a v-if="mm_type == 'Notepad'" ref="exportBtn" role="button" href="javascript:;" v-b-tooltip.hover title="Export"
+              class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+              @click.prevent.stop="$refs['exportOption'].open()">
+              <i class="fas fa-file-word icons d-flex center_flex"></i>
             </a>
             <a v-if="mm_type === 'spreadsheet' || mm_type === 'poll'" ref="exportBtn" role="button" href="javascript:;"
               class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" v-b-tooltip.hover title="Export"
               @click.prevent.stop="$refs['exportOptionCsv'].open()">
               <i class="fas fa-file-excel icons d-flex center_flex"></i>
             </a>
-            <a v-if="mm_type != 'pollvote'" role="button" href="javascript:;"
+            <a v-if="mm_type != 'pollvote' && mm_type != 'fileshare'" role="button" href="javascript:;"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent.stop="saveMSuite" v-b-tooltip.hover :title="'Expires ' + expireDateTime">
               <i class="material-icons save_btn icons d-flex center_flex"></i>
@@ -171,7 +181,7 @@
       :current-mind-map="currentMindMap" :isSaveMSuite="isSaveMSuite" :isSaveMap="isSaveMap"
       :defaultDeleteDays="defaultDeleteDays" :deleteAfter="deleteAfter" :expDays="expDays">
     </confirm-save-key-modal>
-    <user-map-modal :mind-map='currentMindMap' ref="user-box-modal"></user-map-modal>
+    <user-map-modal :mind-map='currentMindMap' ref="user-box-modal" @addKey="addKey"></user-map-modal>
     <sweet-modal ref="exportOption" class="of_v" icon="info" title="Export Format">
       Kindly Choose the Format of Export
       <button slot="button" v-if="mm_type === 'Notepad'" @click="exportImage(1)"
@@ -234,7 +244,6 @@ import DeleteMapModal from './modals/delete_modal'
 import DeletePasswordModal from './modals/delete_password_modal'
 import TemporaryUser from "../mixins/temporary_user.js"
 import CloneModal from './modals/clone_modal'
-import { mapState } from 'vuex'
 
 export default {
   name: "NavigationBar",
@@ -435,7 +444,7 @@ export default {
         return data
       },
     isMsuiteEmpty() {
-      if (this.isMsuiteSaved) {
+      if (this.isMsuiteSaved && this.mm_type != "fileshare") {
         navigator.sendBeacon('is_msuite_empty', this.setHeaders())
       }
     },
@@ -453,6 +462,9 @@ export default {
     },
     openUserModal() {
       this.$refs['user-box-modal'].$refs['UserBoxModal'].open()
+    },
+    openKeyModal() {
+      this.$refs['user-box-modal'].$refs['keyModal'].open()
     },
     openCommentModal() {
       this.$refs['comment-box-modal'].$refs['commentBoxModal'].open()
@@ -508,6 +520,7 @@ export default {
     resetMap() {
       this.$emit("before-reset")
       this.$refs['reset-map-modal'].$refs['resetMapModal'].open()
+      this.$emit('resetPopover');
     },
     redoMindmap() {
       this.$emit("redoMindmap")
@@ -542,11 +555,40 @@ export default {
     async changeView(){
       if (!this.disableToggle){
         let data = { mm_type: 'todo'}
-        if(this.mm_type == 'todo'){
-            data.mm_type = 'calendar'
+        if (this.mm_type == 'todo'){
+          data.mm_type = 'calendar'
           this.updateMsuite(data)
         } else if (this.mm_type == 'calendar') this.updateMsuite(data)
       }
+    },
+    createSprints() {
+      if (this.currentMindMap && this.currentMindMap.nodes) {
+        let sprints = []
+        let events = []
+
+        // Seperate Sprints from Events
+        this.currentMindMap.nodes.forEach(node => {
+          if (new Date(node.duedate) - new Date(node.startdate) > 86400000) {
+            sprints.push(node)
+          } else events.push(node)
+        })
+        
+        //Push Events into Sprints as children
+        sprints.forEach(s => {
+          events.forEach(e => {
+            if (new Date(e.duedate) > new Date(s.startdate) && new Date(e.duedate) < new Date(s.duedate)) {
+              s.children.push(e)
+            }
+          })
+          // Sort children By duedate
+          s.children.sort((a,b) => new Date(a.duedate) - new Date(b.duedate))
+        })
+        return sprints
+      }
+    },
+    addKey(key){
+      this.currentMindMap.password = key
+      this.$store.dispatch('updateMSuite', this.currentMindMap)
     },
     exportImage(option) {
       this.exportLoading = true

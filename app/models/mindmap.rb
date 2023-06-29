@@ -6,6 +6,10 @@ class Mindmap < ApplicationRecord
   include EncryptionConcern, DecryptionConcern
   include LockoutMsuiteConcern
   
+  scope :fileshare_created_before, ->(time_ago) {
+    where(mm_type: "fileshare").where("created_at <= ?", time_ago)
+  }
+
   belongs_to :user, optional: true
   belongs_to :category, optional: true
 
@@ -20,7 +24,7 @@ class Mindmap < ApplicationRecord
   has_many :mindmap_users, dependent: :destroy
   has_many :shared_users, through: :mindmap_users
 
-  accepts_nested_attributes_for :nodes, update_only: true
+  accepts_nested_attributes_for :nodes, update_only: true, reject_if: :parent_child_same
 
   before_validation :generate_random_key, on: :create
   before_validation :set_will_delete_at_date, on: :create
@@ -34,8 +38,8 @@ class Mindmap < ApplicationRecord
   enum status: { active: 0, archived: 1 }
   enum is_save: { is_public: 0, is_private: 1 }
   enum share: { only_me: 0, private_link: 1, public_link: 2 }
-  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11, venndiagram: 12}
-  
+  enum mm_type: { simple: 0, kanban: 1, tree_map: 2, tree_chart: 3, whiteboard: 4, flowmap: 5, todo: 6, Notepad: 7, spreadsheet: 8, calendar: 9, poll: 10, pollvote: 11, venndiagram: 12, presentation: 13, fileshare: 14}
+
   cattr_accessor :access_user
   before_update :hash_password, if: :will_save_change_to_password?
   after_create  :pre_made_stages, if: :check_kanban
@@ -44,12 +48,43 @@ class Mindmap < ApplicationRecord
   before_create :decrypt_attributes, if: :check_poll_vote
   before_update :encrypt_attributes, if: :check_private?
   before_update :decrypt_attributes, if: :check_is_before_private
-  
+  # after_save :rearrange_node_for_calendar
+
+  def rearrange_node_for_calendar
+    return if self.mm_type != 'calendar'
+    
+    sprints = []
+    events = []
+
+    self.nodes.each do |node|
+      next if !node.duedate || !node.startdate || node.standalone
+      if node.is_sprint
+        sprints << node
+      else
+        events << node
+      end
+    end
+
+    sprints.each do |sprint|
+      sprint_range = sprint.date_range
+      events.each do |event|
+        next if event.parent_node || event.standalone
+        if sprint_range.cover?(event.startdate) && sprint_range.cover?(event.duedate)
+          event.update(parent_node: sprint.id)
+        end
+      end
+    end
+  end
+
+  def parent_child_same(attributes)
+    !attributes[:parent_node].blank? && !attributes[:id].blank? && attributes[:id] == attributes[:parent_node]
+  end
+
   def decrypt_attributes
     decrypt_msuite(self.parent) if check_poll_vote
     decrypt_msuite(self)
   end
-  
+
   def encrypt_attributes
     encrypt_msuite
   end
@@ -71,12 +106,28 @@ class Mindmap < ApplicationRecord
   def check_mm_type
     return self.mm_type == 'whiteboard' || self.mm_type == 'poll' || self.mm_type == 'Notepad' || self.mm_type == 'spreadsheet'
   end 
+
+  def decrypt_fields
+    self.name = EncryptionService.decrypt(name)
+    self.title = EncryptionService.decrypt(title)
+    self.description = EncryptionService.decrypt(description)
+    self.canvas = EncryptionService.decrypt(canvas)
+    # add more fields as necessary
+  end
+
   
   def to_json
+    decrypt_fields if self.is_private?
+    _nodes = []
+    if self.mm_type == 'todo'
+      _nodes = Node.where(mindmap_id: self.id).order("duedate ASC")
+    else
+      _nodes = self.nodes
+    end
     self.as_json.merge(
-      nodes: self.nodes.map(&:to_json),
+      nodes: _nodes.map(&:to_json),
       parent: self.parent,
-      stages: self.stages,
+      stages: self.stages.map(&:to_json),
       editable: true
     ).as_json
   end

@@ -1,6 +1,6 @@
 class NodesController < AuthenticatedController
   include NodeConcern
-  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order]
+  before_action :set_node, only: [:update, :destroy, :hide_children, :update_export_order, :update_all_colors]
   before_action :set_mSuite, only: [:index]
   $deleted_child_nodes = []
 
@@ -41,17 +41,19 @@ class NodesController < AuthenticatedController
   end
 
   def destroy
-    if @node.destroy
+    if @node
       delNodes = []
       delNodes = delete_child_nodes @node.children if @node.children
       delNodes = @node if @node.mindmap.mm_type == 'calendar'
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
-      ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node })
-      respond_to do |format|
-        format.json { render json: {success: true, node: delNodes}}
-        format.html { }
+      if @node.destroy
+        ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node })
+        respond_to do |format|
+          format.json { render json: {success: true, node: delNodes}}
+          format.html { }
+        end
       end
     else
       respond_to do |format|
@@ -81,6 +83,25 @@ class NodesController < AuthenticatedController
     end
   end
 
+  def update_all_colors
+    @node.update_all_colors(params[:line_color])
+    ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node, mindmap: @mindmap})
+    respond_to do |format|
+      format.json { render json: {success: true, node: @node}}
+      format.html { }
+    end
+  end
+
+  def update_all_positions    
+    params[:nodes].each do |n|
+      Node.find(n[:id]).update(position: n[:position])
+    end
+    respond_to do |format|
+      format.json { render json: {success: true}}
+      format.html { }
+    end
+  end
+
   private
 
   def hide_show_nested_children(nodes)
@@ -95,8 +116,8 @@ class NodesController < AuthenticatedController
 
   def delete_child_nodes nodes
     nodes.each do |nod|
-      delete_child_nodes nod.children
-      $deleted_child_nodes.push(nod.destroy)
+      delete_child_nodes nod.children unless nod.children.empty?
+      $deleted_child_nodes.push(nod)
     end
     return $deleted_child_nodes
   end
@@ -131,6 +152,11 @@ class NodesController < AuthenticatedController
       :node_width,
       :duedate,
       :startdate,
+      :element_type,
+      :element_width,
+      :element_height,
+      :is_sprint,
+      :standalone,
       node_files: []
     )
   end
@@ -151,6 +177,12 @@ class NodesController < AuthenticatedController
       :node_width,
       :startdate,
       :duedate,
+      :hide_self,
+      :element_type,
+      :element_width,
+      :element_height,
+      :is_sprint,
+      :standalone,
       node_files: []
     )
   end

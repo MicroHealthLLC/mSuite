@@ -18,9 +18,11 @@
       @cutSelectedNode="cutSelectedNode"
       @before-reset="beforeReset"
       @before-save="beforeSave"
+      @resetPopover="resetPopover"
     ></navigation-bar>
     <component
       :is="viewIs"
+      ref="comp"
       :undo-map="undoMap"
       :redo-map="redoMap"
       :zm-in-scale="zmInScale"
@@ -58,6 +60,8 @@
   import VotingPoll from "./poll/polls/voting_poll"
   import Calendar from "./calendar/calendar"
   import VennDiagram from "./venndiagram/VennDiagram"
+  import presentation from "./presentation/Presentation"
+  import FileShare from "./fileshare/FileShare"
   import { newEventSource } from 'vue-parent-emit'
 
   export default {
@@ -76,7 +80,9 @@
       Poll,
       VotingPoll,
       Calendar,
-      VennDiagram
+      VennDiagram,
+      presentation,
+      FileShare
     },
     data() {
       return {
@@ -151,6 +157,10 @@
                   return "Calendar"
                 case "venndiagram":
                   return "VennDiagram"
+                case "presentation":
+                  return "presentation"
+                case "fileshare":
+                  return "FileShare"
                 default:
                   return "MindmapView"
               }
@@ -222,6 +232,10 @@
       },
       cutSelectedNode () {
         this.cutSelNode.emit()
+      },
+      resetPopover() {
+        if (this.$refs.comp.currentMindMap.mm_type == 'calendar')
+        this.$refs.comp.hidePopover(); // Set the variable to hide the popover
       },
       checkNotifs(obj){
         if (!("Notification" in window)) {

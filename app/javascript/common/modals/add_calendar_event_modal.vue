@@ -5,8 +5,32 @@
         <i class="material-icons text-white">add</i>
       </div>
     </div>
-    <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
-    <h3 v-else class="f_smooth_auto">Add Event</h3>
+
+    <div v-if="isSprint == true">
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Sprint</h3>
+      <h3 v-else class="f_smooth_auto">Add Sprint</h3>
+    </div>
+    
+    <div v-else>
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
+      <h3 v-else class="f_smooth_auto">Add Event</h3>
+    </div>
+
+    <div class="row">
+      <div class="col-12 pr-0 pl-2 d-flex justify-content-center align-items-center">
+        <div>
+          <input type="radio" v-model="isSprint" :value="true" />
+          <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Sprint&nbsp;&nbsp;</label>
+          <input type="radio" v-model="isSprint" :value="false" />
+          <label class="form-label mt-2" for="checkbox">&nbsp;&nbsp;Event&nbsp;&nbsp;</label>
+        </div>
+        <div v-if="!isSprint" class="ml-4">
+          <input type="checkbox" class="mr-2" v-model="standalone" style="transform: scale(0.8);" />
+          <label class="form-label mt-2" for="checkbox" style="font-size: 0.8rem;">Don't include in sprints</label>
+        </div>
+      </div>
+    </div>
+
     <div class="w-100">
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Title" v-model="title" :validateValues="validateValues"/>
@@ -14,24 +38,63 @@
       <div class="row my-2">
         <input class="inputBox col-12" type="text" placeholder="Enter Description" v-model="description"/>
       </div>
-      <div class="row">
+
+      <div class="row mt-4">
         <div class="col-10 d-flex content-justified-start px-0" v-if="allDay">
-          <label class="form-label mt-1">Start</label>
-          <DatePicker class="mx-1" type="date" format="MM/DD/YYYY" v-model="startDate"></DatePicker>
-          <label class="form-label mt-1">End</label>
-          <DatePicker class="mx-1" type="date" format="MM/DD/YYYY" v-model="endDate"></DatePicker>
+          <label class="form-label mt-1">Start:</label>
+          <DatePicker class="mx-2" type="date" format="MM/DD/YYYY" v-model="startDate"></DatePicker>
+          <label class="form-label ml-4 mt-1">End:</label>
+          <DatePicker class="mx-2" type="date" format="MM/DD/YYYY" v-model="endDate"></DatePicker>
         </div>
-        <div class="col-10 d-flex content-justified-start px-0" v-else>
+        <!-- <div class="col-10 d-flex content-justified-start px-0" v-else>
           <label class="form-label mt-1">Start</label>
           <DatePicker class="mx-1" format="MM/DD/YYYY HH:mm" type="datetime" :minute-options="datePickerMinutes" v-model="startDate"></DatePicker>
           <label class="form-label mt-1">End</label>
           <DatePicker class="mx-1" format="MM/DD/YYYY HH:mm" :minute-options="datePickerMinutes" type="datetime" v-model="endDate"></DatePicker>
+        </div> -->
+        <span v-else>
+          <div class="col-10 d-flex content-justified-start px-0">
+            <strong class="mt-1">Start: </strong>
+            <div>
+              <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="startDate"></DatePicker>
+            </div>
+            <div>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="startDate"></DatePicker>
+            </div>
+          </div>
+
+          <div class="col-10 d-flex content-justified-start px-0 mt-4">
+            <strong class="mt-1">End: </strong>
+            <div class="end-date-picker">
+              <DatePicker class="mx-1" format="MM/DD/YYYY" type="date" v-model="endDate"></DatePicker>
+            </div>
+            <div>
+              <DatePicker class="mx-2" format="HH:mm" :minute-options="datePickerMinutes" type="time" v-model="endDate"></DatePicker>
+            </div>
+          </div>
+        </span>
+        <div class="col-4 d-flex content-justified-start mt-2" v-if="allDayNotHidden" >
+            <input type="checkbox" v-model="allDay" v-if="!isSprint">
+            <label class="form-label ml-2 mt-2" for="checkbox" style="white-space: nowrap;" v-if="!isSprint">All Day</label>
+          </div>
         </div>
-        <div class="col-2 pr-0 pl-2 d-flex content-justified-start" v-if="allDayNotHidden" >
-          <input type="checkbox" class="mr-2" v-model="allDay">
-          <label class="form-label mt-2" for="checkbox">All Day</label>
+
+      <div class="row">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
+          <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
+          <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
+            <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+          </select>
+          <select v-else class="w-50 form-control" v-model="parentNode">
+            <option v-for="sprint in multipleSprints" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+          </select>
         </div>
       </div>
+
       <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
       </div>
@@ -74,18 +137,22 @@
   import Common from "../../mixins/common.js"
   export default {
     Name: "AddCalendarEventModal",
-    props:['eventDates','showEvent'],
+    props:['eventDates','showEvent', 'allSprints'],
     mixins: [Common],
     data () {
       return{
+        multipleSprints: [],
         title:             '',
         description:       '',
         startDate:         null,
         endDate:           null,
         allDay:            false,
+        parentNode: null,
         actionType:        '',
         allDayNotHidden:   true,
         isValueInvalid:    false,
+        isSprint: false,
+        standalone: false,
         errorMessage:      '',
         invalidMessage:    false,
         datePickerMinutes: [0,15,30,45]
@@ -95,11 +162,17 @@
     components: { DatePicker },
     watch:{
       eventDates(newValue, oldValue){
+        console.log("eventDates", newValue, oldValue)
         this.setDefaultValues()
         this.updateSelectedDate()
+        if (new Date(newValue.end) - new Date(newValue.start) > 86400000 && this.actionType == 'create') {
+          this.isSprint = true
+          this.allDay = true
+        }
       },
       showEvent: {
         handler(newValue, oldValue) {
+          console.log("showEvent", newValue, oldValue)
           this.setDefaultValues()
           this.showSelectedEvent('update')
         },
@@ -121,6 +194,16 @@
       },
       allDay(){
         this.toggleAllDay
+      },
+      multipleSprints() {
+        console.log('multipleSprints()',this.multipleSprints)
+      },
+      isSprint(value) {
+        if (value) {
+          this.allDay = true
+        } else {
+          this.allDay = false
+        }
       }
     },
     methods: {
@@ -142,6 +225,7 @@
           this.endDate.setMinutes(minutes)
         }
         this.disableEventCreation()
+        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
       },
       showSelectedEvent(actType){
         this.title = this.showEvent.title
@@ -149,34 +233,111 @@
         this.startDate = this.showEvent.start.d.d
         this.endDate = this.showEvent.end.d.d
         this.allDay = this.showEvent.isAllday
+        //console.log("showSelectedEvent", this.showEvent)
+        this.standalone = this.showEvent.raw.standalone
+        this.isSprint = this.showEvent.raw.isSprint
+        this.parentNode = this.showEvent.raw.parentNode
         this.actionType = actType
+        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
       },
-      generateDataObj(){
-        let _this = this
+      generateDataObj() {
+        let _this = this;
         let data = {
-            title: _this.title,
-            body: _this.description,
-            start: _this.startDate,
-            end: _this.endDate,
-            isAllday: _this.allDay,
-            backgroundColor:'#18A2B8',
-            id: null
+          title: _this.title,
+          body: _this.description,
+          start: _this.startDate,
+          end: _this.endDate,
+          isAllday: _this.allDay,
+          raw: {
+            isSprint: _this.isSprint,
+            standalone: _this.standalone,
+            parentNode: _this.parentNode,
+          },
+          //backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
+          id: null
+        };
+        
+        if (this.actionType == 'update') {
+          data.id = this.showEvent.id;
+          data.backgroundColor = this.showEvent.backgroundColor;
+          if (data.raw.isSprint) {
+            data.raw.parentNode = null
+            data.raw.standalone = false
+            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor)) || data.backgroundColor === "#363636") data.backgroundColor = this.getRandomColor()
           }
-        if(this.actionType == 'update'){
-          data.id = this.showEvent.id
-          data.backgroundColor = this.showEvent.backgroundColor
-        } 
-        return data
+        }
+        if (data.isAllday) {
+          data.start.setHours(0, 0, 0, 0)
+          data.end.setHours(23, 59, 59, 999)
+        }
+        console.log("data obj:", data)
+        return data;
+      },
+      /* getRandomColor() {
+        let colorCode;
+        do {
+          // Generate a random hexadecimal color code
+          colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        } while (this.isColorTooLightOrDark(colorCode) && colorCode.length != 7);
+        return colorCode;
+      },
+      isColorTooLightOrDark(colorCode) {
+        // Convert the color code to RGB values
+        const rgb = this.hexToRgb(colorCode);
+
+        // Calculate the perceived brightness using the formula: (R * 299 + G * 587 + B * 114) / 1000
+        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+
+        // Check if the brightness is too light or dark
+        return brightness < 100 || brightness > 200;
+      },
+      hexToRgb(hex) {
+        // Remove the '#' character from the hex code
+        hex = hex.replace('#', '');
+
+        // Convert the hex code to RGB values
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        return { r, g, b };
+      }, */
+      /* getRandomColor() {
+        // Generate a random hexadecimal color code
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
+      }, */
+      checkForMultipleSprints(nodeList, eventStart, eventEnd, allDay) {
+        let sprintList = []
+
+        for (let i = 0; i < nodeList.length; i++) {
+          const node = nodeList[i];
+          const nodeStart = new Date(node.startdate);
+          const nodeEnd = new Date(node.duedate);
+
+          if (allDay) {
+            nodeStart.setHours(0,0,0,0)
+            nodeEnd.setHours(23,59,59,999)
+          }
+
+          // Check if the event falls within the date range of the node
+          if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
+            sprintList.push(node)
+          }
+        }
+        this.multipleSprints = sprintList
       },
       createEvent(){
         if (this.title && !this.isValueInvalid ){
-          this.$emit('createEvent', this.generateDataObj())
+          let data = this.generateDataObj()
+          data.backgroundColor = data.raw.isSprint ? this.getRandomColor() : '#363636'
+          this.$emit('createEvent', data)
           this.closeMapModal()
         }
       },
       updateEvent(){
         if (this.title && !this.isValueInvalid){
-          this.$emit('updateEvent', this.generateDataObj())
+          let data = this.generateDataObj()
+          this.$emit('updateEvent', data)
           this.closeMapModal()
         }
       },
@@ -188,6 +349,9 @@
         this.allDay = false
         this.actionType = ''
         this.allDayNotHidden = true
+        this.isSprint = false
+        this.standalone = false
+        this.parentNode = ''
       },
       openRecurringEventModal(){
         if (this.title && !this.isValueInvalid){
@@ -209,7 +373,59 @@
       }
     },
     computed: {
-      toggleAllDay(){
+      toggleAllDay() {
+        // Reset flags and variables
+        this.isValueInvalid = false;
+        let difference = this.getDateDifference(this.startDate, this.endDate);
+        
+        if (difference >= 0) {
+          // Valid date range
+          this.invalidMessage = false;
+          this.allDayNotHidden = false;
+          this.errorMessage = '';
+        } else {
+          // Invalid date range
+          this.isValueInvalid = true;
+          let startDateMonth = new Date(this.startDate).getMonth();
+          let startDateDate = new Date(this.startDate).getDate();
+          let startDateYear = new Date(this.startDate).getFullYear();
+          let endDateMonth = new Date(this.endDate).getMonth();
+          let endDateDate = new Date(this.endDate).getDate();
+          let endDateYear = new Date(this.endDate).getFullYear();
+
+          // Adjust end date to match start date if necessary
+          if (endDateYear < startDateYear) {
+            this.endDate.setFullYear(startDateYear);
+          } else if (endDateMonth < startDateMonth) {
+            this.endDate.setMonth(startDateMonth);
+          } else if (endDateDate < startDateDate) {
+            this.endDate.setDate(startDateDate);
+          }
+        }
+
+        if (this.endDate <= this.startDate && !this.allDay) {
+          // Invalid end time for same-day event
+          this.isValueInvalid = true;
+          let startDateHours = new Date(this.startDate).getHours();
+          let startDateMinutes = new Date(this.startDate).getMinutes();
+
+          // Set end time to start time + 1 hour
+          this.endDate.setHours(startDateHours + 1);
+          this.endDate.setMinutes(startDateMinutes);
+          if (this.endDate > this.startDate) {
+            this.isValueInvalid = false
+          }
+        } else {
+          // Valid end time or multiple-day event
+          this.errorMessage = '';
+          this.invalidMessage = false;
+          this.isValueInvalid = false;
+        }
+
+        // Show allDayNotHidden field
+        this.allDayNotHidden = true;
+      },
+      toggleAllDays(){
         this.isValueInvalid = false
         let difference = this.getDateDifference(this.startDate,this.endDate)
         if (difference > 0){
@@ -218,9 +434,6 @@
           this.errorMessage = ''
         }
         else if(difference < 0){
-          /* this.isValueInvalid = true
-          this.errorMessage = 'End Date is Less Than Start Date'
-          this.invalidMessage = true */
           this.isValueInvalid = true
           let startDateMonth = new Date(this.startDate).getMonth()
           let startDateDate = new Date(this.startDate).getDate()
@@ -239,9 +452,6 @@
         }
         else{
           if ((this.endDate - this.startDate) <= 0 && this.allDay == false ){
-            /* this.isValueInvalid = true
-            this.errorMessage = 'Event End Time Should Be Greater Than Event Start Time'
-            this.invalidMessage = true */
             this.isValueInvalid = true
             let startDateHours = new Date(this.startDate).getHours()
             let startDateMinutes =  new Date(this.startDate).getMinutes()
@@ -278,5 +488,8 @@
 }
 input:focus {
   outline: none;
+  }
+.end-date-picker {
+  margin-left: 6px;
   }
 </style>
