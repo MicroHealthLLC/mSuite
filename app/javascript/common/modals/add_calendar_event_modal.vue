@@ -6,17 +6,17 @@
       </div>
     </div>
 
-    <div v-if="isSprint == true">
+    <!-- <div v-if="isSprint == true">
       <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Sprint</h3>
       <h3 v-else class="f_smooth_auto">Add Sprint</h3>
-    </div>
+    </div> -->
     
-    <div v-else>
-      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Event</h3>
-      <h3 v-else class="f_smooth_auto">Add Event</h3>
+    <div>
+      <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Activity</h3>
+      <h3 v-else class="f_smooth_auto">Add Activity</h3>
     </div>
 
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-12 pr-0 pl-2 d-flex justify-content-center align-items-center">
         <div>
           <input type="radio" v-model="isSprint" :value="true" />
@@ -29,7 +29,29 @@
           <label class="form-label mt-2" for="checkbox" style="font-size: 0.8rem;">Don't include in sprints</label>
         </div>
       </div>
-    </div>
+    </div> -->
+
+    <div class="row">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 0 && multipleSprints.length > 0">
+          <label class="form-label mt-2" for="checkbox">Related to:&nbsp;&nbsp;</label>
+          <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
+            <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+            <option value="none">
+              None
+            </option>
+          </select>
+          <select v-else class="w-50 form-control" v-model="parentNode">
+            <option v-for="sprint in multipleSprints" :value="sprint.id">
+              {{ sprint.title }}
+            </option>
+            <option value="none">
+              None
+            </option>
+          </select>
+        </div>
+      </div>
 
     <div class="w-100">
       <div class="row my-2">
@@ -79,21 +101,7 @@
           </div>
         </div>
 
-      <div class="row">
-        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 1 && standalone == false && multipleSprints.length > 1">
-          <label class="form-label mt-2" for="checkbox">Select Sprint&nbsp;&nbsp;</label>
-          <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
-            <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
-              {{ sprint.title }}
-            </option>
-          </select>
-          <select v-else class="w-50 form-control" v-model="parentNode">
-            <option v-for="sprint in multipleSprints" :value="sprint.id">
-              {{ sprint.title }}
-            </option>
-          </select>
-        </div>
-      </div>
+      
 
       <div class="row">
         <span class="text-danger">{{errorMessage}}</span>
@@ -146,7 +154,7 @@
         description:       '',
         startDate:         null,
         endDate:           null,
-        allDay:            false,
+        allDay:            true,
         parentNode: null,
         actionType:        '',
         allDayNotHidden:   true,
@@ -167,8 +175,9 @@
         this.updateSelectedDate()
         if (new Date(newValue.end) - new Date(newValue.start) > 86400000 && this.actionType == 'create') {
           this.isSprint = true
-          this.allDay = true
+          
         }
+        this.allDay = true
       },
       showEvent: {
         handler(newValue, oldValue) {
@@ -196,15 +205,18 @@
         this.toggleAllDay
       },
       multipleSprints() {
+        if (this.multipleSprints.length > 0) {
+          this.isSprint = false
+        }
         console.log('multipleSprints()',this.multipleSprints)
       },
-      isSprint(value) {
+      /* isSprint(value) {
         if (value) {
           this.allDay = true
         } else {
           this.allDay = false
         }
-      }
+      } */
     },
     methods: {
       closeMapModal() {
@@ -256,6 +268,11 @@
           //backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
+        if (data.raw.parentNode == 'none') {
+          data.raw.parentNode = null
+          data.raw.isSprint = true
+      
+        }
         
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
