@@ -168,6 +168,8 @@
             this.currentMindMap = data.mindmap
             this.calendar.destroy()
             this.createCalendar()
+            this.calendar.today()
+            this.getCalendarTitle()
           }
           else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
               this.calendar.store.getState().calendar.events.internalMap.clear()
