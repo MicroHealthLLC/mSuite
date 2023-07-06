@@ -470,6 +470,8 @@
           }).catch((err) => {
             console.error(err);
           });
+          this.calendar.today()
+          this.getCalendarTitle()
         this.sendLocals(false)
         this.updateCalendarUser()
         const toastElement = document.querySelector('.toastui-calendar-see-more-container');
