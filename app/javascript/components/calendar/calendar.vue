@@ -509,10 +509,13 @@
           // currentValue.duedate = moment(new Date(currentValue.duedate))
           // currentValue.startdate = moment(new Date(currentValue.startdate))
           let colorType = this.lightOrDark(currentValue.line_color)
-          let textColor = '#F8F8F8'
-          if (colorType != 'dark') textColor = '#020101'
+          let textColor = colorType != 'dark' ? '#020101' : '#F8F8F8'
           this.mapColors.push(currentValue.line_color)
-          //console.log("renderEvents", currentValue)
+          console.log("renderEvents", currentValue.title, currentValue)
+          if (currentValue.parent_node == null && currentValue.is_sprint == false) {
+            currentValue.is_sprint = true
+            this.afterParentDelete(currentValue)
+          } 
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -623,6 +626,9 @@
             return 'dark';
           }
         }
+      },
+      afterParentDelete(node) {
+        http.put(`/nodes/${node.id}`, node)
       },
       checkEventStatus(eventObj, nodeList) {
         const eventStart = new Date(eventObj.start);
