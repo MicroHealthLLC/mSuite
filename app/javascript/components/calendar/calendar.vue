@@ -449,6 +449,8 @@
         this.undoDone = false
         this.sendLocals(true)
         this.showEditEvent = false
+        let selectedNode = this.currentMindMap.nodes.find(n => n.id == this.showEvent.id)
+        let isParent = selectedNode.children.length > 0
         http.delete(`/nodes/${this.showEvent.id}.json`).then((res)=>{
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
@@ -472,6 +474,12 @@
           }).catch((err) => {
             console.error(err);
           });
+          /* if (isParent) {
+            selectedNode.children.forEach(child => {
+              child.parent_node = null
+              this.afterParentDelete(child)
+            })
+          } */
           this.calendar.today()
           this.getCalendarTitle()
         this.sendLocals(false)
@@ -512,10 +520,10 @@
           let textColor = colorType != 'dark' ? '#020101' : '#F8F8F8'
           this.mapColors.push(currentValue.line_color)
           console.log("renderEvents", currentValue.title, currentValue)
-          if (currentValue.parent_node == null && currentValue.is_sprint == false) {
+          /* if (currentValue.parent_node == null && currentValue.is_sprint == false) {
             currentValue.is_sprint = true
             this.afterParentDelete(currentValue)
-          } 
+          } */ 
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -628,7 +636,22 @@
         }
       },
       afterParentDelete(node) {
-        http.put(`/nodes/${node.id}`, node)
+        let data = {
+          id: node.id,
+          title: node.title,
+          body: node.body,
+          start: node.startdate,
+          end: node.duedate,
+          isAllday: node.hide_children,
+          backgroundColor: node.line_color,
+          raw: {
+            standalone: node.standalone,
+            isSprint: node.is_sprint,
+            parentNode: node.parent_node
+          }
+        }
+        console.log(data)
+        this.updateEvent(data)
       },
       checkEventStatus(eventObj, nodeList) {
         const eventStart = new Date(eventObj.start);
@@ -684,12 +707,19 @@
             } 
 
             if (multiNodes.length === 0) {
+              if (eventObj.raw.parentNode) eventObj.backgroundColor = '#363636'
               eventObj.raw.parentNode = null;
-              eventObj.raw.isSprint = true
-              if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
-                eventObj.backgroundColor = this.getRandomColor()
-              } 
-            } 
+              console.log(eventObj)
+              if (eventEnd - eventStart > 86400000) {
+                eventObj.raw.isSprint = true
+                if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
+                  eventObj.backgroundColor = this.getRandomColor()
+                }
+              }
+              /* if (!eventObj.raw.isSprint) { 
+                eventObj.backgroundColor = '#363636'
+              } */
+            }
             return eventObj;
           }
         } 

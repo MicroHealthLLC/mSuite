@@ -210,6 +210,9 @@
         }
         console.log('multipleSprints()',this.multipleSprints)
       },
+      parentNode() {
+        console.log(this.parentNode)
+      }
       /* isSprint(value) {
         if (value) {
           this.allDay = true
@@ -269,14 +272,15 @@
           id: null
         };
         if (data.raw.parentNode == 'none') {
+          if (new Date(data.end) - new Date(data.start) > 86400000) data.raw.isSprint = true
+          else data.backgroundColor = '#363636'
+          console.log(data)
           data.raw.parentNode = null
-          data.raw.isSprint = true
-      
         }
         
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
-          data.backgroundColor = this.showEvent.backgroundColor;
+          //data.backgroundColor = this.showEvent.backgroundColor;
           if (data.raw.isSprint) {
             data.raw.parentNode = null
             data.raw.standalone = false
