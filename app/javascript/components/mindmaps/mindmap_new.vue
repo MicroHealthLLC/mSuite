@@ -311,7 +311,7 @@
         this.$store.commit('setSelectedNode' ,null)
         this.dragging     = false
         this.draggingNode = false
-        this.sendLocals(true)
+        //this.sendLocals(true)
       },
       // =============== GETTING MAP =====================
 
@@ -475,7 +475,7 @@
           this.saveNode(this.$store.getters.getSelectedNode)
           this.removeLines()
           this.drawLines()
-          this.sendLocals(false)
+          //this.sendLocals(false)
         }
 
       },
