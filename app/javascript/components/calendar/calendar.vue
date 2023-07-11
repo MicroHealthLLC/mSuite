@@ -69,7 +69,7 @@
     <add-calendar-event-modal 
       :eventDates="eventDates"
       :showEvent="showEvent" 
-      :allSprints="allSprints"
+      :allEvents="allEvents"
       @createEvent="beforeEventCreate" 
       @updateEvent="beforeEventUpdate" 
       @openRecurringModal="openRecurringEventsModal" 
@@ -137,7 +137,7 @@
         colorSelected       : false,
         uniqueColors        : [],
         selectedEvent       : null,
-        allSprints          : []
+        allEvents          : []
       }
     },
     props: {
@@ -155,35 +155,29 @@
           if (data.message === "Mindmap Updated" && this.currentMindMap.id === data.mindmap.id){
             this.calendar.store.getState().calendar.events.internalMap.clear()
             this.fetchEvents()
-          }
-          else if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id){
+          } else if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id) {
             window.open('/','_self')
           } else if (data.message === "Password Updated" && this.currentMindMap.id === data.mindmap.id) {
             setTimeout(() => {
               location.reload()
             }, 500)
-          }
-          else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id){
+          } else if(data.message === "Reset mindmap" && this.currentMindMap.id === data.mindmap.id){
             this.$store.dispatch('updateMSuite', data.mindmap)
             this.currentMindMap = data.mindmap
             this.calendar.destroy()
             this.createCalendar()
             this.calendar.today()
             this.getCalendarTitle()
-          }
-          else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
+          } else if(data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id){
               this.calendar.store.getState().calendar.events.internalMap.clear()
               this.fetchEvents()
-          }
-          else if( data.message === "Event Trigger" ) {
+          } else if( data.message === "Event Trigger" ) {
             this.eventNotifications(data.node.title)
-          }
-          else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
+          } else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
             this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
-          }
-          else {
+          } else {
             this.calendar.store.getState().calendar.events.internalMap.clear()
             this.fetchEvents()
           }
@@ -361,7 +355,7 @@
         if(this.recurringEvents) this.generateRecurringEvents(data)
       },
       editEventModal(){
-        console.log("editEventModal", this.showEvent, this.allSprints)
+        console.log("editEventModal", this.showEvent, this.allEvents)
         this.$refs['add-calendar-event-modal'].$refs['AddCalendarEventModal'].open()
       },
       async updateCalendarUser(){
@@ -390,11 +384,16 @@
           _this.undoNodes.push({req: 'addNode', 'node': result.data.node})
           _this.currentNodeId = result.data.node.id
         })
+        if (data.parent_node && this.allEvents.length > 0 && this.currentMindMap.nodes) {
+          let parent = this.currentMindMap.nodes.find(n => n.id == data.parent_node)
+          if (parent && !parent.is_sprint) this.updateNewParent(parent)
+        }
       },
-      updateEvent(eventObj) {
+      updateEvent(eventObj, parent) {
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
+        console.log(eventObj, parent)
         this.checkEventStatus(eventObj, this.currentMindMap.nodes)
         //this.currentMindmap = this.updateEventColors(this.currentMindMap)
         this.showEditEvent = false
@@ -443,15 +442,23 @@
 
         this.sendLocals(false)
         this.updateCalendarUser()
+        console.log(data)
         http.put(`/nodes/${eventObj.id}`, data)
+        if (data.parent_node && this.allEvents.length > 0 && this.currentMindMap.nodes) {
+          let parent = this.currentMindMap.nodes.find(n => n.id == data.parent_node)
+          if (parent && !parent.is_sprint) this.updateNewParent(parent)
+        }
       },
       deleteEvents(){
         this.undoDone = false
         this.sendLocals(true)
         this.showEditEvent = false
-        let selectedNode = this.currentMindMap.nodes.find(n => n.id == this.showEvent.id)
-        let isParent = selectedNode.children.length > 0
+        /* let selectedNode = this.fetchedEvents.find(n => n.id == this.showEvent.id)
+        let childsParent = this.fetchedEvents.find(n => n.id == selectedNode.parent_node)
+        console.log(childsParent)
+        let isParent = selectedNode.children.length > 0 */
         http.delete(`/nodes/${this.showEvent.id}.json`).then((res)=>{
+          console.log(res)
           let receivedNodes = res.data.node
           if(receivedNodes && receivedNodes.length > 0){
             this.undoNodes.push({'req': 'deleteNode', 'node' : receivedNodes})
@@ -469,37 +476,62 @@
               parent_node: this.showEvent.raw.parentNode,
               standalone: this.showEvent.raw.standalone
             }
-            this.undoNodes.push({'req': 'deleteNode', node: data})
+            this.undoNodes.push({'req': 'deleteNode', node: data}) 
           }
           }).catch((err) => {
             console.error(err);
           });
-          /* if (isParent) {
-            selectedNode.children.forEach(child => {
-              child.parent_node = null
-              this.afterParentDelete(child)
-            })
+          if (this.showEvent) {
+          let selectedNode = this.fetchedEvents.find(n => n.id == this.showEvent.id)
+          if (selectedNode) {
+            let childsParent = this.fetchedEvents.find(n => n.id == selectedNode.parent_node)
+            console.log(childsParent)
+            if (childsParent) {
+              console.log(childsParent)
+              this.checkForChildren(childsParent, selectedNode)
+            }
+          }
+        }  
+          /* if (childsParent) {
+            console.log(childsParent)
+            this.checkForChildren(childsParent, selectedNode)
           } */
           this.calendar.today()
           this.getCalendarTitle()
-        this.sendLocals(false)
-        this.updateCalendarUser()
-        const toastElement = document.querySelector('.toastui-calendar-see-more-container');
-        if (toastElement) toastElement.style.display = 'none';
-
+          this.sendLocals(false)
+          this.updateCalendarUser()
+          const toastElement = document.querySelector('.toastui-calendar-see-more-container');
+          if (toastElement) toastElement.style.display = 'none';
+      },
+      async checkForChildren(parent, child) {
+        console.log(parent)
+        if (parent.children.length == 1 && parent.children[0].id == child.id) {
+          await http.patch(`/nodes/${parent.id}`, { is_sprint: false, line_color: '#363636' })
+        }
       },
       async fetchEvents(){
         let res = await this.$store.dispatch('getMSuite')
         this.currentMindMap = this.$store.getters.getMsuite
         this.$store.dispatch('setMindMapId', this.currentMindMap.id)
         this.fetchedEvents = this.currentMindMap.nodes
-        this.allSprints = []
+        this.allEvents = []
         this.fetchedEvents.forEach((currentValue, index, rEvents)=> {
-          if(currentValue.is_sprint){
-            this.allSprints.push(currentValue)
-          }          
+          /* if(currentValue.is_sprint){ */
+            this.allEvents.push(currentValue)
+          /* } */          
         })
-        //console.log("fetchEvents",  this.allSprints)
+        /* if (this.showEvent) {
+          let selectedNode = this.fetchedEvents.find(n => n.id == this.showEvent.id)
+          if (selectedNode) {
+            let childsParent = this.fetchedEvents.find(n => n.id == selectedNode.parent_node)
+            console.log(childsParent)
+            if (childsParent) {
+              console.log(childsParent)
+              this.checkForChildren(childsParent, selectedNode)
+            }
+          }
+        } */
+        console.log("fetchEvents",  this.allEvents)
         this.renderEvents()
       },
       renderEvents(){
@@ -519,11 +551,16 @@
           let colorType = this.lightOrDark(currentValue.line_color)
           let textColor = colorType != 'dark' ? '#020101' : '#F8F8F8'
           this.mapColors.push(currentValue.line_color)
-          console.log("renderEvents", currentValue.title, currentValue)
+          //console.log("renderEvents", currentValue.title, currentValue)
           /* if (currentValue.parent_node == null && currentValue.is_sprint == false) {
             currentValue.is_sprint = true
             this.afterParentDelete(currentValue)
           } */ 
+          console.log(currentValue)
+          if (currentValue.children.length == 0 && currentValue.is_sprint) {
+            currentValue.is_sprint = false
+            currentValue.line_color = "#363636"
+          }
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -542,6 +579,19 @@
         })
         this.uniqueColors = this.getUniqueColors(this.mapColors);
         this.bindEventToClick()
+
+        /* if (this.showEvent) {
+          let selectedNode = this.fetchedEvents.find(n => n.id == this.showEvent.id)
+          if (selectedNode) {
+            let childsParent = this.fetchedEvents.find(n => n.id == selectedNode.parent_node)
+            console.log(childsParent)
+            if (childsParent) {
+              console.log(childsParent)
+              this.checkForChildren(childsParent, selectedNode)
+            }
+          }
+        }   */
+
         this.fetchedEvents = []
       },
       formatshowEventDate(){
@@ -653,7 +703,12 @@
         console.log(data)
         this.updateEvent(data)
       },
+      updateNewParent(parent) {
+        console.log(parent)
+        http.put(`/nodes/${parent.id}`, { is_sprint: true, line_color: this.getRandomColor() })
+      },
       checkEventStatus(eventObj, nodeList) {
+        console.log(eventObj)
         const eventStart = new Date(eventObj.start);
         const eventEnd = new Date(eventObj.end);
 
@@ -683,11 +738,17 @@
                 } else {
                   if (multiNodes.length == 1) {
                     if (eventObj.raw.parentNode != node.id) {
+                      console.log('701')
                       eventObj.raw.parentNode = node.id
                     }
                   } else {
                     if (eventObj.raw.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
-                      eventObj.raw.parentNode = node.id
+                      console.log('706')
+                      if (eventObj.raw.parentNode != 'none' || eventObj.raw.parentNode != null) {
+                        eventObj.raw.parentNode = node.id
+                      } else {
+                        eventObj.raw.parentNode = null
+                      } 
                     } else {
                       eventObj.raw.parentNode = eventObj.raw.parentNode
                     }
@@ -710,12 +771,12 @@
               if (eventObj.raw.parentNode) eventObj.backgroundColor = '#363636'
               eventObj.raw.parentNode = null;
               console.log(eventObj)
-              if (eventEnd - eventStart > 86400000) {
+              /* if (eventEnd - eventStart > 86400000) {
                 eventObj.raw.isSprint = true
                 if (nodeList.filter(n => n.id != eventObj.id).map(n => n.line_color).includes(eventObjColor) && !eventObj.raw.standalone) {
                   eventObj.backgroundColor = this.getRandomColor()
                 }
-              }
+              } */
               /* if (!eventObj.raw.isSprint) { 
                 eventObj.backgroundColor = '#363636'
               } */
@@ -838,6 +899,9 @@
           this.fetchedEvents = value.nodes
         }, deep: true
       },
+      showEvent() {
+         console.log(this.showEvent)
+      }
     }
   }
 </script>
