@@ -350,8 +350,7 @@
       updateEvent(){
         if (this.title && !this.isValueInvalid){
           let data = this.generateDataObj()
-          //if (this.parentNode == 'none' && data.raw.parentNode != null) data.raw.parentNode = null
-          this.$emit('updateEvent', data)
+          this.$emit('updateEvent', data, this.parentNode)
           this.closeMapModal()
         }
       },

@@ -389,11 +389,11 @@
           if (parent && !parent.is_sprint) this.updateNewParent(parent)
         }
       },
-      updateEvent(eventObj, parent) {
+      async updateEvent(eventObj, par) {
         this.sendLocals(true)
         eventObj.start = new Date(eventObj.start)
         eventObj.end = new Date(eventObj.end)
-        console.log(eventObj, parent)
+        console.log(eventObj, par)
         this.checkEventStatus(eventObj, this.currentMindMap.nodes)
         //this.currentMindmap = this.updateEventColors(this.currentMindMap)
         this.showEditEvent = false
@@ -443,7 +443,10 @@
         this.sendLocals(false)
         this.updateCalendarUser()
         console.log(data)
-        http.put(`/nodes/${eventObj.id}`, data)
+        if (data.parent_node == null) {
+          this.setChildsParent(eventObj)
+        }
+        await http.put(`/nodes/${eventObj.id}`, data)
         if (data.parent_node && this.allEvents.length > 0 && this.currentMindMap.nodes) {
           let parent = this.currentMindMap.nodes.find(n => n.id == data.parent_node)
           if (parent && !parent.is_sprint) this.updateNewParent(parent)
@@ -502,6 +505,9 @@
           this.updateCalendarUser()
           const toastElement = document.querySelector('.toastui-calendar-see-more-container');
           if (toastElement) toastElement.style.display = 'none';
+      },
+      async setChildsParent(obj) {
+        await http.patch(`/nodes/${obj.id}`, { parent_node: null })
       },
       async checkForChildren(parent, child) {
         console.log(parent)
@@ -743,11 +749,14 @@
                     }
                   } else {
                     if (eventObj.raw.parentNode != node.id && !multiNodes.map(n => n.id).includes(eventObj.raw.parentNode)) {
-                      console.log('706')
-                      if (eventObj.raw.parentNode != 'none' || eventObj.raw.parentNode != null) {
-                        eventObj.raw.parentNode = node.id
-                      } else {
+                      /* console.log(eventObj)
+                      return; */
+                      if (eventObj.raw.parentNode == 'none') {
+                        console.log('true')
                         eventObj.raw.parentNode = null
+                      } else {
+                        console.log(false)
+                        eventObj.raw.parentNode = node.id
                       } 
                     } else {
                       eventObj.raw.parentNode = eventObj.raw.parentNode
