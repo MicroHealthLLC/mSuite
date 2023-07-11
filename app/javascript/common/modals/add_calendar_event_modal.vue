@@ -32,7 +32,7 @@
     </div> -->
 
     <div class="row">
-        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && allSprints.length > 0 && multipleSprints.length > 0">
+        <div class="col-6 d-flex content-justified-start px-0" v-if="isSprint == false && multipleSprints.length > 0">
           <label class="form-label mt-2" for="checkbox">Related to:&nbsp;&nbsp;</label>
           <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
             <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
@@ -145,7 +145,7 @@
   import Common from "../../mixins/common.js"
   export default {
     Name: "AddCalendarEventModal",
-    props:['eventDates','showEvent', 'allSprints'],
+    props:['eventDates','showEvent', 'allEvents'],
     mixins: [Common],
     data () {
       return{
@@ -173,11 +173,18 @@
         console.log("eventDates", newValue, oldValue)
         this.setDefaultValues()
         this.updateSelectedDate()
-        if (new Date(newValue.end) - new Date(newValue.start) > 86400000 && this.actionType == 'create') {
-          this.isSprint = true
-          
-        }
         this.allDay = true
+        /* let selectedStart = new Date(newValue.start)
+        let selectedEnd = new Date(newValue.end)
+        if (selectedEnd - selectedStart > 86400000 && this.actionType == 'create') {
+          let potentialChildren = this.allEvents.filter(event => new Date(event.startdate) >= selectedStart.setHours(0, 0, 0, 0) && new Date(event.duedate) <= selectedEnd.setHours(23, 59, 59, 999))
+          console.log(potentialChildren)
+          if (potentialChildren.length > 0) {
+            console.log('here')
+            this.isSprint = true
+          }
+        } */
+        this.checkForParentNode()
       },
       showEvent: {
         handler(newValue, oldValue) {
@@ -205,20 +212,30 @@
         this.toggleAllDay
       },
       multipleSprints() {
-        if (this.multipleSprints.length > 0) {
+        /* if (this.multipleSprints.length > 0) {
           this.isSprint = false
-        }
-        console.log('multipleSprints()',this.multipleSprints)
+        } */
+        console.log('multipleSprints',this.multipleSprints)
       },
-      /* isSprint(value) {
-        if (value) {
-          this.allDay = true
-        } else {
-          this.allDay = false
-        }
-      } */
+      parentNode() {
+        console.log(this.parentNode)
+        /* if (this.parentNode == null) {
+          this.parentNode = this.multipleSprints[0]
+        } */
+      },
+      isSprint() {
+        if (this.isSprint) {
+          console.log("isSprint: ", this.isSprint)
+        } 
+      }
     },
     methods: {
+      checkForParentNode() {
+        if (!this.parentNode && this.multipleSprints && this.multipleSprints.length > 0) {
+          this.parentNode = this.multipleSprints[0].id
+          console.log(this.parentNode)
+        }
+      },
       closeMapModal() {
         this.$refs.AddCalendarEventModal.close()
       },
@@ -237,7 +254,7 @@
           this.endDate.setMinutes(minutes)
         }
         this.disableEventCreation()
-        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
+        this.checkForMultipleSprints(this.allEvents, this.startDate, this.endDate, this.allDay)
       },
       showSelectedEvent(actType){
         this.title = this.showEvent.title
@@ -250,7 +267,7 @@
         this.isSprint = this.showEvent.raw.isSprint
         this.parentNode = this.showEvent.raw.parentNode
         this.actionType = actType
-        this.checkForMultipleSprints(this.allSprints, this.startDate, this.endDate, this.allDay)
+        this.checkForMultipleSprints(this.allEvents, this.startDate, this.endDate, this.allDay)
       },
       generateDataObj() {
         let _this = this;
@@ -268,19 +285,16 @@
           //backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
           id: null
         };
-        if (data.raw.parentNode == 'none') {
-          data.raw.parentNode = null
-          data.raw.isSprint = true
-      
-        }
         
         if (this.actionType == 'update') {
           data.id = this.showEvent.id;
-          data.backgroundColor = this.showEvent.backgroundColor;
+          //data.backgroundColor = this.showEvent.backgroundColor;
           if (data.raw.isSprint) {
             data.raw.parentNode = null
             data.raw.standalone = false
-            if ((this.allSprints.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor)) || data.backgroundColor === "#363636") data.backgroundColor = this.getRandomColor()
+            if ((this.allEvents.filter(sprint => sprint.id !== data.id).map(x => x.line_color).includes(data.backgroundColor)) || data.backgroundColor === "#363636") {
+              data.backgroundColor = this.getRandomColor()
+            } 
           }
         }
         if (data.isAllday) {
@@ -288,43 +302,17 @@
           data.end.setHours(23, 59, 59, 999)
         }
         console.log("data obj:", data)
+        console.log(this.parentNode)
+        //if (data.raw.parentNode == 'none') {
+          /* if (new Date(data.end) - new Date(data.start) > 86400000) data.raw.isSprint = true
+          else data.backgroundColor = '#363636' */
+          //console.log(data)
+          //data.raw.parentNode = null
+        //}
         return data;
       },
-      /* getRandomColor() {
-        let colorCode;
-        do {
-          // Generate a random hexadecimal color code
-          colorCode = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
-        } while (this.isColorTooLightOrDark(colorCode) && colorCode.length != 7);
-        return colorCode;
-      },
-      isColorTooLightOrDark(colorCode) {
-        // Convert the color code to RGB values
-        const rgb = this.hexToRgb(colorCode);
-
-        // Calculate the perceived brightness using the formula: (R * 299 + G * 587 + B * 114) / 1000
-        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-
-        // Check if the brightness is too light or dark
-        return brightness < 100 || brightness > 200;
-      },
-      hexToRgb(hex) {
-        // Remove the '#' character from the hex code
-        hex = hex.replace('#', '');
-
-        // Convert the hex code to RGB values
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-
-        return { r, g, b };
-      }, */
-      /* getRandomColor() {
-        // Generate a random hexadecimal color code
-        return '#' + Math.floor(Math.random() * 16777215).toString(16);
-      }, */
       checkForMultipleSprints(nodeList, eventStart, eventEnd, allDay) {
-        let sprintList = []
+        let eventList = []
 
         for (let i = 0; i < nodeList.length; i++) {
           const node = nodeList[i];
@@ -338,10 +326,18 @@
 
           // Check if the event falls within the date range of the node
           if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
-            sprintList.push(node)
+            eventList.push(node)
+          }
+
+          let sprintList = eventList.filter(e => e.is_sprint)
+
+          if (sprintList && sprintList.length > 0) {
+            this.multipleSprints = sprintList
+          } else {
+            this.multipleSprints = eventList
           }
         }
-        this.multipleSprints = sprintList
+        
       },
       createEvent(){
         if (this.title && !this.isValueInvalid ){
@@ -354,6 +350,7 @@
       updateEvent(){
         if (this.title && !this.isValueInvalid){
           let data = this.generateDataObj()
+          //if (this.parentNode == 'none' && data.raw.parentNode != null) data.raw.parentNode = null
           this.$emit('updateEvent', data)
           this.closeMapModal()
         }
@@ -368,7 +365,8 @@
         this.allDayNotHidden = true
         this.isSprint = false
         this.standalone = false
-        this.parentNode = ''
+        this.parentNode = null
+        this.multipleSprints = []
       },
       openRecurringEventModal(){
         if (this.title && !this.isValueInvalid){
