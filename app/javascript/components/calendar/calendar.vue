@@ -744,7 +744,6 @@
                 } else {
                   if (multiNodes.length == 1) {
                     if (eventObj.raw.parentNode != node.id) {
-                      console.log('701')
                       eventObj.raw.parentNode = node.id
                     }
                   } else {
@@ -752,10 +751,9 @@
                       /* console.log(eventObj)
                       return; */
                       if (eventObj.raw.parentNode == 'none') {
-                        console.log('true')
                         eventObj.raw.parentNode = null
+                        console.log("Sets eventObj.raw.parentNode from 'none' to null: ", eventObj.raw.parentNode)
                       } else {
-                        console.log(false)
                         eventObj.raw.parentNode = node.id
                       } 
                     } else {
