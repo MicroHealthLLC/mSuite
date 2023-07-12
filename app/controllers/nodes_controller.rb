@@ -11,6 +11,7 @@ class NodesController < AuthenticatedController
     @node = @node.decryption
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
     duplicate_child_nodes if params[:duplicate_child_nodes].present?
+    @node.parent&.update_sprint_node
     ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is created", node: @node } )
     respond_to do |format|
       format.json { render json: {node: @node}}
@@ -25,6 +26,7 @@ class NodesController < AuthenticatedController
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
     @node = @node.decryption
     update_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
+    @node.parent&.update_sprint_node
     ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node} )
     respond_to do |format|
       format.json { render json: {node: @node}}

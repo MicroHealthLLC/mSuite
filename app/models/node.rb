@@ -290,11 +290,19 @@ class Node < ApplicationRecord
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
   after_destroy :update_child_nodes
-
+  
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
   validates_uniqueness_of :description, scope: :mindmap_id, if: :validate_description
   validate :encrypted_title, if: :validate_private_treemap_condition
   validate :check_parent_node, on: :update
+
+  def update_sprint_node
+    
+    if self.mindmap.mm_type == 'calendar' && self.children.count < 1
+      self.update_column(:is_sprint, false)
+      self.update_column(:line_color, "#363636")
+    end
+  end
 
   def update_child_nodes
     children.each do |c|
@@ -398,6 +406,7 @@ class Node < ApplicationRecord
     # unless self.mindmap.mm_type == 'todo'
       parent = (self.parent_node != 0 && self.parent_node != nil) ? Node.find_by_id(self.parent_node) : self
       update_parent_attr(Node.where(parent_node: self.id), parent)
+      parent.update_sprint_node
     # end
   end
 
