@@ -132,6 +132,7 @@
     },
     methods: {
       closeMapModal() {
+        this.setDefaultValues()
         this.$refs.RecurringCalendarEventModal.close()
       },
       calculateRecurrence() {
