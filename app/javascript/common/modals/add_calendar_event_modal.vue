@@ -191,6 +191,7 @@
           console.log("showEvent", newValue, oldValue)
           this.setDefaultValues()
           this.showSelectedEvent('update')
+          if (!newValue.raw.parentNode) this.parentNode = 'none'
         },
         deep: true
       },
@@ -233,7 +234,6 @@
       checkForParentNode() {
         if (!this.parentNode && this.multipleSprints && this.multipleSprints.length > 0) {
           this.parentNode = this.multipleSprints[0].id
-          console.log(this.parentNode)
         }
       },
       closeMapModal() {
@@ -350,8 +350,7 @@
       updateEvent(){
         if (this.title && !this.isValueInvalid){
           let data = this.generateDataObj()
-          //if (this.parentNode == 'none' && data.raw.parentNode != null) data.raw.parentNode = null
-          this.$emit('updateEvent', data)
+          this.$emit('updateEvent', data, this.parentNode)
           this.closeMapModal()
         }
       },
