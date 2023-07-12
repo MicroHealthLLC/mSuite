@@ -174,7 +174,7 @@
         this.setDefaultValues()
         this.updateSelectedDate()
         this.allDay = true
-        /* let selectedStart = new Date(newValue.start)
+        let selectedStart = new Date(newValue.start)
         let selectedEnd = new Date(newValue.end)
         if (selectedEnd - selectedStart > 86400000 && this.actionType == 'create') {
           let potentialChildren = this.allEvents.filter(event => new Date(event.startdate) >= selectedStart.setHours(0, 0, 0, 0) && new Date(event.duedate) <= selectedEnd.setHours(23, 59, 59, 999))
@@ -183,7 +183,7 @@
             console.log('here')
             this.isSprint = true
           }
-        } */
+        }
         this.checkForParentNode()
       },
       showEvent: {
