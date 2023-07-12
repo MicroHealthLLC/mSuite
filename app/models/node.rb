@@ -405,8 +405,7 @@ class Node < ApplicationRecord
   def parent_changed
     # unless self.mindmap.mm_type == 'todo'
       parent = (self.parent_node != 0 && self.parent_node != nil) ? Node.find_by_id(self.parent_node) : self
-      update_parent_attr(Node.where(parent_node: self.id), parent)
-      parent.update_sprint_node
+      update_parent_attr(Node.where(parent_node: self.id), parent)      
     # end
   end
 

@@ -563,10 +563,10 @@
             this.afterParentDelete(currentValue)
           } */ 
           console.log(currentValue)
-          if (currentValue.children.length == 0 && currentValue.is_sprint) {
-            currentValue.is_sprint = false
-            currentValue.line_color = "#363636"
-          }
+          // if (currentValue.children.length == 0 && currentValue.is_sprint) {
+          //   currentValue.is_sprint = false
+          //   currentValue.line_color = "#363636"
+          // }
           this.calendar.createEvents([
             {
               id: currentValue.id,
