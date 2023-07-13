@@ -51,7 +51,7 @@ class Mindmap < ApplicationRecord
   # after_save :rearrange_node_for_calendar
 
   def rearrange_node_for_calendar
-    return
+    # return
     return if self.mm_type != 'calendar'
     
     sprints = []

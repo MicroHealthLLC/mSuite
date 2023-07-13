@@ -191,7 +191,7 @@
           console.log("showEvent", newValue, oldValue)
           this.setDefaultValues()
           this.showSelectedEvent('update')
-          if (!newValue.raw.parentNode) this.parentNode = 'none'
+          if (!newValue.raw.parentNode || newValue.raw.standalone) this.parentNode = 'none'
         },
         deep: true
       },
@@ -303,6 +303,9 @@
         }
         console.log("data obj:", data)
         console.log(this.parentNode)
+        if (data.raw.parentNode) {
+          data.raw.standalone = false
+        }
         //if (data.raw.parentNode == 'none') {
           /* if (new Date(data.end) - new Date(data.start) > 86400000) data.raw.isSprint = true
           else data.backgroundColor = '#363636' */
