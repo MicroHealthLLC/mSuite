@@ -55,7 +55,7 @@
           <label for="on" class="form-label">On</label>
         </span>
           <span class="datePicker col-6 mt-1 d-flex content-justified-start align-items-center ml-2">
-          <date-picker :disabled="endsOn !='on'" v-model="endOnDate" :format="format"></date-picker>
+          <date-picker :disabled="endsOn !='on'" v-model="endOnDate" :format="format" :clearable="false"></date-picker>
         </span>
       </div>
       <div class="row my-2">
@@ -132,6 +132,7 @@
     },
     methods: {
       closeMapModal() {
+        this.setDefaultValues()
         this.$refs.RecurringCalendarEventModal.close()
       },
       calculateRecurrence() {

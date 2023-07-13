@@ -43,6 +43,9 @@ Rails.application.routes.draw do
       put :update_export_order
       post :update_all_colors
     end
+    collection do
+      put :update_all_positions
+    end
   end
 
   resources :comments do

@@ -11,6 +11,7 @@ class NodesController < AuthenticatedController
     @node = @node.decryption
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
     duplicate_child_nodes if params[:duplicate_child_nodes].present?
+    
     ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is created", node: @node } )
     respond_to do |format|
       format.json { render json: {node: @node}}
@@ -21,7 +22,9 @@ class NodesController < AuthenticatedController
   def update
     previous_title = @node.title
     previous_title = EncryptionService.decrypt(previous_title) if @node.mindmap.is_private?
+    parent = @node.parent
     @node.update(update_node_params)
+    parent.update_sprint_node if parent
     update_node_parent(@node) if @node.mindmap.mm_type == 'todo' && params[:node][:title] == previous_title
     @node = @node.decryption
     update_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
@@ -43,12 +46,14 @@ class NodesController < AuthenticatedController
   def destroy
     if @node
       delNodes = []
+      parent = @node.parent
       delNodes = delete_child_nodes @node.children if @node.children
       delNodes = @node if @node.mindmap.mm_type == 'calendar'
       $deleted_child_nodes = []
       update_node_parent(@node) if @node.mindmap.mm_type == 'todo'
       del_worker(@node) if @node.mindmap.mm_type == 'calendar' || @node.mindmap.mm_type == 'todo'
       if @node.destroy
+        parent.update_sprint_node if parent
         ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is deleted", node: @node })
         respond_to do |format|
           format.json { render json: {success: true, node: delNodes}}
@@ -88,6 +93,16 @@ class NodesController < AuthenticatedController
     ActionCable.server.broadcast( "web_notifications_channel#{@node.mindmap_id}", { message: "Node is updated", node: @node, mindmap: @mindmap})
     respond_to do |format|
       format.json { render json: {success: true, node: @node}}
+      format.html { }
+    end
+  end
+
+  def update_all_positions    
+    params[:nodes].each do |n|
+      Node.find(n[:id]).update(position: n[:position])
+    end
+    respond_to do |format|
+      format.json { render json: {success: true}}
       format.html { }
     end
   end
