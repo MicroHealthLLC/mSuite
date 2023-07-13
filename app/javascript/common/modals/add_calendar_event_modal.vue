@@ -174,7 +174,7 @@
         this.setDefaultValues()
         this.updateSelectedDate()
         this.allDay = true
-        /* let selectedStart = new Date(newValue.start)
+        let selectedStart = new Date(newValue.start)
         let selectedEnd = new Date(newValue.end)
         if (selectedEnd - selectedStart > 86400000 && this.actionType == 'create') {
           let potentialChildren = this.allEvents.filter(event => new Date(event.startdate) >= selectedStart.setHours(0, 0, 0, 0) && new Date(event.duedate) <= selectedEnd.setHours(23, 59, 59, 999))
@@ -183,7 +183,7 @@
             console.log('here')
             this.isSprint = true
           }
-        } */
+        }
         this.checkForParentNode()
       },
       showEvent: {
@@ -191,7 +191,7 @@
           console.log("showEvent", newValue, oldValue)
           this.setDefaultValues()
           this.showSelectedEvent('update')
-          if (!newValue.raw.parentNode) this.parentNode = 'none'
+          if (!newValue.raw.parentNode || newValue.raw.standalone) this.parentNode = 'none'
         },
         deep: true
       },
@@ -303,6 +303,9 @@
         }
         console.log("data obj:", data)
         console.log(this.parentNode)
+        if (data.raw.parentNode) {
+          data.raw.standalone = false
+        }
         //if (data.raw.parentNode == 'none') {
           /* if (new Date(data.end) - new Date(data.start) > 86400000) data.raw.isSprint = true
           else data.backgroundColor = '#363636' */

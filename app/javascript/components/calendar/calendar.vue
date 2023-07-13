@@ -443,9 +443,9 @@
         this.sendLocals(false)
         this.updateCalendarUser()
         console.log(data)
-        if (data.parent_node == null) {
+        /* if (data.parent_node == null) {
           this.setChildsParent(eventObj)
-        }
+        } */
         await http.put(`/nodes/${eventObj.id}`, data)
         if (data.parent_node && this.allEvents.length > 0 && this.currentMindMap.nodes) {
           let parent = this.currentMindMap.nodes.find(n => n.id == data.parent_node)
@@ -563,10 +563,10 @@
             this.afterParentDelete(currentValue)
           } */ 
           console.log(currentValue)
-          if (currentValue.children.length == 0 && currentValue.is_sprint) {
-            currentValue.is_sprint = false
-            currentValue.line_color = "#363636"
-          }
+          // if (currentValue.children.length == 0 && currentValue.is_sprint) {
+          //   currentValue.is_sprint = false
+          //   currentValue.line_color = "#363636"
+          // }
           this.calendar.createEvents([
             {
               id: currentValue.id,
@@ -740,10 +740,12 @@
 
               if (eventStart >= nodeStart && eventEnd <= nodeEnd.setSeconds(nodeEnd.getSeconds() + 1) && node.is_sprint && !eventObj.raw.standalone) {
                 if (eventObj.raw.parentNode == null) {
+                  eventObj.raw.standalone = false
                   eventObj.raw.parentNode = node.id
                 } else {
                   if (multiNodes.length == 1) {
                     if (eventObj.raw.parentNode != node.id) {
+                      eventObj.raw.standalone = false
                       eventObj.raw.parentNode = node.id
                     }
                   } else {
@@ -752,8 +754,9 @@
                       return; */
                       if (eventObj.raw.parentNode == 'none') {
                         eventObj.raw.parentNode = null
-                        console.log("Sets eventObj.raw.parentNode from 'none' to null: ", eventObj.raw.parentNode)
+                        eventObj.raw.standalone = true
                       } else {
+                        eventObj.raw.standalone = false
                         eventObj.raw.parentNode = node.id
                       } 
                     } else {
@@ -771,12 +774,14 @@
             })
             
             if (eventObj.id === eventObj.raw.parentNode) {
+              //eventObj.raw.standalone = true
               eventObj.raw.parentNode = null
             } 
 
             if (multiNodes.length === 0) {
               if (eventObj.raw.parentNode) eventObj.backgroundColor = '#363636'
               eventObj.raw.parentNode = null;
+              //eventObj.raw.standalone = true
               console.log(eventObj)
               /* if (eventEnd - eventStart > 86400000) {
                 eventObj.raw.isSprint = true
@@ -788,6 +793,7 @@
                 eventObj.backgroundColor = '#363636'
               } */
             }
+            console.log(eventObj)
             return eventObj;
           }
         } 
