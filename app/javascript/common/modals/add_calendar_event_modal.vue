@@ -170,7 +170,7 @@ export default {
         let potentialChildren = this.allEvents.filter(event => new Date(event.startdate) >= selectedStart.setHours(0, 0, 0, 0) && new Date(event.duedate) <= selectedEnd.setHours(23, 59, 59, 999))
         if (potentialChildren.length > 0) {
           let sprints = potentialChildren.filter(c => c.is_sprint)
-          if (!sprints) this.isSprint = true
+          if (sprints.length == 0) this.isSprint = true
         }
       }
       this.checkForParentNode()
