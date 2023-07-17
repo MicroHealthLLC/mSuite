@@ -169,7 +169,8 @@ export default {
       if (selectedEnd - selectedStart > 86400000 && this.actionType == 'create') {
         let potentialChildren = this.allEvents.filter(event => new Date(event.startdate) >= selectedStart.setHours(0, 0, 0, 0) && new Date(event.duedate) <= selectedEnd.setHours(23, 59, 59, 999))
         if (potentialChildren.length > 0) {
-          this.isSprint = true
+          let sprints = potentialChildren.filter(c => c.is_sprint)
+          if (sprints.length == 0) this.isSprint = true
         }
       }
       this.checkForParentNode()
@@ -210,8 +211,9 @@ export default {
   methods: {
     checkForParentNode() {
       if (!this.parentNode && this.multipleSprints && this.multipleSprints.length > 0) {
-        this.parentNode = this.multipleSprints[0].id
-      }
+        if (!this.isSprint) this.parentNode = this.multipleSprints[0].id
+        else this.isSprint = false
+      } 
     },
     closeMapModal() {
       this.$refs.AddCalendarEventModal.close()
