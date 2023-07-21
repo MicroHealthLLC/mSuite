@@ -225,6 +225,11 @@
             if (data.node) this.$store.commit('setSelectedNode' , data.node)
           }
         }
+      },
+      SocketStatusChannel: {
+        received(data) {
+          console.log("SocketStatusChannel", data)
+        }
       }
     },
 
@@ -1092,6 +1097,7 @@
     },
 
     mounted() {
+      this.$cable.subscribe({ channel: 'SocketStatusChannel', message: "Working"})
       this.subscribeCable(this.currentMindMap.id)
       this.mountMap()
 
