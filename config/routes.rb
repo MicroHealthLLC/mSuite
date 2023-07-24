@@ -71,6 +71,7 @@ Rails.application.routes.draw do
 
   mount ActionCable.server => '/cable'
   root 'home#index'
+  get '/socket_status' => 'home#socket_status'
 
   if Rails.env.production?
     get '*all', to: "not_found#index", constraints: -> (req) do
