@@ -206,6 +206,7 @@
     channels: {
       WebNotificationsChannel: {
         received(data) {
+          console.log("WebNotificationsChannel", data)
           if (data.message === "Mindmap Deleted" && this.currentMindMap.id === data.mindmap.id)
           {
             window.open('/','_self')
@@ -216,11 +217,13 @@
             }, 500)
           }
           else if ( data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
+            console.log("WebNotificationsChannel","storage updated",  data)
             this.$store.dispatch('setUserEdit'     , data.content.userEdit)
             this.$store.dispatch('setTemporaryUser', data.content.userEdit)
             this.$store.dispatch('setUserList'     , data.content.userEdit)
           }
           else {
+            console.log("WebNotificationsChannel","setSelectedNode",  data)
             this.getMindmap()
             if (data.node) this.$store.commit('setSelectedNode' , data.node)
           }
@@ -292,6 +295,7 @@
         this.loading = false
       },
       getNewMindmap() {
+        console.log("getNewMindmap()")
         http
           .post('/msuite.json', { mindmap: { name: "Central Idea" } })
           .then((res) => {
@@ -776,6 +780,7 @@
 
       // =============== Map CRUD OPERATIONS =====================
       saveCurrentMap() {
+        console.log("saveCurrentMap()")
         this.currentMindMap.name = this.centralIdea
         this.currentMindMap.canvas = this.$store.getters.getUser
         if (this.currentMindMap.id) {
@@ -785,6 +790,7 @@
           this.currentMindMap = this.$store.getters.getMsuite
           this.$store.commit('setSelectedNode' , null)
           this.updateQuery()
+          this.updateMindmapview()
         } else {
           http.post(`/msuite.json`, { mindmap: this.currentMindMap }).then((res) => {
             this.stopWatch      = true
@@ -793,11 +799,19 @@
             this.currentMindMap = this.$store.getters.getMsuite
             this.$store.commit('setSelectedNode' , null)
             this.updateQuery()
+            this.updateMindmapview()
           }).catch((error) => {
             console.log(error)
           })
         }
         this.sendLocals(true)
+      },
+      updateMindmapview(){
+        if (this.currentMindMap && this.currentMindMap.id) {
+          this.getMindmap()
+          console.log("updating mindmap view", this.currentMindMap, this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+          this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+        }
       },
       // =============== Map CRUD OPERATIONS =====================
 
@@ -1100,6 +1114,8 @@
       this.$cable.subscribe({ channel: 'SocketStatusChannel', message: "Working"})
       this.subscribeCable(this.currentMindMap.id)
       this.mountMap()
+      
+      setInterval(this.updateMindmapview, 7000)
 
       window.addEventListener('mouseup', this.stopDrag)
       window.addEventListener('touchend', this.stopDrag)
