@@ -71,6 +71,24 @@
       }
     },
     methods: {
+      updateMindmapview(){
+        // console.log("updateMindmapview() called", this.currentMindMap)
+        // console.log("this.content", this.content, this.qeditor.getContents())
+        // if (this.currentMindMap && this.currentMindMap.id) {
+        //   this.$store.dispatch('getMSuite')
+        //   this.currentMindMap = this.$store.getters.getMsuite
+        //   this.content = JSON.parse(JSON.parse(this.currentMindMap.canvas).notepad)
+        //   this.qeditor.blur()
+        //   this.qeditor.setContents(new Delta(this.content))
+        //   this.strongTagStyleBold()
+        //   if(this.content == null){
+        //     this.qeditor.setContents([
+        //       { insert: '' },
+        //     ])
+        //   }
+        //   console.log("updating notepad view", this.currentMindMap)
+        // }
+      },
       updateDocument() {
         let _this = this
         let mycanvas = {
@@ -120,9 +138,11 @@
         },100)
       },
       editorEvents() {
+        
         let _this = this
         let change = new Delta();
         let myDelta = this.qeditor.getContents();
+        console.log("editorEvents", myDelta)
         let editSource = ''
         this.qeditor.on('text-change', function(delta, oldContents, source) {
           let lists = document.getElementsByTagName('li')
@@ -262,6 +282,7 @@
       this.exportDoc(this.exportToDocument)
       this.undoMap(this.undoNotepad)
       this.redoMap(this.redoNotepad)
+      setInterval(this.updateMindmapview, 7000)
     },
     updated() {
       this.strongTagStyleBold()

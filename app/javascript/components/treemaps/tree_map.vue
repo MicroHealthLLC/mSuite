@@ -128,6 +128,7 @@
       this.getUserOnMount()
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
+      setInterval(this.updateMindmapview, 7000)
     },
     channels: {
       WebNotificationsChannel: {
@@ -170,6 +171,13 @@
       }
     },
     methods: {
+        updateMindmapview(){
+        if (this.currentMindMap && this.currentMindMap.id) {
+          this.getTreeMap()
+          console.log("updating treemap view", this.currentMindMap, this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+          // this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+        }
+      },
       onBindingComplete: function (event) {
         let nodestreeMaps = []
         var nodeElement = this.insertNodeElement('fas ml-2 fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Map')

@@ -173,6 +173,7 @@
       }
       this.mountKanBan()
       this.getUserOnMount()
+      setInterval(this.updateMindmapview, 7000)
       setTimeout(()=>{
         let height = document.getElementById('nav').offsetHeight
         document.getElementById('kanban-board').style.height = `calc(100vh - ${height}px)`
@@ -201,6 +202,13 @@
       }
     },
     methods: {
+      updateMindmapview(){
+        if (this.currentMindMap && this.currentMindMap.id) {
+          this.getMindmap()
+          console.log("updating Kanban view", this.currentMindMap, this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+          this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+        }
+      },
       mountKanBan(){
         this.$nextTick(function () {
           setTimeout(()=>{

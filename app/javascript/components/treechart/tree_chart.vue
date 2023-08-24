@@ -143,11 +143,20 @@
       this.zmOutScale(this.zoomOutScale)
       this.resetZmScale(this.resetZoomScale)
       window.addEventListener('wheel', this.transformScale)
+      setInterval(this.updateMindmapview, 7000)
     },
     components: {
       ColorPalette
     },
     methods: {
+      updateMindmapview(){
+        console.log("updateMindmapview() called", this.$store.getters.getMsuite)
+        if (this.$store.getters.getMsuite && this.$store.getters.getMsuite.id) {
+          this.fetchTreeChart()
+          console.log("updating tree chart view", this.$store.getters.getMsuite)
+          // this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+        }
+      },
       dragStart(nodeId){
         this.dragElement = this.nodes.find((node) => node.id == nodeId)
         this.sendLocals(true)

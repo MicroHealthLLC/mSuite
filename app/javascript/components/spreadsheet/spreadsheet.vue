@@ -334,6 +334,19 @@
       },
       redoTable(){
         this.table.redo()
+      },
+      updateMindmapview(){
+        
+        console.log("updateMindmapview", this.currentMindMap)
+
+        if (this.currentMindMap && this.currentMindMap.id) {
+          this.$store.dispatch('getMSuite')
+          this.currentMindMap = this.$store.getters.getMsuite
+          this.$store.commit('setMSuite', this.currentMindMap)
+          this.sheetData = JSON.parse(this.currentMindMap.canvas)
+          console.log("updating spreadsheet view", this.currentMindMap)
+          // this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+        }
       }
     },
     created() {
@@ -342,7 +355,10 @@
     updated() {
       setTimeout(() => this.saveElement = false, 1200)
     },
+
     mounted() {
+      console.log("spreadsheet mounted")
+      setInterval(this.updateMindmapview, 7000)
       this.subscribeCable(this.currentMindMap.id)
       this.$store.dispatch('setExportId', 'spreadSheet')
       this.sendLocals(false)
@@ -357,6 +373,7 @@
       $( ".jexcel_toolbar" ).mouseover(()=>{
         this.selectionCreated()
       })
+      
     },
   }
 </script>

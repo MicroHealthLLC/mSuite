@@ -773,6 +773,13 @@ export default {
     hidePopover() {
       this.showEditEvent = false;
       //this.colorSelected = false // Set the variable to hide the popover
+    },
+    updateMindmapview(){
+      if (this.currentMindMap && this.currentMindMap.id) {
+        this.fetchEvents()
+        console.log("updating mindmap view", this.currentMindMap, this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+        // this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
+      }
     }
   },
   mounted: async function () {
@@ -794,6 +801,7 @@ export default {
     }, 100)
     this.undoMap(this.undoEvent)
     this.redoMap(this.redoEvent)
+    setInterval(this.updateMindmapview, 7000)
   },
   watch: {
     mSuite: {

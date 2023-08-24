@@ -230,6 +230,13 @@ export default {
     }
   },
   methods: {
+    updateMindmapview(){
+      console.log("updateMindmapview() called", this.currentMindMap)
+      if (this.currentMindMap && this.currentMindMap.id) {
+        this.fetchToDos()
+        console.log("updating todo view", this.currentMindMap)
+      }
+    },
     async handleEndParent(e, list) {
       if (!e.removed) {
         let newIdList = list.map(i => i.id)
@@ -640,6 +647,8 @@ export default {
 
     this.undoMap(this.undoObj)
     this.redoMap(this.redoObj)
+    setInterval(this.updateMindmapview, 7000)
+
 
   },
   watch: {
