@@ -342,8 +342,9 @@
         if (this.currentMindMap && this.currentMindMap.id) {
           this.$store.dispatch('getMSuite')
           this.currentMindMap = this.$store.getters.getMsuite
-          this.$store.commit('setMSuite', this.currentMindMap)
+          // this.$store.commit('setMSuite', this.currentMindMap)
           this.sheetData = JSON.parse(this.currentMindMap.canvas)
+          this.table.setData(this.sheetData.data)
           console.log("updating spreadsheet view", this.currentMindMap)
           // this.$store.commit('setSelectedNode' , this.currentMindMap.nodes[this.currentMindMap.nodes.length - 1])
         }
