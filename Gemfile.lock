@@ -434,8 +434,8 @@ DEPENDENCIES
   omniauth-office365!
   omniauth-rails_csrf_protection (~> 0.1)
   psych (< 4)
-  rails (= 7.0.4.3)
   puma (~> 6.3.1)
+  rails (= 7.0.4.3)
   redis (~> 4.3.1)
   redis-namespace
   rubocop-performance
