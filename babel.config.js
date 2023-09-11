@@ -1,15 +1,16 @@
 module.exports = function(api) {
-  var validEnv = ['development', 'test', 'production']
+  var validEnv = ['development', 'test', 'production', 'qa']
   var currentEnv = api.env()
   var isDevelopmentEnv = api.env('development')
   var isProductionEnv = api.env('production')
   var isTestEnv = api.env('test')
+  var isQaEnv = api.env('qa')
 
   if (!validEnv.includes(currentEnv)) {
     throw new Error(
       'Please specify a valid `NODE_ENV` or ' +
         '`BABEL_ENV` environment variables. Valid values are "development", ' +
-        '"test", and "production". Instead, received: ' +
+        '"test", and "production" and "qa". Instead, received: ' +
         JSON.stringify(currentEnv) +
         '.'
     )
