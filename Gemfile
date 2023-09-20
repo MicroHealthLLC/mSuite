@@ -39,7 +39,7 @@ gem 'redis-namespace'
 # gem 'capistrano-rails', group: :development
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
-gem 'sidekiq', '~> 6.3', '>= 6.3.1'
+gem 'sidekiq', '~> 7.1'
 gem "sidekiq-cron"
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
