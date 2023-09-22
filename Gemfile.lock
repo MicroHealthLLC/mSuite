@@ -115,7 +115,6 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.10)
-    connection_pool (2.4.1)
     crass (1.0.6)
     date (3.3.3)
     deep_cloneable (3.2.0)
@@ -131,8 +130,6 @@ GEM
       dotenv (= 2.7.6)
       railties (>= 3.2)
     erubi (1.11.0)
-    et-orbi (1.2.7)
-      tzinfo
     execjs (2.8.1)
     faraday (1.6.0)
       faraday-em_http (~> 1.0)
@@ -157,16 +154,12 @@ GEM
     formtastic (4.0.0)
       actionpack (>= 5.2.0)
     formtastic_i18n (0.7.0)
-    fugit (1.7.1)
-      et-orbi (~> 1, >= 1.2.7)
-      raabro (~> 1.4)
     globalid (1.1.0)
       activesupport (>= 5.0)
     has_scope (0.8.0)
       actionpack (>= 5.2)
       activesupport (>= 5.2)
     hashie (5.0.0)
-    hiredis (0.6.3)
     hkdf (0.3.0)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
@@ -258,7 +251,6 @@ GEM
     psych (3.3.4)
     puma (6.3.1)
       nio4r (~> 2.0)
-    raabro (1.4.0)
     racc (1.6.2)
     rack (2.2.8)
     rack-proxy (0.7.4)
@@ -300,11 +292,6 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    redis (4.3.1)
-    redis-client (0.17.0)
-      connection_pool
-    redis-namespace (1.8.1)
-      redis (>= 3.0.4)
     regexp_parser (2.6.0)
     require_all (3.0.0)
     responders (3.1.0)
@@ -361,14 +348,6 @@ GEM
       rack-proxy (>= 0.6.1)
       railties (>= 5.2)
       semantic_range (>= 2.3.0)
-    sidekiq (7.1.3)
-      concurrent-ruby (< 2)
-      connection_pool (>= 2.3.0)
-      rack (>= 2.2.4)
-      redis-client (>= 0.14.0)
-    sidekiq-cron (1.8.0)
-      fugit (~> 1)
-      sidekiq (>= 4.2.1)
     slim (4.1.0)
       temple (>= 0.7.6, < 0.9)
       tilt (>= 2.0.6, < 2.1)
@@ -428,7 +407,6 @@ DEPENDENCIES
   deep_cloneable (~> 3.2.0)
   devise (= 4.8.1)
   dotenv-rails
-  hiredis
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)
   mock_redis
@@ -439,16 +417,12 @@ DEPENDENCIES
   psych (< 4)
   puma (~> 6.3.1)
   rails (= 7.0.4.3)
-  redis (~> 4.3.1)
-  redis-namespace
   rubocop-performance
   rubocop-rails
   rubocop-rspec
   sass-rails (~> 5.0)
   serviceworker-rails
   shakapacker (= 6.5.4)
-  sidekiq (~> 7.1)
-  sidekiq-cron
   slim-rails
   turbolinks (~> 5)
   tzinfo-data
