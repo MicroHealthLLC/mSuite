@@ -29,18 +29,14 @@ gem 'jbuilder', '~> 2.5'
 gem 'bcrypt'
 gem 'bootstrap', '~> 4.3.1'
 gem "slim-rails"
-# redis server
-gem "hiredis"
-gem 'redis', '~> 4.3.1'
-gem 'redis-namespace'
+
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
-gem 'sidekiq', '~> 7.1'
-gem "sidekiq-cron"
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
@@ -73,3 +69,12 @@ gem 'deep_cloneable', '~> 3.2.0'
 
 # Upgrade to Rails 7 and Ruby 3.1 changes
 gem 'psych', '< 4'
+
+# Disabled sidekiq as per requested. In addition, upgrading sidekiq needs
+# upgrade in redis to version 7 or more.
+# gem 'sidekiq', '~> 7.1'
+# gem "sidekiq-cron"
+# redis server
+gem "hiredis"
+gem 'redis', '~> 4.3.1'
+gem 'redis-namespace'

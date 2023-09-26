@@ -1,7 +1,7 @@
 class FileInActiveWorker
-  include Sidekiq::Worker
+  # include Sidekiq::Worker
 
-  def perform
+  def self.perform
     mSuites = Mindmap.where("will_delete_at <= ?", Date.today)
     if mSuites.length > 0
       mSuites.each do |mSuite|
