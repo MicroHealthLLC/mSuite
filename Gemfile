@@ -75,6 +75,6 @@ gem 'psych', '< 4'
 # gem 'sidekiq', '~> 7.1'
 # gem "sidekiq-cron"
 # redis server
-# gem "hiredis"
-# gem 'redis', '~> 4.3.1'
-# gem 'redis-namespace'
+gem "hiredis"
+gem 'redis', '~> 4.3.1'
+gem 'redis-namespace'
