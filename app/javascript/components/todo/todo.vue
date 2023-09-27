@@ -371,7 +371,7 @@ export default {
 
         parent_nodes.forEach((p, index) => {
           if (p.id == node.parent_node) {
-
+            console.log(node)
             let obj = {
               name: node.title,
               id: node.id,
