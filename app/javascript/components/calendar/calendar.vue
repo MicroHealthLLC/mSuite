@@ -135,9 +135,9 @@ export default {
         } else if (data.message === "Node is updated" && this.currentMindMap.id === data.node.mindmap_id) {
           this.calendar.store.getState().calendar.events.internalMap.clear()
           this.fetchEvents()
-        } else if (data.message === "Event Trigger") {
+        } /* else if (data.message === "Event Trigger") {
           this.eventNotifications(data.node.title)
-        } else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
+        } */ else if (data.message === "storage updated" && this.currentMindMap.id == data.content.mindmap_id) {
           this.$store.dispatch('setUserEdit', data.content.userEdit)
           this.$store.dispatch('setTemporaryUser', data.content.userEdit)
           this.$store.dispatch('setUserList', data.content.userEdit)

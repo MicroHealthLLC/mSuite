@@ -1,7 +1,7 @@
 class DeleteFileWorker
-  include Sidekiq::Worker
+  # include Sidekiq::Worker
 
-  def perform
+  def self.perform
     mSuites = Mindmap.fileshare_created_before(1.hour.ago)
     if mSuites.length > 0
       mSuites.each do |mSuite|
