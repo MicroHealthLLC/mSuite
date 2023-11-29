@@ -122,6 +122,7 @@ class Mindmap < ApplicationRecord
     _nodes = []
     if self.mm_type == 'todo'
       _nodes = Node.where(mindmap_id: self.id).order("duedate ASC")
+      _nodes = _nodes.map(&:decryption) if self.is_private? && !_nodes.empty?
     else
       _nodes = self.nodes
     end
