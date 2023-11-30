@@ -12,7 +12,7 @@
         class="flowmap-center-vertical overflow-hidden"
       >
         <template v-slot:node="{ node }">
-          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
+          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop.stop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart.self="dragStart($event, node.id)">
             <div>
               <span @click="deleteMap(node)">
                 <i class="fas ml-2 fa-times float-right icon-opacity text-danger" :title="$store.getters.getMsuite.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
@@ -148,11 +148,14 @@
       ColorPalette
     },
     methods: {
-      dragStart(nodeId){
+      dragStart(event, nodeId){
         this.dragElement = this.nodes.find((node) => node.id == nodeId)
         this.sendLocals(true)
+        event.stopPropagation()
+        this.$refs.refTree.enableDrag(false)
       },
       dragDrop(nodeId){
+        this.$refs.refTree.enableDrag(false)
         let dropElement = this.nodes.find((node) => node.id == nodeId)
         if(nodeId && nodeId != this.dragElement.id && this.dragElement.id != dropElement.parent_node)
         { 
