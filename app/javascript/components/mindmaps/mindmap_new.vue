@@ -376,7 +376,7 @@
         }
         this.currentPositionX = this.currentPositionY = 0
 
-        this.sendLocals(true)
+        this.sendLocalsMindmap(true)
       },
       startDragNode(event, node) {
         if(this.editingNode != node) this.editingNode = null
