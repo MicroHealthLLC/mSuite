@@ -38,6 +38,13 @@ export default {
         }
       });
     },
+    sendLocalsMindmap(isEditing){
+      this.$store.dispatch('setUserEdit', this.storage.user)
+      this.cableSend(isEditing)
+      setTimeout(()=>{
+        this.saveElement = false
+      },1200)
+    },
     sendLocals(isEditing){
       this.$store.dispatch('setUserEdit', this.storage.user)
       this.$store.dispatch('mindmapId', this.mindmap_id)
