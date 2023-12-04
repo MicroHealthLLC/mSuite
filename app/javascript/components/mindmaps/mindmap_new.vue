@@ -375,8 +375,6 @@
           c.height         = this.windowHeight
         }
         this.currentPositionX = this.currentPositionY = 0
-
-        this.sendLocalsMindmap(true)
       },
       startDragNode(event, node) {
         if(this.editingNode != node) this.editingNode = null
