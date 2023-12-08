@@ -38,7 +38,7 @@ class MindmapsController < AuthenticatedController
   end
 
   def show
-    if @mindmap.decrypt_attributes
+    if @mindmap&.decrypt_attributes
       respond_to do |format|
         format.json { render json: render_mindmap(@mindmap,nil)}
         format.html { render action: 'index' }
