@@ -186,13 +186,14 @@
           var nodeElement = this.insertNodeElement('fas ml-2 fa-times text-danger cancel-btn mt-1 icon-opacity', 'Delete Node')
           var nodeElementSecond = this.insertNodeElement('fas fa-plus add-icon cancel-btn mt-1 icon-opacity', 'Add Child Node')
           var nodeElementThird = this.insertNodeElement('fas fa-eye-dropper text-dark cancel-btn mt-1 icon-opacity', 'Color Picker')
+          var nodeElementFourth = this.insertNodeElement('float-left fas fa-arrows-alt text-dark mt-1 icon-opacity', 'Drag Node')
           if(e.className == 'jqx-treemap-rectangle jqx-treemap-rectangle-parent')
           {
             e.style.marginTop = '13px'
             e.style.width = e.style.width.split('px')[0] - 5 + 'px'
             e.style.height = e.style.height.split('px')[0] - 16 + 'px'
             this.bindDragAndDrop(e)
-            e.append(nodeElement, nodeElementSecond, nodeElementThird)
+            e.append(nodeElement, nodeElementSecond, nodeElementThird, nodeElementFourth)
             jqxParentArray = [].concat.apply(jqxParentArray, e.children)
           }
 
@@ -201,7 +202,7 @@
             e.style.width = e.style.width.split('px')[0] - 10 + 'px'
             e.style.height = e.style.height.split('px')[0] - 21 + 'px'
             this.bindDragAndDrop(e)
-            e.append(nodeElement, nodeElementSecond, nodeElementThird)
+            e.append(nodeElement, nodeElementSecond, nodeElementThird, nodeElementFourth)
           }
         })
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
