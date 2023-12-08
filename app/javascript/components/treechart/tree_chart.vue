@@ -297,7 +297,7 @@
       collapseNode(node){
         this.getColorNode('.rich-media-node')
         this.collapsed = !this.collapsed
-        if(this.collapsed) this.insertNodeElement('fas fa-caret-square-up', node.id)
+        if(node._collapsed == undefined || node._collapsed == false) this.insertNodeElement('fas fa-caret-square-up', node.id)
         else this.insertNodeElement('fas fa-caret-square-down', node.id)
         this.$refs.refTree.collapseEnabled = true
       },
