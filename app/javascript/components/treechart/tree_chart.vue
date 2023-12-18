@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- tree chart -->
-    <div id="treeChartObj" class="main_body font-serif w-100" :class="mm_type == 'flowmap' ? 'd-flex align-items-center' : ''">
+    <div id="treeChartObj" class="main_body font-serif w-100 text-color" :class="mm_type == 'flowmap' ? 'd-flex align-items-center' : ''">
       <vue-tree
         style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
         :dataset="treeChartObj"
@@ -27,7 +27,7 @@
                 <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node" @mousedown="dragStart($event, node.id)"></i>
               </div>
             </div>
-            <span class="my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
+            <span class="my-2 text-left text-break text-black" v-if="selectedNode.id != node.id" @click="showInputField(node)">
               {{ node.name }}
             </span>
             <span v-else-if="selectedNode.id == node.id">

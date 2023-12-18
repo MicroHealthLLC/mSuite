@@ -20,7 +20,8 @@
       </div>
 
       <div>
-        <input type="password" v-model="confirm_password" class="form-control" placeholder="Confirm password"/>
+        <input type="password" v-model="confirm_password" @input="validateInput" class="form-control" placeholder="Confirm password"/>
+        <p v-if="errorMessage" class="red text-left">{{ errorMessage }}</p>
       </div>
       <button slot="button" @click="private_password" :disabled="showSaveBTN" class="btn btn-success"> Save </button>
     </sweet-modal>
@@ -41,9 +42,18 @@
         old_password: "",
         new_password: "",
         confirm_password: "",
+        errorMessage: ""
       }
     },
     methods:{
+      validateInput(){
+       if(this.confirm_password !== this.new_password){
+        this.errorMessage = "Pasword do not match"
+       }
+       else{
+        this.errorMessage = ''
+       }
+      },
       private_password() {
         if(this.password && this.new_password == "" && this.confirm_password == "" ){
             this.new_password = this.password;
@@ -75,7 +85,7 @@
     computed:{
       showSaveBTN(){
         if(!this.password){
-          if(this.old_password.length < 1 && this.password != null || this.new_password.length < 8 || this.confirm_password.length < 8)return true
+          if(this.old_password.length < 1 && this.password != null || this.new_password.length < 8 || this.confirm_password.length < 8 || this.new_password.length !== this.confirm_password.length || this.new_password !== this.confirm_password)return true
         }
         if(this.password){
           if(this.old_password.length < 1 || this.new_password.length < 8 || this.new_password != this.confirm_password) return true
