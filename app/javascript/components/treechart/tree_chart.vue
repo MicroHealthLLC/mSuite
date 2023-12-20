@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @mousedown="handleMouseDown">
     <!-- tree chart -->
     <div id="treeChartObj" class="main_body font-serif w-100" :class="mm_type == 'flowmap' ? 'd-flex align-items-center' : ''">
       <vue-tree
@@ -23,7 +23,7 @@
               <span @click="node.name != 'Enter title here' ? showColorPicker(node) : ''">
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
               </span>
-              <div  v-if="node.id !== undefined">
+              <div>
                 <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node" @mousedown="dragStart($event, node.id)"></i>
               </div>
             </div>
@@ -149,12 +149,20 @@
       ColorPalette
     },
     methods: {
+      handleMouseDown(event){
+        const isDraggableNode = event.target.classList.contains('fa-arrows-alt');
+        if(!isDraggableNode){
+          this.$refs.refTree.enableDrag(false)        
+        }
+      },
       dragStart(event, nodeId){
-        this.dragEnable = true
-        this.dragElement = this.nodes.find((node) => node.id == nodeId)
-        this.sendLocals(true)
-        event.stopPropagation()
-        this.$refs.refTree.enableDrag(false)
+        if(nodeId){
+          this.dragEnable = true
+          this.dragElement = this.nodes.find((node) => node.id == nodeId)
+          this.sendLocals(true)
+          event.stopPropagation()
+          this.$refs.refTree.enableDrag(false)
+        }
       },
       dragDrop(nodeId){
         this.$refs.refTree.enableDrag(false)
