@@ -12,7 +12,7 @@
         class="flowmap-center-vertical overflow-hidden"
       >
         <template v-slot:node="{ node }">
-          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop="dragDrop(node.id)" ondragover="event.preventDefault();" draggable="true" @dragstart="dragStart(node.id)">
+          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop.stop="dragDrop(node.id)" ondragover="event.preventDefault();" :draggable="dragEnable">
             <div>
               <span @click="deleteMap(node)">
                 <i class="fas ml-2 fa-times float-right icon-opacity text-danger" :title="$store.getters.getMsuite.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
@@ -24,7 +24,7 @@
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
               </span>
               <div  v-if="node.id !== undefined">
-                <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node"></i>
+                <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node" @mousedown="dragStart($event, node.id)"></i>
               </div>
             </div>
             <span class="my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
@@ -93,6 +93,7 @@
         scaleFactor: this.$store.getters.getScaleFactor,
         deleteNodeObj: null,
         collapsed: false,
+        dragEnable: false,
         prevNode: null,
         selectedNode: {id: null},
         selectedNodeTitle: '',
@@ -148,11 +149,15 @@
       ColorPalette
     },
     methods: {
-      dragStart(nodeId){
+      dragStart(event, nodeId){
+        this.dragEnable = true
         this.dragElement = this.nodes.find((node) => node.id == nodeId)
         this.sendLocals(true)
+        event.stopPropagation()
+        this.$refs.refTree.enableDrag(false)
       },
       dragDrop(nodeId){
+        this.$refs.refTree.enableDrag(false)
         let dropElement = this.nodes.find((node) => node.id == nodeId)
         if(nodeId && nodeId != this.dragElement.id && this.dragElement.id != dropElement.parent_node)
         { 
@@ -164,6 +169,7 @@
           this.dragElement.parent_node = null
           this.updateTreeChartNode(this.dragElement)
         }
+        this.dragEnable = false
       },
       zoomInScale(){
         if (this.$store.getters.getScaleFactor < 1.50) {
@@ -294,7 +300,7 @@
       collapseNode(node){
         this.getColorNode('.rich-media-node')
         this.collapsed = !this.collapsed
-        if(this.collapsed) this.insertNodeElement('fas fa-caret-square-up', node.id)
+        if(node._collapsed == undefined || node._collapsed == false) this.insertNodeElement('fas fa-caret-square-up', node.id)
         else this.insertNodeElement('fas fa-caret-square-down', node.id)
         this.$refs.refTree.collapseEnabled = true
       },
