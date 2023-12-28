@@ -1,18 +1,19 @@
 <template>
-  <div>
+  <div @mousedown="handleMouseDown">
     <!-- tree chart -->
-    <div id="treeChartObj" class="main_body font-serif w-100" :class="mm_type == 'flowmap' ? 'd-flex align-items-center' : ''">
+    <div id="treeChartObj" class="main_body font-serif w-100 text-color" :class="mm_type == 'flowmap' ? 'd-flex align-items-center' : ''">
       <vue-tree
         style="width: 100%; height: 100%; min-height: 900px; min-width: 900px;"
         :dataset="treeChartObj"
         :config="treeConfig"
         :direction="isTreeChart"
+        :collapse-enabled="collapsed"
         linkStyle="straight"
         ref="refTree"
         class="flowmap-center-vertical overflow-hidden"
       >
-        <template v-slot:node="{ node }">
-          <div class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop.stop="dragDrop(node.id)" ondragover="event.preventDefault();" :draggable="dragEnable">
+        <template v-slot:node="{ node }" >
+          <div @click="collapseNode(node, $event)" class="rich-media-node mx-1 px-2 pt-2 w-100" :id="'treeChart' + node.id" :style="[node.color ? {'backgroundColor': node.color} : {'backgroundColor': $store.getters.getMsuite.line_color}]" @drop.stop="dragDrop(node.id)" ondragover="event.preventDefault();" :draggable="dragEnable">
             <div>
               <span @click="deleteMap(node)">
                 <i class="fas ml-2 fa-times float-right icon-opacity text-danger" :title="$store.getters.getMsuite.name == node.name ? 'Delete Map' : 'Delete Node'"></i>
@@ -23,17 +24,17 @@
               <span @click="node.name != 'Enter title here' ? showColorPicker(node) : ''">
                 <i class="fas fa-eye-dropper color-picker float-right icon-opacity text-dark" title="Color Picker"></i>
               </span>
-              <div  v-if="node.id !== undefined">
+              <div>
                 <i class="fas fa-arrows-alt position-relative icon-opacity text-dark float-left" title="Drag Node" @mousedown="dragStart($event, node.id)"></i>
               </div>
             </div>
-            <span class="my-2 text-left text-break" v-if="selectedNode.id != node.id" @click="showInputField(node)">
+            <span class="my-2 text-left text-break text-black" v-if="selectedNode.id != node.id" @click="showInputField(node)">
               {{ node.name }}
             </span>
             <span v-else-if="selectedNode.id == node.id">
               <textarea-autosize type="text" v-model="selectedNode.name"  v-debounce:3000ms="blurEvent" @blur.native="saveNodeTreeChart" :rows="1" class="w-100 rounded my-2" placeholder="Enter title here" :id="'textArea' + node.id"/>
             </span>
-            <span class="w-100 position-arrow text-center" @click="collapseNode(node)" :id="'collapsed'+node.id">
+            <span class="w-100 position-arrow text-center" @click="collapseNode(node,$event)" :id="'collapsed'+node.id">
               <i class="fas fa-caret-square-down"></i>
             </span>
           </div>
@@ -149,12 +150,20 @@
       ColorPalette
     },
     methods: {
+      handleMouseDown(event){
+        const isDraggableNode = event.target.classList.contains('fa-arrows-alt');
+        if(!isDraggableNode){
+          this.$refs.refTree.enableDrag(false)        
+        }
+      },
       dragStart(event, nodeId){
-        this.dragEnable = true
-        this.dragElement = this.nodes.find((node) => node.id == nodeId)
-        this.sendLocals(true)
-        event.stopPropagation()
-        this.$refs.refTree.enableDrag(false)
+        if(nodeId){
+          this.dragEnable = true
+          this.dragElement = this.nodes.find((node) => node.id == nodeId)
+          this.sendLocals(true)
+          event.stopPropagation()
+          this.$refs.refTree.enableDrag(false)
+        }
       },
       dragDrop(nodeId){
         this.$refs.refTree.enableDrag(false)
@@ -297,13 +306,18 @@
           document.getElementById('textArea'+ _this.selectedNode.id).focus()
         }, 300)
       },
-      collapseNode(node){
-        this.getColorNode('.rich-media-node')
-        this.collapsed = !this.collapsed
-        if(node._collapsed == undefined || node._collapsed == false) this.insertNodeElement('fas fa-caret-square-up', node.id)
-        else this.insertNodeElement('fas fa-caret-square-down', node.id)
-        this.$refs.refTree.collapseEnabled = true
-      },
+      collapseNode(node,event) {
+      if (event.target.classList.contains('fa-caret-square-down') || event.target.classList.contains('fa-caret-square-up')) {
+        this.getColorNode('.rich-media-node');
+        this.collapsed = !this.collapsed;
+        if (node._collapsed === undefined || node._collapsed === false) {
+          this.insertNodeElement('fas fa-caret-square-up', node.id);
+        } else {
+          this.insertNodeElement('fas fa-caret-square-down', node.id);
+        }
+        this.$refs.refTree.collapseEnabled = true;
+      }
+    },
       insertNodeElement(class_list, nodeId) {
         var nodeElement = document.createElement("i");
         var textnodeElement = document.createTextNode("")
