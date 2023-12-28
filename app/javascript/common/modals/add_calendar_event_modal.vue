@@ -15,36 +15,27 @@
         class="col-6 d-flex content-justified-start px-0"
         v-if="isSprint == false && multipleSprints.length > 0"
       >
-        <div
-          class="flex"
-          v-if="
-            actionType == 'update' &&
-            showEvent.raw.parentNode != null &&
-            showEvent.raw.parentNode != 0
-          "
+        <label class="form-label mt-2" for="checkbox"
+          >Related to:&nbsp;&nbsp;</label
         >
-          <label class="form-label mt-2" for="checkbox">Related to:</label>
-          <select class="w-auto form-control ml-2" v-model="parentNode">
-            <option
-              v-for="sprint in multipleSprints.filter(
-                (s) => s.id !== showEvent.id
-              )"
-              :value="sprint.id"
-            >
-              {{ sprint.title }}
-            </option>
-            <option value="none">None</option>
-          </select>
-        </div>
-        <div v-else-if="actionType !== 'update'" class="flex">
-          <label class="form-label mt-2" for="checkbox">Related to:</label>
-          <select class="w-auto form-control ml-2" v-model="parentNode">
-            <option v-for="sprint in multipleSprints" :value="sprint.id">
-              {{ sprint.title }}
-            </option>
-            <option value="none">None</option>
-          </select>
-        </div>
+        <!-- <select v-if="actionType == 'update'" class="w-50 form-control" v-model="parentNode">
+          <option v-for="sprint in multipleSprints.filter(s => s.id !== showEvent.id)" :value="sprint.id">
+            {{ sprint.title }}
+          </option>
+          <option value="none">
+            None
+          </option>
+        </select> -->
+        <select
+          v-if="actionType !== 'update'"
+          class="w-50 form-control"
+          v-model="parentNode"
+        >
+          <option v-for="sprint in multipleSprints" :value="sprint.id">
+            {{ sprint.title }}
+          </option>
+          <option value="none">None</option>
+        </select>
       </div>
     </div>
 
@@ -210,6 +201,7 @@ export default {
   components: { DatePicker },
   watch: {
     eventDates(newValue, oldValue) {
+      //console.log("eventDates", newValue, oldValue)
       this.setDefaultValues();
       this.updateSelectedDate();
       this.allDay = true;
@@ -233,6 +225,7 @@ export default {
     },
     showEvent: {
       handler(newValue, oldValue) {
+        //console.log("showEvent", newValue, oldValue)
         this.setDefaultValues();
         this.showSelectedEvent("update");
         if (!newValue.raw.parentNode || newValue.raw.standalone)
@@ -310,6 +303,7 @@ export default {
       this.startDate = this.showEvent.start.d.d;
       this.endDate = this.showEvent.end.d.d;
       this.allDay = this.showEvent.isAllday;
+      //console.log("showSelectedEvent", this.showEvent)
       this.standalone = this.showEvent.raw.standalone;
       this.isSprint = this.showEvent.raw.isSprint;
       this.parentNode = this.showEvent.raw.parentNode;
@@ -334,6 +328,7 @@ export default {
           standalone: _this.standalone,
           parentNode: _this.parentNode,
         },
+        //backgroundColor: _this.isSprint ? this.getRandomColor() : '#363636',
         id: null,
       };
 
@@ -381,13 +376,8 @@ export default {
           eventList.push(node);
         }
 
-        let sprintList = eventList.filter((e) => e.is_sprint);
-
-        if (sprintList && sprintList.length > 0) {
-          this.multipleSprints = sprintList;
-        } else {
-          this.multipleSprints = eventList;
-        }
+        if (eventList && eventList.length > 0) this.multipleSprints = eventList;
+        else this.multipleSprints = eventList;
       }
     },
     createEvent() {
