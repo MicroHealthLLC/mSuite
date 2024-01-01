@@ -9,9 +9,11 @@
   border: 1px solid gray !important;
   padding: 2px !important;
   margin-left: 5px !important;
+  margin-top: 50px!important;
+  padding-bottom: 50px !important;
 }
 .jqx-treemap-label, .jqx-treemap-rectangle span {
-  margin-top: 16px;
+  margin-top: 24px;
   min-width: 5%;
   word-wrap: break-word;
   text-align: center;
@@ -20,7 +22,11 @@
 .jqx-treemap-rectangle-parent > .jqx-treemap-label{
   font-weight: 470;
 }
-
+.jqx-treemap-rectangle-parent {
+  overflow: hidden;
+  padding-bottom: 50px !important;
+  /* Ensure child nodes stay within parent boundaries */
+}
 .focus-visible {
   padding: 2px 5px;
   border: 1px solid gray;
