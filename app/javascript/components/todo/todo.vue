@@ -11,13 +11,24 @@
           <div class="container relative max-w-lg pt-6 mx-auto">
             <p class="text-slate-600 text-center">Your Todo</p>
             <toggle-button
-              v-if="!isMobile"
               class="toggleButton mb-3"
               :value="true"
               color="#82C7EB"
               :sync="true"
               :labels="{ checked: 'Actionable', unchecked: 'All Tasks' }"
               v-model="completedTasks"
+              width="115"
+              height="28"
+            />
+            <toggle-button
+              v-if="!isMobile"
+              @click="handleDrag"
+              class="toggleButton mb-3"
+              :value="true"
+              color="#82C7EB"
+              :sync="true"
+              :labels="{ checked: 'Drag Row', unchecked: 'Make Child' }"
+              v-model="isDraggable"
               width="115"
               height="28"
             />
@@ -39,14 +50,26 @@
                 width="100"
               />
             </div>
+
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable
+                <!-- <draggable
                   class="list-group"
                   :disabled="dragLocked"
                   group="people"
                   :list="sortedTodos"
                   :move="checkMove"
+                  @change="(e) => handleEndParent(e, sortedTodos)"
+                  @start="drag = false"
+                  @end="drag = false"
+                  v-bind="dragOptions"
+                >
+
+                </draggable> -->
+                <draggable
+                  class="list-group"
+                  group="people"
+                  :list="sortedTodos"
                   @change="(e) => handleEndParent(e, sortedTodos)"
                   @start="drag = true"
                   @end="drag = false"
@@ -64,12 +87,16 @@
                         :completedTasks="completedTasks"
                         :editInProgress="editInProgress"
                         :current-mind-map="currentMindMap"
+                        :isDraggable="isDraggable"
+                        :myTodos="myTodos"
+                        @stopChild="isDraggable = true"
                         @updateTodo="updateTodo"
                         @toggleChildModal="toggleChildModal"
                         @toggleDeleteTodo="toggleDeleteTodo"
                         @showInputField="showInputField"
                         @blurEvent="blurEvent"
                         @clearTodoEditObj="clearTodoEditObj"
+                        @HandleTodo="HandleChild"
                       ></todo-map>
                       <b-list-group-item
                         v-if="showChildModalTodo && todo_parent === todo.id"
@@ -311,6 +338,7 @@ export default {
       dragLocked: isMobile ? true : false,
       parentRange: [],
       childRange: [],
+      isDraggable: true,
     };
   },
   components: {
@@ -323,7 +351,6 @@ export default {
   channels: {
     WebNotificationsChannel: {
       received(data) {
-        //console.log(data)
         if (
           data.message === "Mindmap Deleted" &&
           this.currentMindMap.id === data.mindmap.id
@@ -365,77 +392,92 @@ export default {
     },
   },
   methods: {
-    async handleEndParent(e, list) {
+    async HandleChild(obj, pNode) {
+      let indexToAdd = this.myTodos.findIndex((n) => n.id == pNode.id);
+      this.myTodos.splice(indexToAdd + 1, 0, obj);
+      await http
+        .put(`/nodes/${obj.id}.json`, { node: { parent_node: obj.parent } })
+        .then((res) => {
+          this.fetchToDos();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    handleDrag() {
+      this.isDraggable = !this.isDraggable;
+    },
+    async handleDragPosition(list) {
+      let data = [];
+      list.forEach((n, idx) => {
+        data.push({ id: n.id, position: idx });
+      });
+      await http
+        .put(`/nodes/update_all_positions`, { nodes: data })
+        .then((res) => {
+          this.fetchToDos();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    handleEndParent(e, list) {
       if (!e.removed) {
-        let newIdList = list.map((i) => i.id);
-        let nodes = this.$store.getters.getMsuite.nodes;
-        let sortedTodoArr = this.relativeSortArray(nodes, newIdList);
         if (e.moved) {
-          let data = [];
-          list.forEach((n, idx) => {
-            data.push({ id: n.id, position: idx });
-          });
-          console.log("data", data);
-          await http
-            .put(`/nodes/update_all_positions`, { nodes: data })
-            .then((res) => {
-              this.fetchToDos();
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        } else if (e.added) {
-          let addElementNodeId = e.added.element.id;
-          let otherNode = sortedTodoArr.find((n) => n.id != addElementNodeId);
-          let addedNode = list.find((n) => n.id == addElementNodeId);
-          addedNode.parent_node = otherNode.parent_node;
-          await http
-            .put(`/nodes/${addedNode.id}.json`, {
-              node: {
-                parent_node: addedNode.parent_node,
-                position: e.added.newIndex,
-                is_sprint: true,
-              },
-            })
-            .then((res) => {
-              this.fetchToDos();
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        }
-        /* if (e.moved) {
-          this.reorderTodo(sortedTodoArr)
-        } else if (e.added) {
-          let otherNode = sortedTodoArr.find(n => n.id != e.added.element.id)
-          sortedTodoArr.forEach(n => {
-            if (n.id == e.added.element.id)
-              n.parent_node = otherNode.parent_node
-          })
-          this.reorderTodo(sortedTodoArr)
-        } */
-      }
-    },
-    checkMove(e) {
-      /* console.log(e)
-      console.log(e.draggedContext.element.name)
-      console.log(e.relatedContext.element.name) */
-    },
-    relativeSortArray(arr1, arr2) {
-      let sortedArr = [];
-      let auxArr = [];
-      if (arr1 && arr2) {
-        for (let i = 0; i < arr2.length; i++) {
-          for (let j = 0; j < arr1.length; j++) {
-            if (arr1[j].id === arr2[i]) {
-              arr1[j].position = i + 1;
-              sortedArr.push(arr1[j]);
-            }
+          if (!this.isDraggable) {
+            let targetItem = list[e.moved.oldIndex];
+            this.handleChildParent(e, list, targetItem);
+          } else {
+            this.handleDragPosition(list);
           }
         }
-        return sortedArr;
       }
     },
+    async handleChildParent(e, list, targetItem) {
+      const movedItem = list[e.moved.newIndex];
+      const movedItemChildren = movedItem.children;
+      let addedNode = list.find((n) => n.id == movedItem.id);
+      addedNode.parent_node = targetItem.id;
+      if (targetItem.children.length > 0 && movedItemChildren.length > 0) {
+        targetItem.children.push(...movedItemChildren);
+      } else if (
+        targetItem.children.length === 0 &&
+        movedItemChildren.length > 0
+      ) {
+        targetItem.children = movedItemChildren;
+      }
+      targetItem.children.push(movedItem);
+      await http
+        .put(`/nodes/${addedNode.id}.json`, {
+          node: {
+            parent_node: addedNode.parent_node,
+            position: e.moved.newIndex,
+            is_sprint: true,
+          },
+        })
+        .then((res) => {
+          this.fetchToDos();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      list.splice(e.moved.newIndex, 1);
+    },
+    // relativeSortArray(arr1, arr2) {
+    //   let sortedArr = [];
+    //   let auxArr = [];
+    //   if (arr1 && arr2) {
+    //     for (let i = 0; i < arr2.length; i++) {
+    //       for (let j = 0; j < arr1.length; j++) {
+    //         if (arr1[j].id === arr2[i]) {
+    //           arr1[j].position = i + 1;
+    //           sortedArr.push(arr1[j]);
+    //         }
+    //       }
+    //     }
+    //     return sortedArr;
+    //   }
+    // },
     async reorderTodo(list) {
       let data = {
         mindmap: {
@@ -798,6 +840,9 @@ export default {
   computed: {
     mSuite() {
       return this.$store.getters.getMsuite;
+    },
+    buttonText() {
+      return this.isDraggable ? "Click to Drag Row" : "Click to Make Child";
     },
     sortedTodos() {
       if (this.completedTasks) {

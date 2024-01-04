@@ -164,11 +164,11 @@
     <div style="background-color: black">
       <draggable
         class="list-group"
+        group="child"
         :disabled="dragLocked"
         :list="sortedChildTodos"
         :move="checkMove"
         @change="(e) => handleEndChild(e, sortedChildTodos, node)"
-        group="people"
         @start="drag = true"
         @end="drag = false"
         v-bind="dragOptions"
@@ -351,6 +351,8 @@ export default {
     editInProgress: Boolean,
     dragLocked: Boolean,
     currentMindMap: null,
+    isDraggable: Boolean,
+    myTodos: Array,
   },
   data() {
     return {
@@ -378,20 +380,13 @@ export default {
       this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
     }, */
     async handleEndChild(e, list, pNode) {
-      let newIdList = list.map((i) => i.id);
-      let nodes = this.$store.getters.getMsuite.nodes;
-      let sortedTodoArr = this.relativeSortArray(nodes, newIdList);
-      console.log("e", e);
-      console.log("list", list);
+      console.log(e, list, pNode);
       if (e.moved) {
         let data = [];
         list.forEach((n, idx) => {
           data.push({ id: n.id, position: idx });
         });
         console.log("data", data);
-        // this.reorderTodo(sortedTodoArr)
-        // let movedElementNodeId = e.moved.element.id
-        // let movedNode = list.find(n => n.id == movedElementNodeId)
         await http
           .put(`/nodes/update_all_positions`, { nodes: data })
           .then((res) => {
@@ -400,38 +395,23 @@ export default {
           .catch((error) => {
             console.log(error);
           });
-      } else if (e.added) {
-        let addElementNodeId = e.added.element.id;
-        //console.log("addElementNodeId", addElementNodeId)
-        //console.log("sortedTodoArr", sortedTodoArr)
-        let addedNode = list.find((n) => n.id == addElementNodeId);
-        addedNode.parent_node = pNode.id;
-        if (addedNode.startdate && addedNode.duedate)
-          this.showInputFieldToggle(addedNode);
-        //console.log("sortedTodoArr", sortedTodoArr)
-        await http
-          .put(`/nodes/${addedNode.id}.json`, {
-            node: {
-              parent_node: addedNode.parent_node,
-              position: e.added.newIndex,
-              is_sprint: false,
-            },
-          })
-          .then((res) => {
-            console.log(res);
-            this.$parent.$parent.$parent.fetchToDos();
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-        // this.reorderTodo(sortedTodoArr)
       }
-    },
-    //Added checkMove method to log draggable event
-    checkMove(e) {
-      console.log(e);
-      // console.log(e.draggedContext.element.name)
-      // console.log(e.relatedContext.element.name)
+      if (e.added) {
+        const movedItem = list[e.added.newIndex];
+
+        // Check if the moved item was a child before
+        if (movedItem.parent !== pNode.id) {
+          if (this.isDraggable) {
+            let movedElementNodeId = e.added.element.id;
+            let indexToRemove = pNode.children.findIndex(
+              (n) => n.id == movedElementNodeId
+            );
+            pNode.children.splice(indexToRemove, 1);
+            if (e.added.element.parent) e.added.element.parent = null;
+            this.$emit("HandleTodo", e.added.element, pNode);
+          }
+        }
+      }
     },
     relativeSortArray(arr1, arr2) {
       let sortedArr = [];
