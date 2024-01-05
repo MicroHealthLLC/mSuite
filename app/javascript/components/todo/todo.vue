@@ -339,6 +339,7 @@ export default {
       parentRange: [],
       childRange: [],
       isDraggable: true,
+      targetItem: [],
     };
   },
   components: {
@@ -425,28 +426,32 @@ export default {
       if (!e.removed) {
         if (e.moved) {
           if (!this.isDraggable) {
-            let targetItem = list[e.moved.oldIndex];
-            this.handleChildParent(e, list, targetItem);
+            this.handleChildParent(e, list);
           } else {
             this.handleDragPosition(list);
           }
         }
       }
     },
-    async handleChildParent(e, list, targetItem) {
+    async handleChildParent(e, list) {
+      if (e.moved.oldIndex < e.moved.newIndex) {
+        this.targetItem = list[e.moved.newIndex - 1];
+      } else {
+        this.targetItem = list[e.moved.newIndex + 1];
+      }
       const movedItem = list[e.moved.newIndex];
       const movedItemChildren = movedItem.children;
       let addedNode = list.find((n) => n.id == movedItem.id);
-      addedNode.parent_node = targetItem.id;
-      if (targetItem.children.length > 0 && movedItemChildren.length > 0) {
-        targetItem.children.push(...movedItemChildren);
+      addedNode.parent_node = this.targetItem.id;
+      if (this.targetItem.children.length > 0 && movedItemChildren.length > 0) {
+        this.targetItem.children.push(...movedItemChildren);
       } else if (
-        targetItem.children.length === 0 &&
+        this.targetItem.children.length === 0 &&
         movedItemChildren.length > 0
       ) {
-        targetItem.children = movedItemChildren;
+        this.targetItem.children = movedItemChildren;
       }
-      targetItem.children.push(movedItem);
+      this.targetItem.children.push(movedItem);
       await http
         .put(`/nodes/${addedNode.id}.json`, {
           node: {
@@ -463,21 +468,6 @@ export default {
         });
       list.splice(e.moved.newIndex, 1);
     },
-    // relativeSortArray(arr1, arr2) {
-    //   let sortedArr = [];
-    //   let auxArr = [];
-    //   if (arr1 && arr2) {
-    //     for (let i = 0; i < arr2.length; i++) {
-    //       for (let j = 0; j < arr1.length; j++) {
-    //         if (arr1[j].id === arr2[i]) {
-    //           arr1[j].position = i + 1;
-    //           sortedArr.push(arr1[j]);
-    //         }
-    //       }
-    //     }
-    //     return sortedArr;
-    //   }
-    // },
     async reorderTodo(list) {
       let data = {
         mindmap: {
