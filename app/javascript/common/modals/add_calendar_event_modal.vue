@@ -404,7 +404,8 @@ export default {
           eventList.push(node);
         }
 
-        if (eventList && eventList.length > 0) this.multipleSprints = eventList;
+        if (eventList && eventList.length > 0)
+          this.multipleSprints = eventList.filter((e) => e.parent_nod == null);
         else this.multipleSprints = eventList;
       }
     },
