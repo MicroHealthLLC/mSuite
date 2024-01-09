@@ -5,7 +5,6 @@
         <i class="material-icons text-white">add</i>
       </div>
     </div>
-
     <div>
       <h3 v-if="actionType == 'update'" class="f_smooth_auto">Edit Activity</h3>
       <h3 v-else class="f_smooth_auto">Add Activity</h3>
@@ -257,12 +256,6 @@ export default {
     allDay() {
       this.toggleAllDay;
     },
-    multipleSprints() {
-      //console.log('multipleSprints',this.multipleSprints)
-    },
-    parentNode() {
-      //console.log(this.parentNode)
-    },
   },
   methods: {
     checkForParentNode() {
@@ -381,10 +374,8 @@ export default {
           eventList.push(node);
         }
 
-        let sprintList = eventList.filter((e) => e.is_sprint);
-
-        if (sprintList && sprintList.length > 0)
-          this.multipleSprints = sprintList;
+        if (eventList && eventList.length > 0)
+          this.multipleSprints = eventList.filter((e) => e.parent_nod == null);
         else this.multipleSprints = eventList;
       }
     },
