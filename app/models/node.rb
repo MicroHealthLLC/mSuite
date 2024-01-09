@@ -11,8 +11,7 @@ class Node < ApplicationRecord
 
   before_create :set_default_export_index, :create_notification
   before_create :encrypt_attributes, if: :check_private?
-  before_create :update_line_color, if: :is_todo?
-  before_update :update_line_color, if: :is_todo?
+  before_save :update_line_color, if: :is_todo?
   after_create :create_notification
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }

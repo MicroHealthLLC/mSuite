@@ -371,7 +371,7 @@ export default {
   methods: {
     onDragEnd(e, list, pNode) {
       if (e.added || e.moved) return;
-      if (e.newIndex == 0) {
+      if (e.newIndex == 0 && !e.pullMode) {
         this.handleEndChild(e, list, pNode);
       }
     },
@@ -406,6 +406,24 @@ export default {
             pNode.children.splice(indexToRemove, 1);
             if (e.added.element.parent) e.added.element.parent = null;
             this.$emit("HandleTodo", e.added.element, pNode);
+          } else if (!this.isDraggable) {
+            let addedNode = list.find((n) => n.id == e.added.element.id);
+            addedNode.parent_node = pNode.id;
+            await http
+              .put(`/nodes/${addedNode.id}.json`, {
+                node: {
+                  parent_node: addedNode.parent_node,
+                  position: e.added.newIndex,
+                  is_sprint: false,
+                },
+              })
+              .then((res) => {
+                console.log(res);
+                this.$parent.$parent.$parent.fetchToDos();
+              })
+              .catch((error) => {
+                console.log(error);
+              });
           }
         }
       }
