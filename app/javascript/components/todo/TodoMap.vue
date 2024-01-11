@@ -170,7 +170,7 @@
         :move="checkMove"
         @change="(e) => handleEndChild(e, sortedChildTodos, node)"
         @start="drag = true"
-        @end="drag = false"
+        @end="(e) => onDragEnd(e, sortedChildTodos, node)"
         v-bind="dragOptions"
       >
         <transition-group type="transition" :name="!drag ? 'list' : null">
@@ -369,16 +369,12 @@ export default {
     };
   },
   methods: {
-    /* dragStart(event,nodeId){
-      event.dataTransfer.setData("Text", nodeId);
+    onDragEnd(e, list, pNode) {
+      if (e.added || e.moved) return;
+      if (e.newIndex == 0) {
+        this.handleEndChild(e, list, pNode);
+      }
     },
-    dragDrop(event,nodeId){
-      this.prevElement = parseInt(event.dataTransfer.getData("Text"))
-      this.prevElement = this.currentMindMap.nodes.find((node) => node.id == this.prevElement)
-      this.dropElement = this.currentMindMap.nodes.find((node) => node.id == nodeId)
-      this.prevElement.parent_node = this.dropElement.id
-      this.updateTodo(this.prevElement, this.prevElement.title, this.prevElement.completed)
-    }, */
     async handleEndChild(e, list, pNode) {
       console.log(e, list, pNode);
       if (e.moved) {
@@ -396,10 +392,11 @@ export default {
             console.log(error);
           });
       }
+      if (!e.isTrusted && !e.added && !e.removed && !e.pullMode) {
+        this.handleSingleParent(e, list, pNode);
+      }
       if (e.added) {
         const movedItem = list[e.added.newIndex];
-
-        // Check if the moved item was a child before
         if (movedItem.parent !== pNode.id) {
           if (this.isDraggable) {
             let movedElementNodeId = e.added.element.id;
@@ -411,6 +408,18 @@ export default {
             this.$emit("HandleTodo", e.added.element, pNode);
           }
         }
+      }
+    },
+    handleSingleParent(e, list, pNode) {
+      const movedItem = list[e.newIndex];
+      if (this.isDraggable && movedItem) {
+        let movedElementNode = pNode.children.find((n) => n.id == movedItem.id);
+        let indexToRemove = pNode.children.findIndex(
+          (n) => n.id == movedElementNode.id
+        );
+        pNode.children.splice(indexToRemove, 1);
+        if (movedElementNode.parent) movedElementNode.parent = null;
+        this.$emit("HandleTodo", movedElementNode, pNode);
       }
     },
     relativeSortArray(arr1, arr2) {
