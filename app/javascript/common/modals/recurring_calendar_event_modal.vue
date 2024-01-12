@@ -327,6 +327,28 @@ export default {
           newEvents.push(myDate);
           count++;
         }
+      } else if (this.endsOn == "on") {
+        if (this.endOnDate.getTime() > eventDate.getTime()) {
+          while (364 - count >= this.repeatTime) {
+            myDate = new Date(
+              eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime))
+            );
+            let difference = this.getDateDifference(myDate, this.endOnDate);
+            if (difference < 0) {
+              break;
+            }
+            newEvents.push(myDate);
+            count++;
+          }
+        }
+      } else {
+        while (364 - count >= this.repeatTime) {
+          myDate = new Date(
+            eventDate.setDate(eventDate.getDate() + parseInt(this.repeatTime))
+          );
+          newEvents.push(myDate);
+          count = count + parseInt(this.repeatTime);
+        }
       }
       return newEvents;
     },
