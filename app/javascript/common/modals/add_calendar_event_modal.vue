@@ -12,16 +12,9 @@
     <div class="row">
       <div
         class="col-6 d-flex content-justified-start px-0"
-        v-if="isSprint == false && multipleSprints.length > 0"
+        v-if="multipleSprints.length > 0"
       >
-        <div
-          class="flex"
-          v-if="
-            actionType == 'update' &&
-            showEvent.raw.parentNode != null &&
-            showEvent.raw.parentNode != 0
-          "
-        >
+        <div class="flex" v-if="actionType == 'update'">
           <label class="form-label mt-2" for="checkbox">Related to:</label>
           <select class="w-auto form-control ml-2" v-model="parentNode">
             <option
@@ -373,10 +366,9 @@ export default {
         if (eventStart >= nodeStart && eventEnd <= nodeEnd) {
           eventList.push(node);
         }
-
-        if (eventList && eventList.length > 0)
+        if (eventList && eventList.length > 0) {
           this.multipleSprints = eventList.filter((e) => e.parent_nod == null);
-        else this.multipleSprints = eventList;
+        } else this.multipleSprints = eventList;
       }
     },
     createEvent() {

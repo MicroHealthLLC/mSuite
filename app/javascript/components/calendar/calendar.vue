@@ -86,7 +86,7 @@
         <div class="row my-2">
           {{
             showEvent.raw.standalone
-              ? "Relationship: None"
+              ? ""
               : showEvent.raw.parentNode &&
                 currentMindMap.nodes.find(
                   (n) => n.id === showEvent.raw.parentNode
