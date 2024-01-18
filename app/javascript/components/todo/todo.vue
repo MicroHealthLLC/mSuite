@@ -397,7 +397,9 @@ export default {
       let indexToAdd = this.myTodos.findIndex((n) => n.id == pNode.id);
       this.myTodos.splice(indexToAdd + 1, 0, obj);
       await http
-        .put(`/nodes/${obj.id}.json`, { node: { parent_node: obj.parent } })
+        .put(`/nodes/${obj.id}.json`, {
+          node: { parent_node: obj.parent, line_color: this.getRandomColor() },
+        })
         .then((res) => {
           this.fetchToDos();
         })

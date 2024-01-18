@@ -72,7 +72,7 @@
           >
           <span
             v-if="
-              showEvent.raw.isSprint ||
+              (showEvent.raw.isSprint && !showEvent.raw.parentNode) ||
               (!showEvent.raw.parentNode && !showEvent.raw.isSprint)
             "
             class="fas fa-eye-dropper color-picker mt-1 icon-opacity"
@@ -876,6 +876,9 @@ export default {
     updateEventHeights(mindmap) {
       // Filter the events to get the long events
       let longEvents = mindmap.nodes.filter((n) => {
+        if (n.parent_node && n.is_sprint) {
+          n.is_sprint = false;
+        }
         if (!n.is_sprint) {
           // Exclude sprints
           const startDate = new Date(n.startdate);
@@ -903,10 +906,15 @@ export default {
           elements.forEach((event) => {
             // Update the height, line height, and font size of the event element's children
             let child = event.children[0];
-            if (child && child.style) {
-              child.style.height = "13px";
-              child.style.lineHeight = "13px";
-              child.style.marginTop = "6px";
+            if (
+              e.parent_node !== null ||
+              (e.parent == "Central Idea" && e.children.length == 0)
+            ) {
+              if (child && child.style) {
+                child.style.height = "13px";
+                child.style.lineHeight = "13px";
+                child.style.marginTop = "6px";
+              }
             }
             if (child.querySelector(".toastui-calendar-weekday-event-title")) {
               child.querySelector(
