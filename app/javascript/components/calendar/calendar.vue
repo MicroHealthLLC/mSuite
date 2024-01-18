@@ -521,7 +521,9 @@ export default {
         let parent = this.currentMindMap.nodes.find(
           (n) => n.id == data.parent_node
         );
-        if (parent && !parent.is_sprint) this.updateNewParent(parent);
+        if (parent && !parent.is_sprint) {
+          this.updateNewParent(parent);
+        }
       }
     },
     deleteEvents() {
@@ -803,7 +805,8 @@ export default {
                 if (multiNodes.length == 1) {
                   if (eventObj.raw.parentNode != node.id) {
                     eventObj.raw.standalone = false;
-                    eventObj.raw.parentNode = node.id;
+                    if (eventObj.raw.parentNode !== 0)
+                      eventObj.raw.parentNode = node.id;
                   }
                 } else {
                   if (
@@ -815,7 +818,7 @@ export default {
                     if (eventObj.raw.parentNode == "none") {
                       eventObj.raw.parentNode = null;
                       eventObj.raw.standalone = true;
-                    } else {
+                    } else if (eventObj.raw.parentNode !== 0) {
                       eventObj.raw.standalone = false;
                       eventObj.raw.parentNode = node.id;
                     }
