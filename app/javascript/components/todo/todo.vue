@@ -53,19 +53,6 @@
 
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <!-- <draggable
-                  class="list-group"
-                  :disabled="dragLocked"
-                  group="people"
-                  :list="sortedTodos"
-                  :move="checkMove"
-                  @change="(e) => handleEndParent(e, sortedTodos)"
-                  @start="drag = false"
-                  @end="drag = false"
-                  v-bind="dragOptions"
-                >
-
-                </draggable> -->
                 <draggable
                   class="list-group"
                   group="people"
@@ -254,9 +241,6 @@
                 </div>
               </b-list-group-item>
             </div>
-            <!-- <div class="lock-container">
-                <toggle-button class="toggle-drag" v-if="!isMobile" v-model="dragLocked" :labels="{checked: 'Drag Locked', unchecked: 'Drag Unlocked'}" width="100"/>
-              </div> -->
           </div>
         </div>
       </div>
@@ -524,7 +508,7 @@ export default {
       let duedate = "";
       let startDate = "";
       this.todos.forEach((node) => {
-        if (node.parent_node == null) {
+        if (node.parent_node == null || node.parent_node == 0) {
           parent_nodes.push(node);
         }
       });
@@ -555,7 +539,6 @@ export default {
       this.todos.forEach((node) => {
         parent_nodes.forEach((p, index) => {
           if (p.id == node.parent_node) {
-            console.log(node);
             let obj = {
               name: node.title,
               id: node.id,
@@ -580,8 +563,6 @@ export default {
           }
         });
       });
-      console.log("getChildNode", parent_nodes);
-
       if (childNodes.length > 0) {
         this.getChildNode(_.uniq(childNodes));
       }
