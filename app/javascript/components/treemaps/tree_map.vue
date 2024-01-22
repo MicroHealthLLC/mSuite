@@ -208,7 +208,7 @@
         if(jqxParentArray.length > 0) this.appendElementTreeMap(jqxParentArray)
       },
       bindDragAndDrop(event){
-        event.setAttribute("draggable", true)
+        event.setAttribute("draggable", false)
         event.addEventListener('dragstart' , this.dragStart)
         event.addEventListener('drop'      , this.dropNode )
         event.addEventListener('dragover'  , this.allowdrop)
@@ -228,6 +228,9 @@
           this.updateSelectedNode(this.dragedNode)
         }
       },
+      enableDrag(e){
+        e.target.parentElement.draggable = true
+      },
       dragStart(e){
         var dragNode = { label: '' }
         if (event.target.tagName === 'SPAN') dragNode.label = e.target.innerText
@@ -241,6 +244,9 @@
         nodeElement.appendChild(textnodeElement)
         nodeElement.setAttribute('class', class_list)
         nodeElement.title = title
+        if(nodeElement.classList.contains('fa-arrows-alt')){
+          nodeElement.addEventListener('mousedown', this.enableDrag)
+        }
         return nodeElement
       },
       updateTreeMaps: async function (obj) {
