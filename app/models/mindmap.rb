@@ -49,6 +49,14 @@ class Mindmap < ApplicationRecord
   before_update :encrypt_attributes, if: :check_private?
   before_update :decrypt_attributes, if: :check_is_before_private
   # after_save :rearrange_node_for_calendar
+  
+  def self.ransackable_associations(auth_object = nil)
+    ["category", "children", "comments", "mindmap_users", "node_files_attachments", "node_files_blobs", "nodes", "parent", "shared_users", "stages", "user"]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["canvas", "category_id", "created_at", "description", "expires_at", "failed_password_attempts", "id", "image", "is_save", "line_color", "lockout_period", "mm_type", "name", "parent_id", "password", "permanent_lock", "share", "status", "title", "total_failed_password_attempts", "unique_key", "updated_at", "user_id", "will_delete_at"]
+  end
 
   def rearrange_node_for_calendar
     # return
