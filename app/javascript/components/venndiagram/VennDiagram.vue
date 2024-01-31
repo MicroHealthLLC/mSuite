@@ -153,15 +153,11 @@ export default {
           events: {
             click: (event) => {
               this.addSetToLink(event)
-              //this.pointClick(event)
             },
             contextmenu: (e) => {
               this.pointClick(e)
               e.preventDefault()
             }
-            /* dragStart: (e) => {
-              console.log(e)
-            } */
           }
         }
       };
@@ -212,9 +208,7 @@ export default {
         } else {
           this.$refs["dataErrorModal"].open()
         }
-      }).catch((err) => {
-        console.log(err);
-      });
+      })
     },
     async updateSet() {
       let mySet = {
@@ -240,8 +234,6 @@ export default {
       await http.put(`/nodes/${this.selectedSet.nodeId}`, mySet).then(async (res) => {
         this.updateVennUser()
         this.sendLocals()
-      }).catch(err => {
-        console.log(err);
       })
     },
     deleteSet() {
@@ -276,7 +268,6 @@ export default {
       this.data = []
       this.savedSets.forEach((node) => {
         let dataArray = node.description.split(",").map(String)
-        console.log(dataArray)
         let createData = {
           sets: dataArray,
           value: node.position,
@@ -286,7 +277,6 @@ export default {
         dataReceived.push(createData)
       })
       var uniqueData = dataReceived.filter((v, i, a) => a.indexOf(v) === i);
-      console.log(uniqueData)
       this.data = uniqueData
 
       this.forceRerender()
@@ -298,7 +288,6 @@ export default {
       })
     },
     pointClick(event) {
-      console.log(event)
       this.selectedSet = event.point
       let getNode = this.savedSets.find(n => {
         let title = n.description
@@ -351,7 +340,6 @@ export default {
   watch: {
     vennData() {
       if (this.vennData) {
-        console.log(this.vennData)
       }
     }
   }
