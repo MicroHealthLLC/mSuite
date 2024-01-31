@@ -11,6 +11,14 @@ class User < ApplicationRecord
   enum role: { user: 0, superadmin: 1 }
   enum status: { inactive: 0, active: 1 }
 
+  def self.ransackable_associations(auth_object = nil)
+    ["mindmap_users", "mindmaps", "shared_mindmaps"]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "current_sign_in_at", "current_sign_in_ip", "email", "encrypted_password", "first_name", "id", "last_name", "last_sign_in_at", "last_sign_in_ip", "login", "provider", "remember_created_at", "reset_password_sent_at", "reset_password_token", "role", "sign_in_count", "status", "uid", "updated_at"]
+  end
+
   def self.from_omniauth(auth)
     if where(email: auth.info.email || "#{auth.uid}@#{auth.provider}.com").present?
       where(email: auth.info.email || "#{auth.uid}@#{auth.provider}.com").first do |user|
