@@ -35,10 +35,11 @@
               @click.prevent="openKeyModal">
               <i class="fas fa-key icons d-flex center_flex"></i>
             </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="User"
+            <a href="javascript:;" role="button" id="user-button"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
               @click.prevent="openUserModal">
               <i class="fas fa-user-edit icons d-flex center_flex"></i>
+              <b-tooltip :title="userTooltip" :show="userTooltipShow" target="user-button" triggers="hover"></b-tooltip>
             </a>
             <a v-if="mm_type != 'pollvote'" href="javascript:;" role="button"
               class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex" v-b-tooltip.hover
@@ -110,20 +111,6 @@
               <i class="material-icons save_btn icons d-flex center_flex"></i>
             </a>
           </span>
-          <span v-if="mm_type === 'simple' || mm_type === 'tree_chart' || mm_type === 'flowmap'" class="d-flex">
-            <a v-if="$store.getters.getScaleFactor != 1" href="javascript:;" role="button" v-b-tooltip.hover
-              title="100%" class="zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="resetZoomScale">
-              <i class="fas fa-history icons d-flex center_flex"></i>
-            </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom +"
-              class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="zoomInScale">
-              <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
-            </a>
-            <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom -"
-              class="navbar_button zoom_btn text-info edit_delete_btn mr-3 center_flex" @click.prevent="zoomOutScale">
-              <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
-            </a>
-          </span>
           <span v-if="currentMindMap.editable && mm_type === 'simple'" class="d-flex flex-row-reverse">
             <span v-b-tooltip.hover title="Delete">
               <a href="javascript:;" role="button" :disabled="!checkSelectedNode"
@@ -154,6 +141,20 @@
                 <i class="material-icons copy_icon icons d-flex center_flex"></i>
               </a>
             </span>
+          </span>
+          <span v-if="mm_type === 'simple' || mm_type === 'tree_chart' || mm_type === 'flowmap'" class="d-flex">
+            <a v-if="$store.getters.getScaleFactor != 1" href="javascript:;" role="button" v-b-tooltip.hover
+              title="100%" class="zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="resetZoomScale">
+              <i class="fas fa-history icons d-flex center_flex"></i>
+            </a>
+            <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom +"
+              class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3" @click.prevent="zoomInScale">
+              <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
+            </a>
+            <a href="javascript:;" role="button" v-b-tooltip.hover title="Zoom -"
+              class="navbar_button zoom_btn text-info edit_delete_btn mr-3 center_flex" @click.prevent="zoomOutScale">
+              <i class="material-icons zoom_out_icon icons d-flex center_flex"></i>
+            </a>
           </span>
         </span>
         <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem;">
@@ -244,6 +245,7 @@ import DeleteMapModal from './modals/delete_modal'
 import DeletePasswordModal from './modals/delete_password_modal'
 import TemporaryUser from "../mixins/temporary_user.js"
 import CloneModal from './modals/clone_modal'
+import { mustBeValid } from "json-schema";
 
 export default {
   name: "NavigationBar",
@@ -330,7 +332,27 @@ export default {
     },
     duplicateMap() {
       return this.mm_type != 'pollvote'
-    }
+    },
+    userTooltip() { 
+      const userName = this.$store.getters.getUser;
+      if(userName == null) return "Set user"; //first time load will be null before user_map_modal is mounted
+
+      if (userName.startsWith("user") && /^\d{3}$/.test(userName.slice(-3))) { //if user is not changed off the auto generated username format
+        return "Set user";
+      } else {
+        return "User";
+      }
+    },
+    userTooltipShow() {
+      const userName = this.$store.getters.getUser;
+      if(userName == null) return true; //first time load will be null before user_map_modal is mounted
+
+      if (userName.startsWith("user") && /^\d{3}$/.test(userName.slice(-3))) { //if user is not changed off the auto generated username format
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
   filters: {
     truncate: function (data, num) {
