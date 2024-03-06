@@ -60,10 +60,18 @@
               let element = $('.ql-editor')[0]
               let notepadHeight = element.scrollTop
               if(this.temporaryUser !=this.$store.getters.getUser){
-                  this.qeditor.blur()
+                  //this.qeditor.blur()
+                  let range = this.qeditor.getSelection()
                   this.qeditor.setContents(new Delta(this.content))
                   this.strongTagStyleBold()
                   element.scrollTop = notepadHeight
+                  if(range==null){
+                    this.qeditor.setSelection(range)
+                    console.log('range is null') //Test console
+                  } else {
+                    this.qeditor.setSelection(range.index, range.length)
+                    console.log('cursor should be set at '+range.index+" "+range.length)//Test console
+                  }
               }
             }
           }
