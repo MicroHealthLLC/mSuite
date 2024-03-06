@@ -863,7 +863,10 @@ export default {
     updateEventHeights(mindmap) {
       // Filter the events to get the long events
       let longEvents = mindmap.nodes.filter((n) => {
-        if (n.parent_node && n.is_sprint) {
+        if (
+          (n.parent_node && n.is_sprint) ||
+          (n.parent_node == null && n.is_sprint)
+        ) {
           n.is_sprint = false;
         }
         if (!n.is_sprint) {
