@@ -650,7 +650,7 @@ export default {
         return this.$store.state.temporaryUser;
     },
     duplicateMap() {
-      return this.mm_type != "pollvote"
+      return this.mm_type != "pollvote";
     },
     userTooltip() { 
       const userName = this.$store.getters.getUser;
