@@ -72,46 +72,13 @@ export default {
   watch: {
     data() {
       if (this.data) {
-        console.log(this.data)
       }
     }
   },
-  /* mounted() {
-    if (this.data.length > 0) {
-      console.log(this.data)
-      this.showSetInput = false
-    }
-  }, */
   methods: {
-    /* addNewValue(){
-      if(this.dataSet.value > 0 && this.dataSet.sets != ''){
-        if(this.dataSet.sets.includes(',')){
-          if(this.dataSet.name  != ''){
-            this.$emit("addNewValue", this.dataSet)
-            this.afterSaveReset()
-          } else {
-            this.msgErr = 'Name also Required'
-            this.$refs["dataErrorModal"].open()
-            return
-          }
-        } else {
-        this.$emit("addNewValue", this.dataSet)
-        this.afterSaveReset()
-        }
-      } else if(this.dataSet.value < 1){
-        this.msgErr = 'Number must be greater than 0.'
-        this.$refs["dataErrorModal"].open()
-      } else {
-        this.msgErr = "Sets must be Unique."
-        this.$refs["dataErrorModal"].open()
-      }
-    }, */
     addNewSets() {
         let setNum = this.data.filter(d => d.sets.length == 1).length
-        console.log(setNum)
         let setName = this.setName == '' ? String.fromCharCode(65 + setNum) : this.setName.toUpperCase()
-        //let newVal = this.numOfSets + 1
-        /* for (let i = 0; i < this.numOfSets; i++) { */
         let randomColor = Math.floor(Math.random() * 16777215).toString(16)
         let set = {
           sets: setName,
@@ -121,12 +88,6 @@ export default {
         }
         this.$emit("addNewValue", set)
         this.setName = ''
-        //this.showSetInput = false
-        //}
-         /* else {
-        this.msgErr = "Name must not be empty"
-        this.$refs["dataErrorModal"].open()
-      } */
     },
     addNewLinks() {
       if (this.link != '') {
@@ -160,7 +121,6 @@ export default {
     checkForSets(linkStr) {
       let linkArr = linkStr.split(",")
       let setArr = this.data.filter(d => d.sets.length == 1).map(m => m.sets[0])
-      console.log(linkArr, setArr)
       return linkArr.every(l => setArr.includes(l))
     },
     setVal(val) {

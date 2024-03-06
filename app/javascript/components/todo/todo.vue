@@ -84,6 +84,7 @@
                         @blurEvent="blurEvent"
                         @clearTodoEditObj="clearTodoEditObj"
                         @HandleTodo="HandleChild"
+                        @handleStartDate="handleStartDate"
                       ></todo-map>
                       <b-list-group-item
                         v-if="showChildModalTodo && todo_parent === todo.id"
@@ -108,24 +109,7 @@
                                     >
                                     </b-form-input>
                                   </b-col>
-                                  <!-- <b-col cols="3" sm="3">
-                                    <date-picker id="input" class="w-100" v-model='todoChildData.startDate'
-                                      placeholder="Start Date" :format="format" ref="datePicker"></date-picker>
-                                  </b-col> -->
-                                  <!-- <b-col cols="3" sm="3">
-                                    <date-picker id="input" class="w-100" v-model='todoChildData.dueDate'
-                                      placeholder="Due Date" :format="format" ref="datePicker"></date-picker>
-                                  </b-col> -->
                                   <b-col cols="4">
-                                    <!-- <el-date-picker
-                                      v-model="childRange"
-                                      type="daterange"
-                                      start-placeholder="Start"
-                                      end-placeholder="Due"
-                                      unlink-panels
-                                      format="MM/dd/yyyy"
-                                      alight="right">
-                                    </el-date-picker> -->
                                     <date-picker
                                       id="input"
                                       class="w-100"
@@ -188,17 +172,6 @@
                           </b-form-input>
                         </b-col>
                         <b-col cols="4">
-                          <!-- <date-picker id="input" class="w-100" v-model='todoData.startDate' placeholder="Start Date"
-                            :format="format" ref="datePicker"></date-picker> -->
-                          <!-- <el-date-picker
-                            v-model="parentRange"
-                            type="daterange"
-                            start-placeholder="Start"
-                            end-placeholder="Due"
-                            unlink-panels
-                            format="MM/dd/yyyy"
-                            alight="right">
-                          </el-date-picker> -->
                           <date-picker
                             id="input"
                             class="w-100"
@@ -208,10 +181,6 @@
                             range-separator=" - "
                           ></date-picker>
                         </b-col>
-                        <!-- <b-col cols="3">
-                          <date-picker id="input" class="w-100" v-model='todoData.dueDate' placeholder="Due Date"
-                            :format="format" ref="datePicker"></date-picker>
-                        </b-col> -->
                         <b-col
                           sm="2"
                           cols="2"
@@ -387,9 +356,6 @@ export default {
         .then((res) => {
           this.fetchToDos();
         })
-        .catch((error) => {
-          console.log(error);
-        });
     },
     handleDrag() {
       this.isDraggable = !this.isDraggable;
@@ -403,9 +369,6 @@ export default {
         .put(`/nodes/update_all_positions`, { nodes: data })
         .then((res) => {
           this.fetchToDos();
-        })
-        .catch((error) => {
-          console.log(error);
         });
     },
     handleEndParent(e, list) {
@@ -448,9 +411,6 @@ export default {
         })
         .then((res) => {
           this.fetchToDos();
-        })
-        .catch((error) => {
-          console.log(error);
         });
       list.splice(e.moved.newIndex, 1);
     },
@@ -460,14 +420,9 @@ export default {
           nodes: list,
         },
       };
-      await this.$store
-        .dispatch("updateMSuite", data)
-        .then((result) => {
-          this.fetchToDos();
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      await this.$store.dispatch("updateMSuite", data).then((result) => {
+        this.fetchToDos();
+      });
     },
     clearTodoObj() {
       this.todo = {};
@@ -505,8 +460,6 @@ export default {
     },
     renderTodos() {
       let parent_nodes = [];
-      let duedate = "";
-      let startDate = "";
       this.todos.forEach((node) => {
         if (node.parent_node == null || node.parent_node == 0) {
           parent_nodes.push(node);
@@ -591,10 +544,6 @@ export default {
         moment(this.todoData.dueDate)._d < moment(this.todoData.startDate)._d
       ) {
         this.$refs["errDates"].open();
-        /* this.fieldDisabled = true
-        setTimeout(() => {
-          this.fieldDisabled = false
-        }, 1500) */
         return;
       }
       if (this.todoData.startDate)
@@ -615,18 +564,13 @@ export default {
         },
       };
       this.updateTodoUser();
-      http
-        .post(`/nodes.json`, data)
-        .then((result) => {
-          this.myTodos.push(result.data.node);
-          this.undoNodes.push({ req: "addNode", node: result.data.node });
-          this.showModalTodo = false;
-          this.clearTodoObj();
-          this.sendLocals(false);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      http.post(`/nodes.json`, data).then((result) => {
+        this.myTodos.push(result.data.node);
+        this.undoNodes.push({ req: "addNode", node: result.data.node });
+        this.showModalTodo = false;
+        this.clearTodoObj();
+        this.sendLocals(false);
+      });
     },
     async addChildTodo() {
       if (
@@ -659,17 +603,12 @@ export default {
         },
       };
       this.updateTodoUser();
-      http
-        .post(`/nodes.json`, data)
-        .then((result) => {
-          this.undoNodes.push({ req: "addNode", node: result.data.node });
-          this.showChildModalTodo = false;
-          this.clearTodoObj();
-          this.sendLocals(false);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      http.post(`/nodes.json`, data).then((result) => {
+        this.undoNodes.push({ req: "addNode", node: result.data.node });
+        this.showChildModalTodo = false;
+        this.clearTodoObj();
+        this.sendLocals(false);
+      });
     },
     updateTodo(todo, title, completed) {
       if (title == null || title.trim().length === 0) {
@@ -685,7 +624,6 @@ export default {
         (todo.startdate && (todo.duedate == null || todo.duedate == "")) ||
         moment(todo.duedate)._d < moment(todo.startdate)._d
       ) {
-        console.log(this.selectedTodo);
         this.$refs["errDatesUpdate"].open();
         return;
       }
@@ -711,9 +649,18 @@ export default {
         ? this.selectedTodo.startdate
         : todo.startdate;
       todo.startdate = moment(todo.startdate)._d;
-      //todo.startdate = todo.duedate
+      const dueDateMoment = moment(todo.duedate);
+      const startDateMoment = this.selectedTodo.startdate
+        ? moment(this.selectedTodo.startdate)
+        : moment(todo.startdate);
+      this.myTodos.forEach((myTodo) => {
+        if (myTodo.id == todo.id) {
+          myTodo.showstartdate = dueDateMoment.isSame(startDateMoment, "day");
+        } else {
+          myTodo.showstartdate = false;
+        }
+      });
       todo.hide_children = true;
-
       if (this.undoNodes.length > 0) {
         this.undoNodes.forEach((element, index) => {
           if (element["node"].id === todo.id) {
@@ -721,13 +668,13 @@ export default {
             this.undoNodes[index]["node"].startdate = todo.startdate;
             this.undoNodes[index]["node"].duedate = todo.duedate;
             this.undoNodes[index]["node"].is_disabled = completed;
+            // this.myTodos = todo;
           }
         });
       } else {
         this.undoNodes.push({ req: "addNode", node: todo });
       }
       this.updateTodoUser();
-      console.log(todo);
       http.put(`/nodes/${todo.id}`, todo);
       this.selectedTodo = { id: "" };
       this.editInProgress = false;
@@ -737,31 +684,26 @@ export default {
       let todo = this.selectedTodoDelete;
       this.index = this.myTodos.findIndex((e) => e.id == todo.id);
       this.updateTodoUser();
-      await http
-        .delete(`/nodes/${todo.id}.json`)
-        .then((res) => {
-          let receivedNodes = res.data.node;
-          if (receivedNodes && receivedNodes.length > 0) {
-            this.undoNodes.push({ req: "deleteNode", node: receivedNodes });
-          }
-          if (!this.undoDone) {
-            let duedate = moment(todo.duedate)._d;
-            let startdate = moment(todo.startdate)._d;
-            let myNode = {
-              id: todo.id,
-              title: todo.name,
-              startdate: startdate,
-              duedate: duedate,
-              mindmap_id: this.currentMindMap.id,
-              parent_node: todo.parent,
-              is_disabled: todo.is_disabled,
-            };
-            this.undoNodes.push({ req: "deleteNode", node: myNode });
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      await http.delete(`/nodes/${todo.id}.json`).then((res) => {
+        let receivedNodes = res.data.node;
+        if (receivedNodes && receivedNodes.length > 0) {
+          this.undoNodes.push({ req: "deleteNode", node: receivedNodes });
+        }
+        if (!this.undoDone) {
+          let duedate = moment(todo.duedate)._d;
+          let startdate = moment(todo.startdate)._d;
+          let myNode = {
+            id: todo.id,
+            title: todo.name,
+            startdate: startdate,
+            duedate: duedate,
+            mindmap_id: this.currentMindMap.id,
+            parent_node: todo.parent,
+            is_disabled: todo.is_disabled,
+          };
+          this.undoNodes.push({ req: "deleteNode", node: myNode });
+        }
+      });
     },
     toggleDeleteTodo(todo) {
       this.selectedTodoDelete = todo;

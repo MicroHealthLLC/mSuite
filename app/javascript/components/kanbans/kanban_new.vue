@@ -360,8 +360,6 @@
             if (response) {
             let index = this.allStages.findIndex( stg => stg.id === this.selectedStage.id)
             Vue.set(this.allStages[index], 'stage_color', response.data.stage.stage_color)
-          } else {
-            console.log("stage not updated")
           }
         } else if (this.selectedBlock){
           this.selectedBlock.line_color = this.selectedBlock.line_color.hex
@@ -479,7 +477,6 @@
           this.selectedElement = null
           this.selectedStage = null
           this.colorSelected = false
-          console.log(error)
         })
       },
       addBlockToStage(stage) {
@@ -498,9 +495,6 @@
           this.undoNodes.push({'req': 'addNode', 'node': res.data.node})
           this.sendLocals(false)
           this.updateKanbanUser()
-        })
-        .catch((err) => {
-          console.log(err)
         })
       },
       deleteStage() {
@@ -533,7 +527,6 @@
             alert("Stage unable to be deleted")
           }
         })
-        .catch(error => {console.log(error)})
       },
       updateStage(stage) {
         if (stage === null) {
@@ -607,9 +600,6 @@
         .then(result => {
           this.getColorNode('.drag-column')
         })
-        .catch(err=>{
-          console.log(err)
-        })
       },
       deleteStageConfirm(stage){
         this.stage = stage
@@ -665,9 +655,6 @@
           Vue.set(this.blocks, index, res.data.node)
           this.getColorNode('.block-title')
         })
-        .catch(err => {
-          console.log(err)
-        })
       },
 
       deleteBlock(block){
@@ -699,9 +686,6 @@
           else {
             alert("Stage unable to be deleted")
           }
-        })
-        .catch(err => {
-          console.log(err)
         })
       },
       //=====================NODE CRUD OPERATIONS==============================//

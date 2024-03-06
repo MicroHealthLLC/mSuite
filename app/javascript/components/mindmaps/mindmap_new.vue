@@ -228,7 +228,6 @@
       },
       SocketStatusChannel: {
         received(data) {
-          console.log("SocketStatusChannel", data)
         }
       }
     },
@@ -303,7 +302,6 @@
             this.currentNodes   = res.data.mindmap.nodes
             this.updateQuery()
           }).catch((error) => {
-            console.log(error)
             this.loading = false
           })
       },
@@ -647,8 +645,6 @@
         await http.put(`/nodes/${this.$store.getters.getCopiedNode.id}.json`, {node: this.$store.getters.getCopiedNode}).then((res) => {
           _this.undoNodes.push({'req': 'cutNode', 'node' : this.$store.getters.getCopiedNode})
           _this.$store.commit('setSelectedNode' , null)
-        }).catch((error) => {
-          console.log(error)
         })
       },
       copySelectedNode() {
@@ -691,8 +687,6 @@
               _this.cutFlag = false
               _this.editingNode  = null
               _this.$store.commit('setSelectedNode' , res.data.node)
-            }).catch((error) => {
-              console.log(error)
             })
         }
         else {
@@ -701,14 +695,12 @@
             .then((res) => {
               _this.editingNode  = null
               _this.$store.commit('setSelectedNode' , res.data.node)
-            }).catch((error) => {
-              console.log(error)
             })
         }
       },
       saveNode(node) {
         if (this.nodeUpdatedFlag == false) { return; }
-        if (!node || !node.id) { console.log("Unable to update node"); return; }
+        if (!node || !node.id) { return; }
 
         this.nodeUpdatedFlag = false
         let index = this.currentMindMap.nodes.findIndex((nod) => nod.id == node.id)
@@ -717,8 +709,6 @@
           let formData = { node: node }
           http.put(`/nodes/${node.id}.json`, formData).then((res) => {
             this.currentMindMap.nodes.splice(index, 1, res.data.node)
-          }).catch((error) => {
-            console.log(error)
           })
         }
       },
@@ -734,10 +724,7 @@
             let receivedData = res.data.node
             this.undoNodes.push({'req': 'addNode', 'node' : receivedData})
           }
-        }).catch((error) => {
-          console.log(error)
         })
-
         this.sendLocals(true)
       },
       nodeUpdated: _.debounce(
@@ -761,13 +748,8 @@
           if (res.data.success) {
             this.$store.commit('setSelectedNode' , { id: ''})
             this.getMindmap()
-          } else {
-            console.log("Unable to delete node")
-          }
-        }).catch((error) => {
-          console.log(error)
+          } 
         })
-
         this.sendLocals(false)
       },
       // =============== Node CRUD OPERATIONS =====================
@@ -791,8 +773,6 @@
             this.currentMindMap = this.$store.getters.getMsuite
             this.$store.commit('setSelectedNode' , null)
             this.updateQuery()
-          }).catch((error) => {
-            console.log(error)
           })
         }
         this.sendLocals(true)
@@ -870,7 +850,6 @@
           .catch((error) => {
             let err_msg = error.response.status === 401 ? "Unauthorized request!" : "There was an error while collapsing/expanding child nodes."
             alert(err_msg)
-            console.log(error)
           })
       },
       // =============== OTHERS =====================
@@ -935,12 +914,10 @@
               );
             }).catch((err) => {
               _this.exportLoading = false
-              console.error('oops, something went wrong!', err)
             })
           })
           .catch((err) => {
             _this.exportLoading = false
-            console.error('oops, something went wrong!', err)
           })
 
         elm.style.transform = "scale(" + this.$store.getters.getScaleFactor +")"

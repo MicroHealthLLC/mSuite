@@ -143,31 +143,6 @@
           JSON.parse(response.data.mindmap.canvas).Questions[0].voters.length > 0) return false
         else return true
       },
-      /* createPollingMap() {
-        let _this = this
-        http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote',parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then( async (res) => {
-          if(res.data.mindmap.id !== null)
-          {
-            this.pollData.url = res.data.mindmap.unique_key
-            let mycanvas = {
-              pollData  : this.pollData,
-              user      : this.$store.getters.getUser
-            }
-            mycanvas = JSON.stringify(mycanvas)
-            let mindmap = { mindmap: { canvas: mycanvas } }
-            await this.$store.dispatch('updateMSuite', mindmap)
-            window.open(`/msuite/${res.data.mindmap.unique_key}`)
-          }
-        }).catch((error) => {
-          if(error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
-          _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
-          _this.selectedType = error.response.data.mindmap.mm_type
-          _this.uniqueKey = error.response.data.mindmap.unique_key
-          _this.oldMSuiteName = error.response.data.mindmap.name
-          _this.mindmapName = ''
-          _this.$refs['errorModal'].open()
-        })
-      }, */
       checkDisabled(checked){
         this.ans_count = checked.preview_checked.length
       },
@@ -175,30 +150,6 @@
         if(event.target.checked) event.target.setAttribute("checked", "checked")
         else event.target.removeAttribute("checked")
       },
-      /*tryAgain(){
-        this.$refs['errorModal'].close()
-      },
-       resetPollVotes(){
-        this.pollData.Questions.forEach( data => {
-          data.voters = []
-          data.answerField.forEach( voters => {
-            voters.votes = []
-          })
-        })
-        let mycanvas = {
-          pollData  : this.pollData,
-          user      : this.$store.getters.getUser
-        }
-        mycanvas = JSON.stringify(mycanvas)
-        let mindmap = { mindmap: { canvas: mycanvas } }
-        this.$emit("updateVote", mindmap)
-        this.$refs['errorModal'].close()
-      }, 
-      generateRandomURL(){
-        this.pollData.url = "Central Idea"
-        this.createPollingMap()
-        this.$refs['errorModal'].close()
-      },*/
     }
   };
 </script>

@@ -191,14 +191,8 @@ export default {
       handler(value) {
         if (value != null) this.poll = value
         if (this.poll.url == '') this.pollUrl()
-        //console.log(this)
       }
     },
-    /* poll: {
-      handler(value) {
-        if (value != null) //console.log(value)
-      }
-    } */
   },
   methods: {
     publishMap() {
@@ -213,7 +207,6 @@ export default {
       this.createPollingMap()
     },
     createPollingMap() {
-      //console.log(this)
       let _this = this
       http.post(`/msuite.json`, { mindmap: { name: this.pollData.url || "Central Idea", title: this.pollTitle, mm_type: 'pollvote', parent_id: this.currentMindMap.id, canvas: JSON.stringify(this.pollData) } }).then(async (res) => {
         if (res.data.mindmap.id !== null) {
@@ -226,20 +219,13 @@ export default {
           mycanvas = JSON.stringify(mycanvas)
           let mindmap = { mindmap: { canvas: mycanvas } }
           await this.$store.dispatch('updateMSuite', mindmap)
-          //alert("Poll Launched and copying link to clipboard")
           _this.$refs['saved_success'].open()
           this.copy(res.data.mindmap.unique_key, false)
           this.$emit('pollEditData', true)
-          //window.open(`/msuite/${res.data.mindmap.unique_key}`)
         }
       }).catch((error) => {
-        console.log(error.response.data)
         if (error.response.data.messages[0] == "Unique key has already been taken") _this.mindmapExists = true
         _this.errorMsg = 'This Poll Url ' + error.response.data.messages[0]
-        /* _this.selectedType = error.response.data.mindmap.mm_type
-        _this.uniqueKey = error.response.data.mindmap.unique_key
-        _this.oldMSuiteName = error.response.data.mindmap.name
-        _this.mindmapName = '' */
         _this.$refs['errorModal'].open()
       })
     },
@@ -261,7 +247,6 @@ export default {
       //this.$refs['errorModal'].close()
     },
     copy(s, popup = true) {
-      //console.log(s)
       let newURL = `${this.baseURL}/msuite/${s}`
       navigator.clipboard.writeText(newURL)
         .then(() => {
@@ -303,13 +288,10 @@ export default {
         return
       } else {
         this.savePoll()
-        console.log("!checkAllFields")
       }
-      //this.savePoll()
     },
     savePoll() {
       let mindmap = this.createMindmapCanvas(this.$store.getters.getUser)
-      console.log(mindmap)
       this.$emit("pollEditData", false)
       this.$emit("updateVote", mindmap)
     },

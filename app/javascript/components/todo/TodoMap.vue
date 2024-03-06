@@ -27,20 +27,12 @@
           >
         </div>
         <span
-          v-if="selectedTodo.id != node.id"
           @click="showInputFieldToggle(node)"
           class="dueDate col-3"
           :class="{ 'line-through': node.is_disabled }"
         >
-          {{
-            node.startdate &&
-            node.startdate != "" &&
-            node.startdate != node.duedate
-              ? `Start: ${new Date(node.startdate).toLocaleDateString("en-US")}`
-              : ""
-          }}
+          {{ showStartDate }}
         </span>
-        <span v-else class="col-3"></span>
         <span
           v-if="selectedTodo.id != node.id && node"
           @click="showInputFieldToggle(node)"
@@ -99,32 +91,7 @@
                     range
                     range-separator=" - "
                   ></date-picker>
-                  <!-- <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
-                    @mouseleave="showCalendar('task-date')" class="dateInput">
-                    <date-picker id="task-date" v-model='selectedTodo.startdate'
-                      :placeholder="formatDate(selectedTodo.startdate)" :format="format" ref="datePicker"
-                      @close="closeDatePicker('task-date')"></date-picker>
-                    <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
-                  </div> -->
-                  <!-- <el-date-picker
-                    v-model="selectedTodoRange"
-                    type="daterange"
-                    start-placeholder="Start"
-                    end-placeholder="Due"
-                    unlink-panels
-                    format="MM/dd/yyyy"
-                    alight="right">
-                  </el-date-picker> -->
                 </b-col>
-                <!-- <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                  <div @mouseenter="hideCalendar('task-date')" @mouseover="hideClear('task-date')"
-                    @mouseleave="showCalendar('task-date')" class="dateInput">
-                    <date-picker id="task-date" v-model='selectedTodo.duedate'
-                      :placeholder="formatDate(selectedTodo.duedate)" :format="format" ref="datePicker"
-                      @close="closeDatePicker('task-date')"></date-picker>
-                    <i @click="selectedTodo.duedate = ''" class="fa fa-remove iconClear"></i>
-                  </div>
-                </b-col> -->
                 <b-col sm="2" cols="2" class="d-flex flex-row">
                   <b-button
                     v-b-tooltip.hover
@@ -159,7 +126,6 @@
         </div>
       </div>
     </b-list-group-item>
-    <!-- <div v-if="node.children && node.children.length"> -->
     <!-- Black background color added to see draggable field for debugging -->
     <div style="background-color: black">
       <draggable
@@ -181,7 +147,6 @@
             :key="child.id"
           >
             <div class="flex" v-if="selectedTodo.id != child.id">
-              <!-- <div class="flex" v-if="selectedTodo.id != child.id"> -->
               <div class="col-6 d-flex flex-row">
                 <div class="flex-auto">
                   <input
@@ -264,15 +229,6 @@
                         >
                         </b-form-input>
                       </b-col>
-                      <!-- <b-col cols="3" sm="3" class="w-50 d-flex flex-row">
-                        <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
-                          @mouseleave="showCalendar('task-date-2')" class="dateInput">
-                          <date-picker id="task-date-2" v-model='selectedTodo.startdate'
-                            :placeholder="formatDate(selectedTodo.startdate)" :format="format"
-                            @close="closeDatePicker('task-date-2')" ref="date"></date-picker>
-                          <i @click="selectedTodo.startdate = ''" class="fa fa-remove iconClear"></i>
-                        </div>
-                      </b-col> -->
                       <b-col cols="4" sm="4" class="w-50 d-flex flex-row">
                         <date-picker
                           id="input"
@@ -282,22 +238,6 @@
                           range
                           range-separator=" - "
                         ></date-picker>
-                        <!-- <el-date-picker
-                          v-model="selectedChildTodoRange"
-                          type="daterange"
-                          start-placeholder="Start"
-                          end-placeholder="Due"
-                          unlink-panels
-                          format="MM/dd/yyyy"
-                          alight="right">
-                        </el-date-picker> -->
-                        <!-- <div @mouseenter="hideCalendar('task-date-2')" @mouseover="hideClear('task-date-2')"
-                          @mouseleave="showCalendar('task-date-2')" class="dateInput">
-                          <date-picker id="task-date-2" v-model='selectedTodo.duedate'
-                            :placeholder="formatDate(selectedTodo.duedate)" :format="format"
-                            @close="closeDatePicker('task-date-2')" ref="date"></date-picker>
-                          <i @click="selectedTodo.duedate = ''" class="fa fa-remove iconClear"></i>
-                        </div> -->
                       </b-col>
                       <b-col sm="2" cols="2" class="d-flex flex-row">
                         <b-button
@@ -376,21 +316,16 @@ export default {
       }
     },
     async handleEndChild(e, list, pNode) {
-      console.log(e, list, pNode);
       if (e.moved) {
         let data = [];
         list.forEach((n, idx) => {
           data.push({ id: n.id, position: idx });
         });
-        console.log("data", data);
         await http
           .put(`/nodes/update_all_positions`, { nodes: data })
           .then((res) => {
             this.$parent.$parent.$parent.fetchToDos();
           })
-          .catch((error) => {
-            console.log(error);
-          });
       }
       if (!e.isTrusted && !e.added && !e.removed && !e.pullMode) {
         this.handleSingleParent(e, list, pNode);
@@ -454,12 +389,8 @@ export default {
       await this.$store
         .dispatch("updateMSuite", data)
         .then((result) => {
-          console.log(result);
           this.$parent.$parent.$parent.fetchToDos();
         })
-        .catch((err) => {
-          console.error(err);
-        });
     },
     closeDatePicker(objId) {
       this.hideCalendar(objId);
@@ -490,16 +421,12 @@ export default {
         )
           .toISOString()
           .split("T")[0];
-        /* if (this.sortedChildTodos.map(c => c.id).includes(todo.id)) {
-          todo.startdate = todo.duedate
-        } */
       }
 
       if (
         todo.startdate != undefined &&
         todo.startdate !== "" &&
-        todo.startdate.getTime !=
-          undefined /*  && !this.sortedChildTodos.map(c => c.id).includes(todo.id) */
+        todo.startdate.getTime != undefined
       ) {
         todo.startdate = new Date(
           todo.startdate.getTime() - todo.startdate.getTimezoneOffset() * 60000
@@ -522,15 +449,12 @@ export default {
       }
     },
     toggleChildModal(todo) {
-      console.log(todo);
       this.$emit("toggleChildModal", todo);
     },
     toggleDeleteTodo(todo) {
       this.$emit("toggleDeleteTodo", todo);
     },
     showInputFieldToggle(todo) {
-      console.log(todo);
-
       if (this.editStatus) {
         this.fieldDisabled = true;
         setTimeout(() => {
@@ -547,32 +471,11 @@ export default {
       const due = new Date(nod.duedate);
 
       if (due > new Date(2020)) {
-        this.selectedTodo.duedate = new Date(
-          due.getTime() /*  - (due.getTimezoneOffset() * 60000) */
-        ); /* .toISOString().split("T")[0] */
+        this.selectedTodo.duedate = new Date(due.getTime());
       }
       if (sta > new Date(2020)) {
-        this.selectedTodo.startdate = new Date(
-          sta.getTime() /*  - (sta.getTimezoneOffset() * 60000) */
-        ); /* .toISOString().split("T")[0] */
+        this.selectedTodo.startdate = new Date(sta.getTime());
       }
-
-      /* if (this.selectedTodo && due != undefined && due !== '' && due.getTime != undefined) {
-        console.log(due)s
-        this.selectedTodo.duedate = new Date(due.getTime() - (due.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
-      } else if (this.selectedTodo && due != undefined && due !== '') {
-        console.log(due)
-        this.selectedTodo.duedate = new Date(due.getTime() - (due.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
-      }
-
-      if (this.selectedTodo && sta != undefined && sta !== '' && sta.getTime != undefined) {
-        console.log(sta)
-        this.selectedTodo.startdate = new Date(sta.getTime() - (sta.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
-      } else if (this.selectedTodo && sta != undefined && sta !== '') {
-        console.log(sta)
-        this.selectedTodo.startdate = new Date(sta.getTime() - (sta.getTimezoneOffset() * 60000)).toISOString().split("T")[0]
-      } */
-
       this.selectedTodoRange = [
         this.selectedTodo.startdate,
         this.selectedTodo.duedate,
@@ -613,9 +516,17 @@ export default {
         ghostClass: "ghost",
       };
     },
-  },
-  mounted() {
-    console.log(this.node);
+    showStartDate() {
+      if (!this.node.showstartdate) {
+        const startDate = moment(this.node.startdate);
+        const dueDate = moment(this.node.duedate);
+        return this.node.startdate && !startDate.isSame(dueDate)
+          ? `Start: ${new Date(this.node.startdate).toLocaleDateString(
+              "en-US"
+            )}`
+          : "";
+      }
+    },
   },
   watch: {
     editInProgress: {
@@ -624,11 +535,8 @@ export default {
       },
       deep: true,
     },
-    selectedTodo() {
-      //console.log(this.selectedTodo)
-    },
+    selectedTodo() {},
     selectedTodoRange() {
-      //console.log(this.selectedTodoRange)
       if (this.selectedTodoRange) {
         this.selectedTodo.startdate = this.selectedTodoRange[0];
         this.selectedTodo.duedate = this.selectedTodoRange[1];

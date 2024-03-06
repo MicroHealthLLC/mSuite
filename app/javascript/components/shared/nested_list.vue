@@ -108,11 +108,6 @@
         let data = {old_index: move.moved.oldIndex, new_index: move.moved.newIndex}
 
         http.put(`/nodes/${node.id}/update_export_order.json`, data)
-          .then((res) => {
-            console.log('export order updated!')
-          }).catch((err) => {
-            console.log(err)
-          })
       }
     }
   }
