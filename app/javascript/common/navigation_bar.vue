@@ -192,6 +192,27 @@
             <span class=""> Poll Expires: {{ pollExpDate }} </span>
           </a>
           <a
+            v-if="
+              mm_type === 'tree_chart' ||
+              mm_type === 'flowmap'
+              "
+            ref="changeDirection"
+            role="button"
+            href="javascript:;"
+            v-b-tooltip.hover
+            :title="mm_type == 'flowmap' ? 'Switch to Tree Chart' : 'Switch to Flowmap'"
+            class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
+            @click.stop="changeDirection"
+          >
+            <i 
+              class="icons d-flex center_flex"
+              :class="
+                mm_type == 'flowmap' ? 'fal fa-sitemap' : 'fas fa-project-diagram'
+              "
+            ></i>
+            
+          </a>
+          <a
             v-if="mm_type != 'fileshare' && mm_type != 'Notepad'"
             ref="exportBtn"
             role="button"
@@ -899,6 +920,13 @@ export default {
           this.updateMsuite(data);
         } else if (this.mm_type == "calendar") this.updateMsuite(data);
       }
+    },
+    async changeDirection() {
+      let data = { mm_type: "tree_chart" };
+      if (this.mm_type == "tree_chart") {
+        data.mm_type = "flowmap";
+        this.updateMsuite(data);
+      } else if (this.mm_type == "flowmap") this.updateMsuite(data);
     },
     createSprints() {
       if (this.currentMindMap && this.currentMindMap.nodes) {
