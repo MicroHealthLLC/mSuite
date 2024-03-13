@@ -93,12 +93,12 @@
           <a
             href="javascript:;"
             role="button"
-            v-b-tooltip.hover
-            title="User"
+            id="user-button"
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
             @click.prevent="openUserModal"
           >
             <i class="fas fa-user-edit icons d-flex center_flex"></i>
+            <b-tooltip :title="userTooltip" :show="userTooltipShow" target="user-button" triggers="hover"></b-tooltip>
           </a>
           <a
             v-if="mm_type != 'pollvote'"
