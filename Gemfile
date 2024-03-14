@@ -3,7 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 # ruby '2.6.1'
 ruby '3.1.0'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '7.0.7.1' # '6.1.7.1'#'7.0.4' #'6.1.6.1' #'~> 5.2.3'
+gem 'rails', '7.0.8.1' # '6.1.7.1'#'7.0.4' #'6.1.6.1' #'~> 5.2.3'
 # Use postgresql as the database for Active Record
 # gem 'pg', '>= 0.18', '< 2.0'
 gem 'mysql2'
@@ -78,3 +78,5 @@ gem 'psych', '< 4'
 gem "hiredis"
 gem 'redis', '~> 4.3.1'
 gem 'redis-namespace'
+gem 'rack', '2.2.8.1'
+gem 'nokogiri', '1.16.2'
