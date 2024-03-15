@@ -35,7 +35,6 @@
 
         }).catch(error=>{
           this.$refs['error-modal'].$refs['errorModal'].open()
-          console.log(error)
         })
       },
       openMindmap() {

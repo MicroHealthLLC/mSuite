@@ -55,7 +55,6 @@
             this.DV_mindmap.children = res.data.mindmap.children
             this.loading = false
           }).catch((error) => {
-            console.error(error)
             this.loading = false
           })
       },

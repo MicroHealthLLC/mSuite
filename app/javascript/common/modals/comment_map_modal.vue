@@ -214,8 +214,6 @@
             this.commentObject.removeClass("activeComment")
           }
           this.renderComments()
-        }).catch(err => {
-          console.log(err)
         })
       },
       postComment () {
@@ -227,8 +225,6 @@
             this.commentContainer = document.querySelector('.comments-container')
             this.commentContainer.scrollTop = this.commentContainer.scrollHeight
           }, 100)
-        }).catch(err => {
-          console.log(err)
         })
       },
       postReplyComment (comment) {
@@ -238,8 +234,6 @@
           this.replyNotes = ''
           this.replyField = false
           this.renderComments()
-        }).catch(err => {
-          console.log(err)
         })
       },
       updateComment (comment, feedback, status) {
@@ -253,8 +247,6 @@
 
         http.patch(`/comments/${comment.id}.json`, data).then((res) => {
           this.editCommentField = false
-        }).catch(err => {
-          console.log(err)
         })
       },
       toggleDelete(comment){

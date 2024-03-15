@@ -110,7 +110,6 @@
       this.undoMap(this.undoObj)
       this.redoMap(this.redoObj)
       this.exportDef(this.exportXLS)
-      console.log(this.pollEdit)
     },
     methods: {
       updateVote(data){
@@ -205,7 +204,6 @@
       },
       undoObj(){
         this.undoDone = true
-        //console.log(this.pollData)
         if (this.pollData.isPublished) {
           this.undoCanvas.forEach((m, i) => {
             let newCanvas = JSON.parse(m.mindmap.canvas)
@@ -220,10 +218,6 @@
             if (typeof(canvas) == 'string') this.redoCanvas.push(canvas)
             else this.redoCanvas.push(canvas.mindmap.canvas)
           })
-          .catch((err) => {
-            console.log(err)
-          })
-          //console.log(this.undoCanvas)
       },
       redoObj(){
         http
@@ -231,9 +225,6 @@
           .then((res) => {
             let canvas = this.redoCanvas.pop()
             this.undoCanvas.push(canvas)
-          })
-          .catch((err) => {
-            console.log(err)
           })
       },
     },

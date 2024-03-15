@@ -295,7 +295,6 @@ export default {
           (o) => o.id === eventObj.event.id
         );
         this.showEvent = eventObj.event;
-        //console.log('clickEvent', this.eventNode, this.showEvent)
         this.showEditEvent = true;
       });
       this.calendar.on("beforeUpdateEvent", (eventObj) => {
@@ -408,7 +407,6 @@ export default {
       this.recurringEvents = null;
     },
     async beforeEventCreate(data) {
-      //console.log('beforeEventCreate', data)
       this.sendLocals(true);
       await this.saveEvents(data);
       if (this.recurringEvents) await this.generateRecurringEvents(data);
@@ -416,12 +414,10 @@ export default {
       this.updateCalendarUser();
     },
     beforeEventUpdate(data) {
-      //console.log('beforeEventUpdate', data)
       this.updateEvent(data);
       if (this.recurringEvents) this.generateRecurringEvents(data);
     },
     editEventModal() {
-      //console.log("editEventModal", this.showEvent, this.allEvents)
       this.$refs["add-calendar-event-modal"].$refs[
         "AddCalendarEventModal"
       ].open();
@@ -448,7 +444,6 @@ export default {
         parent_node: eventObj.raw.parentNode,
         standalone: eventObj.raw.standalone,
       };
-      //console.log("saveEvents", eventObj)
       let _this = this;
       await http.post("/nodes.json", data).then((result) => {
         _this.undoNodes.push({ req: "addNode", node: result.data.node });
@@ -470,7 +465,6 @@ export default {
       eventObj.start = new Date(eventObj.start);
       eventObj.end = new Date(eventObj.end);
       this.checkEventStatus(eventObj, this.currentMindMap.nodes);
-      //this.currentMindmap = this.updateEventColors(this.currentMindMap)
       this.showEditEvent = false;
       let data = {
         title: eventObj.title,
@@ -483,7 +477,6 @@ export default {
         parent_node: eventObj.raw.parentNode,
         standalone: eventObj.raw.standalone,
       };
-      //console.log('updateEvent1', eventObj, data)
       if (this.undoNodes.length > 0) {
         this.undoNodes.forEach((element, index) => {
           if (element["node"].id === eventObj.id) {
@@ -533,7 +526,6 @@ export default {
       http
         .delete(`/nodes/${this.showEvent.id}.json`)
         .then((res) => {
-          console.log(res);
           let receivedNodes = res.data.node;
           if (receivedNodes && receivedNodes.length > 0) {
             this.undoNodes.push({ req: "deleteNode", node: receivedNodes });
@@ -554,9 +546,6 @@ export default {
             this.undoNodes.push({ req: "deleteNode", node: data });
           }
         })
-        .catch((err) => {
-          console.error(err);
-        });
       if (this.showEvent) {
         let selectedNode = this.fetchedEvents.find(
           (n) => n.id == this.showEvent.id
@@ -600,7 +589,6 @@ export default {
       this.fetchedEvents.forEach((currentValue, index, rEvents) => {
         this.allEvents.push(currentValue);
       });
-      //console.log("fetchEvents",  this.allEvents)
       this.renderEvents();
     },
     renderEvents() {
@@ -616,13 +604,9 @@ export default {
       this.fetchedEvents.forEach((currentValue, index, rEvents) => {
         currentValue.duedate = new Date(currentValue.duedate);
         currentValue.startdate = new Date(currentValue.startdate);
-        // currentValue.duedate = moment(new Date(currentValue.duedate))
-        // currentValue.startdate = moment(new Date(currentValue.startdate))
         let colorType = this.lightOrDark(currentValue.line_color);
         let textColor = colorType != "dark" ? "#020101" : "#F8F8F8";
         this.mapColors.push(currentValue.line_color);
-        //console.log("renderEvents", currentValue.title, currentValue)
-
         this.calendar.createEvents([
           {
             id: currentValue.id,
@@ -879,7 +863,10 @@ export default {
     updateEventHeights(mindmap) {
       // Filter the events to get the long events
       let longEvents = mindmap.nodes.filter((n) => {
-        if (n.parent_node && n.is_sprint) {
+        if (
+          (n.parent_node && n.is_sprint) ||
+          (n.parent_node == null && n.is_sprint)
+        ) {
           n.is_sprint = false;
         }
         if (!n.is_sprint) {
@@ -999,7 +986,6 @@ export default {
       deep: true,
     },
     showEvent() {
-      //console.log(this.showEvent)
     },
   },
 };
