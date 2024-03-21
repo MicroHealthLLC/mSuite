@@ -394,6 +394,7 @@
             this.uniqueColors.push(prop);
           }
         }
+        this.handleChangeDirection()
         this.renderTreeChart()
       },
       renderTreeChart(){
@@ -544,6 +545,15 @@
           this.undoNodes.push({req: redoObj.req, node: redoObj.node})
         }
       },
+      handleChangeDirection(){
+        if(this.mm_type == this.$store.getters.getmmType)
+          return;
+        this.mm_type = this.$store.getters.getmmType
+        this.isTreeChart
+        this.$nextTick(() => {
+          this.$forceUpdate()
+        })
+      },
     },
     channels: {
       WebNotificationsChannel: {
@@ -584,7 +594,8 @@
     computed: {
       isTreeChart(){
         if(this.mm_type == 'flowmap') return 'horizontal'
-      }
+        else return undefined
+      },
     }
   }
 </script>

@@ -5,6 +5,7 @@ class Setting < ApplicationRecord
 
   # Callbacks
   before_save :set_default_values
+  before_validation :set_default_values
   
   after_save do
     Setting.load_available_settings
