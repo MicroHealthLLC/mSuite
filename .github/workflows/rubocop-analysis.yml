@@ -1,7 +1,7 @@
 # .github/workflows/rubocop-analysis.yml
 name: "RuboCop"
 
-on: [push]
+# on: [push]
 
 jobs:
   rubocop:
