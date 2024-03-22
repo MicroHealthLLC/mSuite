@@ -33,7 +33,7 @@
     "fabric": "^4.6.0",
     "fabric-history": "^1.6.0",
     "file-saver": "^2.0.5",
-    "follow-redirects": "1.15.4",
+    "follow-redirects": "1.15.6",
     "fs": "^0.0.1-security",
     "glob-parent": "^5.1.2",
     "highcharts": "^10.3.2",
