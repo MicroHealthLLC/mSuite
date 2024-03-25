@@ -1441,6 +1441,11 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
+"@rails/actioncable@^6.0.2":
+  version "6.1.7"
+  resolved "https://registry.yarnpkg.com/@rails/actioncable/-/actioncable-6.1.7.tgz#8b4506925d3f7146a70941e4db7ce9dda99f99ae"
+  integrity sha512-F6S74NGpxhbbDRFsQFGYqefRfZPgYvePNtz9hHKYOqLturrsqrDoG+UcrxEGHsvqDUorMYfx4Wl3K8smmk/u2g==
+
 "@sinclair/typebox@^0.24.1":
   version "0.24.51"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.24.51.tgz#645f33fe4e02defe26f2f5c0410e1c094eac7f5f"
@@ -1477,6 +1482,11 @@
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"
   integrity sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==
+
+"@types/actioncable@^5.2.3":
+  version "5.2.11"
+  resolved "https://registry.yarnpkg.com/@types/actioncable/-/actioncable-5.2.11.tgz#4b563cec68f00973dc0c5e2cc6c3810d6169a38b"
+  integrity sha512-aGzv5JS3razLvv4ZJW+wlDuNS5y1IFFVlm1EkZq3ZHs6txju7/2iee1e6sdK6DE4zsz8cIREs1K4BtfF5RMESQ==
 
 "@types/body-parser@*":
   version "1.19.2"
@@ -1899,17 +1909,13 @@ acorn@^8.2.4, acorn@^8.5.0, acorn@^8.7.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.1.tgz#0a3f9cbecc4ec3bea6f0a80b66ae8dd2da250b73"
   integrity sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==
 
-actioncable-vue@^1.3.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/actioncable-vue/-/actioncable-vue-1.7.0.tgz#309f1aac99e6b95c706276102bfb6518e1919889"
-  integrity sha512-UBsxIM9P8iOn1ynnnEBYIFPFlhVGDPaQKxN+/7VboHrqqx1FJQtkkcQEScHnsccQpanoiY4WdDZWzT9eTP7HTQ==
+actioncable-vue@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/actioncable-vue/-/actioncable-vue-2.5.1.tgz#80e8e2d0e6929b069912c06368309856c9760d39"
+  integrity sha512-gMid6jnF4XiGXHWK8pZw2KveKTggsH3/zPzlRg1kc/wpbdyc5L6iWVD+Ni7kHLBKh2Wkshv9wKLDE4fEdXWkYg==
   dependencies:
-    actioncable "^5.2.3"
-
-actioncable@^5.2.3:
-  version "5.2.8"
-  resolved "https://registry.yarnpkg.com/actioncable/-/actioncable-5.2.8.tgz#988c23d2d51513a572969348945eb7785eafcd5f"
-  integrity sha512-M/CfC7qDT7tux8B0BNYPek+aCw6OjB78K9l978Ff94U8v6+G9LOVCEnSFg4gxdAboRV8KTy9eTK3Wxbry4SXJA==
+    "@rails/actioncable" "^6.0.2"
+    "@types/actioncable" "^5.2.3"
 
 agent-base@6:
   version "6.0.2"
@@ -2446,7 +2452,7 @@ commander@^7.2.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
   integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
 
-commander@^8.0.0:
+commander@^8.3.0:
   version "8.3.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
   integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
@@ -4424,12 +4430,12 @@ jsuites@^4.12.0, jsuites@^5.0.1:
   resolved "https://registry.yarnpkg.com/jsuites/-/jsuites-5.0.1.tgz#ba8ea419b9e0bf25b7c2922b262d02e9ecaf5d67"
   integrity sha512-1dFIrVZBQxnC+J2jvjnyAjktmnXyDXSVVqSrI9zy0GVmnx7NhdrpDXc+SsWQZNC3Qid5McmyKYN7RzjuSrsyzQ==
 
-katex@^0.16.2:
-  version "0.16.4"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.4.tgz#87021bc3bbd80586ef715aeb476794cba6a49ad4"
-  integrity sha512-WudRKUj8yyBeVDI4aYMNxhx5Vhh2PjpzQw1GRu/LVGqL4m1AxwD1GcUp0IMbdJaf5zsjtj8ghP0DOQRYhroNkw==
+katex@^0.16.10:
+  version "0.16.10"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.10.tgz#6f81b71ac37ff4ec7556861160f53bc5f058b185"
+  integrity sha512-ZiqaC04tp2O5utMsl2TEZTXxa6WSC4yo0fv5ML++D3QZv/vx2Mct0mTlRx3O+uUkjfuAgOkzsCmq5MiUEsDDdA==
   dependencies:
-    commander "^8.0.0"
+    commander "^8.3.0"
 
 kind-of@^6.0.2:
   version "6.0.3"
