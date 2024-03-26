@@ -63,8 +63,10 @@
               if(this.temporaryUser !=this.$store.getters.getUser){
                   let cursor = this.qeditor.getSelection()
                   let curContent = this.qeditor.getContents()
+                  let testChange = new Delta(this.content)
                   let change = new Delta(curContent).diff(new Delta(this.content))
                   
+                  console.log(testChange)
                   if(this.lastDelta==null) this.lastDelta = new Delta()
                   
                   console.log("websocket change")
@@ -124,7 +126,7 @@
         console.log(curContentStr)
         console.log("inContentStr.length " + inContentStr.length + "| curContentStr.length " + curContentStr.length)
         console.log(inContentStr.length != curContentStr.length)
-        console.log(inContentStr.substring(0, check) != curContentStr.substring(0, check))
+        console.log(inContentStr.substring(0) != curContentStr.substring(0))
 
         if (inContentStr.length != curContentStr.length || inContentStr.substring(0) != curContentStr.substring(0)) {
           console.log("conflict")
@@ -158,11 +160,12 @@
           while (i < copyChange.ops.length && j < copyLastDelta.ops.length) {
             //if the ops are at the same index and not retain ops, then check for conflicts
             if (opChangeIndexArray[i] == opLastDeltaIndexArray[j] && !copyChange.ops[i].retain && !copyLastDelta.ops[j].retain) {
-              console.log("same index ops")
+              console.log("same index not retain ops")
               //if the ops are both delete ops, add the delete from lastDelta to the new change
               if(copyChange.ops[i].delete && copyLastDelta.ops[j].delete) {
                 if(copyChange.ops[i].delete != copyLastDelta.ops[j].delete) {
                   //newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j)))
+                  console.log("break due to same index delete conflict")
                   break //breaks due to a same index delete conflict
                 } else if(copyChange.ops[i].delete == copyLastDelta.ops[j].delete) {
                   newChange = newChange.concat(new Delta(copyChange.ops.slice(i, i+1)))
@@ -175,6 +178,7 @@
               else if(copyChange.ops[i].insert && copyLastDelta.ops[j].insert) {
                 if(copyChange.ops[i].insert != copyLastDelta.ops[j].insert) {
                   //newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j)))
+                  console.log("break due to a same index insert conflict")
                   break //breaks due to a same index insert conflict
                 } else if(copyChange.ops[i].insert == copyLastDelta.ops[j].insert) {
                   newChange = newChange.concat(new Delta().retain(copyChange.ops[i].insert.length))
@@ -208,6 +212,21 @@
               i++
               continue
             } 
+            //if the indexes are the same, then add the op that is smaller and advance both i and j
+            else if (opChangeIndexArray[i] == opLastDeltaIndexArray[j]) {
+              console.log("same index one retain and one not retain op")
+              let changeOp = copyChange.ops[i].retain || copyChange.ops[i].delete || copyChange.ops[i].insert.length
+              let lastDeltaOp = copyLastDelta.ops[j].retain || copyLastDelta.ops[j].delete || copyLastDelta.ops[j].insert.length
+              let largerOp = Math.max(changeOp, lastDeltaOp)
+              if(largerOp == changeOp) {
+                newChange = newChange.concat(new Delta(copyChange.ops.slice(i, i+1)))
+              } else if(largerOp == lastDeltaOp) {
+                newChange = newChange.concat(new Delta().retain(lastDeltaOp))
+              }
+              j++
+              i++
+              continue
+            }
             //add the op at the lower index to the new change and inc that index
             while (i < copyChange.ops.length && opChangeIndexArray[i] < opLastDeltaIndexArray[j]) {
               console.log("add change op")
