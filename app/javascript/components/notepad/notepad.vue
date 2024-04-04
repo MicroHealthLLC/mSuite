@@ -66,19 +66,19 @@
                   let testChange = new Delta(this.content)
                   let change = new Delta(curContent).diff(new Delta(this.content))
                   
-                  console.log(testChange)
+                  //console.log(testChange)
                   if(this.lastDelta==null) this.lastDelta = new Delta()
                   
-                  console.log("websocket change")
-                  console.log(change)
-                  console.log("lastDelta")
-                  console.log(this.lastDelta)
-                  console.log("lastdelta length " + this.lastDelta.ops.length)
+                  //console.log("websocket change")
+                  //console.log(change)
+                  //console.log("lastDelta")
+                  //console.log(this.lastDelta)
+                  //console.log("lastdelta length " + this.lastDelta.ops.length)
                   if(this.lastDelta.ops.length > 0) {
-                    console.log("lastDelta")
+                    //console.log("lastDelta")
                     change = this.resolveConflict(this.content, curContent, change)
-                    console.log("resolved change")
-                    console.log(change)
+                    //console.log("resolved change")
+                    //console.log(change)
                   }
 
                   if(cursor) cursor.index = this.adjustCursorIndex(change, cursor.index)
@@ -87,7 +87,7 @@
 
                   if(this.lastDelta.ops.length > 0) {
                     this.lastDelta = new Delta()
-                    console.log("lastDelta reset")
+                    //console.log("lastDelta reset")
                   }
 
                   this.strongTagStyleBold()
@@ -122,18 +122,18 @@
         let curContentStr = this.insertToString(new Delta(curContent))
 
         check = Math.min(check, inContentStr.length, curContentStr.length)
-        console.log(inContentStr)
-        console.log(curContentStr)
-        console.log("inContentStr.length " + inContentStr.length + "| curContentStr.length " + curContentStr.length)
-        console.log(inContentStr.length != curContentStr.length)
-        console.log(inContentStr.substring(0) != curContentStr.substring(0))
+        //console.log(inContentStr)
+        //console.log(curContentStr)
+        //console.log("inContentStr.length " + inContentStr.length + "| curContentStr.length " + curContentStr.length)
+        //console.log(inContentStr.length != curContentStr.length)
+        //console.log(inContentStr.substring(0) != curContentStr.substring(0))
 
         if (inContentStr.length != curContentStr.length || inContentStr.substring(0) != curContentStr.substring(0)) {
-          console.log("conflict")
-          console.log("incoming change:")
-          console.log(change)
-          console.log("current change:")
-          console.log(this.lastDelta.ops)
+          //console.log("conflict")
+          //console.log("incoming change:")
+          //console.log(change)
+          //console.log("current change:")
+          //console.log(this.lastDelta.ops)
           
           let copyChange = new Delta(change)
           let copyLastDelta = new Delta(this.lastDelta)
@@ -154,18 +154,18 @@
 
           let i = 0
           let j = 0
-          console.log(copyChange)
-          console.log(copyLastDelta)
+          //console.log(copyChange)
+          //console.log(copyLastDelta)
 
           while (i < copyChange.ops.length && j < copyLastDelta.ops.length) {
             //if the ops are at the same index and not retain ops, then check for conflicts
             if (opChangeIndexArray[i] == opLastDeltaIndexArray[j] && !copyChange.ops[i].retain && !copyLastDelta.ops[j].retain) {
-              console.log("same index not retain ops")
+              //console.log("same index not retain ops")
               //if the ops are both delete ops, add the delete from lastDelta to the new change
               if(copyChange.ops[i].delete && copyLastDelta.ops[j].delete) {
                 if(copyChange.ops[i].delete != copyLastDelta.ops[j].delete) {
                   //newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j)))
-                  console.log("break due to same index delete conflict")
+                  //console.log("break due to same index delete conflict")
                   break //breaks due to a same index delete conflict
                 } else if(copyChange.ops[i].delete == copyLastDelta.ops[j].delete) {
                   newChange = newChange.concat(new Delta(copyChange.ops.slice(i, i+1)))
@@ -178,7 +178,7 @@
               else if(copyChange.ops[i].insert && copyLastDelta.ops[j].insert) {
                 if(copyChange.ops[i].insert != copyLastDelta.ops[j].insert) {
                   //newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j)))
-                  console.log("break due to a same index insert conflict")
+                  //console.log("break due to a same index insert conflict")
                   break //breaks due to a same index insert conflict
                 } else if(copyChange.ops[i].insert == copyLastDelta.ops[j].insert) {
                   newChange = newChange.concat(new Delta().retain(copyChange.ops[i].insert.length))
@@ -197,15 +197,15 @@
             }
             //if both are retain ops at the same index, add the smaller retain to change and inc both indexes
             else if (opChangeIndexArray[i] == opLastDeltaIndexArray[j] && copyChange.ops[i].retain && copyLastDelta.ops[j].retain) {
-              console.log("same index retain ops")
+              //console.log("same index retain ops")
               if(copyChange.ops[i].retain < copyLastDelta.ops[j].retain) {
-                console.log("add retain from change")
+                //console.log("add retain from change")
                 newChange = newChange.concat(new Delta(copyChange.ops.slice(i, i+1)))
               } else if(copyChange.ops[i].retain > copyLastDelta.ops[j].retain) {
-                console.log("add retain from lastDelta")
+                //console.log("add retain from lastDelta")
                 newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j, j+1)))
               } else {
-                console.log("add retain from both")
+                //console.log("add retain from both")
                 newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j, j+1)))
               }
               j++
@@ -214,7 +214,7 @@
             } 
             //if the indexes are the same, then add the op that is smaller and advance both i and j
             else if (opChangeIndexArray[i] == opLastDeltaIndexArray[j]) {
-              console.log("same index one retain and one not retain op")
+              //console.log("same index one retain and one not retain op")
               let changeOp = copyChange.ops[i].retain || copyChange.ops[i].delete || copyChange.ops[i].insert.length
               let lastDeltaOp = copyLastDelta.ops[j].retain || copyLastDelta.ops[j].delete || copyLastDelta.ops[j].insert.length
               let largerOp = Math.max(changeOp, lastDeltaOp)
@@ -229,7 +229,7 @@
             }
             //add the op at the lower index to the new change and inc that index
             while (i < copyChange.ops.length && opChangeIndexArray[i] < opLastDeltaIndexArray[j]) {
-              console.log("add change op")
+              //console.log("add change op")
               newChange = newChange.concat(new Delta(copyChange.ops.slice(i, i+1)))
               //increase lastdelta index if the change op was a insert op
               if(copyChange.ops[i].insert) {
@@ -240,7 +240,7 @@
               i++
             }
             while (j < copyLastDelta.ops.length && opChangeIndexArray[i] > opLastDeltaIndexArray[j]) {
-              console.log("keep lastDelta op")
+              //console.log("keep lastDelta op")
               newChange = newChange.concat(new Delta().retain(copyLastDelta.ops[j].retain || copyLastDelta.ops[j].delete || copyLastDelta.ops[j].insert.length))
               //increase change index if the lastDelta op was a insert op
               if(copyLastDelta.ops[j].insert) {
@@ -250,20 +250,20 @@
               }
               j++
             }
-            console.log(newChange.ops)
+            //console.log(newChange.ops)
           }
 
           // Add the remaining ops to the new change
           if (i == copyChange.ops.length) {
-            console.log("add remaining lastDelta ops")
+            //console.log("add remaining lastDelta ops")
             newChange = newChange.concat(new Delta(copyLastDelta.ops.slice(j)))
           } else if (j == copyLastDelta.ops.length) {
-            console.log("add remaining change ops")
+            //console.log("add remaining change ops")
             newChange = newChange.concat(new Delta(copyChange.ops.slice(i)))
           }
 
         }else {
-          console.log("no conflict")
+          //console.log("no conflict")
           newChange = change
         }
         return newChange
@@ -271,10 +271,10 @@
       adjustCursorIndex(change, cursorIndex) {
         let cursor = cursorIndex
         let currentAffectedIndex = 0
-        console.log("change ops length " + change.ops.length)
-        console.log("change ops")
-        console.log(change.ops)
-        console.log("cursorIndex " + cursorIndex)
+        //console.log("change ops length " + change.ops.length)
+        //console.log("change ops")
+        //console.log(change.ops)
+        //console.log("cursorIndex " + cursorIndex)
         for(let i = 0; i < change.ops.length; i++) {
           if(currentAffectedIndex > cursorIndex) {
             break
@@ -288,7 +288,7 @@
           }
           currentAffectedIndex += op.retain || op.delete || op.insert.length
         }
-        console.log("new cursor " + cursor)
+        //console.log("new cursor " + cursor)
         return cursor
       },
       updateDocument() {
@@ -301,7 +301,7 @@
         let id = this.currentMindMap.unique_key
         http.patch(`/msuite/${id}.json`,mindmap)
         this.lastDelta = new Delta()
-        console.log("lastDelta reset")
+        //console.log("lastDelta reset")
       },
       createEditor(){
         this.qeditor = new Quill('#notepad', {
@@ -372,12 +372,12 @@
           })
           if (source == 'user') {
             change = change.compose(delta)
-            console.log("user change")
-            console.log(change)
+            //console.log("user change")
+            //console.log(change)
             if(_this.lastDelta == null) _this.lastDelta = new Delta()
             _this.lastDelta = _this.lastDelta.compose(delta)
-            console.log("inc lastDelta")
-            console.log(_this.lastDelta)
+            //console.log("inc lastDelta")
+            //console.log(_this.lastDelta)
             setTimeout(() => {
               _this.strongTagStyleBold()
               
