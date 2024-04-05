@@ -10,145 +10,61 @@
           </div>
           <div class="container relative max-w-lg pt-6 mx-auto">
             <p class="text-slate-600 text-center">Your Todo</p>
-            <toggle-button
-              class="toggleButton mb-3"
-              :value="true"
-              color="#82C7EB"
-              :sync="true"
-              :labels="{ checked: 'Actionable', unchecked: 'All Tasks' }"
-              v-model="completedTasks"
-              width="115"
-              height="28"
-            />
-            <toggle-button
-              v-if="!isMobile"
-              @click="handleDrag"
-              class="toggleButton mb-3"
-              :value="true"
-              color="#82C7EB"
-              :sync="true"
-              :labels="{ checked: 'Drag Row', unchecked: 'Make Child' }"
-              v-model="isDraggable"
-              width="115"
-              height="28"
-            />
+            <toggle-button class="toggleButton mb-3" :value="true" color="#82C7EB" :sync="true"
+              :labels="{ checked: 'Actionable', unchecked: 'All Tasks' }" v-model="completedTasks" width="115"
+              height="28" />
+            <toggle-button v-if="!isMobile" @click="handleDrag" class="toggleButton mb-3" :value="true" color="#82C7EB"
+              :sync="true" :labels="{ checked: 'Drag Row', unchecked: 'Make Child' }" v-model="isDraggable" width="115"
+              height="28" />
             <div class="lock-container">
-              <toggle-button
-                v-if="isMobile"
-                :value="true"
-                color="#82C7EB"
-                :sync="true"
-                :labels="{ checked: 'Actionable', unchecked: 'All Tasks' }"
-                v-model="completedTasks"
-                width="100"
-              />
-              <toggle-button
-                class="toggle-drag"
-                v-if="isMobile"
-                v-model="dragLocked"
-                :labels="{ checked: 'Drag Locked', unchecked: 'Drag Unlocked' }"
-                width="100"
-              />
+              <toggle-button v-if="isMobile" :value="true" color="#82C7EB" :sync="true"
+                :labels="{ checked: 'Actionable', unchecked: 'All Tasks' }" v-model="completedTasks" width="100" />
+              <toggle-button class="toggle-drag" v-if="isMobile" v-model="dragLocked"
+                :labels="{ checked: 'Drag Locked', unchecked: 'Drag Unlocked' }" width="100" />
             </div>
 
             <div>
               <b-list-group class="mr-0" v-if="sortedTodos.length > 0">
-                <draggable
-                  class="list-group"
-                  group="people"
-                  :list="sortedTodos"
-                  @change="(e) => handleEndParent(e, sortedTodos)"
-                  @start="drag = true"
-                  @end="drag = false"
-                  v-bind="dragOptions"
-                >
-                  <transition-group
-                    type="transition"
-                    :name="!drag ? 'list' : null"
-                  >
+                <draggable class="list-group" group="people" :list="sortedTodos"
+                  @change="(e) => handleEndParent(e, sortedTodos)" @start="drag = true" @end="drag = false"
+                  v-bind="dragOptions">
+                  <transition-group type="transition" :name="!drag ? 'list' : null">
                     <div v-for="todo in sortedTodos" :key="todo.id">
-                      <todo-map
-                        :node="todo"
-                        :selectedTodo="selectedTodo"
-                        :dragLocked="dragLocked"
-                        :completedTasks="completedTasks"
-                        :editInProgress="editInProgress"
-                        :current-mind-map="currentMindMap"
-                        :isDraggable="isDraggable"
-                        :myTodos="myTodos"
-                        @stopChild="isDraggable = true"
-                        @updateTodo="updateTodo"
-                        @toggleChildModal="toggleChildModal"
-                        @toggleDeleteTodo="toggleDeleteTodo"
-                        @showInputField="showInputField"
-                        @blurEvent="blurEvent"
-                        @clearTodoEditObj="clearTodoEditObj"
-                        @HandleTodo="HandleChild"
-                        @handleStartDate="handleStartDate"
-                      ></todo-map>
-                      <b-list-group-item
-                        v-if="showChildModalTodo && todo_parent === todo.id"
-                        class="child-field"
-                      >
+                      <todo-map :node="todo" :selectedTodo="selectedTodo" :dragLocked="dragLocked"
+                        :completedTasks="completedTasks" :editInProgress="editInProgress"
+                        :current-mind-map="currentMindMap" :isDraggable="isDraggable" :myTodos="myTodos"
+                        @stopChild="isDraggable = true" @updateTodo="updateTodo" @toggleChildModal="toggleChildModal"
+                        @toggleDeleteTodo="toggleDeleteTodo" @showInputField="showInputField" @blurEvent="blurEvent"
+                        @clearTodoEditObj="clearTodoEditObj" @HandleTodo="HandleChild"
+                        @handleStartDate="handleStartDate"></todo-map>
+                      <b-list-group-item v-if="showChildModalTodo && todo_parent === todo.id" class="child-field">
                         <div class="ml-1">
                           <div class="relative flex h-full">
-                            <div
-                              class="container relative z-20 max-w-xl mt-20 h-min"
-                            >
+                            <div class="container relative z-20 max-w-xl mt-20 h-min">
                               <b-form @submit.prevent="addChildTodo()">
                                 <b-row>
                                   <b-col cols="6" sm="6">
-                                    <b-form-input
-                                      :class="fieldDisabled ? 'shake' : ''"
-                                      v-model="todoChildData.title"
-                                      ref="title"
-                                      type="text"
-                                      :placeholder="
-                                        'Add subtask for ' + todo.name
-                                      "
-                                    >
+                                    <b-form-input :class="fieldDisabled ? 'shake' : ''" v-model="todoChildData.title"
+                                      ref="title" type="text" :placeholder="'Add subtask for ' + todo.name
+              ">
                                     </b-form-input>
                                   </b-col>
                                   <b-col cols="4">
-                                    <date-picker
-                                      id="input"
-                                      class="w-100"
-                                      v-model="childRange"
-                                      :format="format"
-                                      range
-                                      range-separator=" - "
-                                    ></date-picker>
+                                    <date-picker id="input" class="w-100" v-model="childRange" :format="format" range
+                                      range-separator=" - "></date-picker>
                                   </b-col>
-                                  <b-col
-                                    cols="2"
-                                    sm="2"
-                                    class="d-flex flex-row justify-content-end"
-                                  >
-                                    <b-button
-                                      v-b-tooltip.hover
-                                      title="Save"
-                                      type="submit"
-                                      variant="success"
-                                    >
+                                  <b-col cols="2" sm="2" class="d-flex flex-row justify-content-end">
+                                    <b-button v-b-tooltip.hover title="Save" type="submit" variant="success">
                                       <i class="fas fa-save"></i>
                                     </b-button>
-                                    <b-button
-                                      class="ml-1"
-                                      v-b-tooltip.hover
-                                      title="Cancel"
-                                      variant="secondary"
-                                      @click="cancelChildObj"
-                                    >
-                                      <i class="fas fa-ban"></i
-                                    ></b-button>
+                                    <b-button class="ml-1" v-b-tooltip.hover title="Cancel" variant="secondary"
+                                      @click="cancelChildObj">
+                                      <i class="fas fa-ban"></i></b-button>
                                   </b-col>
                                 </b-row>
                               </b-form>
                             </div>
-                            <div
-                              @click="toggleChildModal(todo)"
-                              class="absolute top-0 z-10 w-full h-full"
-                            ></div>
+                            <div @click="toggleChildModal(todo)" class="absolute top-0 z-10 w-full h-full"></div>
                           </div>
                         </div>
                       </b-list-group-item>
@@ -162,45 +78,20 @@
                     <b-form @submit.prevent="addTodo()">
                       <b-row>
                         <b-col cols="6" class="todo-field">
-                          <b-form-input
-                            :class="fieldDisabled ? 'shake' : ''"
-                            v-model="todoData.title"
-                            ref="title"
-                            type="text"
-                            :placeholder="placeHolderText"
-                          >
+                          <b-form-input :class="fieldDisabled ? 'shake' : ''" v-model="todoData.title" ref="title"
+                            type="text" :placeholder="placeHolderText">
                           </b-form-input>
                         </b-col>
                         <b-col cols="4">
-                          <date-picker
-                            id="input"
-                            class="w-100"
-                            v-model="parentRange"
-                            :format="format"
-                            range
-                            range-separator=" - "
-                          ></date-picker>
+                          <date-picker id="input" class="w-100" v-model="parentRange" :format="format" range
+                            range-separator=" - "></date-picker>
                         </b-col>
-                        <b-col
-                          sm="2"
-                          cols="2"
-                          class="d-flex flex-row justify-content-end"
-                        >
-                          <b-button
-                            v-b-tooltip.hover
-                            title="Save"
-                            type="submit"
-                            variant="success"
-                          >
+                        <b-col sm="2" cols="2" class="d-flex flex-row justify-content-end">
+                          <b-button v-b-tooltip.hover title="Save" type="submit" variant="success">
                             <i class="fas fa-save"></i>
                           </b-button>
-                          <b-button
-                            class="ml-1"
-                            v-b-tooltip.hover
-                            variant="warning"
-                            @click="clearTodoObj"
-                            title="Reset"
-                          >
+                          <b-button class="ml-1" v-b-tooltip.hover variant="warning" @click="clearTodoObj"
+                            title="Reset">
                             <i class="fas fa-undo-alt"></i>
                           </b-button>
                         </b-col>
@@ -219,21 +110,21 @@
     </sweet-modal>
     <sweet-modal ref="errDates" class="of_v" icon="error">
       {{
-        todoData.startDate == null
-          ? "Start date required when using due date"
-          : todoData.dueDate == null
-          ? "Due date required when using start date"
-          : "Not a valid date range"
-      }}
+              todoData.startDate == null
+                ? "Start date required when using due date"
+                : todoData.dueDate == null
+                  ? "Due date required when using start date"
+                  : "Not a valid date range"
+            }}
     </sweet-modal>
     <sweet-modal ref="errDatesUpdate" class="of_v" icon="error">
       {{
-        selectedTodo.startdate == ""
-          ? "Start date required when using due date"
-          : selectedTodo.duedate == ""
-          ? "Due date required when using start date"
-          : "Not a valid date range"
-      }}
+                selectedTodo.startdate == ""
+                  ? "Start date required when using due date"
+                  : selectedTodo.duedate == ""
+                    ? "Due date required when using start date"
+                    : "Not a valid date range"
+              }}
     </sweet-modal>
   </div>
 </template>
@@ -660,7 +551,7 @@ export default {
           myTodo.showstartdate = false;
         }
       });
-      todo.hide_children = true;
+      // todo.hide_children = true;
       if (this.undoNodes.length > 0) {
         this.undoNodes.forEach((element, index) => {
           if (element["node"].id === todo.id) {
