@@ -31,7 +31,7 @@
                 <i class="mx-auto fas fa-file-spreadsheet mm-icon mt-3" v-if="type.key == 'spreadsheet'"></i>
                 <i class="mx-auto fad fa-calendar-alt mm-icon mt-3" v-if="type.key == 'calendar'"></i>
                 <!-- <i class="mx-auto fad fa-chart-pie mm-icon mt-3" v-if="type.key == 'venndiagram'"></i> -->
-                <i class="mx-auto far fa-file-powerpoint mm-icon mt-3" v-if="type.key == 'presentation'"></i>
+                <!-- <i class="mx-auto far fa-file-powerpoint mm-icon mt-3" v-if="type.key == 'presentation'"></i> -->
                 <!-- <i class="mx-auto fas fa-share-alt mm-icon mt-3" v-if="type.key == 'fileshare'"></i> -->
                 <span class="text-center icon-text">{{type.value}}</span>
               </div>
@@ -69,8 +69,8 @@
           { key: 'spreadsheet', value: 'Spreadsheet', imgsrc: "" },
           { key: 'poll', value: 'Poll', imgsrc: "" },
           { key: 'calendar', value: 'Calendar', imgsrc: "" },
-          { key: 'presentation', value: 'Presentation', imgsrc: "" },
-          /*{ key: 'venndiagram', value: 'Venndiagram', imgsrc: "" },
+         /* { key: 'presentation', value: 'Presentation', imgsrc: "" },
+          { key: 'venndiagram', value: 'Venndiagram', imgsrc: "" },
           { key: 'fileshare', value: 'Fileshare', imgsrc: "" }, */
         ]
         //Test
