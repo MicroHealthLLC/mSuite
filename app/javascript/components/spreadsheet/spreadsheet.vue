@@ -174,7 +174,7 @@
           this.createSheet(this.currentMindMap.canvas)
           return
         }
-        if(this.lastSavedSheet.data == null || this.lastSavedSheet.data == null || this.lastSavedSheet.style == null) {
+        if(this.lastSavedSheet.data == null || this.lastSavedSheet.style == null) {
           //console.log('Last saved sheet is null')
           this.table.setData(this.sheetData.data)
           this.table.setStyle(this.sheetData.style)
@@ -306,7 +306,6 @@
           onchangeheader: _this.dataChange,
           onundo: _this.dataChange,
           onredo: _this.dataChange,
-          onchangeheader: _this.dataChange,
           csvFileName: `${_this.currentMindMap.unique_key}`,
           toolbar:[
             {
