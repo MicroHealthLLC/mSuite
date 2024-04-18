@@ -41,6 +41,7 @@
     "highcharts-vue": "^1.4.0",
     "highlight.js": "^10.4.1",
     "html2canvas": "^1.4.0",
+    "interactjs": "^1.10.27",
     "jimp": "^0.9.3",
     "jpeg-js": "^0.4.4",
     "jquery-ui-bundle": "^1.12.1-migrate",

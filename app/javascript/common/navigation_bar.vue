@@ -98,7 +98,12 @@
             @click.prevent="openUserModal"
           >
             <i class="fas fa-user-edit icons d-flex center_flex"></i>
-            <b-tooltip :title="userTooltip" :show="userTooltipShow" target="user-button" triggers="hover"></b-tooltip>
+            <b-tooltip
+              :title="userTooltip"
+              :show="userTooltipShow"
+              target="user-button"
+              triggers="hover"
+            ></b-tooltip>
           </a>
           <a
             v-if="mm_type != 'pollvote'"
@@ -192,25 +197,27 @@
             <span class=""> Poll Expires: {{ pollExpDate }} </span>
           </a>
           <a
-            v-if="
-              mm_type === 'tree_chart' ||
-              mm_type === 'flowmap'
-              "
+            v-if="mm_type === 'tree_chart' || mm_type === 'flowmap'"
             ref="changeDirection"
             role="button"
             href="javascript:;"
             v-b-tooltip.hover
-            :title="mm_type == 'flowmap' ? 'Switch to Tree Chart' : 'Switch to Flowmap'"
+            :title="
+              mm_type == 'flowmap'
+                ? 'Switch to Tree Chart'
+                : 'Switch to Flowmap'
+            "
             class="navbar_button d-flex text-info pointer edit_delete_btn mr-3 center_flex"
             @click.stop="changeDirection"
           >
-            <i 
+            <i
               class="icons d-flex center_flex"
               :class="
-                mm_type == 'flowmap' ? 'fal fa-sitemap' : 'fas fa-project-diagram'
+                mm_type == 'flowmap'
+                  ? 'fal fa-sitemap'
+                  : 'fas fa-project-diagram'
               "
             ></i>
-            
           </a>
           <a
             v-if="mm_type != 'fileshare' && mm_type != 'Notepad'"
@@ -315,47 +322,49 @@
             </a>
           </span>
           <span
-          v-if="
-            mm_type === 'simple' ||
-            mm_type === 'tree_chart' ||
-            mm_type === 'flowmap'
-          "
-          class="d-flex"
+            v-if="
+              mm_type === 'simple' ||
+              mm_type === 'tree_chart' ||
+              mm_type === 'flowmap'
+            "
+            class="d-flex"
           >
-          <a
-            v-if="$store.getters.getScaleFactor != 1"
-            href="javascript:;"
-            role="button"
-            v-b-tooltip.hover
-            title="100%"
-            class="zoom_btn text-info edit_delete_btn center_flex mr-3"
-            @click.prevent="resetZoomScale"
-          >
-            <i class="fas fa-history icons d-flex center_flex"></i>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            v-b-tooltip.hover
-            title="Zoom +"
-            class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3"
-            @click.prevent="zoomInScale"
-          >
-            <i class="material-icons zoom_in_icon icons d-flex center_flex"></i>
-          </a>
-          <a
-            href="javascript:;"
-            role="button"
-            v-b-tooltip.hover
-            title="Zoom -"
-            class="navbar_button zoom_btn text-info edit_delete_btn mr-3 center_flex"
-            @click.prevent="zoomOutScale"
-          >
-            <i
-              class="material-icons zoom_out_icon icons d-flex center_flex"
-            ></i>
-          </a>
-        </span>
+            <a
+              v-if="$store.getters.getScaleFactor != 1"
+              href="javascript:;"
+              role="button"
+              v-b-tooltip.hover
+              title="100%"
+              class="zoom_btn text-info edit_delete_btn center_flex mr-3"
+              @click.prevent="resetZoomScale"
+            >
+              <i class="fas fa-history icons d-flex center_flex"></i>
+            </a>
+            <a
+              href="javascript:;"
+              role="button"
+              v-b-tooltip.hover
+              title="Zoom +"
+              class="navbar_button zoom_btn text-info edit_delete_btn center_flex mr-3"
+              @click.prevent="zoomInScale"
+            >
+              <i
+                class="material-icons zoom_in_icon icons d-flex center_flex"
+              ></i>
+            </a>
+            <a
+              href="javascript:;"
+              role="button"
+              v-b-tooltip.hover
+              title="Zoom -"
+              class="navbar_button zoom_btn text-info edit_delete_btn mr-3 center_flex"
+              @click.prevent="zoomOutScale"
+            >
+              <i
+                class="material-icons zoom_out_icon icons d-flex center_flex"
+              ></i>
+            </a>
+          </span>
         </span>
       </span>
       <span class="col-12 d-flex justify-content-end pt-2" style="height: 2rem">
@@ -603,7 +612,7 @@ export default {
     };
   },
   created() {
-    window.addEventListener("beforeunload", this.isMsuiteEmpty);
+    // window.addEventListener("beforeunload", this.isMsuiteEmpty);
   },
   mounted() {
     if (this.delMap) this.delMap(this.deleteMap);
@@ -673,11 +682,12 @@ export default {
     duplicateMap() {
       return this.mm_type != "pollvote";
     },
-    userTooltip() { 
+    userTooltip() {
       const userName = this.$store.getters.getUser;
-      if(userName == null) return "Set user"; //first time load will be null before user_map_modal is mounted
+      if (userName == null) return "Set user"; //first time load will be null before user_map_modal is mounted
 
-      if (userName.startsWith("user") && /^\d{3}$/.test(userName.slice(-3))) { //if user is not changed off the auto generated username format
+      if (userName.startsWith("user") && /^\d{3}$/.test(userName.slice(-3))) {
+        //if user is not changed off the auto generated username format
         return "Set user";
       } else {
         return "User";
@@ -685,9 +695,10 @@ export default {
     },
     userTooltipShow() {
       const userName = this.$store.getters.getUser;
-      if(userName == null) return true; //first time load will be null before user_map_modal is mounted
+      if (userName == null) return true; //first time load will be null before user_map_modal is mounted
 
-      if (userName.startsWith("user") && /^\d{3}$/.test(userName.slice(-3))) { //if user is not changed off the auto generated username format
+      if (userName.startsWith("user") && /^\d{3}$/.test(userName.slice(-3))) {
+        //if user is not changed off the auto generated username format
         return true;
       } else {
         return false;
@@ -802,11 +813,11 @@ export default {
       data.append("authenticity_token", token);
       return data;
     },
-    isMsuiteEmpty() {
-      if (this.isMsuiteSaved && this.mm_type != "fileshare") {
-        navigator.sendBeacon("is_msuite_empty", this.setHeaders());
-      }
-    },
+    // isMsuiteEmpty() {
+    //   if (this.isMsuiteSaved && this.mm_type != "fileshare") {
+    //     navigator.sendBeacon("is_msuite_empty", this.setHeaders());
+    //   }
+    // },
     handleChangeIsMsuiteSaved() {
       this.isMsuiteSaved = false;
     },

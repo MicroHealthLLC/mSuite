@@ -14,6 +14,7 @@ class Node < ApplicationRecord
   before_create :update_line_color, if: :is_todo?
   before_update :update_line_color, if: :is_todo?
   after_create :create_notification
+  before_create :change_slide_positions, if: :is_presentation?
   after_update :parent_changed, if: Proc.new { |p| p.saved_change_to_attribute? :parent_node }
   after_update :disablity_changed, if: Proc.new { |p| p.saved_change_to_attribute? :is_disabled }
   after_update :standalone_changed, if: Proc.new { |p| p.saved_change_to_attribute? :standalone }
@@ -21,6 +22,7 @@ class Node < ApplicationRecord
   before_update :encrypt_attributes, if: :check_private?
   before_update :position_changed, if: Proc.new { |p| p.will_save_change_to_attribute?(:position) || p.will_save_change_to_attribute?(:stage_id) }
   before_destroy :position_updated, if: :validate_kanban
+  before_destroy :slides_position_updated, if: :is_presentation?
   after_destroy :update_child_nodes
   
   validates_uniqueness_of :title, scope: :mindmap_id, if: :validate_title
@@ -79,6 +81,24 @@ class Node < ApplicationRecord
     self.mindmap.mm_type == 'todo'
   end
 
+  def is_presentation?
+    self.mindmap.mm_type == 'presentation'
+  end
+
+  def change_slide_positions
+    nodes = self.mindmap.nodes
+    return true if nodes.length < 1 || nodes.find_by(position: self.position).nil?
+    nodes.each do |node|
+      if node.position >= self.position && node.id != self.id
+        node.update(position: node.position + 1)
+      end
+    end
+  end
+
+  def slides_position_updated
+    self.mindmap.nodes.where("position >= ?", position).update_all("position = position - 1")
+  end
+
   def date_range
     (self.startdate..self.duedate)
   end
@@ -119,7 +139,7 @@ class Node < ApplicationRecord
   end
 
   def validate_title
-    return self.mindmap && self.mindmap.id != nil && self.mindmap.mm_type == "tree_map" && !self.mindmap.is_private?
+    return self.mindmap && self.mindmap.id != nil && self.mindmap.mm_type == "tree_map" && self.mindmap.mm_type == "presentation" && !self.mindmap.is_private?
   end
 
   def validate_description

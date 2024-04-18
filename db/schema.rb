@@ -10,79 +10,78 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_31_204600) do
-
-  create_table "active_admin_comments", charset: "utf8", force: :cascade do |t|
+ActiveRecord::Schema[7.0].define(version: 2024_04_08_101036) do
+  create_table "active_admin_comments", charset: "utf8mb3", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
     t.string "resource_type"
     t.bigint "resource_id"
     t.string "author_type"
     t.bigint "author_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id"
     t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
     t.index ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id"
   end
 
-  create_table "active_storage_attachments", charset: "utf8", force: :cascade do |t|
+  create_table "active_storage_attachments", charset: "utf8mb3", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", charset: "utf8", force: :cascade do |t|
+  create_table "active_storage_blobs", charset: "utf8mb3", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "categories", charset: "utf8", force: :cascade do |t|
+  create_table "categories", charset: "utf8mb3", force: :cascade do |t|
     t.string "name"
     t.integer "status", default: 0
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "comments", charset: "utf8", force: :cascade do |t|
+  create_table "comments", charset: "utf8mb3", force: :cascade do |t|
     t.string "message"
     t.string "feedback"
     t.boolean "status"
     t.integer "mindmap_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "parent_comment"
     t.string "user_name"
   end
 
-  create_table "mindmap_users", charset: "utf8", force: :cascade do |t|
+  create_table "mindmap_users", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "mindmap_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "mindmaps", charset: "utf8", force: :cascade do |t|
+  create_table "mindmaps", charset: "utf8mb3", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "unique_key"
     t.text "description"
     t.bigint "user_id"
     t.integer "status", default: 0
     t.bigint "category_id"
     t.integer "share", default: 0
-    t.datetime "expires_at"
+    t.datetime "expires_at", precision: nil
     t.integer "mm_type", default: 0, null: false
     t.string "password"
     t.string "line_color", default: "#B3FAFF"
@@ -94,19 +93,19 @@ ActiveRecord::Schema.define(version: 2023_05_31_204600) do
     t.integer "parent_id"
     t.integer "failed_password_attempts"
     t.integer "total_failed_password_attempts"
-    t.datetime "lockout_period"
+    t.datetime "lockout_period", precision: nil
     t.boolean "permanent_lock", default: false
     t.index ["unique_key"], name: "index_mindmaps_on_unique_key", unique: true
   end
 
-  create_table "nodes", charset: "utf8", force: :cascade do |t|
+  create_table "nodes", charset: "utf8mb3", force: :cascade do |t|
     t.string "title"
     t.float "position_x"
     t.float "position_y"
     t.integer "parent_node"
     t.bigint "mindmap_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "is_disabled", default: false
     t.boolean "hide_children", default: false
     t.boolean "hide_self", default: false
@@ -116,23 +115,24 @@ ActiveRecord::Schema.define(version: 2023_05_31_204600) do
     t.integer "stage_id"
     t.integer "position", default: 0
     t.integer "node_width", default: 0
-    t.datetime "duedate"
-    t.datetime "startdate"
+    t.datetime "duedate", precision: nil
+    t.datetime "startdate", precision: nil
     t.string "element_type"
     t.float "element_width"
     t.float "element_height"
     t.boolean "is_sprint", default: false
     t.boolean "standalone", default: false
+    t.text "presentation_html"
     t.index ["mindmap_id"], name: "index_nodes_on_mindmap_id"
   end
 
-  create_table "settings", charset: "utf8", force: :cascade do |t|
+  create_table "settings", charset: "utf8mb3", force: :cascade do |t|
     t.text "office365_key"
     t.text "office365_secret"
     t.text "google_oauth_key"
     t.text "google_oauth_secret"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "google_recaptcha_site_key"
     t.text "host_url"
     t.boolean "beta_status"
@@ -146,24 +146,24 @@ ActiveRecord::Schema.define(version: 2023_05_31_204600) do
     t.integer "permanent_lock", default: 5, null: false
   end
 
-  create_table "stages", charset: "utf8", force: :cascade do |t|
+  create_table "stages", charset: "utf8mb3", force: :cascade do |t|
     t.string "title"
     t.integer "mindmap_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "position", default: 0
     t.string "stage_color", default: "#ebecf0"
   end
 
-  create_table "users", charset: "utf8", force: :cascade do |t|
+  create_table "users", charset: "utf8mb3", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
     t.string "first_name"
@@ -173,8 +173,8 @@ ActiveRecord::Schema.define(version: 2023_05_31_204600) do
     t.string "uid"
     t.string "login"
     t.integer "status", default: 1
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

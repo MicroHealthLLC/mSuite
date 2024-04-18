@@ -17,6 +17,29 @@
 .slide-mini {
   height: 135px;
 }
+
+.new-slide {
+  position: absolute;
+  top: 95%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999; /* Set a high z-index */
+}
+.selected-slide {
+  border: 3px solid lightskyblue;
+}
+.delete-slide {
+  z-index: 99999;
+  position: absolute;
+  left: 90%;
+  top: 0%;
+}
+.drag-video {
+  z-index: 99999;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+}
 // .style-canvas{
 //   width: 11vw;
 //   height: 13vh;

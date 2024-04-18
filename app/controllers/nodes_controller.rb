@@ -162,6 +162,7 @@ class NodesController < AuthenticatedController
       :element_height,
       :is_sprint,
       :standalone,
+      :presentation_html,
       node_files: []
     )
   end

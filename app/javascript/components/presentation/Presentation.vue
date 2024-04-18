@@ -1,313 +1,219 @@
-<!-- <template>
+<template>
   <div>
-    <div id="toolbar" class="mx-2">
-      <div class="center-margin">
-        <i
-          v-b-tooltip.hover
-          title="Add Paragraph"
-          @click="selectedElement ? updateType('p') : addText('p')"
-          class="far pointer fa-text p-2"
-        ></i>
-        <b-dropdown
-          variant="link"
-          toggle-class="text-decoration-none text-dark"
-          no-caret
+    <div id="toolbar">
+      <div class="presentation-buttons d-flex w-50 justify-content-around my-2">
+        <b-button class="d-flex align-items-center pr-4" @click="addText">
+          <i class="far pointer fa-text p-2" /> Text
+        </b-button>
+        <b-button class="d-flex align-items-center pr-4" @click="addImage()">
+          <i class="far pointer fa-image p-2" /> Image
+        </b-button>
+        <b-button class="d-flex align-items-center pr-4" @click="addVideo()">
+          <i class="far pointer fa-film p-2" /> Video
+        </b-button>
+        <b-button
+          class="d-flex align-items-center pr-4"
+          @click="openColorModal"
         >
-          <template #button-content>
-            <i
-              v-b-tooltip.hover
-              title="Heading"
-              class="fas pointer fa-heading p-2 mb-1"
-            ></i>
-          </template>
-          <div class="d-flex justify-content-center feedback-emoji">
-            <div class="px-1">
-              <b-dropdown-item
-                @click="selectedElement ? updateType('h1') : addText('h1')"
-              >
-                <i
-                  v-b-tooltip.hover
-                  title="Heading H1"
-                  class="pointer fas fa-h1 p-2"
-                ></i>
-              </b-dropdown-item>
-            </div>
-            <div class="px-1">
-              <b-dropdown-item
-                @click="selectedElement ? updateType('h2') : addText('h2')"
-              >
-                <i
-                  v-b-tooltip.hover
-                  title="Heading H2"
-                  class="fas pointer fa-h2 p-2"
-                ></i>
-              </b-dropdown-item>
-            </div>
-            <div class="px-1">
-              <b-dropdown-item
-                @click="selectedElement ? updateType('h3') : addText('h3')"
-              >
-                <i
-                  v-b-tooltip.hover
-                  title="Heading H3"
-                  class="fas pointer fa-h3 p-2"
-                ></i>
-              </b-dropdown-item>
-            </div>
-            <div class="px-1">
-              <b-dropdown-item
-                @click="selectedElement ? updateType('h4') : addText('h4')"
-              >
-                <i
-                  v-b-tooltip.hover
-                  title="Heading H4"
-                  class="fas pointer fa-h4 p-2"
-                ></i>
-              </b-dropdown-item>
-            </div>
-          </div>
-        </b-dropdown>
-        <i
-          v-b-tooltip.hover
-          title="Bulleted List"
-          @click="selectedElement ? updateType('ul') : addText('ul')"
-          class="fas fa-list-ul p-2 pointer"
-        ></i>
-        <i
-          v-b-tooltip.hover
-          title="Numbered List"
-          @click="selectedElement ? updateType('ol') : addText('ol')"
-          class="fas fa-list-ol p-2 pointer"
-        ></i>
-        <i
-          v-b-tooltip.hover
-          title="Change Color"
-          @click="colorChange()"
-          class="fas fa-eye-dropper p-2 pointer"
-        ></i>
-        <b-dropdown
-          variant="link"
-          toggle-class="text-decoration-none text-dark"
-          no-caret
-        >
-          <template #button-content>
-            <i
-              v-b-tooltip.hover
-              title="Add Shapes"
-              class="fas pointer fa-shapes"
-            ></i>
-          </template>
-          <div class="d-flex justify-content-center feedback-emoji">
-            <div class="px-1">
-              <b-dropdown-item @click="addShape('square')">
-                <i class="fas fa-square"></i>
-              </b-dropdown-item>
-            </div>
-            <div class="px-1">
-              <b-dropdown-item @click="addShape('circle')">
-                <i class="fas fa-circle"></i>
-              </b-dropdown-item>
-            </div>
-            <div class="px-1">
-              <b-dropdown-item @click="addShape('triangle')">
-                <i class="fas fa-triangle"></i>
-              </b-dropdown-item>
-            </div>
-          </div>
-        </b-dropdown>
-        <i
-          v-b-tooltip.hover
-          title="Embed Image"
-          @click="addShape('image')"
-          class="fas fa-image p-2 pointer"
-        ></i>
-        <i
-          v-b-tooltip.hover
-          title="Embed Video"
-          @click="addShape('video')"
-          class="fas fa-video p-2 pointer"
-        ></i>
+          <i class="far pointer fa-droplet p-2" /> Background
+        </b-button>
       </div>
     </div>
-    <div class="mt-2 mx-2 d-flex" id="slide-exp">
-      <div id="slide-library" class="overflow-auto">
-        <div
-          v-if="slidesLoaded"
-          v-for="(slide, index) in sortedSlides"
+    <b-row class="d-flex ml-2 w-100 mh-100">
+      <b-col cols="2" id="presentation-slides-select">
+        <b-col
+          v-for="(slide, index) in slides"
+          cols="10"
+          :id="`slide-${slide.id}`"
+          class="slide-mini mx-auto my-4 pointer"
+          @mouseover="slideHover(slide.id)"
+          @mouseleave="slideLeave"
+          @click="selectSlide(slide)"
+          :class="{ 'selected-slide': selectedSlide.id === slide.id }"
           :key="slide.id"
-          @click="selectSlide(index)"
-          class="m-2"
-          draggable="true"
-          @dragstart="dragSlide($event, index)"
-          @dragover.prevent
-          @drop="dropSlide($event, index)"
+          :style="{ 'background-color': slide?.line_color ?? 'white' }"
+        >
+          <span class="d-flex justify-content-center align-items-center h-100">
+            Slide {{ index + 1 }}
+          </span>
+          <b-button
+            v-if="slide.id === hoveredSlide"
+            variant="success"
+            class="new-slide"
+            @click="addNewSlide(slide.position + 1)"
+          >
+            <i class="far fa-plus" />
+          </b-button>
+          <b-button
+            v-if="slide.id === hoveredSlide"
+            variant="danger"
+            class="delete-slide"
+            @click="deleteSlide(slide)"
+          >
+            <i class="far fa-xmark" />
+          </b-button>
+        </b-col>
+      </b-col>
+      <!-- <b-col
+        v-if="selectedSlide.presentation_html"
+        v-html="selectedSlide.presentation_html"
+        cols="10"
+        class="presentation-slides"
+      /> -->
+      <b-col cols="10" class="presentation-slides">
+        <div
+          id="slide-picked"
+          class="m-5 border border-dark overflow-auto h-75"
+          ref="slide-picked"
+          :style="{
+            'background-color': selectedSlide?.line_color ?? 'white',
+            'max-height': '756px',
+          }"
         >
           <div
-            :id="`map-canvas-${index}`"
-            class="style-canvas position-relative mt-2"
-            :class="cSlideIndex == index ? 'border-green' : 'border-dashed'"
-            :style="'background: ' + slide.line_color"
+            v-for="component in htmlComponents"
+            :style="component?.style ?? ''"
+            :class="component?.class ?? ''"
+            :id="component?.id"
+            :data-x="component?.dataX"
+            :data-y="component?.dataY"
+            @mouseover="componentHover(component)"
+            @mouseleave="componentLeave"
           >
-            <SlideElement
-              v-for="(element, index) in slide.children"
-              :key="element.id"
-              :element="element"
-              :parent-color="slide.line_color"
-              class="position-absolute"
-              :style="`
-                  top: ${element.position_y / 100}vh;
-                  left: ${element.position_x / 100}vw;
-                  `"
+            <div class="h-100 w-100" v-html="component?.html"></div>
+            <b-button
+              v-if="component && component?.id === hoveredComponent?.id"
+              variant="danger"
+              class="delete-slide rounded-circle"
+              @click="deleteSlideComponent(component)"
             >
-            </SlideElement>
-            <div
-              v-b-tooltip.hover
-              title="Add Slide"
-              v-if="cSlideIndex == index"
-              class="position-absolute add-slide-button"
+              <i class="far fa-xmark" />
+            </b-button>
+            <b-button
+              v-if="
+                component &&
+                component?.id === hoveredComponent?.id &&
+                component.type === 'video'
+              "
+              variant="secondary"
+              class="drag-video rounded-circle"
             >
-              <i
-                @click="addDefaultSecSlide(slide)"
-                class="position-relative fas fa-plus bg-success rounded-circle text-white"
-              ></i>
-            </div>
-            <div
-              v-b-tooltip.hover
-              title="Delete Slide"
-              v-if="cSlideIndex == index"
-              class="position-absolute delete-slide-button"
-            >
-              <i
-                @click="deleteSlide(slide)"
-                :disabled="slides.length === 1"
-                class="position-relative fas fa-times bg-danger rounded-circle text-white px-1"
-              ></i>
-            </div>
-            <span class="position-absolute slide-position">
-              <strong class="position-relative pos-text">
-                {{ slide.position + 1 }}
-              </strong>
-            </span>
+              <i class="far fa-up-down-left-right" />
+            </b-button>
           </div>
         </div>
-      </div>
-      <div
-        v-if="sortedSlides[cSlideIndex]"
-        :id="`slide-editor-${sortedSlides[cSlideIndex].id}`"
-        :style="'background: ' + sortedSlides[cSlideIndex].line_color"
-        class="element-wrap my-2 mx-3 w-83 h-73"
-        @click="
-          selectedElement.element_type != 'video'
-            ? (selectedElement = null)
-            : ''
-        "
-      >
-        <div v-if="isSlideSelected()">
-          <div
-            id="parent-component"
-            v-for="(element, index) in sortedSlides[cSlideIndex].children"
-            :key="element.id"
-            :draggable="isDragabble"
-            @click.stop="selectedElement = element"
-            @dragover.prevent
-            @dragend="dragDrop($event, element)"
+      </b-col>
+    </b-row>
+    <div v-if="colorPicker">
+      <div class="card p-0 border-none color-picker-placement">
+        <div class="card-body p-0">
+          <sketch-picker @input="beforeUpdateColor" v-model="colorPicked" />
+        </div>
+        <div class="card-button d-flex">
+          <button class="btn btn-success w-50 border-none" @click="updateColor">
+            Update
+          </button>
+          <button
+            class="btn btn-info w-50 border-none"
+            @click="closePickerModal"
           >
-            <div>
-              <component
-                :id="`element-${element.id}`"
-                :is="element.title"
-                :element="element"
-                :parent-color="sortedSlides[cSlideIndex].line_color"
-                class="position-absolute"
-                :videoElement="element.element_type == 'video'"
-                :selectedElement="selectedElement"
-                :style="`
-                  top: ${element.position_y}px;
-                  left: ${element.position_x}px;`"
-                @dragStart.passive="dragStart"
-                @deleteElement="deleteElement(element)"
-                @updateElement="updateElement(element)"
-              >
-              </component>
-            </div>
-          </div>
-          <div
-            v-if="iconShow"
-            id="imageDisplay"
-            class="position-absolute icons-pos"
-          >
-            <div id="" class="mx-2">
-              <div class="center-margin">
-                <i class="far pointer fa-text p-2"></i>
-                <i class="fas pointer fa-heading p-2"></i>
-                <i class="fas fa-list-ul p-2 pointer"></i>
-                <i class="fas fa-list-ol p-2 pointer"></i>
-                <i class="fas pointer fa-shapes"></i>
-              </div>
-            </div>
-          </div>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
-    <div v-if="colorSelected">
-      <div class="card card-position p-0 border-none mt-5">
-        <color-palette
-          :selected-node="el"
-          :customPallete="customPallete"
-          :uniqueColors="uniqueColors"
-          :nodes="[]"
-          @updateColorNode="updateColorNode"
-          @saveNodeColor="saveNodeColor"
-          @closeModelPicker="closeModelPicker"
-          @updateAllColorNode="updateAllColorNode"
-          @updateTreeChartNode="updateSelectedNode"
-        ></color-palette>
-      </div>
+    <div ref="image-add-modal">
+      <sweet-modal ref="image-modal" title="Add Image" @close="closeImageModal">
+        <h4>URL</h4>
+        <b-row class="align-items-center">
+          <b-col cols="10">
+            <input type="text" class="w-100 p-1" v-model="imageUrl" />
+          </b-col>
+          <b-col cols="2">
+            <b-button @click="showPreview"> Browse </b-button>
+          </b-col>
+        </b-row>
+        <div v-if="previewImage">
+          <h4>Preview</h4>
+          <div class="w-100 border">
+            <img :src="imageUrl" ref="image-preview" class="h-100 w-100" />
+          </div>
+          <b-row class="justify-content-end mt-3">
+            <b-button @click="attachImage()"> Attach </b-button>
+          </b-row>
+        </div>
+      </sweet-modal>
+    </div>
+    <div ref="video-add-modal">
+      <sweet-modal ref="video-modal" title="Add Video" @close="closeVideoModal">
+        <h4>URL</h4>
+        <b-row class="align-items-center">
+          <b-col cols="10">
+            <input type="text" class="w-100 p-1" v-model="videoUrl" />
+          </b-col>
+          <b-col cols="2">
+            <b-button @click="showVideoPreview"> Browse </b-button>
+          </b-col>
+        </b-row>
+        <div v-if="previewVideoSrc">
+          <h4>Preview</h4>
+          <div class="w-100 border">
+            <iframe
+              ref="video-preview"
+              :src="previewVideoSrc"
+              width="100%"
+              height="100%"
+              controls
+            />
+          </div>
+          <b-row class="justify-content-end mt-3">
+            <b-button @click="attachVideo()"> Attach </b-button>
+          </b-row>
+        </div>
+      </sweet-modal>
     </div>
   </div>
 </template>
-
 <script>
-import TextElement from "./elements/TextElement.vue";
-import ShapeElement from "./elements/ShapeElement.vue";
-import SlideElement from "./elements/SlideElement.vue";
+import http from "../../common/http";
 import TemporaryUser from "../../mixins/temporary_user.js";
 import ColorPalette from "../../common/modals/color_palette_modal";
 import History from "../../mixins/history.js";
 import Common from "../../mixins/common.js";
-import http from "../../common/http";
+import interact from "interactjs";
+import { uuid } from "vue-uuid";
 
 export default {
   name: "presentation",
-  data() {
-    return {
-      slides: [],
-      cSlideIndex: 0,
-      undoNodes: [],
-      redoNodes: [],
-      mapColors: [],
-      uniqueColors: [],
-      colorSelected: false,
-      slidesLoaded: false,
-      selectedElement: null,
-      el: null,
-      isDragabble: false,
-      slideSample: {
-        label: "Slide",
-      },
-    };
-  },
-  components: {
-    TextElement,
-    SlideElement,
-    ShapeElement,
-    ColorPalette,
-  },
+  mixins: [Common, TemporaryUser, History],
   props: {
     undoMap: Function,
     redoMap: Function,
   },
-  mixins: [TemporaryUser, Common, History],
+  components: {
+    ColorPalette,
+  },
+  data() {
+    return {
+      slides: [],
+      selectedSlide: {},
+      hoveredSlide: 0,
+      hoveredComponent: null,
+      currentMindMap: this.$store.getters.getMsuite,
+      colorPicker: false,
+      colorPicked: "#FFFFFF",
+      imageUrl: "",
+      videoUrl: "",
+      previewImage: false,
+      previewVideoSrc: false,
+      selectedSlideJson: {},
+    };
+  },
+  computed: {
+    htmlComponents() {
+      return this.selectedSlideJson?.components ?? [];
+    },
+  },
   channels: {
     WebNotificationsChannel: {
       async received(data) {
@@ -339,492 +245,345 @@ export default {
           this.undoNodes = [];
           this.redoNodes = [];
           this.slides = [];
-          await this.addSlide(null).then(() => {
-            this.addDefaultSlide();
-          });
-          setTimeout(() => {
-            this.selectSlide(0);
-          }, 500);
         } else {
-          this.getMindmap();
+          await this.getMindmap();
+          this.selectedSlide = this.slides.find(
+            (slide) => slide.id === this.selectedSlide.id
+          );
+          this.selectedSlideJson = JSON.parse(
+            this.selectedSlide.presentation_html
+          );
         }
       },
-    },
-  },
-  computed: {
-    currentMindMap() {
-      return this.$store.getters.getMsuite;
-    },
-    sortedSlides() {
-      return this.slides
-        .sort((a, b) => a.position - b.position)
-        .filter((slide) => slide.parent == "Central Idea");
-    },
-    iconShow() {
-      return (
-        !this.sortedSlides[this.cSlideIndex].is_disabled &&
-        !this.sortedSlides[this.cSlideIndex].hide_children
-      );
     },
   },
   mounted: async function () {
     this.subscribeCable(this.currentMindMap.id);
     await this.getMindmap();
-    if (this.slides.length < 1) {
-      (async () => {
-        await this.addSlide(null).then(() => {
-          this.addDefaultSlide();
-        });
-      })();
+    if (!this.slides || this.slides?.length < 1) {
+      this.addNewSlide();
+    } else {
+      this.selectedSlide = this.slides[0];
+      this.selectedSlideJson = JSON.parse(this.selectedSlide.presentation_html);
     }
     this.slidesLoaded = true;
     this.undoMap(this.undoObj);
     this.redoMap(this.redoObj);
-    setTimeout(() => {
-      this.selectSlide(0);
-    }, 500);
     this.$store.dispatch("setExportId", "slide-exp");
+    this.imageDrag();
+    this.videoDrag();
   },
   methods: {
     getMindmap: async function () {
       await this.$store.dispatch("getMSuite");
-      this.currentMindMap = await this.$store.getters.getMsuite;
+      this.currentMindMap = this.$store.getters.getMsuite;
       this.slides = this.currentMindMap.nodes;
-      this.mapColors = [];
-      this.uniqueColors = [];
-      Object.values(this.sortedSlides).forEach((el) => {
-        this.mapColors.push(el.line_color);
-      });
-      this.uniqueColors = this.getUniqueColors(this.mapColors);
     },
-    async updatepresentationUser() {
-      await this.$store.dispatch("updateMSuite", {
-        canvas: this.$store.getters.getUser,
-      });
+
+    ////////      SLIDE FUNCTIONALITY          ///////
+    slideHover(id) {
+      this.hoveredSlide = id;
     },
-    async addDefaultSlide() {
-      await this.addShape("square", 1);
-      await this.addShape("square", 2);
-      setTimeout(() => {
-        this.addText("h1", 1);
-        this.addText("h4", 2);
-      }, 1500);
+    slideLeave() {
+      this.hoveredSlide = 0;
     },
-    async addDefaultSecSlide(slide) {
-      await this.addSlide(slide);
-      await this.addShape("square", 3);
-      await this.addShape("square", 4);
-      setTimeout(() => {
-        this.addText("h1", 3);
-        this.addText("ul", 4);
-      }, 1400);
+    selectSlide(slide) {
+      this.selectedSlide = slide;
+      this.selectedSlideJson =
+        JSON.parse(this.selectedSlide.presentation_html) || {};
     },
-    async addSlide(slide) {
-      let _this = this;
-      let slidePosition = slide != undefined ? slide.position + 1 : 0;
+
+    addNewSlide(position = 0) {
       let data = {
         node: {
-          description: this.slideSample.label,
-          line_color: "#ffffff",
           mindmap_id: this.currentMindMap.id,
-          position: slidePosition,
+          position,
         },
       };
-      data.node.is_disabled = slide == undefined ? true : false;
-      await http.post("/nodes.json", data).then(async (res) => {
-        let receivedData = res.data.node;
-        this.undoNodes.push({ req: "addNode", node: receivedData });
-        await this.getMindmap();
-        this.cSlideIndex = slidePosition;
-      });
-      setTimeout(() => {
-        this.selectSlide(this.cSlideIndex);
-      }, 500);
-      if (this.sortedSlides.length > 1) this.updatepresentationUser();
-    },
-
-    async updateSlidePosition(id, status, position) {
       let _this = this;
-      let slide = this.sortedSlides.find((sld) => blk.id === Number(id));
-      block.position = position;
-      const response = await this.updateSlideRequest(slide);
-      if (response) {
-        this.sendLocals(true);
-      } else alert("slide position didn't updated");
-      this.updatepresentationUser();
+      http
+        .post("/nodes.json", data)
+        .then(async (res) => {
+          await _this.getMindmap();
+          _this.selectedSlide = res.data.node;
+          _this.selectedSlideJson = {};
+        })
+        .catch((err) => {});
     },
-
-    updateSlideRequest(obj) {
+    deleteSlide(slide) {
+      if (this.slides.length === 1) {
+        return;
+      }
       let data = {
         node: {
-          id: obj.id,
-          description: obj.description,
-          position: obj.position,
-          line_color: obj.line_color,
-        },
-      };
-      this.updatepresentationUser();
-      this.colorSelected = false;
-      return http.patch(`/nodes/${obj.id}.json`, data);
-      this.updatepresentationUser();
-    },
-
-    async deleteSlide(slide) {
-      await http.delete(`/nodes/${slide.id}.json`).then((res) => {
-        let receivedNodes = res.data.node;
-        if (receivedNodes && receivedNodes.length > 0) {
-          this.undoNodes.push({ req: "deleteNode", node: receivedNodes });
-        }
-        let myNode = {
           id: slide.id,
-          title: slide.title,
-          line_color: slide.line_color,
-          mindmap_id: slide.mindmap_id,
-          parent_node: slide.parent_node,
-          position: slide.position,
-          position_x: slide.position_x,
-          position_y: slide.position_y,
-          description: slide.description,
-          element_type: slide.element_type,
-          element_width: slide.element_width,
-          element_height: slide.element_height,
-        };
-        this.undoNodes.push({ req: "deleteNode", node: myNode });
-      });
-      this.sendLocals(false);
-      this.getMindmap();
-      setTimeout(() => {
-        this.selectSlide(this.cSlideIndex - 1);
-      }, 300);
-      this.updatepresentationUser();
-    },
-    dragSlide(event, index) {
-      this.cSlideIndex = index;
-    },
-    dropSlide(event, index) {
-      const slide = this.sortedSlides[this.cSlideIndex];
-      this.sortedSlides.splice(this.cSlideIndex, 1);
-      this.sortedSlides.splice(index, 0, slide);
-      this.cSlideIndex = index;
-      slide.position = this.sortedSlides.indexOf(slide);
-      this.updateSlideRequest(slide);
-      this.selectSlide(this.cSlideIndex);
-    },
-    async addText(tag, pos) {
-      let data = {
-        node: {
-          description: "Tap and Type",
-          title: "TextElement",
-          mindmap_id: this.currentMindMap.id,
-          parent_node: this.sortedSlides[this.cSlideIndex].id,
-          element_type: tag,
-          line_color: "#000000",
-          element_width: 350,
         },
       };
-      if (pos == 1) {
-        data.node.description = "Click to add title";
-        data.node.position_x = $(".element-wrap")[0].offsetWidth / 1.77;
-        data.node.position_y = $(".element-wrap")[0].offsetHeight / 1.3;
-      } else if (pos == 2) {
-        data.node.description = "Click to add subtitle";
-        data.node.position_x = $(".element-wrap")[0].offsetWidth / 1.69;
-        data.node.position_y =
-          $(".element-wrap")[0].offsetHeight -
-          $(".element-wrap")[0].offsetHeight / 8.1;
-      } else if (pos == 3) {
-        data.node.description = "Click to add title";
-        data.node.position_y = $(".element-wrap")[0].offsetHeight / 2.67;
-        data.node.position_x = $(".element-wrap")[0].offsetWidth / 5;
-      } else if (pos == 4) {
-        data.node.description = "Click to add text";
-        data.node.position_y = $(".element-wrap")[0].offsetHeight / 1.7;
-      }
-      let res = await http.post("/nodes.json", data);
-      await this.getMindmap();
-      this.cSlideIndex = this.sortedSlides.indexOf(
-        this.sortedSlides[this.cSlideIndex]
-      );
-      if (res) {
-        pos == 1 || pos == 2
-          ? (document.getElementById(
-              `element-${res.data.node.id}`
-            ).style.justifyContent = "center")
-          : "";
-        let receivedData = res.data.node;
-        this.undoNodes.push({ req: "addNode", node: receivedData });
-      }
-      if (pos != 1 && pos != 2) this.updatepresentationUser();
-    },
-    updateType(tag) {
-      let data = {
-        node: {
-          element_type: tag,
-        },
-      };
-      this.updatePowerpointUser();
-      this.colorSelected = false;
-      return http.patch(`/nodes/${this.selectedElement.id}.json`, data);
-      this.updatePowerpointUser();
-    },
-    addShape(type, pos) {
-      let url = null;
-      if (type == "image" || type == "video") {
-        url = prompt("Please Enter Url");
-        if (!url) return;
-      }
-      let data = {
-        node: {
-          description: url,
-          title: "ShapeElement",
-          mindmap_id: this.currentMindMap.id,
-          parent_node: this.sortedSlides[this.cSlideIndex].id,
-          element_type: type,
-          line_color: "#000000",
-          element_width: 100,
-          element_height: 100,
-          position_x: 210,
-          position_y: 160,
-        },
-      };
-      if (url) {
-        data.node.element_width = 350;
-        data.node.element_height = 200;
-      }
-      if (pos) {
-        data.node.element_width = $(".element-wrap")[0].offsetWidth - 5;
-        data.node.hide_self = true;
-      }
-      if (pos == 1) {
-        data.node.element_height = $(".element-wrap")[0].offsetHeight / 2 + 25;
-      } else if (pos == 2) {
-        data.node.element_height = $(".element-wrap")[0].offsetHeight / 2 - 31;
-        data.node.position_y =
-          $(".element-wrap")[0].offsetHeight -
-          $(".element-wrap")[0].offsetHeight / 8;
-      } else if (pos == 3) {
-        data.node.element_height = $(".element-wrap")[0].offsetHeight / 5;
-      } else if (pos == 4) {
-        data.node.element_height = $(".element-wrap")[0].offsetHeight / 1.3;
-        data.node.position_y =
-          $(".element-wrap")[0].offsetHeight -
-          $(".element-wrap")[0].offsetHeight / 2.15;
-      }
-      http.post("/nodes.json", data).then((res) => {
-        let receivedData = res.data.node;
-        this.undoNodes.push({ req: "addNode", node: receivedData });
-      });
-      this.getMindmap();
-      this.cSlideIndex = this.sortedSlides.indexOf(
-        this.sortedSlides[this.cSlideIndex]
-      );
-      if (pos != 1 && pos != 2) this.updatepresentationUser();
-    },
-    selectSlide(index) {
-      this.cSlideIndex = index;
-      this.selectedElement = null;
-      this.colorSelected = false;
-    },
-    isSlideSelected() {
-      return (
-        this.sortedSlides.length > 0 &&
-        this.sortedSlides[this.cSlideIndex] &&
-        this.sortedSlides[this.cSlideIndex].children &&
-        this.sortedSlides[this.cSlideIndex].children.length > 0
-      );
-    },
-    colorChange() {
-      this.colorSelected = true;
-      if (this.selectedElement != null)
-        this.el = JSON.parse(JSON.stringify(this.selectedElement));
-      else
-        this.el = JSON.parse(
-          JSON.stringify(this.sortedSlides[this.cSlideIndex])
-        );
-    },
-    updateColorNode(color) {
-      this.changeColor(color.hex8);
-    },
-    saveNodeColor() {
-      this.el.line_color = this.el.line_color.hex8;
-      this.updateSlideRequest(this.el);
-      this.updatepresentationUser();
-    },
-    updateAllColorNode() {
-      if (this.el.line_color.hex8 == null) {
-        alert("Please select color before updating");
-        return;
-      }
-      http.post(`/nodes/${this.el.id}/update_all_colors`, {
-        line_color: this.el.line_color.hex8,
-      });
-      this.colorSelected = false;
-      this.updatepresentationUser();
-    },
-    changeColor(color) {
-      let bgColor =
-        this.selectedElement && this.selectedElement.hide_self
-          ? this.selectedElement.parent_nod.line_color
-          : color;
-      let ele_id =
-        this.selectedElement != null
-          ? `element-${this.selectedElement.id}`
-          : `slide-editor-${this.sortedSlides[this.cSlideIndex].id}`;
-      if (this.selectedElement) {
-        if (this.selectedElement.element_height) {
-          if (this.selectedElement.element_type == "triangle") {
-            document.getElementById(
-              ele_id
-            ).children[0].children[0].children[0].style.borderBottomColor =
-              color;
-          } else {
-            document.getElementById(
-              ele_id
-            ).children[0].children[0].style.backgroundColor = bgColor;
-            document.getElementById(
-              ele_id
-            ).children[0].children[0].style.borderColor = color;
+      let _this = this;
+      http
+        .delete(`/nodes/${slide.id}`, data)
+        .then(async (res) => {
+          if (_this.selectedSlide.id === slide.id) {
+            _this.selectedSlide = {};
+            _this.selectedSlideJson = {};
           }
-        } else document.getElementById(ele_id).children[0].style.color = color;
-      } else document.getElementById(ele_id).style.backgroundColor = color;
+        })
+        .catch();
     },
-    closeModelPicker() {
-      let oldColor =
-        this.selectedElement != null
-          ? this.selectedElement.line_color
-          : this.sortedSlides[this.cSlideIndex].line_color;
-      this.changeColor(oldColor);
-      this.colorSelected = false;
+    openColorModal() {
+      this.colorPicker = true;
     },
-    dragStart(event, element) {
-      this.isDragabble = event.target.classList.contains("fas") ? true : false;
-      this.selectedElement = element;
+    closePickerModal() {
+      this.colorPicker = false;
     },
-    getPosition(event) {
-      const rect = event.target.getBoundingClientRect();
-      let position_x = event.clientX - this.selectedElement.element_width / 2;
-      let position_y = event.clientY - rect.top + 170;
-
-      if (
-        position_x < rect.x ||
-        position_y < rect.y ||
-        this.selectedElement.element_width + position_x > rect.right ||
-        this.selectedElement.element_height + position_y >
-          $(".element-wrap")[0].offsetHeight + rect.bottom
-      ) {
-        alert("element must be inside slide");
-        return;
-      }
-      return {
-        position_x: position_x,
-        position_y: position_y,
+    beforeUpdateColor() {
+      const element =
+        this.$refs["slide-picked"] || document.getElementById("slide-picked");
+      element.style["backgroundColor"] = this.colorPicked.hex;
+      document.getElementById(`slide-${this.selectedSlide.id}`).style[
+        "backgroundColor"
+      ] = this.colorPicked.hex;
+    },
+    updateColor() {
+      const element =
+        this.$refs["slide-picked"] || document.getElementById("slide-picked");
+      this.selectedSlide.line_color = element.style["backgroundColor"];
+      let data = {
+        node: {
+          id: this.selectedSlide.id,
+          line_color: this.selectedSlide.line_color,
+        },
       };
+
+      let _this = this;
+      http
+        .patch(`/nodes/${_this.selectedSlide.id}`, data)
+        .then((res) => {})
+        .catch()
+        .finally(() => {
+          _this.closePickerModal();
+        });
     },
-    dragDrop(event) {
-      let positions = this.getPosition(event);
-      if (positions) {
-        this.selectedElement.position_x = positions.position_x;
-        this.selectedElement.position_y = positions.position_y;
-        this.updateElement(this.selectedElement);
-      }
-      this.isDragabble = false;
+
+    ///////////////     SLIDE COMPONENT FUNCTIONALITY     /////////////////////
+
+    updateSlideImageData() {
+      let data = {
+        node: {
+          id: this.selectedSlide.id,
+          presentation_html: JSON.stringify(this.selectedSlideJson),
+        },
+      };
+
+      let _this = this;
+      http
+        .patch(`/nodes/${_this.selectedSlide.id}`, data)
+        .then((res) => {})
+        .catch();
     },
-    updateElement(element) {
-      http.put(`/nodes/${element.id}.json`, element).then(() => {
-        this.getMindmap();
+    addImage() {
+      this.$refs["image-modal"].open();
+    },
+    showPreview() {
+      this.previewImage = true;
+    },
+    closeImageModal() {
+      this.imageUrl = "";
+      this.previewImage = false;
+    },
+    attachImage() {
+      let components = this.selectedSlideJson?.components || [];
+      components.push({
+        id: uuid.v1(),
+        type: "image",
+        style: "height: 25%; width: 25%; position: absolute;",
+        class: "draggable-image border",
+        dataX: 0,
+        dataY: 0,
+        html: this.$refs["image-preview"].outerHTML,
       });
-      this.updatepresentationUser();
+      this.selectedSlideJson = { ...this.selectedSlideJson, components };
+      this.slides[
+        this.slides.findIndex((slide) => slide.id === this.selectedSlide.id)
+      ] = this.selectedSlide;
+      this.updateSlideImageData();
+      this.$refs["image-modal"].close();
     },
-    deleteElement(element) {
-      http.delete(`/nodes/${element.id}.json`).then((res) => {
-        let receivedNodes = res.data.node;
-        if (receivedNodes && receivedNodes.length > 0) {
-          this.undoNodes.push({ req: "deleteNode", node: receivedNodes });
+    addVideo() {
+      this.$refs["video-modal"].open();
+    },
+    closeVideoModal() {
+      this.videoUrl = "";
+      this.previewImage = false;
+      this.previewVideoSrc = "";
+    },
+    showVideoPreview() {
+      // Check if the video URL is from YouTube
+      const youtubeMatch = this.videoUrl.match(
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=)?([^&\s]+)/
+      );
+
+      if (youtubeMatch) {
+        const videoId = youtubeMatch[1];
+        this.previewVideoSrc = `https://www.youtube.com/embed/${videoId}`;
+      } else if (this.videoUrl.endsWith(".webm")) {
+        this.previewVideoSrc = this.videoUrl;
+      } else {
+        console.error("Unsupported video URL or format");
+      }
+    },
+    attachVideo() {
+      // const element =
+      //   this.$refs["slide-picked"] || document.getElementById("slide-picked");
+      // element.insertAdjacentHTML(
+      //   "afterbegin",
+      //   `<div class="draggable-image border" style="height: 25%; width: 25%;">${this.$refs["video-preview"].outerHTML}<div>`
+      // );
+
+      let components = this.selectedSlideJson?.components || [];
+      components.push({
+        id: uuid.v1(),
+        type: "video",
+        style: "height: 25%; width: 25%; position: absolute;",
+        class: "draggable-image border",
+        dataX: 0,
+        dataY: 0,
+        html: this.$refs["video-preview"].outerHTML,
+      });
+
+      this.selectedSlideJson = { ...this.selectedSlideJson, components };
+      this.slides[
+        this.slides.findIndex((slide) => slide.id === this.selectedSlide.id)
+      ] = this.selectedSlide;
+      this.updateSlideImageData();
+      this.$refs["video-modal"].close();
+    },
+    dragMoveListener(event) {
+      var target = event.target,
+        // keep the dragged position in the data-x/data-y attributes
+        x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx,
+        y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+
+      // translate the element
+      target.style.webkitTransform = target.style.transform =
+        "translate(" + x + "px, " + y + "px)";
+
+      // update the posiion attributes
+      target.setAttribute("data-x", x);
+      target.setAttribute("data-y", y);
+    },
+    dragVideoMoveListener(event) {
+      var target = event.target.parentElement,
+        // keep the dragged position in the data-x/data-y attributes
+        x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx,
+        y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+
+      // translate the element
+      target.style.webkitTransform = target.style.transform =
+        "translate(" + x + "px, " + y + "px)";
+
+      // update the posiion attributes
+      target.setAttribute("data-x", x);
+      target.setAttribute("data-y", y);
+    },
+    imageMovementUpdate(eventTarget) {
+      const target = eventTarget;
+      this.selectedSlideJson.components = this.selectedSlideJson.components.map(
+        (cmp) => {
+          if (cmp.id === target.id) {
+            return {
+              ...cmp,
+              dataX: target.getAttribute("data-x"),
+              dataY: target.getAttribute("data-y"),
+              style: target.style.cssText,
+            };
+          } else {
+            return cmp;
+          }
         }
-        let myNode = {
-          id: element.id,
-          title: element.title,
-          line_color: element.line_color,
-          mindmap_id: element.mindmap_id,
-          parent_node: element.parent_node,
-          position: element.position,
-          position_x: element.position_x,
-          position_y: element.position_y,
-          description: element.description,
-          element_type: element.element_type,
-          element_width: element.element_width,
-          element_height: element.element_height,
-        };
-        this.undoNodes.push({ req: "deleteNode", node: myNode });
+      );
+
+      this.slides[
+        this.slides.findIndex((slide) => slide.id === this.selectedSlide.id)
+      ] = this.selectedSlide;
+      this.updateSlideImageData();
+    },
+    componentHover(component) {
+      this.hoveredComponent = component;
+    },
+    componentLeave() {
+      this.hoveredComponent = null;
+    },
+    deleteSlideComponent(component) {
+      this.selectedSlideJson.components =
+        this.selectedSlideJson.components.filter(
+          (cmp) => cmp.id !== component.id
+        );
+      this.updateSlideImageData();
+    },
+    imageDrag() {
+      let _this = this;
+      interact(".draggable-image")
+        .draggable({
+          onmove: this.dragMoveListener,
+          onend: (event) => {
+            _this.imageMovementUpdate(event.target);
+          },
+        })
+        .resizable({
+          preserveAspectRatio: false,
+          edges: { left: true, right: true, bottom: true, top: true },
+          onend: (event) => {
+            _this.imageMovementUpdate(event.target);
+          },
+        })
+        .on("resizemove", function (event) {
+          var target = event.target,
+            x = parseFloat(target.getAttribute("data-x")) || 0,
+            y = parseFloat(target.getAttribute("data-y")) || 0;
+
+          // update the element's style
+          target.style.width = event.rect.width + "px";
+          target.style.height = event.rect.height + "px";
+
+          // translate when resizing from top or left edges
+          x += event.deltaRect.left;
+          y += event.deltaRect.top;
+
+          target.style.webkitTransform = target.style.transform =
+            "translate(" + x + "px," + y + "px)";
+
+          target.setAttribute("data-x", x);
+          target.setAttribute("data-y", y);
+        });
+    },
+    videoDrag() {
+      let _this = this;
+      interact(".drag-video").draggable({
+        onmove: this.dragVideoMoveListener,
+        onend: (event) => {
+          _this.imageMovementUpdate(event.target.parentElement);
+        },
       });
-      this.sendLocals(false);
-      this.updatepresentationUser();
     },
-    async undoObj() {
-      let undoObj = await this.undoNode(this.undoNodes);
-      if (undoObj) {
-        this.undoNodes.pop();
-        this.redoNodes.push({ req: undoObj.req, node: undoObj.node });
-      }
-    },
-    async redoObj() {
-      let redoObj = await this.redoNode(this.redoNodes);
-      if (redoObj) {
-        this.redoNodes.pop();
-        this.undoNodes.push({ req: redoObj.req, node: redoObj.node });
-      }
-    },
-  },
-};
-</script>
+    addText() {
+      let components = this.selectedSlideJson?.components || [];
+      components.push({
+        id: uuid.v1(),
+        type: "text",
+        style: "height: 25%; width: 25%; position: absolute;",
+        class: "draggable-image border",
+        dataX: 0,
+        dataY: 0,
+        html: '<div id="text-editor"> <span> Add New Text </span> </div>',
+      });
 
-<style lang="scss" scoped>
-@import "./style/styles.scss";
-</style> -->
-
-<template>
-  <div>
-    <div id="toolbar">
-      <div class="presentation-buttons d-flex w-50 justify-content-around my-2">
-        <b-button class="d-flex align-items-center pr-4">
-          <i class="far pointer fa-text p-2" /> Text
-        </b-button>
-        <b-button class="d-flex align-items-center pr-4">
-          <i class="far pointer fa-image p-2" /> Image
-        </b-button>
-        <b-button class="d-flex align-items-center pr-4">
-          <i class="far pointer fa-film p-2" /> Video
-        </b-button>
-        <b-button class="d-flex align-items-center pr-4">
-          <i class="far pointer fa-droplet p-2" /> Background
-        </b-button>
-      </div>
-    </div>
-    <b-row class="d-flex ml-2 w-100 mh-100">
-      <b-col cols="2" id="presentation-slides-select">
-        <b-col
-          v-for="slide in slides"
-          cols="10"
-          class="bg-white slide-mini mx-auto my-4"
-          :key="slide.id"
-        >
-        </b-col>
-      </b-col>
-      <b-col cols="10" class="presentation-slides"></b-col>
-    </b-row>
-  </div>
-</template>
-<script>
-export default {
-  name: "presentation",
-  data() {
-    return {
-      slides: [
-        { id: 1, data: "Great Value" },
-        { id: 2, data: "Nice" },
-      ],
-      selectedSlide: {},
-    };
+      this.selectedSlideJson = { ...this.selectedSlideJson, components };
+      this.slides[
+        this.slides.findIndex((slide) => slide.id === this.selectedSlide.id)
+      ] = this.selectedSlide;
+      this.updateSlideImageData();
+    },
   },
 };
 </script>
