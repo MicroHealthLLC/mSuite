@@ -11,6 +11,7 @@
   import 'katex/dist/katex.min.css'
   import TemporaryUser from "../../mixins/temporary_user.js"
   import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
+  import QuillCursors from 'quill-cursors'
 
   export default {
     data() {
@@ -23,6 +24,8 @@
         qeditor        : null,
         temporaryUser  : '',
         lastDelta      : null,
+        userCursors    : [],
+        cursorModule   : null,
       }
     },
     props:['exportDoc', 'undoMap', 'redoMap'],
@@ -61,6 +64,11 @@
               let element = $('.ql-editor')[0]
               let notepadHeight = element.scrollTop
               if(this.temporaryUser !=this.$store.getters.getUser){
+                if(JSON.parse(JSON.parse(data.mindmap.canvas).cursorOnly)){
+                  this.cursorAdjustment(JSON.parse(data.mindmap.canvas))
+                } else {
+                  
+
                   let cursor = this.qeditor.getSelection()
                   let curContent = this.qeditor.getContents()
                   let testChange = new Delta(this.content)
@@ -94,6 +102,8 @@
                   element.scrollTop = notepadHeight
 
                   if(cursor) this.qeditor.setSelection(cursor)
+                  this.cursorAdjustment(JSON.parse(data.mindmap.canvas))
+                }
               }
             }
           }
@@ -101,6 +111,66 @@
       }
     },
     methods: {
+      cursorAdjustment(websocketData){
+        let cursor = JSON.parse(JSON.stringify(websocketData.cursor))
+        let user = websocketData.user
+        if(this.userCursors[user]){
+          if(cursor){
+            this.cursorModule.moveCursor(this.userCursors[user], cursor)
+            console.log("cursor moved")
+            console.log(this.userCursors[user])
+            console.log(cursor)
+          } else {
+            this.cursorModule.removeCursor(this.userCursors[user])
+            delete this.userCursors[user]
+          }
+          
+        } else {
+          //use a hash of the user name as the color
+          let color = '#' + (user.split('').reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)&16777215).toString(16)
+          let parts = {
+            r: parseInt(color.slice(1,3), 16),
+            g: parseInt(color.slice(3,5), 16),
+            b: parseInt(color.slice(5,7), 16)
+          }
+          //raise the highest number to 255 and the other two proportionally
+          let max = Math.max(parts.r, parts.g, parts.b);
+          let factor = 255.0 / max
+          console.log(factor)
+          console.log(max)
+          parts.r = Math.round(parts.r * factor);
+          parts.g = Math.round(parts.g * factor);
+          parts.b = Math.round(parts.b * factor);
+          color = "#" + (parts.r << 16 | parts.g << 8 | parts.b).toString(16).padStart(6, "0")
+          console.log(color)
+          this.userCursors[user] = this.cursorModule.createCursor(user, user, color)
+          this.cursorModule.moveCursor(this.userCursors[user], cursor)
+          console.log("cursor created")
+          console.log(this.userCursors[user])
+          console.log(color)
+          console.log(cursor)
+          
+        }
+      },
+      uploadCursor(cursor){
+        let user = this.$store.getters.getUser
+        let mycanvas = {
+          notepad : JSON.stringify(this.qeditor.getContents()),
+          user    : user,
+          cursor  : JSON.stringify(cursor),
+          cursorOnly : true
+        }
+        let mindmap = { mindmap: { canvas: JSON.stringify(mycanvas)}}
+        let id = this.currentMindMap.unique_key
+        http.patch(`/msuite/${id}.json`,mindmap)
+        console.log("cursor uploaded")
+      },
+      cursorEvents(){
+        let _this = this
+        this.qeditor.on('selection-change', function(range, oldRange, source) {
+          if(source == 'user') _this.uploadCursor(range)
+        })
+      },
       insertToString(delta) {
         let outString = delta.slice(0).ops.map(function(op) {
           if (typeof op.insert !== 'string') return ''
@@ -295,7 +365,9 @@
         let _this = this
         let mycanvas = {
           notepad : JSON.stringify(this.qeditor.getContents()),
-          user    : _this.$store.getters.getUser
+          user    : _this.$store.getters.getUser,
+          cursor  : _this.qeditor.getSelection(),
+          cursorOnly : false
         }
         let mindmap = { mindmap: { canvas: JSON.stringify(mycanvas)}}
         let id = this.currentMindMap.unique_key
@@ -304,6 +376,8 @@
         //console.log("lastDelta reset")
       },
       createEditor(){
+        Quill.register('modules/cursors', QuillCursors);
+        
         this.qeditor = new Quill('#notepad', {
           modules:{
             toolbar: [
@@ -322,7 +396,11 @@
               delay: 1000,
               maxStack: 500,
               userOnly: true
-            }
+            },
+            cursors: {
+              transformOnTextChange: true,
+              selectionChangeSource: null,
+            },
           },
           theme: 'snow'
         });
@@ -340,6 +418,7 @@
         setTimeout(()=>{
           this.strongTagStyleBold()
         },100)
+        this.cursorModule = this.qeditor.getModule('cursors')
       },
       editorEvents() {
         let _this = this
@@ -492,6 +571,7 @@
       this.exportDoc(this.exportToDocument)
       this.undoMap(this.undoNotepad)
       this.redoMap(this.redoNotepad)
+      this.cursorEvents()
     },
     updated() {
       this.strongTagStyleBold()
