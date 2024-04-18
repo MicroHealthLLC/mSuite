@@ -60,7 +60,8 @@
       <draggable class="list-group" group="child" :disabled="dragLocked" :list="sortedChildTodos" :move="checkMove"
         @change="(e) => handleEndChild(e, sortedChildTodos, node)" @start="drag = true"
         @end="(e) => onDragEnd(e, sortedChildTodos, node)" v-bind="dragOptions">
-        <transition-group type="transition" :name="!drag ? 'list' : null">
+        <transition-group type="transition" :name="!drag ? 'list' : null"
+          v-if="sortedChildTodos && sortedChildTodos.length > 0">
           <b-list-group-item class="pl-5 mb-0" v-for="child in sortedChildTodos" :node="child" :key="child.id">
             <div class="flex" v-if="selectedTodo.id != child.id">
               <div class="col-6 d-flex flex-row">
