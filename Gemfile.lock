@@ -203,7 +203,7 @@ GEM
     marcel (1.0.4)
     method_source (1.0.0)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.5)
+    mini_portile2 (2.8.6)
     minitest (5.17.0)
     mock_redis (0.29.0)
       ruby2_keywords
@@ -222,7 +222,7 @@ GEM
     net-smtp (0.4.0.1)
       net-protocol
     nio4r (2.5.9)
-    nokogiri (1.16.2)
+    nokogiri (1.16.5)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     oauth2 (1.4.7)
@@ -410,7 +410,7 @@ DEPENDENCIES
   listen (~> 3.5)
   mock_redis
   mysql2
-  nokogiri (= 1.16.2)
+  nokogiri (= 1.16.5)
   omniauth-google-oauth2
   omniauth-office365!
   omniauth-rails_csrf_protection (~> 0.1)
