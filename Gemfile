@@ -79,4 +79,4 @@ gem "hiredis"
 gem 'redis', '~> 4.3.1'
 gem 'redis-namespace'
 gem 'rack', '2.2.8.1'
-gem 'nokogiri', '1.16.2'
+gem 'nokogiri', '1.16.5'
