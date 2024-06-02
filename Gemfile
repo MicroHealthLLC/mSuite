@@ -57,7 +57,7 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'dotenv-rails'
 gem 'devise', '4.8.1' #, '~> 4.7.1'
-gem 'activeadmin', '3.2.0'
+gem 'activeadmin', '3.2.2'
 gem 'activeadmin_addons'
 gem 'cancancan'
 gem 'omniauth-office365', github: 'jcarbo/omniauth-office365'
